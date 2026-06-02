@@ -1,4 +1,5 @@
 # C++
+**/cmake-build-*/
 
 # IDE
-*/.idea/
+**/.idea/
