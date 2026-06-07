@@ -21,8 +21,19 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 endif ()
 
+# 开启测试
+enable_testing()
+
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        v1.17.0
+)
+FetchContent_MakeAvailable(googletest)
 
 # 子目录
 add_subdirectory(common)
 add_subdirectory(IC10)
 add_subdirectory(StationScript)
+add_subdirectory(tests)

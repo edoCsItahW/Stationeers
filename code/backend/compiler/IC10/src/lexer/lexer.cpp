@@ -30,7 +30,7 @@ namespace stationeers::ic10 {
 
         while (inScope()) tokens.emplace_back(std::make_shared<Token>(next()));
 
-        if (!tokens.empty() && tokens.back()->type != TokenType::END) {
+        if (tokens.empty() || tokens.back()->type != TokenType::END) {
             Console::warning(Loc::msg<MsgId::IWL1>());
 
             tokens.emplace_back(std::make_shared<Token>(TokenType::END, pos_));
