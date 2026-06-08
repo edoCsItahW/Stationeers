@@ -41,12 +41,22 @@ jobs:
                 run: choco install ninja -y
 
             # 步骤5：Linux 环境专属 - 确保 GCC 版本及依赖
-            -   name: Install GCC and dependencies | 安装 GCC 及依赖
+            -   name: Install Clang | 安装 Clang
                 if: matrix.os == 'ubuntu-latest'
                 run: |
                     sudo apt-get update
-                    sudo apt-get install -u g++-15
-                    g++ --version  # 输出 GCC 版本，用于日志验证
+                    sudo apt-get install -y wget gnupg lsb-release
+                    wget -O /tmp/llvm.sh https://apt.llvm.org/llvm.sh
+                    chmod +x /tmp/llvm.sh
+                    sudo /tmp/llvm.sh 22
+                    sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-22 100
+                    sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-22 100
+
+            -   name: Set Clang as default compiler | 设置 Clang 为默认编译器
+                if: matrix.os == 'ubuntu-latest'
+                run: |
+                    echo "CC=clang" >> $GITHUB_ENV
+                    echo "CXX=clang++" >> $GITHUB_ENV
 
             # 步骤6：CMake 配置（Release 模式，生成构建文件）
             -   name: Configure CMake (Linux) | 配置CMake（Linux）
@@ -55,7 +65,9 @@ jobs:
                     cmake -B build -S code/backend/compiler \
                       -DCMAKE_BUILD_TYPE=Release \
                       -DCMAKE_CXX_STANDARD=23 \
-                      -DCMAKE_CXX_STANDARD_REQUIRED=ON
+                      -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+                      -DCMAKE_C_COMPILER=clang \
+                      -DCMAKE_CXX_COMPILER=clang++
 
             -   name: Configure CMake (Windows) | 配置CMake（Windows）
                 if: matrix.os == 'windows-latest'
