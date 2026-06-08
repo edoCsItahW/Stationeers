@@ -1,0 +1,94 @@
+name: '构建 CMake 项目'
+description: '配置和构建 CMake 项目'
+inputs:
+    build-type:
+        description: '构建类型'
+        required: false
+        default: 'Release'
+    generator:
+        description: 'CMake 生成器'
+        required: false
+        default: ''
+    options:
+        description: '额外的 CMake 选项'
+        required: false
+        default: ''
+    target:
+        description: '构建目标'
+        required: false
+        default: ''
+    parallel:
+        description: '并行构建数量'
+        required: false
+        default: '0'
+
+runs:
+    using: 'composite'
+    steps:
+        -   name: 创建构建目录
+            shell: bash
+            run: |
+                mkdir -p build
+                echo "构建目录: $(pwd)/build"
+
+        -   name: 配置 CMake
+            id: configure
+            shell: bash
+            run: |
+                cd build
+                
+                # 构建配置参数
+                CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${{ inputs.build-type }}"
+                CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=20"
+                CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
+                CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_EXTENSIONS=OFF"
+                
+                # 设置生成器
+                if [[ "${{ inputs.generator }}" != "" ]]; then
+                  CMAKE_ARGS="$CMAKE_ARGS -G '${{ inputs.generator }}'"
+                fi
+                
+                # 添加额外选项
+                if [[ "${{ inputs.options }}" != "" ]]; then
+                  CMAKE_ARGS="$CMAKE_ARGS ${{ inputs.options }}"
+                fi
+                
+                echo "CMake 参数: $CMAKE_ARGS"
+                echo "运行: cmake .. $CMAKE_ARGS"
+                
+                cmake .. $CMAKE_ARGS
+                
+                # 输出构建配置
+                cmake -L -N .. | grep -E "^(BUILD_|ENABLE_|WITH_|CMAKE_)" || true
+
+        -   name: 构建项目
+            shell: bash
+            run: |
+                cd build
+                
+                # 设置并行构建
+                PARALLEL_FLAG=""
+                if [[ "${{ inputs.parallel }}" != "0" ]]; then
+                  PARALLEL_FLAG="--parallel ${{ inputs.parallel }}"
+                fi
+                
+                # 构建特定目标或所有目标
+                if [[ "${{ inputs.target }}" != "" ]]; then
+                  echo "构建目标: ${{ inputs.target }}"
+                  cmake --build . --config ${{ inputs.build-type }} $PARALLEL_FLAG --target ${{ inputs.target }}
+                else
+                  echo "构建所有目标"
+                  cmake --build . --config ${{ inputs.build-type }} $PARALLEL_FLAG
+                fi
+                
+                # 显示构建产物
+                echo "=== 构建产物 ==="
+                find . -name "*.exe" -o -name "*.dll" -o -name "*.so" -o -name "*.dylib" | head -20 || true
+
+        -   name: 安装目标（如果存在）
+            if: ${{ inputs.target == 'install' }}
+            shell: bash
+            run: |
+                cd build
+                cmake --install . --config ${{ inputs.build-type }}
+                echo "安装完成到: $(pwd)/install"
