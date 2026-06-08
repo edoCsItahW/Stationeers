@@ -67,8 +67,7 @@ jobs:
                       -DCMAKE_CXX_STANDARD=23 \
                       -DCMAKE_CXX_STANDARD_REQUIRED=ON \
                       -DCMAKE_C_COMPILER=clang \
-                      -DCMAKE_CXX_COMPILER=clang++ \
-                      -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+                      -DCMAKE_CXX_COMPILER=clang++
 
             -   name: Configure CMake (Windows) | 配置CMake（Windows）
                 if: matrix.os == 'windows-latest'
