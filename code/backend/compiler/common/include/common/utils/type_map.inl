@@ -20,7 +20,6 @@
 #include <algorithm>
 #include <utility>
 
-
 namespace stationeers {
 
     template<typename T, T... Ks>
@@ -31,6 +30,8 @@ namespace stationeers {
         std::unreachable();
     }
 
+// reslove MSVC C3577 C3528 C2977 error
+#ifndef _MSC_VER
     template<typename T, T... Ks>
     template<typename... Args>
     TypeMap<T, Ks...>::Variant TypeMap<T, Ks...>::make(const T e, Args&&... args) noexcept {
@@ -46,6 +47,18 @@ namespace stationeers {
             return makers[operator[](e)](std::forward<Args>(args)...);
         }(std::make_index_sequence<size>{});
     }
+#else
+    template<typename T, T... Ks>
+    template<typename... Args>
+    TypeMap<T, Ks...>::Variant TypeMap<T, Ks...>::make(T e, Args&&... args) noexcept {
+        constexpr std::size_t size = sizeof...(Ks);
+
+        // 获取函数指针数组
+        static constexpr auto makers =
+            MakerArray<std::make_index_sequence<size>, Variant, Args...>::value;
+        return makers[operator[](e)](std::forward<Args>(args)...);
+    }
+#endif
 
     template<typename T, T... Ks>
     bool TypeMap<T, Ks...>::contains(const T key) noexcept {
