@@ -6,8 +6,8 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file main.cpp 
- * @author edocsitahw 
+ * @file main.cpp
+ * @author edocsitahw
  * @version 1.1
  * @date 2026/06/05 17:56
  * @brief
@@ -22,7 +22,6 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-
 
 void ouputFile(const std::filesystem::path& path) {
     std::ifstream file(path);
@@ -57,7 +56,6 @@ auto readFile(const std::string& filename) -> std::expected<std::string, std::st
     return content;
 }
 
-
 int main() {
     using namespace stationeers::ic10;
 
@@ -65,12 +63,14 @@ int main() {
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
 
+#ifdef _MSC_VER
     system("chcp 65001>nul");  // 解决中文乱码问题
+#endif
 
     Loc::registerLanguage<ZhHans>("zh-hans");
     Loc::setLanguage("zh-hans");
 
-    const auto src = readFile(R"(E:\code\IC10\compiler\test\grammarTest.ic)");
+    const auto src = readFile(R"(../../tests/grammarTest.ic)");
     // const auto src = readFile(R"(E:\code\IC10\compiler\test\specialTest.ic)");
 
     const auto tokens = Lexer::tokenize(src.value());
@@ -84,6 +84,5 @@ int main() {
 
     std::cout << analyser.getSymbolTable().toJSON() << std::endl;
 
-    for (auto& error : analyser.getErrors())
-        std::cout << error << std::endl;
+    for (auto& error : analyser.getErrors()) std::cout << error << std::endl;
 }
