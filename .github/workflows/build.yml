@@ -64,8 +64,6 @@ jobs:
                 run: |
                     cmake -B build -S code/backend/compiler \
                       -DCMAKE_BUILD_TYPE=Release \
-                      -DCMAKE_CXX_STANDARD=23 \
-                      -DCMAKE_CXX_STANDARD_REQUIRED=ON \
                       -DCMAKE_C_COMPILER=clang \
                       -DCMAKE_CXX_COMPILER=clang++
 
@@ -74,9 +72,7 @@ jobs:
                 shell: pwsh
                 run: |
                     cmake -B build -S code/backend/compiler `
-                      -DCMAKE_BUILD_TYPE=Release `
-                      -DCMAKE_CXX_STANDARD=23 `
-                      -DCMAKE_CXX_STANDARD_REQUIRED=ON
+                      -DCMAKE_BUILD_TYPE=Release
 
             # 步骤7：编译（Release 模式，并行加速）
             -   name: Build (Linux) | 编译（Linux）
