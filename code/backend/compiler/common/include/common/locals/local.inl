@@ -81,14 +81,7 @@ namespace stationeers {
 
         throw std::runtime_error("Unknown language name: " + name);
     }
-
-    // template<IsMsgPack P>
-    // template<typename Local<P>::E I, std::size_t N>
-    //     requires number_of_args_check<typename P::E, I, N>
-    // auto Local<P>::msg() {
-    //
-    // }
-
+#ifndef _MSC_VER
     template<IsMsgPack P>
     template<typename Local<P>::E I, std::size_t N>
         requires number_of_args_check<typename Local<P>::E, I, N>
@@ -100,7 +93,7 @@ namespace stationeers {
     template<typename Local<P>::E I>
         requires number_of_args_check<typename Local<P>::E, I, 0>
     std::string Local<P>::msgStr() {
-        return std::string(msg<I>());
+        return std::string(msg<I, 0>());
     }
 
     template<IsMsgPack P>
@@ -114,6 +107,7 @@ namespace stationeers {
             std::tuple<Args...>(std::forward<Args>(args)...)
         );
     }
+#endif
 
 }  // namespace stationeers
 

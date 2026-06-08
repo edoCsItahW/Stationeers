@@ -17,14 +17,13 @@
 #define COMPILER_COMMON_LOCAL_HPP
 #pragma once
 
+#include "common/utils/common.hpp"
+#include "common/utils/enum_to_str.hpp"
+#include <array>
 #include <functional>
+#include <format>
 #include <memory>
 #include <string>
-#include <array>
-
-#include "common/utils/enum_to_str.hpp"
-#include "common/utils/common.hpp"
-
 
 namespace stationeers {
 
@@ -116,15 +115,46 @@ namespace stationeers {
 
         template<E I, std::size_t N = 0>
             requires number_of_args_check<E, I, N>
-        [[nodiscard]] static auto msg();
+        [[nodiscard]] static auto msg()
+// resolve MSVC C2244 error
+#ifndef _MSC_VER
+            ;
+#else
+        {
+            return language_->template getMsg<I>();
+        }
+#endif
 
         template<E I>
             requires number_of_args_check<E, I, 0>
-        [[nodiscard]] static std::string msgStr();
+        [[nodiscard]] static std::string msgStr()
+// resolve MSVC C2244 error
+#ifndef _MSC_VER
+            ;
+#else
+        {
+            return std::string(msg<I, 0>());
+        }
+#endif
 
         template<E I, typename... Args>
             requires number_of_args_check<E, I, sizeof...(Args)>
-        [[nodiscard]] static auto msgFormat(Args&&... args);
+        [[nodiscard]] static auto msgFormat(Args&&... args)
+// resolve MSVC C2244 error
+#ifndef _MSC_VER
+            ;
+#else
+        {
+            return std::apply(
+                [&](const auto&... unpacked) {
+                    return std::vformat(
+                        msg<I, sizeof...(Args)>(), std::make_format_args(unpacked...)
+                    );
+                },
+                std::tuple<Args...>(std::forward<Args>(args)...)
+            );
+        }
+#endif
 
     private:
         using Creator = std::function<std::unique_ptr<LanguageBase<E>>()>;

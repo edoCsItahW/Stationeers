@@ -21,7 +21,6 @@
 #include <tuple>
 #include <variant>
 
-
 namespace stationeers {
 
     template<auto K>
@@ -40,6 +39,24 @@ namespace stationeers {
         static constexpr std::array<T, sizeof...(Ks)> keys{Ks...};
 
         static constexpr std::size_t operator[](T key) noexcept;
+
+// reslove MSVC C3577 C3528 C2977 error
+#ifdef _MSC_VER
+        template<typename, typename, typename...>
+        struct MakerArray;
+
+        template<std::size_t I, typename... Args>
+        static Variant construct(Args&&... args) noexcept {
+            return Variant{std::in_place_index<I>, std::forward<Args>(args)...};
+        }
+
+        template<std::size_t... Is, typename... Args>
+        struct MakerArray<std::index_sequence<Is...>, Variant, Args...> {
+            static constexpr std::array<Variant (*)(Args&&...), sizeof...(Is)> value = {
+                &TypeMap::construct<Is, Args...>...
+            };
+        };
+#endif
 
     public:
         template<typename... Args>
