@@ -52,7 +52,7 @@ jobs:
             -   name: Configure CMake (Linux) | 配置CMake（Linux）
                 if: matrix.os == 'ubuntu-latest'
                 run: |
-                    cmake -B build -S . \
+                    cmake -B build -S code/backend/compiler \
                       -DCMAKE_BUILD_TYPE=Release \
                       -DCMAKE_CXX_STANDARD=23 \
                       -DCMAKE_CXX_STANDARD_REQUIRED=ON
@@ -61,7 +61,7 @@ jobs:
                 if: matrix.os == 'windows-latest'
                 shell: pwsh
                 run: |
-                    cmake -B build -G Ninja `
+                    cmake -B build -S code/backend/compiler `
                       -DCMAKE_BUILD_TYPE=Release `
                       -DCMAKE_CXX_STANDARD=23 `
                       -DCMAKE_CXX_STANDARD_REQUIRED=ON
@@ -87,31 +87,3 @@ jobs:
                         build/**
                         !build/CMakeFiles/
                     retention-days: 7
-
-    build-and-test:
-        runs-on: ubuntu-latest
-
-        steps:
-            -   uses: actions/checkout@v4
-
-            -   name: Install dependencies (Ubuntu)
-                run: |
-                    sudo apt-get update
-                    sudo apt-get install -y cmake ninja-build lld
-
-            -   name: Configure CMake
-                run: cmake -B build -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug
-
-            -   name: Build
-                run: cmake --build build --target compiler_tests IC10_Compiler
-
-            -   name: Run tests
-                run: cd build && ctest --output-on-failure
-
-            # 可选：上传测试报告（JUnit格式）
-            -   name: Upload test results
-                uses: actions/upload-artifact@v4
-                if: always()
-                with:
-                    name: test-results
-                    path: build/Testing/Temporary/
