@@ -45,7 +45,7 @@ jobs:
                 if: matrix.os == 'ubuntu-latest'
                 run: |
                     sudo apt-get update
-                    sudo apt-get install -y wget gnupg lsb-release
+                    sudo apt-get install -y wget gnupg lsb-release lib++-22-dev lobc++abi-22-dev
                     wget -O /tmp/llvm.sh https://apt.llvm.org/llvm.sh
                     chmod +x /tmp/llvm.sh
                     sudo /tmp/llvm.sh 22
@@ -65,7 +65,8 @@ jobs:
                     cmake -B build -S code/backend/compiler \
                       -DCMAKE_BUILD_TYPE=Release \
                       -DCMAKE_C_COMPILER=clang \
-                      -DCMAKE_CXX_COMPILER=clang++
+                      -DCMAKE_CXX_COMPILER=clang++-22 \
+                      -DCMAKE_CXX_FLAGS="-stdlib=libc++"
 
             -   name: Configure CMake (Windows) | 配置CMake（Windows）
                 if: matrix.os == 'windows-latest'
