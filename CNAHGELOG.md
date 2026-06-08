@@ -14,3 +14,5 @@
 - 引入Google Test框架
 - 添加MSVC编译支持
 - 添加github工作流
+- 完善README和CONTRIBUTING文件
+- 提交v1.0.0版本
