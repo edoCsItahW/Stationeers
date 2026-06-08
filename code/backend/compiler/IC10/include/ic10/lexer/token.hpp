@@ -254,13 +254,13 @@ namespace stationeers::ic10 {
     extern const std::string SYMBOLS;
 
     struct Token {
-        TokenType type;
+        TokenType type = TokenType::UNKNOWN;
 
         Pos pos;
 
-        std::string lexeme;
+        std::string lexeme = "";
 
-        TokenCategory category;
+        TokenCategory category = TokenCategory::INVALID;
 
         [[nodiscard]] std::string toString() const;
 

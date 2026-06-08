@@ -1,4 +1,18 @@
-add_executable(IC10_Compiler)
+# 创建库目标
+add_library(ic10_lib STATIC)
+
+# 源文件：所有 .cpp
+file(GLOB_RECURSE COMPILER_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp"
+)
+
+target_sources(ic10_lib PRIVATE ${COMPILER_SOURCES})
+target_include_directories(ic10_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${COMMON_INCLUDE_DIR})
+target_link_libraries(ic10_lib PRIVATE common)
+
+# 保留可执行文件（单独编译 main.cpp）
+add_executable(IC10_Compiler main.cpp)
+target_link_libraries(IC10_Compiler PRIVATE ic10_lib common)
 
 # 头文件路径
 target_include_directories(IC10_Compiler
@@ -8,12 +22,6 @@ target_include_directories(IC10_Compiler
 )
 
 target_compile_definitions(IC10_Compiler PRIVATE IC10_SIMPLE_MODE)
-
-# 源文件：所有 .cpp
-file(GLOB_RECURSE COMPILER_SOURCES
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp"
-)
-target_sources(IC10_Compiler PRIVATE ${COMPILER_SOURCES})
 
 # 链接公共库
 target_link_libraries(IC10_Compiler PRIVATE common)
@@ -27,10 +35,19 @@ if (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
 endif ()
 
 # 编译选项
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if (MSVC)
+
+    target_link_options(IC10_Compiler PRIVATE LINKER:/pdbpagesize:16384)
+
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
     target_compile_options(IC10_Compiler PRIVATE -Wa,-mbig-obj)
+    target_link_options(IC10_Compiler PRIVATE LINKER:/pdbpagesize:16384)
+
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
     target_compile_options(IC10_Compiler PRIVATE -Wa,-mbig-obj)
+
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "GUN")
