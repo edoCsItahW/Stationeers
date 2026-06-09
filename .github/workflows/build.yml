@@ -41,24 +41,16 @@ jobs:
                 run: choco install ninja -y
 
             # 步骤5：Linux 环境专属 - 确保 GCC 版本及依赖
-            -   name: Install Clang | 安装 Clang
+            -   name: Install GCC 15 | 安装 GCC 15
                 if: matrix.os == 'ubuntu-latest'
                 run: |
+                    sudo add-apt-repository ppa:ubuntu-toolchain-r/test
                     sudo apt-get update
-                    sudo apt-get install -y wget gnupg lsb-release
-                    wget -O /tmp/llvm.sh https://apt.llvm.org/llvm.sh
-                    chmod +x /tmp/llvm.sh
-                    sudo /tmp/llvm.sh 22
-                    sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-22 100
-                    sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-22 100
+                    sudo apt-get install -y g++-15 ccache lld
+                    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-15 100
+                    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 100
 
-            -   name: Set Clang as default compiler | 设置 Clang 为默认编译器
-                if: matrix.os == 'ubuntu-latest'
-                run: |
-                    echo "CC=clang" >> $GITHUB_ENV
-                    echo "CXX=clang++" >> $GITHUB_ENV
-
-            # 步骤6：CMake 配置（Release 模式，生成构建文件）
+            # 步骤6：配置 CMake
             -   name: Configure CMake (Linux) | 配置CMake（Linux）
                 if: matrix.os == 'ubuntu-latest'
                 run: |
@@ -66,8 +58,9 @@ jobs:
                       -DCMAKE_BUILD_TYPE=Release \
                       -DCMAKE_CXX_STANDARD=23 \
                       -DCMAKE_CXX_STANDARD_REQUIRED=ON \
-                      -DCMAKE_C_COMPILER=clang \
-                      -DCMAKE_CXX_COMPILER=clang++
+                      -DCMAKE_C_COMPILER=gcc \
+                      -DCMAKE_CXX_COMPILER=g++ \
+                      -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld"
 
             -   name: Configure CMake (Windows) | 配置CMake（Windows）
                 if: matrix.os == 'windows-latest'
