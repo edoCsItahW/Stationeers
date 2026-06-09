@@ -41,16 +41,13 @@ if (MSVC)
 
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
-    target_compile_options(IC10_Compiler PRIVATE -Wa,-mbig-obj)
     target_link_options(IC10_Compiler PRIVATE LINKER:/pdbpagesize:16384)
 
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
-    target_compile_options(IC10_Compiler PRIVATE -Wa,-mbig-obj)
-
 endif ()
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "GUN")
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
     target_link_options(IC10_Compiler PRIVATE -static-libstdc++ -static-libgcc)
 
