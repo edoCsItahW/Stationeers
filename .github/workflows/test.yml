@@ -25,6 +25,14 @@ jobs:
                         artifact-name: build-windows-latest
 
         steps:
+            -   name: Debug workflow_run info
+                run: |
+                    echo "Event name: ${{ github.event_name }}"
+                    echo "Build Run ID: ${{ github.event.workflow_run.id }}"
+                    echo "Build Run Attempt: ${{ github.event.workflow_run.run_attempt }}"
+                    echo "Build Conclusion: ${{ github.event.workflow_run.conclusion }}"
+                    echo "Artifact name to download: ${{ matrix.artifact-name }}"
+
             # 步骤1：检出源码（为了获取测试相关文件）
             -   name: Checkout source code | 检出源码
                 uses: actions/checkout@v6
