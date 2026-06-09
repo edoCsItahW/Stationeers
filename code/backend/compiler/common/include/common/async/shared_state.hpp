@@ -18,6 +18,7 @@
 #pragma once
 
 #include "coroutine_state.hpp"
+#include <condition_variable>
 #include <expected>
 #include <functional>
 #include <memory>
