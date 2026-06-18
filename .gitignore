@@ -6,9 +6,16 @@
 # nodejs
 **/node_modules/
 *.node
+**/out/
+
+# python
+**/.pytest_cache/
+**/__pycache__/
+*.pyd
 
 # IDE
 **/.idea/
+**/.vscode/
 
 # other file
 *.zip
