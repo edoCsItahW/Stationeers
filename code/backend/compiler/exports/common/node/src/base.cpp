@@ -6,27 +6,29 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file test_lexer.cpp 
- * @author edocsitahw 
+ * @file base.cpp
+ * @author edocsitahw
  * @version 1.1
- * @date 2026/06/07 15:48
+ * @date 2026/06/16 22:41
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include <gtest/gtest.h>
+#include "common_node/base.hpp"
 
-#include "ic10/locals/languages/zh_hans.hpp"
-#include "ic10/lexer/lexer.hpp"
+namespace Napi {
 
+    Arguments::Arguments(const CallbackInfo& info)
+        : info_(info) {}
 
-using namespace stationeers::ic10;
+    const Value Arguments::operator[](std::size_t index) const {
+        return info_[index];
+    }
 
+    const Value Arguments::get(std::size_t index) const {
+        if (index < info_.Length())
+            return info_[index];
 
-TEST(LexerTest, EmptyInput) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
-    auto tokens = Lexer::tokenize("123");
-    ASSERT_EQ(tokens.size(), 2); // 123 + END
-    EXPECT_EQ(tokens[0]->type, TokenType::INTEGER);
-    EXPECT_EQ(tokens[0]->lexeme, "123");
-}
+        return info_.Env().Undefined();
+    }
+
+}  // namespace Napi

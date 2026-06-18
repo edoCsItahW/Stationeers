@@ -6,27 +6,28 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file test_lexer.cpp 
+ * @file base.inl 
  * @author edocsitahw 
  * @version 1.1
- * @date 2026/06/07 15:48
+ * @date 2026/06/16 23:32
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include <gtest/gtest.h>
+#ifndef EXPORT_BASE_INL
+#define EXPORT_BASE_INL
+#pragma once
 
-#include "ic10/locals/languages/zh_hans.hpp"
-#include "ic10/lexer/lexer.hpp"
+namespace Napi {
 
+    template<BaseOfValue T>
+    const T Arguments::getWithCheck(std::size_t index) const {
+        if (auto num = info_.Length(); index >= num)
+            Error::New(info_.Env(), std::format("expected {} arguments, but got {}", index + 1, num))
+                .ThrowAsJavaScriptException();
 
-using namespace stationeers::ic10;
+        return info_[index].As<T>();
+    }
 
+}  // namespace Napi
 
-TEST(LexerTest, EmptyInput) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
-    auto tokens = Lexer::tokenize("123");
-    ASSERT_EQ(tokens.size(), 2); // 123 + END
-    EXPECT_EQ(tokens[0]->type, TokenType::INTEGER);
-    EXPECT_EQ(tokens[0]->lexeme, "123");
-}
+#endif //EXPORT_BASE_INL

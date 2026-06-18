@@ -6,27 +6,21 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file test_lexer.cpp 
+ * @file locals.hpp 
  * @author edocsitahw 
  * @version 1.1
- * @date 2026/06/07 15:48
+ * @date 2026/06/16 17:12
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include <gtest/gtest.h>
+#ifndef EXPORT_LOCALS_HPP
+#define EXPORT_LOCALS_HPP
+#pragma once
 
-#include "ic10/locals/languages/zh_hans.hpp"
-#include "ic10/lexer/lexer.hpp"
+#include "common_node/base.hpp"
 
+node::Value setLanguage(const node::CallbackInfo& info);
 
-using namespace stationeers::ic10;
+void initLocals(node::Env& env, node::Object& exports);
 
-
-TEST(LexerTest, EmptyInput) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
-    auto tokens = Lexer::tokenize("123");
-    ASSERT_EQ(tokens.size(), 2); // 123 + END
-    EXPECT_EQ(tokens[0]->type, TokenType::INTEGER);
-    EXPECT_EQ(tokens[0]->lexeme, "123");
-}
+#endif //EXPORT_LOCALS_HPP

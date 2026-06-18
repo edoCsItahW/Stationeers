@@ -6,28 +6,35 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file test_parser.cpp 
+ * @file lexer_adapter.hpp
  * @author edocsitahw 
  * @version 1.1
- * @date 2026/06/07 23:53
+ * @date 2026/06/16 17:37
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include <gtest/gtest.h>
+#ifndef EXPORT_LEXER_HPP
+#define EXPORT_LEXER_HPP
+#pragma once
 
-#include "ic10/locals/languages/zh_hans.hpp"
-#include "ic10/parser/parser.hpp"
+#include "common_node/base.hpp"
 #include "ic10/lexer/lexer.hpp"
+#include "token_adapter.hpp"
 
 
-using namespace stationeers::ic10;
 
-TEST(ParserTest, ParseAlias) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
-    auto tokens = Lexer::tokenize("alias foo r0");
-    Program ast = Parser::parsing(tokens);
-    ASSERT_EQ(ast.statements.size(), 2);
-    auto* alias = std::get_if<AliasDirective>(&ast.statements[0]);
-    ASSERT_NE(alias, nullptr);
-}
+class LexerAdapter : public node::ObjectWrap<LexerAdapter> {
+public:
+    LexerAdapter(const node::CallbackInfo& info);
+
+    static node::Object init(node::Env env, node::Object exports);
+
+private:
+    ic::Lexer lexer_;
+
+    static node::Value tokenize(const node::CallbackInfo& info);
+
+    node::Value scan(const node::CallbackInfo& info);
+};
+
+#endif //EXPORT_LEXER_HPP

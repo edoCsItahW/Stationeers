@@ -1,5 +1,13 @@
 # C++
 **/cmake-build-*/
+**/build/
+**/dist/
+
+# nodejs
+**/node_modules/
 
 # IDE
 **/.idea/
+
+# other file
+*.zip

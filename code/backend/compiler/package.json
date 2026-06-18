@@ -1,0 +1,10 @@
+{
+	"dependencies": {
+		"ic10-node-api": "^1.0.0",
+		"node-addon-api": "^8.8.0",
+		"node-ts": "^8.0.12"
+	},
+	"devDependencies": {
+		"@types/node": "^25.9.3"
+	}
+}

@@ -10,10 +10,11 @@
 #define COMPILER_PARSER_HPP
 #pragma once
 
-#include "../lexer/token.hpp"
-#include "ic10/parser/ast/ast.hpp"
-#include "common/exception/error.hpp"
 #include <memory>
+
+#include "common/exception/error.hpp"
+#include "ic10/parser/ast/ast.hpp"
+#include "../lexer/token.hpp"
 
 
 namespace stationeers::ic10 {

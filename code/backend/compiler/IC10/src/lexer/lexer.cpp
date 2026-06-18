@@ -13,10 +13,10 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "ic10/lexer/lexer.hpp"
 #include "common/exception/debug.hpp"
 #include "common/utils/common.hpp"
 #include "ic10/locals/local.hpp"
+#include "ic10/lexer/lexer.hpp"
 
 
 namespace stationeers::ic10 {
