@@ -6,27 +6,30 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file test_lexer.cpp 
+ * @file build.cpp 
  * @author edocsitahw 
  * @version 1.1
- * @date 2026/06/07 15:48
+ * @date 2026/06/16 13:09
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include <gtest/gtest.h>
-
-#include "ic10/locals/languages/zh_hans.hpp"
-#include "ic10/lexer/lexer.hpp"
-
-
-using namespace stationeers::ic10;
+#include "ic10/locals/local.hpp"
+#include "token_adapter.hpp"
+#include "lexer_adapter.hpp"
+#include "locals.hpp"
 
 
-TEST(LexerTest, EmptyInput) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
-    auto tokens = Lexer::tokenize("123");
-    ASSERT_EQ(tokens.size(), 2); // 123 + END
-    EXPECT_EQ(tokens[0]->type, TokenType::INTEGER);
-    EXPECT_EQ(tokens[0]->lexeme, "123");
+node::Object Init(node::Env env, node::Object exports) {
+    initLocals(env, exports);
+
+    TokenAdapter::init(env, exports);
+
+    LexerAdapter::init(env, exports);
+
+    PosAdapter::init(env, exports);
+
+    return exports;
 }
+
+
+NODE_API_MODULE(addon, Init)
