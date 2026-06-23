@@ -28,10 +28,15 @@ namespace stationeers::ic10 {
         node::Function func = DefineClass(
             env, "Analyser",
             {
-                StaticMethod<&analyse>("analyse"),
-                InstanceMethod<&AnalyserAdapter::visit>("visit"),
+#ifdef _MSC_VER
+                InstanceAccessor("symbolTable", &AnalyserAdapter::getSymbolTable, nullptr),
+                InstanceAccessor("errors", &AnalyserAdapter::getErrors, nullptr),
+#else
                 InstanceAccessor<&AnalyserAdapter::getSymbolTable>("symbolTable"),
                 InstanceAccessor<&AnalyserAdapter::getErrors>("errors"),
+#endif
+                StaticMethod<&analyse>("analyse"),
+                InstanceMethod<&AnalyserAdapter::visit>("visit"),
             }
         );
 
@@ -69,11 +74,10 @@ namespace stationeers::ic10 {
     node::Value AnalyserAdapter::getErrors(const node::CallbackInfo& info) {
         auto errors = analyser_.getErrors();
 
-        auto size = errors.size();
+        auto size   = errors.size();
         auto result = node::Array::New(info.Env(), size);
 
-        for (std::size_t i = 0; i < size; i++)
-            result[i] = ErrorAdapter::to(info.Env(), errors[i]);
+        for (std::size_t i = 0; i < size; i++) result[i] = ErrorAdapter::to(info.Env(), errors[i]);
 
         return result;
     }
