@@ -22,11 +22,19 @@ namespace stationeers {
     node::Object PosAdapter::init(node::Env env, node::Object exports) {
         node::Function func = DefineClass(
             env, "Pos",
-            {InstanceAccessor<&PosAdapter::getLine>("line"),
-             InstanceAccessor<&PosAdapter::getColumn>("column"),
-             InstanceAccessor<&PosAdapter::getOffset>("offset"),
-             InstanceMethod("newline", &PosAdapter::newline),
-             InstanceMethod("next", &PosAdapter::next), InstanceMethod("move", &PosAdapter::move)}
+            {
+#ifdef _MSC_VER
+                InstanceAccessor("line", &PosAdapter::getLine, nullptr),
+                InstanceAccessor("column", &PosAdapter::getColumn, nullptr),
+                InstanceAccessor("offset", &PosAdapter::getOffset, nullptr),
+#else
+                InstanceAccessor<&PosAdapter::getLine>("line"),
+                InstanceAccessor<&PosAdapter::getColumn>("column"),
+                InstanceAccessor<&PosAdapter::getOffset>("offset"),
+#endif
+                InstanceMethod("newline", &PosAdapter::newline),
+                InstanceMethod("next", &PosAdapter::next), InstanceMethod("move", &PosAdapter::move)
+            }
         );
 
         constructor = node::Persistent(func);

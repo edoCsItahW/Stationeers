@@ -4,8 +4,7 @@
 		"test:watch": "jest --watch"
 	},
 	"dependencies": {
-		"node-addon-api": "^8.8.0",
-		"node-ts": "^8.0.12"
+		"node-addon-api": "^8.8.0"
 	},
 	"devDependencies": {
 		"@types/jest": "^30.0.0",

@@ -11,9 +11,6 @@ importers:
       node-addon-api:
         specifier: ^8.8.0
         version: 8.8.0
-      node-ts:
-        specifier: ^8.0.12
-        version: 8.0.12
     devDependencies:
       '@types/jest':
         specifier: ^30.0.0
@@ -353,9 +350,6 @@ packages:
     resolution: {integrity: sha512-SEeaJLb3qBNF/OaXnaR1NmmBbFYk1zC0ZH/52fATcRPLFg/p791YrcyFFy44Bo9sLaGuSuLp5Q6axbb/O+v/RA==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  '@rauschma/stringio@1.4.0':
-    resolution: {integrity: sha512-3uor2f/MXZkmX5RJf8r+OC3WvZVzpSme0yyL0rQDPEnatE02qRcqwEwnsgpgriEck0S/n4vWtUd6tTtrJwk45Q==}
-
   '@sinclair/typebox@0.34.49':
     resolution: {integrity: sha512-brySQQs7Jtn0joV8Xh9ZV/hZb9Ozb0pmazDIASBkYKCjXrXU3mpcFahmK/z4YDhGkQvP9mWJbVyahdtU5wQA+A==}
 
@@ -399,9 +393,6 @@ packages:
 
   '@types/jest@30.0.0':
     resolution: {integrity: sha512-XTYugzhuwqWjws0CVz8QpM36+T+Dz5mTEBKhNs/esGLnCIlGdRy+Dq78NRjd7ls7r8BC8ZRMOrKlkO1hU0JOwA==}
-
-  '@types/node@10.17.60':
-    resolution: {integrity: sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==}
 
   '@types/node@25.9.3':
     resolution: {integrity: sha512-603BddQMv3pUcr4U2dhujk83N2tTDVr/34wII2B6bJy6g+8WD6yUb11jszNs0gdi4PesVWl7ABt8nYMVpnLUcg==}
@@ -1778,10 +1769,6 @@ packages:
     resolution: {integrity: sha512-1uz8041X6LoI6ZSdZacM9lVY28vuzDlSKitnpbSNK0RfKoIJkX29NBPVEFXhnuSuEOA9Ww0xnPJ+ILWbGAv8DA==}
     engines: {node: '>=18'}
 
-  node-ts@8.0.12:
-    resolution: {integrity: sha512-Of8seWlev7qYV9KHogxpa5N97B4CZwUyEdhFvssWnSE+++We9D4TJAteDqI+1YEPy+A9UZiBGZb7lbXzUdIK4Q==}
-    engines: {node: '>=22.0.0'}
-
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
     engines: {node: '>=0.10.0'}
@@ -2892,10 +2879,6 @@ snapshots:
 
   '@pkgr/core@0.3.6': {}
 
-  '@rauschma/stringio@1.4.0':
-    dependencies:
-      '@types/node': 10.17.60
-
   '@sinclair/typebox@0.34.49': {}
 
   '@sindresorhus/is@4.6.0': {}
@@ -2952,8 +2935,6 @@ snapshots:
     dependencies:
       expect: 30.4.1
       pretty-format: 30.4.1
-
-  '@types/node@10.17.60': {}
 
   '@types/node@25.9.3':
     dependencies:
@@ -4569,11 +4550,6 @@ snapshots:
   node-int64@0.4.0: {}
 
   node-releases@2.0.48: {}
-
-  node-ts@8.0.12:
-    dependencies:
-      '@rauschma/stringio': 1.4.0
-      '@types/node': 25.9.3
 
   normalize-path@3.0.0: {}
 

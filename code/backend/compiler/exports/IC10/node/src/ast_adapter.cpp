@@ -24,13 +24,21 @@ namespace stationeers::ic10 {
         : ObjectWrap(info) {}
 
     node::Object ProgramAdapter::init(node::Env env, node::Object exports) {
-        node::Function func = DefineClass(env, "Program", {
-            StaticAccessor<&getNodeName>("nodeName"),
-            InstanceAccessor<&ProgramAdapter::getStatements>("statements"),
-            InstanceAccessor<&ProgramAdapter::end>("end"),
-            InstanceMethod<&ProgramAdapter::toString>("toString"),
-            InstanceMethod<&ProgramAdapter::toJSON>("toJSON")
-        });
+        node::Function func = DefineClass(
+            env, "Program",
+            {
+#ifdef _MSC_VER
+                InstanceAccessor("statements", &ProgramAdapter::getStatements, nullptr),
+                InstanceAccessor("end", &ProgramAdapter::end, nullptr),
+#else
+                InstanceAccessor<&ProgramAdapter::getStatements>("statements"),
+                InstanceAccessor<&ProgramAdapter::end>("end"),
+#endif
+                StaticAccessor<&getNodeName>("nodeName"),
+                InstanceMethod<&ProgramAdapter::toString>("toString"),
+                InstanceMethod<&ProgramAdapter::toJSON>("toJSON")
+            }
+        );
 
         constructor = node::Persistent(func);
 

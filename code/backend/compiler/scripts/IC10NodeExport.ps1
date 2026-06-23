@@ -23,8 +23,7 @@ try {
     # 4. 测试
     Write-Header "测试"
 
-    node "$($PROJECT.TestDir)/test.js"
-    ts-node "$($PROJECT.TestDir)/test.ts"
+    pnpm run test
 
 } catch {
     Write-Error $_.Exception.Message
