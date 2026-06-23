@@ -14,16 +14,17 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
+#include "common/exception/debug.hpp"
 #include <iostream>
 
-#include "common/exception/debug.hpp"
-
 namespace stationeers {
+
+    // Console
 
     Console::Level Console::level = INFO;
 
     template<Console::Level L>
-    void Console::debug(const std::string& message, bool newline) {
+    void Console::debug(const std::string &message, bool newline) {
         if (L >= level) {
             if constexpr (L == INFO)
                 std::cout << "[INFO] " << message;
@@ -52,7 +53,7 @@ namespace stationeers {
 
     void Console::log(std::string_view message, bool newline) { debug<INFO>(message, newline); }
 
-    void Console::warning(const std::string& message, bool newline) {
+    void Console::warning(const std::string &message, bool newline) {
         debug<WARNING>(message, newline);
     }
 
@@ -60,7 +61,7 @@ namespace stationeers {
         debug<WARNING>(message, newline);
     }
 
-    void Console::error(const std::string& message, bool newline) {
+    void Console::error(const std::string &message, bool newline) {
         debug<ERROR>(message, newline);
     }
 

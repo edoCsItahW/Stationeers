@@ -10,10 +10,11 @@
 #define COMPILER_PARSER_HPP
 #pragma once
 
-#include "../lexer/token.hpp"
-#include "ic10/parser/ast/ast.hpp"
-#include "common/exception/error.hpp"
 #include <memory>
+
+#include "common/exception/error.hpp"
+#include "ic10/parser/ast/ast.hpp"
+#include "../lexer/token.hpp"
 
 
 namespace stationeers::ic10 {
@@ -21,6 +22,8 @@ namespace stationeers::ic10 {
     class Parser {
     public:
         bool debug_ = false;
+
+        Parser() = default;
 
         Parser(const std::vector<std::shared_ptr<Token>> &tokens, bool debug = false);
 

@@ -17,9 +17,9 @@
 #define COMPILER_LEXER_HPP
 #pragma once
 
-#include <memory>
-#include <optional>
 #include <string_view>
+#include <optional>
+#include <memory>
 #include <vector>
 
 #include "token.hpp"
@@ -30,6 +30,8 @@ namespace stationeers::ic10 {
     class Lexer {
     public:
         explicit Lexer(std::string_view src, bool debug = false);
+
+        Lexer() = default;
 
         [[nodiscard]] std::vector<std::shared_ptr<Token>> scan() const;
 

@@ -6,27 +6,24 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file test_lexer.cpp 
- * @author edocsitahw 
+ * @file build.cpp
+ * @author edocsitahw
  * @version 1.1
- * @date 2026/06/07 15:48
+ * @date 2026/06/17 13:26
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include <gtest/gtest.h>
+#include "common_node/build.hpp"
+#include "common_node/error_adapter.hpp"
+#include "common_node/pos_adapter.hpp"
 
-#include "ic10/locals/languages/zh_hans.hpp"
-#include "ic10/lexer/lexer.hpp"
+node::Object commonInit(const node::Env env, const node::Object exports) {
+    stationeers::PosAdapter::init(env, exports);
 
+    stationeers::ErrorAdapter::init(env, exports);
 
-using namespace stationeers::ic10;
-
-
-TEST(LexerTest, EmptyInput) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
-    auto tokens = Lexer::tokenize("123");
-    ASSERT_EQ(tokens.size(), 2); // 123 + END
-    EXPECT_EQ(tokens[0]->type, TokenType::INTEGER);
-    EXPECT_EQ(tokens[0]->lexeme, "123");
+    return exports;
 }
+
+
+// NODE_API_MODULE(addon, commonInit)
