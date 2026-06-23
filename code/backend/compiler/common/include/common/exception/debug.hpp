@@ -22,6 +22,13 @@
 #include <source_location>
 #include <string>
 
+#ifndef _MSC_VER
+
+#include <cstdint>
+
+#endif
+
+
 namespace stationeers {
 
     // Console
@@ -66,10 +73,14 @@ namespace stationeers {
         const char* function       = "";
 
         static consteval SourceLocation current(
-            const std::uint_least32_t line = __builtin_LINE(),  // GCC/Clang/MSVC 均支持
+            const std::uint_least32_t line = __builtin_LINE(),
+            #ifdef _MSC_VER
             const std::uint_least32_t col  = __builtin_COLUMN(),
+            #else
+            const std::uint_least32_t col  = 0,
+            #endif
             const char* const file         = __builtin_FILE(),
-            const char* const func = __builtin_FUNCTION()  // 或 __builtin_FUNCSIG() 在 MSVC 上
+            const char* const func = __builtin_FUNCTION()
         ) noexcept {
             return SourceLocation{line, col, file, func};
         }
