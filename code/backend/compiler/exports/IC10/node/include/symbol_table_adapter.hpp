@@ -6,51 +6,40 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file token_adapter.hpp
+ * @file symbol_table_adapter.hpp
  * @author edocsitahw
  * @version 1.1
- * @date 2026/06/16 18:15
+ * @date 2026/06/22 21:52
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef EXPORT_TOKEN_HPP
-#define EXPORT_TOKEN_HPP
+#ifndef EXPORT_SYMBOL_TABLE_ADAPTER_HPP
+#define EXPORT_SYMBOL_TABLE_ADAPTER_HPP
 #pragma once
 
-#include "common_node/pos_adapter.hpp"
-#include "ic10/lexer/token.hpp"
+#include "common_node/base.hpp"
+#include "ic10/semantic/semantic.hpp"
 
 namespace stationeers::ic10 {
 
-    class TokenAdapter : public node::ObjectWrap<TokenAdapter> {
+    class SymbolTableAdapter : public node::ObjectWrap<SymbolTableAdapter> {
     public:
-        TokenAdapter(const node::CallbackInfo& info);
+        SymbolTableAdapter(const node::CallbackInfo& info);
 
         static node::Object init(node::Env env, node::Object exports);
 
-        static node::Object to(node::Env env, const Token& self);
+        static node::Value to(node::Env env, const SymbolTable& self);
 
-        static Token from(const node::Object& obj);
+        static SymbolTable from(const node::Object& obj);
 
     private:
-        Token token_{};
-
         static node::FunctionReference constructor;
 
-        EXPORT_D_ATTR(Type)
+        SymbolTable symbolTable_;
 
-        EXPORT_D_ATTR(Pos)
-
-        EXPORT_D_ATTR(Lexeme)
-
-        EXPORT_D_ATTR(Category)
-
-        EXPORT_D_METHOD_VALUE(toString)
-
-        EXPORT_D_METHOD_VALUE(toJSON)
+        node::Value toJSON(const node::CallbackInfo& info);
     };
 
 }  // namespace stationeers::ic10
 
-
-#endif  // EXPORT_TOKEN_HPP
+#endif  // EXPORT_SYMBOL_TABLE_ADAPTER_HPP

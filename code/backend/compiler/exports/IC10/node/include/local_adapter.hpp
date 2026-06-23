@@ -6,8 +6,8 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file locals.hpp 
- * @author edocsitahw 
+ * @file local_adapter.hpp
+ * @author edocsitahw
  * @version 1.1
  * @date 2026/06/16 17:12
  * @brief
@@ -19,8 +19,22 @@
 
 #include "common_node/base.hpp"
 
-node::Value setLanguage(const node::CallbackInfo& info);
+namespace stationeers::ic10 {
 
-void initLocals(node::Env& env, node::Object& exports);
+    class IC10LocalAdapter : public node::ObjectWrap<IC10LocalAdapter> {
+    public:
+        IC10LocalAdapter(const node::CallbackInfo& info);
 
-#endif //EXPORT_LOCALS_HPP
+        static node::Object init(node::Env env, node::Object exports);
+
+    private:
+        static void setLanguage(const node::CallbackInfo& info);
+    };
+
+    node::Value setLanguage(const node::CallbackInfo& info);
+
+    void initLocals(node::Env& env, node::Object& exports);
+
+}  // namespace stationeers::ic10
+
+#endif  // EXPORT_LOCALS_HPP
