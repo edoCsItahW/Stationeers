@@ -15,20 +15,59 @@
  * */
 #include "common_node/base.hpp"
 
-namespace Napi {
+namespace stationeers {
 
-    Arguments::Arguments(const CallbackInfo& info)
+    // Arguments
+
+    Arguments::Arguments(const node::CallbackInfo& info)
         : info_(info) {}
 
-    const Value Arguments::operator[](std::size_t index) const {
-        return info_[index];
-    }
+    const node::Value Arguments::operator[](std::size_t index) const { return info_[index]; }
 
-    const Value Arguments::get(std::size_t index) const {
-        if (index < info_.Length())
-            return info_[index];
+    const node::Value Arguments::get(std::size_t index) const {
+        if (index < info_.Length()) return info_[index];
 
         return info_.Env().Undefined();
     }
 
-}  // namespace Napi
+    // TaskWorker
+
+    TaskWorker<void>::TaskWorker(node::Promise::Deferred deferred, TaskFactory factory)
+        : AsyncWorker(deferred.Env())
+        , deferred_(deferred)
+        , factory_(factory)
+        , flag_(false) {}
+
+    void TaskWorker<void>::Execute() {
+        try {
+            Task<> task = factory_();
+
+            auto future = task.getFuture();
+
+            if (auto result = future.get(); result.has_value())
+                flag_ = true;
+
+            else {
+                if (result.error()) std::rethrow_exception(result.error());
+
+                throw std::runtime_error("Unknown error");
+            }
+
+        } catch (const std::exception& e) { SetError(e.what()); } catch (...) {
+            SetError("Unknown error");
+        }
+    }
+
+    void TaskWorker<void>::OnOK() {
+        if (flag_)
+            deferred_.Resolve(Env().Undefined());
+
+        else
+            deferred_.Reject(node::Error::New(Env(), "Task failed without exception").Value());
+    }
+
+    void TaskWorker<void>::OnError(const Napi::Error& e) {
+        deferred_.Resolve(e.Value());
+    }
+
+}  // namespace stationeers

@@ -15,64 +15,65 @@
  * */
 #include "lexer_adapter.hpp"
 #include "common/exception/debug.hpp"
+#include "token_adapter.hpp"
 
 
-node::Object LexerAdapter::init(node::Env env, node::Object exports) {
-    node::Function func = DefineClass(
-        env, "Lexer",
-        {
-            StaticMethod("tokenize", &tokenize),
-            InstanceMethod("scan", &LexerAdapter::scan)
-        }
-    );
+namespace stationeers::ic10 {
 
-    node::FunctionReference* constructor = new node::FunctionReference();
+    node::Object LexerAdapter::init(node::Env env, node::Object exports) {
+        node::Function func = DefineClass(
+            env, "Lexer",
+            {StaticMethod("tokenize", &tokenize), InstanceMethod("scan", &LexerAdapter::scan)}
+        );
 
-    *constructor = node::Persistent(func);
+        node::FunctionReference* constructor = new node::FunctionReference();
 
-    constructor->SuppressDestruct();
+        *constructor = node::Persistent(func);
 
-    (void)exports.Set("Lexer", func);
+        constructor->SuppressDestruct();
 
-    return exports;
-}
+        (void)exports.Set("Lexer", func);
 
-LexerAdapter::LexerAdapter(const node::CallbackInfo& info)
-    : ObjectWrap(info) {
-    node::Arguments args(info);
+        return exports;
+    }
 
-    std::tuple<std::string_view, bool> params;
+    LexerAdapter::LexerAdapter(const node::CallbackInfo& info)
+        : ObjectWrap(info) {
 
-    std::get<0>(params) = args.getWithCheck<node::String>(0).Utf8Value();
+        Arguments args(info);
 
-    if (auto optArg = args.get(1); optArg.IsBoolean())
-        std::get<1>(params) = optArg.As<node::Boolean>();
+        std::tuple<std::string_view, bool> params;
 
-    std::apply([this](auto&... tp) {
-        lexer_ = ic::Lexer(tp...);
-    }, params);
-}
+        std::get<0>(params) = args.getWithCheck<node::String>(0).Utf8Value();
 
-node::Value LexerAdapter::tokenize(const node::CallbackInfo& info) {
-    node::Arguments args(info);
+        if (auto optArg = args.get(1); optArg.IsBoolean())
+            std::get<1>(params) = optArg.As<node::Boolean>();
 
-    auto tokens = ic::Lexer::tokenize(args.getWithCheck<node::String>(0).Utf8Value());
+        std::apply([this](auto&... tp) { lexer_ = Lexer(tp...); }, params);
+    }
 
-    auto size   = tokens.size();
-    auto result = node::Array::New(info.Env(), size);
+    node::Value LexerAdapter::tokenize(const node::CallbackInfo& info) {
+        Arguments args(info);
 
-    for (std::size_t i = 0; i < size; ++i) result[i] = TokenAdapter::to(info.Env(), *tokens[i]);
+        auto tokens = Lexer::tokenize(args.getWithCheck<node::String>(0).Utf8Value());
 
-    return result;
-}
+        auto size   = tokens.size();
+        auto result = node::Array::New(info.Env(), size);
 
-node::Value LexerAdapter::scan(const node::CallbackInfo& info) {
-    auto tokens = lexer_.scan();
+        for (std::size_t i = 0; i < size; ++i) result[i] = TokenAdapter::to(info.Env(), *tokens[i]);
 
-    auto size   = tokens.size();
-    auto result = node::Array::New(info.Env(), size);
+        return result;
+    }
 
-    for (std::size_t i = 0; i < size; ++i) result[i] = TokenAdapter::to(info.Env(), *tokens[i]);
+    node::Value LexerAdapter::scan(const node::CallbackInfo& info) {
+        auto tokens = lexer_.scan();
 
-    return result;
-}
+        auto size   = tokens.size();
+        auto result = node::Array::New(info.Env(), size);
+
+        for (std::size_t i = 0; i < size; ++i) result[i] = TokenAdapter::to(info.Env(), *tokens[i]);
+
+        return result;
+    }
+
+}  // namespace stationeers::ic10

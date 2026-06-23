@@ -23,6 +23,8 @@ namespace stationeers::ic10 {
     public:
         bool debug_ = false;
 
+        Parser() = default;
+
         Parser(const std::vector<std::shared_ptr<Token>> &tokens, bool debug = false);
 
         Program parse();

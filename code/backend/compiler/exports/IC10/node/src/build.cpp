@@ -13,20 +13,33 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "ic10/locals/local.hpp"
-#include "token_adapter.hpp"
+#include "common_node/build.hpp"
+#include "ast_adapter.hpp"
 #include "lexer_adapter.hpp"
-#include "locals.hpp"
+#include "local_adapter.hpp"
+#include "parser_adapter.hpp"
+#include "token_adapter.hpp"
+#include "symbol_table_adapter.hpp"
+#include "analyser_adapter.hpp"
 
+namespace ic = stationeers::ic10;
 
 node::Object Init(node::Env env, node::Object exports) {
-    initLocals(env, exports);
+    commonInit(env, exports);
 
-    TokenAdapter::init(env, exports);
+    ic::IC10LocalAdapter::init(env, exports);
 
-    LexerAdapter::init(env, exports);
+    ic::TokenAdapter::init(env, exports);
 
-    PosAdapter::init(env, exports);
+    ic::LexerAdapter::init(env, exports);
+
+    ic::ProgramAdapter::init(env, exports);
+
+    ic::ParserAdapter::init(env, exports);
+
+    ic::SymbolTableAdapter::init(env, exports);
+
+    ic::AnalyserAdapter::init(env, exports);
 
     return exports;
 }

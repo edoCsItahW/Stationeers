@@ -5,6 +5,7 @@
 
 # nodejs
 **/node_modules/
+*.node
 
 # IDE
 **/.idea/
