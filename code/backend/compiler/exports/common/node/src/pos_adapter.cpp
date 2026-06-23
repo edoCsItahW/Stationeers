@@ -15,65 +15,68 @@
  * */
 #include "common_node/pos_adapter.hpp"
 
+namespace stationeers {
 
-node::FunctionReference PosAdapter::constructor;
+    node::FunctionReference PosAdapter::constructor;
 
-node::Object PosAdapter::init(node::Env env, node::Object exports) {
-    node::Function func = DefineClass(
-        env, "Pos",
-        {InstanceAccessor<&PosAdapter::getLine>("line"),
-         InstanceAccessor<&PosAdapter::getColumn>("column"),
-         InstanceAccessor<&PosAdapter::getOffset>("offset"),
-         InstanceMethod("newline", &PosAdapter::newline), InstanceMethod("next", &PosAdapter::next),
-         InstanceMethod("move", &PosAdapter::move)}
-    );
+    node::Object PosAdapter::init(node::Env env, node::Object exports) {
+        node::Function func = DefineClass(
+            env, "Pos",
+            {InstanceAccessor<&PosAdapter::getLine>("line"),
+             InstanceAccessor<&PosAdapter::getColumn>("column"),
+             InstanceAccessor<&PosAdapter::getOffset>("offset"),
+             InstanceMethod("newline", &PosAdapter::newline),
+             InstanceMethod("next", &PosAdapter::next), InstanceMethod("move", &PosAdapter::move)}
+        );
 
-    constructor = node::Persistent(func);
+        constructor = node::Persistent(func);
 
-    constructor.SuppressDestruct();
+        constructor.SuppressDestruct();
 
-    (void)exports.Set("Pos", func);
+        (void)exports.Set("Pos", func);
 
-    return exports;
-}
+        return exports;
+    }
 
-st::Pos PosAdapter::from(const node::Object& obj) {
-    PosAdapter* wrapper = Unwrap(obj);
+    Pos PosAdapter::from(const node::Object& obj) {
+        PosAdapter* wrapper = Unwrap(obj);
 
-    return wrapper->pos_;
-}
+        return wrapper->pos_;
+    }
 
-node::Object PosAdapter::to(node::Env env, const st::Pos& self) {
-    node::Object obj = constructor.New({});
+    node::Object PosAdapter::to(node::Env env, const Pos& self) {
+        node::Object obj = constructor.New({});
 
-    PosAdapter* wrapper = Unwrap(obj);
+        PosAdapter* wrapper = Unwrap(obj);
 
-    wrapper->pos_ = self;
+        wrapper->pos_ = self;
 
-    return obj;
-}
+        return obj;
+    }
 
-PosAdapter::PosAdapter(const node::CallbackInfo& info)
-    : ObjectWrap(info) {}
+    PosAdapter::PosAdapter(const node::CallbackInfo& info)
+        : ObjectWrap(info) {}
 
-node::Value PosAdapter::getLine(const node::CallbackInfo& info) {
-    return node::Number::New(info.Env(), pos_.line());
-}
+    node::Value PosAdapter::getLine(const node::CallbackInfo& info) {
+        return node::Number::New(info.Env(), pos_.line());
+    }
 
-node::Value PosAdapter::getColumn(const node::CallbackInfo& info) {
-    return node::Number::New(info.Env(), pos_.column());
-}
+    node::Value PosAdapter::getColumn(const node::CallbackInfo& info) {
+        return node::Number::New(info.Env(), pos_.column());
+    }
 
-node::Value PosAdapter::getOffset(const node::CallbackInfo& info) {
-    return node::Number::New(info.Env(), pos_.offset());
-}
+    node::Value PosAdapter::getOffset(const node::CallbackInfo& info) {
+        return node::Number::New(info.Env(), pos_.offset());
+    }
 
-void PosAdapter::newline(const node::CallbackInfo& info) { pos_.newline(); }
+    void PosAdapter::newline(const node::CallbackInfo& info) { pos_.newline(); }
 
-void PosAdapter::next(const node::CallbackInfo& info) { pos_.next(); }
+    void PosAdapter::next(const node::CallbackInfo& info) { pos_.next(); }
 
-void PosAdapter::move(const node::CallbackInfo& info) {
-    node::Arguments args(info);
+    void PosAdapter::move(const node::CallbackInfo& info) {
+        Arguments args(info);
 
-    pos_.move(args.getWithCheck<node::Number>(0).Uint32Value());
-}
+        pos_.move(args.getWithCheck<node::Number>(0).Uint32Value());
+    }
+
+}  // namespace stationeers

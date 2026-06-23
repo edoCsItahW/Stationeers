@@ -1,0 +1,18 @@
+{
+    "IC10Node": {
+        "BuildConfig": "Release",
+        "CMakeTarget": "IC10_Node_API",
+        "ArtifactSource": "build/exports/IC10/node/Release/ic10-node-api.node",
+        "PackageRoot": "tests/node/ic10",
+        "PackageName": "ic10-node-api",
+        "TestDir": "tests/ic10/node"
+    },
+    "StationScriptNode": {
+        "BuildConfig": "Release",
+        "CMakeTarget": "StationScript_Node_API",
+        "ArtifactSource": "build/exports/StationScript/node/Release/station-script-node.node",
+        "PackageRoot": "tests/node/station_script",
+        "PackageName": "station-script-node",
+        "TestDir": "tests/station_script/node"
+    }
+}

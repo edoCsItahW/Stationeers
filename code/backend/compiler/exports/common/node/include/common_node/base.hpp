@@ -17,34 +17,106 @@
 #define EXPORT_BASE_HPP
 #pragma once
 
-#include "common/utils/common.hpp"
+#include "common/async/task.hpp"
+
 #include <napi.h>
+
 
 namespace node = Napi;
 
 namespace st = stationeers;
 
-template<typename T>
-concept BaseOfValue = std::is_base_of_v<Napi::Value, T>;
 
-namespace Napi {
+namespace stationeers {
+    template<typename T>
+    concept BaseOfValue = std::is_base_of_v<node::Value, T>;
+
+    template<typename T>
+    concept Serializable = requires(T node) {
+        { node.toJSON() } -> std::convertible_to<std::string>;
+    };
+
+    template<typename T>
+    node::Value to(node::Env env, const T& value);
+
+    template<typename... Ts>
+    node::Value to(node::Env env, const std::variant<Ts...>& var);
+
+    template<typename T>
+    node::Value to(node::Env env, const std::vector<T>& vec);
 
     class Arguments {
     public:
-        Arguments(const CallbackInfo& info);
+        Arguments(const node::CallbackInfo& info);
 
-        const Value operator[](std::size_t index) const;
+        const node::Value operator[](std::size_t index) const;
 
         template<BaseOfValue T>
         const T getWithCheck(std::size_t index) const;
 
-        const Value get(std::size_t index) const;
+        const node::Value get(std::size_t index) const;
 
     private:
-        const CallbackInfo& info_;
+        const node::CallbackInfo& info_;
     };
 
-}  // namespace Napi
+    template<typename T>
+    concept Transformer = std::is_void_v<T> || requires {
+        requires !std::is_void_v<decltype(T::from(std::declval<const node::Object&>()))>;
+
+        {
+            T::to(
+                std::declval<node::Env>(),
+                std::declval<const std::invoke_result_t<decltype(T::from), const node::Object&>&>()
+            )
+        } -> std::convertible_to<node::Object>;
+    };
+
+    template<Transformer T>
+    class TaskWorker : public node::AsyncWorker {
+    public:
+        using TaskFactory = std::function<Task<T>()>;
+
+        TaskWorker(node::Promise::Deferred deferred, TaskFactory factory);
+
+        void Execute() override;
+
+        void OnOK() override;
+
+        void OnError(const Napi::Error& e) override;
+
+    private:
+        node::Promise::Deferred deferred_;
+
+        TaskFactory factory_;
+
+        T result_;
+
+        bool flag_;
+    };
+
+    template<>
+    class TaskWorker<void> : public node::AsyncWorker {
+    public:
+        using TaskFactory = std::function<Task<>()>;
+
+        TaskWorker(node::Promise::Deferred deferred, TaskFactory factory);
+
+        void Execute() override;
+
+        void OnOK() override;
+
+        void OnError(const Napi::Error& e) override;
+
+    private:
+        node::Promise::Deferred deferred_;
+
+        TaskFactory factory_;
+
+        bool flag_;
+    };
+
+}  // namespace stationeers
 
 #define EXPORT_D_ATTR_GETTER(attr) node::Value get##attr(const node::CallbackInfo& info);
 
@@ -58,9 +130,9 @@ namespace Napi {
 
 #define EXPORT_D_METHOD(name, result) result name(const node::CallbackInfo& info);
 
-#define EXPORT_D_METHOD_VALUE(name) EXPORT_D_METHOD(name, node::Value)
+#define EXPORT_D_METHOD_VALUE(name)   EXPORT_D_METHOD(name, node::Value)
 
-#define EXPORT_D_METHOD_VOID(name) EXPORT_D_METHOD(name, void)
+#define EXPORT_D_METHOD_VOID(name)    EXPORT_D_METHOD(name, void)
 
 // #define EXPORT_ATTR(attr)
 

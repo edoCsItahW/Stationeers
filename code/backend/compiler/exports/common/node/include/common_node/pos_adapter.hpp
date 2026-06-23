@@ -7,7 +7,7 @@
 
 /**
  * @file pos_adapter.hpp
- * @author edocsitahw 
+ * @author edocsitahw
  * @version 1.1
  * @date 2026/06/17 13:26
  * @brief
@@ -20,33 +20,36 @@
 #include "base.hpp"
 #include "common/utils/position.hpp"
 
+namespace stationeers {
 
-class PosAdapter : public node::ObjectWrap<PosAdapter> {
-public:
-    static node::Object init(node::Env env, node::Object exports);
+    class PosAdapter : public node::ObjectWrap<PosAdapter> {
+    public:
+        static node::Object init(node::Env env, node::Object exports);
 
-    static node::Object to(node::Env env, const st::Pos& self);
+        static node::Object to(node::Env env, const Pos& self);
 
-    static st::Pos from(const node::Object& obj);
+        static Pos from(const node::Object& obj);
 
-    PosAdapter(const node::CallbackInfo& info);
+        PosAdapter(const node::CallbackInfo& info);
 
-private:
-    st::Pos pos_;
+    private:
+        Pos pos_;
 
-    static node::FunctionReference constructor;
+        static node::FunctionReference constructor;
 
-    EXPORT_D_ATTR_GETTER(Line)
+        EXPORT_D_ATTR_GETTER(Line)
 
-    EXPORT_D_ATTR_GETTER(Column)
+        EXPORT_D_ATTR_GETTER(Column)
 
-    EXPORT_D_ATTR_GETTER(Offset)
+        EXPORT_D_ATTR_GETTER(Offset)
 
-    EXPORT_D_METHOD_VOID(newline)
+        EXPORT_D_METHOD_VOID(newline)
 
-    EXPORT_D_METHOD_VOID(next)
+        EXPORT_D_METHOD_VOID(next)
 
-    EXPORT_D_METHOD_VOID(move)
-};
+        EXPORT_D_METHOD_VOID(move)
+    };
 
-#endif //EXPORT_POS_HPP
+}  // namespace stationeers
+
+#endif  // EXPORT_POS_HPP

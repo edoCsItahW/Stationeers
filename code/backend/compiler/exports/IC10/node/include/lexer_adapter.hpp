@@ -7,7 +7,7 @@
 
 /**
  * @file lexer_adapter.hpp
- * @author edocsitahw 
+ * @author edocsitahw
  * @version 1.1
  * @date 2026/06/16 17:37
  * @brief
@@ -19,22 +19,24 @@
 
 #include "common_node/base.hpp"
 #include "ic10/lexer/lexer.hpp"
-#include "token_adapter.hpp"
+
+namespace stationeers::ic10 {
+
+    class LexerAdapter : public node::ObjectWrap<LexerAdapter> {
+    public:
+        LexerAdapter(const node::CallbackInfo& info);
+
+        static node::Object init(node::Env env, node::Object exports);
+
+    private:
+        Lexer lexer_;
+
+        static node::Value tokenize(const node::CallbackInfo& info);
+
+        node::Value scan(const node::CallbackInfo& info);
+    };
+
+}  // namespace stationeers::ic10
 
 
-
-class LexerAdapter : public node::ObjectWrap<LexerAdapter> {
-public:
-    LexerAdapter(const node::CallbackInfo& info);
-
-    static node::Object init(node::Env env, node::Object exports);
-
-private:
-    ic::Lexer lexer_;
-
-    static node::Value tokenize(const node::CallbackInfo& info);
-
-    node::Value scan(const node::CallbackInfo& info);
-};
-
-#endif //EXPORT_LEXER_HPP
+#endif  // EXPORT_LEXER_HPP

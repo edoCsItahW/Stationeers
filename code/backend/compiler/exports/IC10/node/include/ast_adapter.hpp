@@ -6,51 +6,49 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file token_adapter.hpp
+ * @file ast_adapter.hpp
  * @author edocsitahw
  * @version 1.1
- * @date 2026/06/16 18:15
+ * @date 2026/06/18 12:53
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef EXPORT_TOKEN_HPP
-#define EXPORT_TOKEN_HPP
+#ifndef EXPORT_AST_ADAPTER_HPP
+#define EXPORT_AST_ADAPTER_HPP
 #pragma once
 
-#include "common_node/pos_adapter.hpp"
-#include "ic10/lexer/token.hpp"
+#include "common_node/base.hpp"
+#include "ic10/parser/ast/ast.hpp"
 
 namespace stationeers::ic10 {
 
-    class TokenAdapter : public node::ObjectWrap<TokenAdapter> {
+    class ProgramAdapter : public node::ObjectWrap<ProgramAdapter> {
     public:
-        TokenAdapter(const node::CallbackInfo& info);
+        ProgramAdapter(const node::CallbackInfo& info);
 
         static node::Object init(node::Env env, node::Object exports);
 
-        static node::Object to(node::Env env, const Token& self);
+        static node::Object to(node::Env env, const Program& self);
 
-        static Token from(const node::Object& obj);
+        static Program from(const node::Object& obj);
 
     private:
-        Token token_{};
+        Program program_;
 
         static node::FunctionReference constructor;
 
-        EXPORT_D_ATTR(Type)
+        static node::Value getNodeName(const node::CallbackInfo& info);
 
-        EXPORT_D_ATTR(Pos)
+        node::Value getStatements(const node::CallbackInfo& info);
 
-        EXPORT_D_ATTR(Lexeme)
+        node::Value end(const node::CallbackInfo& info);
 
-        EXPORT_D_ATTR(Category)
+        node::Value toString(const node::CallbackInfo& info);
 
-        EXPORT_D_METHOD_VALUE(toString)
+        node::Value toJSON(const node::CallbackInfo& info);
 
-        EXPORT_D_METHOD_VALUE(toJSON)
     };
 
 }  // namespace stationeers::ic10
 
-
-#endif  // EXPORT_TOKEN_HPP
+#endif  // EXPORT_AST_ADAPTER_HPP

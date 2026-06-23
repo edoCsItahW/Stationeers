@@ -6,24 +6,19 @@
 // permission, please contact the author: 2207150234@st.sziit.edu.cn
 
 /**
- * @file build.cpp
+ * @file build.hpp
  * @author edocsitahw
  * @version 1.1
- * @date 2026/06/17 13:26
+ * @date 2026/06/18 12:57
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "common_node/build.hpp"
-#include "common_node/error_adapter.hpp"
-#include "common_node/pos_adapter.hpp"
+#ifndef EXPORT_BUILD_HPP
+#define EXPORT_BUILD_HPP
+#pragma once
 
-node::Object commonInit(const node::Env env, const node::Object exports) {
-    stationeers::PosAdapter::init(env, exports);
+#include "base.hpp"
 
-    stationeers::ErrorAdapter::init(env, exports);
+node::Object commonInit(const node::Env env, const node::Object exports);
 
-    return exports;
-}
-
-
-// NODE_API_MODULE(addon, commonInit)
+#endif  // EXPORT_BUILD_HPP
