@@ -10,9 +10,19 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/06/02 22:00
- * @brief
+ * @if zh
+ * @brief IC10词法标记定义
+ * @details 定义IC10编程语言的词法标记类型、标记类别、关键字映射表和Token结构。
+ *        包含数字、字符串、标识符、寄存器、设备、各类指令关键字等标记类型。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
- * */
+ * @elseif en
+ * @brief IC10 lexical token definitions
+ * @details Defines lexical token types, token categories, keyword mapping tables and Token structure
+ *        for IC10 programming language. Includes token types such as numbers, strings, identifiers,
+ *        registers, devices, and various instruction keywords.
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
+ */
 #ifndef COMPILER_TOKEN_HPP
 #define COMPILER_TOKEN_HPP
 #pragma once
@@ -253,24 +263,143 @@ namespace stationeers::ic10 {
 
     extern const std::string SYMBOLS;
 
+    /**
+     * @if zh
+     *
+     * @struct Token
+     * @brief 词法标记结构
+     * @details 表示IC10源代码中的一个词法单元,包含标记类型、位置、词素和类别信息
+     *
+     * @elseif en
+     *
+     * @struct Token
+     * @brief Lexical token structure
+     * @details Represents a lexical unit in IC10 source code, containing token type, position,
+     *        lexeme and category information
+     *
+     * @endif
+     */
     struct Token {
+        /**
+         * @if zh
+         * @brief 标记类型
+         * @elseif en
+         * @brief Token type
+         * @endif
+         */
         TokenType type = TokenType::UNKNOWN;
 
+        /**
+         * @if zh
+         * @brief 标记起始位置
+         * @elseif en
+         * @brief Token start position
+         * @endif
+         */
         Pos pos;
 
+        /**
+         * @if zh
+         * @brief 标记词素(原始文本)
+         * @elseif en
+         * @brief Token lexeme (raw text)
+         * @endif
+         */
         std::string lexeme = "";
 
+        /**
+         * @if zh
+         * @brief 标记类别
+         * @elseif en
+         * @brief Token category
+         * @endif
+         */
         TokenCategory category = TokenCategory::INVALID;
 
+        /**
+         * @if zh
+         *
+         * @brief 转换为字符串表示
+         * @return 人类可读的字符串描述
+         *
+         * @elseif en
+         *
+         * @brief Convert to string representation
+         * @return Human-readable string description
+         *
+         * @endif
+         */
         [[nodiscard]] std::string toString() const;
 
+        /**
+         * @if zh
+         *
+         * @brief 转换为JSON格式
+         * @return JSON格式的字符串
+         *
+         * @elseif en
+         *
+         * @brief Convert to JSON format
+         * @return String in JSON format
+         *
+         * @endif
+         */
         [[nodiscard]] std::string toJSON() const;
 
+        /**
+         * @if zh
+         *
+         * @brief 流输出运算符
+         * @param os 输出流
+         * @param token Token引用
+         * @return 输出流引用
+         *
+         * @elseif en
+         *
+         * @brief Stream output operator
+         * @param os Output stream
+         * @param token Token reference
+         * @return Output stream reference
+         *
+         * @endif
+         */
         friend std::ostream &operator<<(std::ostream &os, const Token &token);
     };
 
+    /**
+     * @if zh
+     *
+     * @brief 流输出运算符声明
+     * @param os 输出流
+     * @param token Token引用
+     * @return 输出流引用
+     *
+     * @elseif en
+     *
+     * @brief Stream output operator declaration
+     * @param os Output stream
+     * @param token Token reference
+     * @return Output stream reference
+     *
+     * @endif
+     */
     std::ostream &operator<<(std::ostream &os, const Token &token);
 
+    /**
+     * @if zh
+     *
+     * @brief 获取Token的结束位置
+     * @param token 输入的Token
+     * @return Token结束后的位置
+     *
+     * @elseif en
+     *
+     * @brief Get end position of Token
+     * @param token Input token
+     * @return Position after token ends
+     *
+     * @endif
+     */
     Pos endPos(const Token &token);
 
 }  // namespace ic10

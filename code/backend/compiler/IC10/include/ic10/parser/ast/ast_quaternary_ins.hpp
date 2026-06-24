@@ -10,9 +10,20 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/06/03 13:12
- * @brief
+ * @if zh
+ * @brief IC10四元指令AST定义
+ * @details 定义IC10中的四元指令(含四个操作数的指令),如LERP、EXT、INS、SAP等。
+ *        使用模板元编程自动生成指令类型和TypeMap映射。
+ * @note 实现位于ast_quaternary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
- * */
+ * @elseif en
+ * @brief IC10 quaternary instruction AST definitions
+ * @details Defines quaternary instructions (instructions with four operands) in IC10, such as LERP, EXT, INS, SAP, etc.
+ *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
+ * @note Implementation in ast_quaternary_ins.inl
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
+ */
 #ifndef COMPILER_AST_QUATERNARY_INS_HPP
 #define COMPILER_AST_QUATERNARY_INS_HPP
 #pragma once
@@ -25,18 +36,103 @@ namespace stationeers {
 
         // QuaternaryInstructionBase（实现于ast.cpp）
 
+        /**
+         * @if zh
+         *
+         * @class QuaternaryInstructionBase
+         * @brief 四元指令基类模板
+         * @details 四元指令是带四个操作数的指令基类。
+         *        继承自TernaryInstructionBase,添加第四个操作数。
+         *
+         * @tparam K 指令关键字的FString类型
+         * @tparam O1 第一个操作数类型
+         * @tparam O2 第二个操作数类型
+         * @tparam O3 第三个操作数类型
+         * @tparam O4 第四个操作数类型
+         *
+         * @elseif en
+         *
+         * @class QuaternaryInstructionBase
+         * @brief Quaternary instruction base class template
+         * @details Quaternary instructions are instruction base classes with four operands.
+         *        Inherits from TernaryInstructionBase, adding fourth operand.
+         *
+         * @tparam K FString type of instruction keyword
+         * @tparam O1 Type of first operand
+         * @tparam O2 Type of second operand
+         * @tparam O3 Type of third operand
+         * @tparam O4 Type of fourth operand
+         *
+         * @endif
+         */
         template<FString K, typename O1, typename O2, typename O3, typename O4>
         struct QuaternaryInstructionBase : TernaryInstructionBase<K, O1, O2, O3> {
+            /**
+             * @if zh
+             * @brief 节点名称
+             * @elseif en
+             * @brief Node name
+             * @endif
+             */
             static constexpr auto nodeName = fstr_concat_v<K, "Instruction">;
 
+            /**
+             * @if zh
+             * @brief 第四个操作数
+             * @elseif en
+             * @brief Fourth operand
+             * @endif
+             */
             O4 operand4;
 
+            /**
+             * @if zh
+             * @brief 参数类型元组
+             * @elseif en
+             * @brief Argument types tuple
+             * @endif
+             */
             using Args = std::tuple<O1, O2, O3, O4>;
 
+            /**
+             * @if zh
+             * @brief 参数元组
+             * @elseif en
+             * @brief Argument tuple
+             * @endif
+             */
             Args args;
 
+            /**
+             * @if zh
+             * @brief 默认构造函数
+             * @elseif en
+             * @brief Default constructor
+             * @endif
+             */
             QuaternaryInstructionBase() = default;
 
+            /**
+             * @if zh
+             *
+             * @brief 构造函数
+             * @param pos 位置信息
+             * @param op1 第一个操作数
+             * @param op2 第二个操作数
+             * @param op3 第三个操作数
+             * @param op4 第四个操作数
+             *
+             * @elseif en
+             *
+             * @brief Constructor
+             * @param pos Position information
+             * @param op1 First operand
+             * @param op2 Second operand
+             * @param op3 Third operand
+             * @param op4 Fourth operand
+             *
+             * @endif
+             */
             QuaternaryInstructionBase(Pos pos, O1 op1, O2 op2, O3 op3, O4 op4);
 
             [[nodiscard]] Pos end() const override;
@@ -45,6 +141,23 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
+            /**
+             * @if zh
+             *
+             * @brief JSON基类辅助函数
+             * @tparam ...Ts 字段类型包
+             * @param ... fields 字段名和值的对
+             * @return JSON格式字符串
+             *
+             * @elseif en
+             *
+             * @brief JSON base helper function
+             * @tparam ...Ts Field type pack
+             * @param ... fields Pairs of field names and values
+             * @return JSON format string
+             *
+             * @endif
+             */
             template<typename... Ts>
             [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
         };
@@ -52,6 +165,28 @@ namespace stationeers {
     }  // namespace ic10
 
 // 四元指令别名
+    /**
+     * @def DEFINE_QUATERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)
+     * @if zh
+     *
+     * @brief 定义四元指令
+     * @details 使用QuaternaryInstructionBase定义一个四元指令类型并注册到TypeMap
+     * @param lowerCase 指令小写名
+     * @param pascalCase 指令PascalCase名
+     * @param upperCase 指令大写下划线名
+     * @param ... 可变参数(操作数类型)
+     *
+     * @elseif en
+     *
+     * @brief Define quaternary instruction
+     * @details Defines a quaternary instruction type using QuaternaryInstructionBase and registers it in TypeMap
+     * @param lowerCase Instruction lowercase name
+     * @param pascalCase Instruction PascalCase name
+     * @param upperCase Instruction uppercase underscore name
+     * @param ... Variadic parameters (operand types)
+     *
+     * @endif
+     */
 #define DEFINE_QUATERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)                       \
     DEFINE_INSTRUCTION(                                                                            \
         lowerCase, pascalCase, upperCase, ic10::QuaternaryInstructionBase, __VA_ARGS__             \
