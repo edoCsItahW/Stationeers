@@ -19,7 +19,7 @@ importers:
         specifier: ^25.9.3
         version: 25.9.3
       ic10-node-api:
-        specifier: link:tests\node\ic10
+        specifier: link:tests/node/ic10
         version: link:tests/node/ic10
       jest:
         specifier: ^30.4.2
