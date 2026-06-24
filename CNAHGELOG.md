@@ -16,3 +16,12 @@
 - 添加github工作流
 - 完善README和CONTRIBUTING文件
 - 提交v1.0.0版本
+
+## 2026/06/23
+
+- 完成IC10的Node.js绑定与导出
+
+## 2026/06/24
+
+- 修复Lexer适配器生命周期问题(#22)
+- 更新README.md
