@@ -31,6 +31,8 @@ namespace stationeers::ic10 {
     private:
         Lexer lexer_;
 
+        std::string source_;
+
         static node::Value tokenize(const node::CallbackInfo& info);
 
         node::Value scan(const node::CallbackInfo& info);

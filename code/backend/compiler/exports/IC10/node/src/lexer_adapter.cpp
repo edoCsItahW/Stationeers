@@ -42,14 +42,12 @@ namespace stationeers::ic10 {
 
         Arguments args(info);
 
-        std::tuple<std::string_view, bool> params;
-
-        std::get<0>(params) = args.getWithCheck<node::String>(0).Utf8Value();
+        source_ = args.getWithCheck<node::String>(0).Utf8Value();
 
         if (auto optArg = args.get(1); optArg.IsBoolean())
-            std::get<1>(params) = optArg.As<node::Boolean>();
-
-        std::apply([this](auto&... tp) { lexer_ = Lexer(tp...); }, params);
+            lexer_ = Lexer(source_, optArg);
+        else
+            lexer_ = Lexer(source_);
     }
 
     node::Value LexerAdapter::tokenize(const node::CallbackInfo& info) {
