@@ -44,6 +44,8 @@ namespace stationeers {
             const std::source_location& loc = std::source_location::current()
         );
 
+        [[nodiscard]] std::string_view getName() const noexcept;
+
         template<typename Self>
         [[nodiscard]] const std::string& message(this Self& self) noexcept;
 
@@ -62,6 +64,12 @@ namespace stationeers {
         struct Base : std::exception {
             ~Base() override = default;
 
+            [[nodiscard]] virtual const Pos& getStart() const noexcept = 0;
+
+            [[nodiscard]] virtual const Pos& getEnd() const noexcept = 0;
+
+            [[nodiscard]] virtual std::string_view getName() const noexcept = 0;
+
             [[nodiscard]] virtual std::string_view message() const noexcept = 0;
 
             [[nodiscard]] virtual std::string stackTraceInfo() const = 0;
@@ -75,6 +83,12 @@ namespace stationeers {
         public:
             Model(const Derived& self);
 
+            [[nodiscard]] const Pos& getStart() const noexcept override;
+
+            [[nodiscard]] const Pos& getEnd() const noexcept override;
+
+            [[nodiscard]] std::string_view getName() const noexcept override;
+
             [[nodiscard]] std::string_view message() const noexcept override;
 
             [[nodiscard]] std::string stackTraceInfo() const override;
@@ -82,6 +96,12 @@ namespace stationeers {
 
         template<typename Derived>
         Error(const Derived& self);
+
+        [[nodiscard]] const Pos& getStart() const noexcept;
+
+        [[nodiscard]] const Pos& getEnd() const noexcept;
+
+        [[nodiscard]] std::string_view getName() const noexcept;
 
         [[nodiscard]] std::string_view message() const noexcept;
 

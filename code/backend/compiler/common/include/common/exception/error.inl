@@ -17,9 +17,8 @@
 #define COMPILER_ERROR_INL
 #pragma once
 
-#include <sstream>
 #include <format>
-
+#include <sstream>
 
 namespace stationeers {
 
@@ -42,6 +41,11 @@ namespace stationeers {
         , end(end)
         , message_(std::format("[{}]: {}", std::string_view(Derived::name), message))
         , loc_(loc) {}
+
+    template<typename Derived>
+    std::string_view ErrorBase<Derived>::getName() const noexcept {
+        return Derived::name;
+    }
 
     template<typename Derived>
     template<typename Self>
@@ -70,6 +74,21 @@ namespace stationeers {
     template<typename Derived>
     Error::Model<Derived>::Model(const Derived& self)
         : self_(self) {}
+
+    template<typename Derived>
+    const Pos& Error::Model<Derived>::getStart() const noexcept {
+        return self_.start;
+    }
+
+    template<typename Derived>
+    const Pos& Error::Model<Derived>::getEnd() const noexcept {
+        return self_.end;
+    }
+
+    template<typename Derived>
+    std::string_view Error::Model<Derived>::getName() const noexcept {
+        return self_.getName();
+    }
 
     template<typename Derived>
     std::string_view Error::Model<Derived>::message() const noexcept {

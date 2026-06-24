@@ -20,14 +20,18 @@ namespace stationeers {
 
     // Error
 
+    const Pos& Error::getStart() const noexcept { return pimpl_->getStart(); }
+
+    const Pos& Error::getEnd() const noexcept { return pimpl_->getEnd(); }
+
+    std::string_view Error::getName() const noexcept { return pimpl_->getName(); }
+
     std::string_view Error::message() const noexcept { return pimpl_->message(); }
 
     std::string Error::stackTraceInfo() const { return pimpl_->stackTraceInfo(); }
 
     const char* Error::what() const noexcept { return pimpl_->what(); }
 
-    std::ostream& operator<<(std::ostream& os, const Error& e) {
-        return os << e.stackTraceInfo();
-    }
+    std::ostream& operator<<(std::ostream& os, const Error& e) { return os << e.stackTraceInfo(); }
 
 }  // namespace stationeers

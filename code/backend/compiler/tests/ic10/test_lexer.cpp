@@ -14,8 +14,10 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include <gtest/gtest.h>
-#include "ic10/lexer/lexer.hpp"
+
 #include "ic10/locals/languages/zh_hans.hpp"
+#include "ic10/lexer/lexer.hpp"
+
 
 using namespace stationeers::ic10;
 
