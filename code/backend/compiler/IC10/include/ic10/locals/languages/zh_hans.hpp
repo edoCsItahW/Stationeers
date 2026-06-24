@@ -25,6 +25,24 @@ namespace stationeers::ic10 {
 
     struct ZhHans;
 
+    /**
+     * @def LOCAL_MSG_ZH_HANS(id, msg)
+     * @if zh
+     *
+     * @brief 定义简体中文本地化消息
+     * @details 为简体中文语言定义本地化消息的便捷宏
+     * @param id 消息ID
+     * @param msg 消息内容
+     *
+     * @elseif en
+     *
+     * @brief Define Simplified Chinese localization message
+     * @details Convenience macro for defining localization messages for Simplified Chinese
+     * @param id Message ID
+     * @param msg Message content
+     *
+     * @endif
+     */
 #define LOCAL_MSG_ZH_HANS(id, msg) LOCAL_MSG(ZhHans, id, msg)
 
     LOCAL_MSG_ZH_HANS(IWL1, "文件结束时未如期遇到END令牌 - 词法分析器。");

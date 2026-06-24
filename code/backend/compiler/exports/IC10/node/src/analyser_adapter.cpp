@@ -28,6 +28,7 @@ namespace stationeers::ic10 {
         node::Function func = DefineClass(
             env, "Analyser",
             {
+// reslove MSVC ICE C1001
 #ifdef _MSC_VER
                 InstanceAccessor("symbolTable", &AnalyserAdapter::getSymbolTable, nullptr),
                 InstanceAccessor("errors", &AnalyserAdapter::getErrors, nullptr),

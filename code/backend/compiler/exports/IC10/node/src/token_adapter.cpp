@@ -40,6 +40,7 @@ namespace stationeers::ic10 {
             DefineClass(
                 env, "Token",
                 {
+// reslove MSVC ICE C1001
 #ifdef _MSC_VER
                     InstanceAccessor("type", &TokenAdapter::getType, &TokenAdapter::setType),
                     InstanceAccessor("pos", &TokenAdapter::getPos, &TokenAdapter::setPos),

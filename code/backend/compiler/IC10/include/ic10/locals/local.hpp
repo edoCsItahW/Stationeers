@@ -99,6 +99,26 @@ namespace stationeers::ic10 {
 
     using Loc = IC10Local;
 
+    /**
+     * @def LOCAL_MSG(type, id, _msg)
+     * @if zh
+     *
+     * @brief 定义本地化消息
+     * @details 为指定语言和消息ID定义本地化消息模板特化
+     * @param type 语言类型(如ZhHans, EnUs)
+     * @param id 消息ID枚举值
+     * @param _msg 消息内容字符串
+     *
+     * @elseif en
+     *
+     * @brief Define localization message
+     * @details Defines localization message template specialization for specified language and message ID
+     * @param type Language type (e.g. ZhHans, EnUs)
+     * @param id Message ID enum value
+     * @param _msg Message content string
+     *
+     * @endif
+     */
 #define LOCAL_MSG(type, id, _msg)                                                                  \
     template<>                                                                                     \
     struct IC10MsgMap<type, IC10MsgId::id> {                                                       \
