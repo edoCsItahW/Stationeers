@@ -1,0 +1,120 @@
+name: IC10 Core Build & Test
+run-name: IC10 Core | IC10 核心
+
+on:
+    workflow_call:
+        inputs:
+            os:
+                description: 'Operating system'
+                type: string
+                required: false
+                default: 'ubuntu-latest'
+            cmake-version:
+                description: 'CMake version'
+                type: string
+                required: false
+                default: '4.2.1'
+            build-type:
+                description: 'Build type'
+                type: string
+                required: false
+                default: 'Release'
+            run-tests:
+                description: 'Whether to run tests'
+                type: boolean
+                required: false
+                default: true
+            upload-artifact:
+                description: 'Whether to upload build artifacts'
+                type: boolean
+                required: false
+                default: false
+            artifact-name:
+                description: 'Artifact name prefix'
+                type: string
+                required: false
+                default: 'ic10-core'
+        outputs:
+            artifact-name:
+                description: 'Name of the uploaded artifact'
+                value: ${{ jobs.build.outputs.artifact-name }}
+
+jobs:
+    build:
+        name: build ${{ inputs.os }} | 构建${{ inputs.os }}
+        runs-on: ${{ inputs.os }}
+        outputs:
+            artifact-name: ${{ steps.artifact.outputs.name }}
+
+        steps:
+            -   name: Checkout source code | 检出源码
+                uses: actions/checkout@v6
+
+            -   name: Setup build environment | 设置构建环境
+                uses: ./.github/actions/setup-build-env
+                with:
+                    os: ${{ inputs.os }}
+                    cmake-version: ${{ inputs.cmake-version }}
+                    cache-key-prefix: ic10-core
+
+            -   name: Configure CMake | 配置 CMake
+                shell: bash
+                run: |
+                    CMAKE_ARGS="-B build -S code/backend/compiler"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=23"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_STATIONSCRIPT=OFF"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_NODE_BINDINGS=OFF"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=OFF"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_TESTS=${{ inputs.run-tests && 'ON' || 'OFF' }}"
+                    CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CCACHE=ON"
+ 
+                    if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
+                      CMAKE_ARGS="$CMAKE_ARGS -G Ninja"
+                      CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld"
+                    fi
+
+                    echo "CMake args: $CMAKE_ARGS"
+                    cmake $CMAKE_ARGS
+
+            -   name: Build | 编译
+                shell: bash
+                run: |
+                    cmake --build build --config ${{ inputs.build-type }} --parallel 4
+ 
+            -   name: Show ccache stats | 显示缓存统计
+                if: inputs.os == 'ubuntu-latest'
+                shell: bash
+                run: ccache --show-stats
+
+            -   name: Show sccache stats | 显示缓存统计
+                if: inputs.os == 'windows-latest'
+                shell: pwsh
+                run: sccache --show-stats
+
+            -   name: Run CTest tests | 运行 CTest 测试
+                if: inputs.run-tests
+                shell: bash
+                run: |
+                    cd build
+                    ctest --output-on-failure --parallel 4 -C ${{ inputs.build-type }}
+ 
+            -   name: Set artifact name | 设置产物名称
+                id: artifact
+                if: inputs.upload-artifact
+                shell: bash
+                run: |
+                    NAME="${{ inputs.artifact-name }}-${{ inputs.os }}"
+                    echo "name=$NAME" >> $GITHUB_OUTPUT
+ 
+            -   name: Upload build artifacts | 上传构建产物
+                if: inputs.upload-artifact
+                uses: actions/upload-artifact@v6
+                with:
+                    name: ${{ steps.artifact.outputs.name }}
+                    path: |
+                        build/bin/**
+                        build/lib/**
+                    retention-days: 7
