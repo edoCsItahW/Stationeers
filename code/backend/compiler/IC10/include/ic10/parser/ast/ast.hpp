@@ -30,7 +30,7 @@ namespace stationeers::ic10 {
     // Program（实现于ast.cpp）
 
     struct Program : AST<Program> {
-        static constexpr auto nodeName = FString{"Program"};
+        static constexpr auto nodeName = FStr{"Program"};
 
         std::vector<Statement> statements;
 

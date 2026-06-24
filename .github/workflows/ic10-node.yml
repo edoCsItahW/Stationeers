@@ -127,8 +127,10 @@ jobs:
                 working-directory: code/backend/compiler
                 shell: bash
                 run: |
-                    cp build/exports/IC10/node/ic10-node-api.node tests/node/ic10/ 2>/dev/null || true
-                    pnpm test
+                    ls -R $GITHUB_WORKSPACE/build/exports/IC10/node/
+                    cp $GITHUB_WORKSPACE/build/exports/IC10/node/Release/ic10-node-api.node tests/node/ic10/src/ 2>/dev/null || \
+                    cp $GITHUB_WORKSPACE/build/exports/IC10/node/ic10-node-api.node tests/node/ic10/src/
+                    pnpm test --ignore-workspace
  
             -   name: Set artifact name | 设置产物名称
                 id: artifact
@@ -147,3 +149,5 @@ jobs:
                         build/exports/IC10/node/**
                         build/bin/**
                     retention-days: 7
+
+

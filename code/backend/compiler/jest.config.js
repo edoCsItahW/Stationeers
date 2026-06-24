@@ -10,5 +10,8 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    testMatch: ['**/__tests__/**/*.test.ts']
+    testMatch: ['**/__tests__/**/*.test.ts'],
+    moduleNameMapper: {
+        '^ic10-node-api$': '<rootDir>/tests/node/ic10/src/ic10-node-api.node'
+    }
 };

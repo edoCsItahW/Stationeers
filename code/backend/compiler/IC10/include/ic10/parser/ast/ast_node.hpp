@@ -55,7 +55,7 @@ namespace stationeers::ic10 {
     // ErrorNode（实现于ast.cpp）
 
     struct ErrorNode : AST<ErrorNode> {
-        static constexpr auto nodeName = FString{"Error"};
+        static constexpr auto nodeName = FStr{"Error"};
 
         Token token;
 
@@ -83,7 +83,7 @@ namespace stationeers::ic10 {
     // Integer（实现于ast.cpp）
 
     struct Integer : AST<Integer> {
-        static constexpr auto nodeName = FString{"Integer"};
+        static constexpr auto nodeName = FStr{"Integer"};
 
         std::string value;
 
@@ -103,7 +103,7 @@ namespace stationeers::ic10 {
     // Float（实现于ast.cpp）
 
     struct Float : AST<Float> {
-        static constexpr auto nodeName = FString{"Float"};
+        static constexpr auto nodeName = FStr{"Float"};
 
         std::string value;
 
@@ -123,7 +123,7 @@ namespace stationeers::ic10 {
     // HexNumber（实现于ast.cpp）
 
     struct HexNumber : AST<HexNumber> {
-        static constexpr auto nodeName = FString{"HexNumber"};
+        static constexpr auto nodeName = FStr{"HexNumber"};
 
         std::string value;
 
@@ -143,7 +143,7 @@ namespace stationeers::ic10 {
     // BinaryNumber（实现于ast.cpp）
 
     struct BinaryNumber : AST<BinaryNumber> {
-        static constexpr auto nodeName = FString{"BinaryNumber"};
+        static constexpr auto nodeName = FStr{"BinaryNumber"};
 
         std::string value;
 
@@ -167,7 +167,7 @@ namespace stationeers::ic10 {
     // Identifier（实现于ast.cpp）
 
     struct Identifier : AST<Identifier> {
-        static constexpr auto nodeName = FString{"Identifier"};
+        static constexpr auto nodeName = FStr{"Identifier"};
 
         std::string value;
 
@@ -187,7 +187,7 @@ namespace stationeers::ic10 {
     // String（实现于ast.cpp）
 
     struct String : AST<String> {
-        static constexpr auto nodeName = FString{"String"};
+        static constexpr auto nodeName = FStr{"String"};
         std::string value;
 
         String() = default;
@@ -206,7 +206,7 @@ namespace stationeers::ic10 {
     // Register（实现于ast.cpp）
 
     struct Register : AST<Register> {
-        static constexpr auto nodeName = FString{"Register"};
+        static constexpr auto nodeName = FStr{"Register"};
         std::string value;
 
         Register() = default;
@@ -225,7 +225,7 @@ namespace stationeers::ic10 {
     // Device（实现于ast.cpp）
 
     struct Device : AST<Device> {
-        static constexpr auto nodeName = FString{"Device"};
+        static constexpr auto nodeName = FStr{"Device"};
         std::string value;
 
         Device() = default;
@@ -264,7 +264,7 @@ namespace stationeers::ic10 {
     // Constant（实现于ast.cpp）
 
     struct Constant : AST<Constant> {
-        static constexpr auto nodeName = FString{"Constant"};
+        static constexpr auto nodeName = FStr{"Constant"};
 
         std::string keyword;
 
@@ -296,7 +296,7 @@ namespace stationeers::ic10 {
     // HashCall（实现于ast.cpp）
 
     struct HashCall : AST<HashCall> {
-        static constexpr auto nodeName = FString{"HashCall"};
+        static constexpr auto nodeName = FStr{"HashCall"};
 
         ShallowErrorable<String> value;
 
@@ -318,7 +318,7 @@ namespace stationeers::ic10 {
     // StrCall（实现于ast.cpp）
 
     struct StrCall : AST<StrCall> {
-        static constexpr auto nodeName = FString{"StrCall"};
+        static constexpr auto nodeName = FStr{"StrCall"};
 
         ShallowErrorable<String> value;
 
@@ -348,9 +348,9 @@ namespace stationeers::ic10 {
     // AliasDirective（实现于ast.cpp）
 
     struct AliasDirective : AST<AliasDirective> {
-        static constexpr auto nodeName = FString{"AliasDirective"};
+        static constexpr auto nodeName = FStr{"AliasDirective"};
 
-        static constexpr auto keyword = FString{"alias"};
+        static constexpr auto keyword = FStr{"alias"};
 
         ShallowErrorable<Identifier> identifier;
 
@@ -372,9 +372,9 @@ namespace stationeers::ic10 {
     // DefineDirective（实现于ast.cpp）
 
     struct DefineDirective : AST<DefineDirective> {
-        static constexpr auto nodeName = FString{"DefineDirective"};
+        static constexpr auto nodeName = FStr{"DefineDirective"};
 
-        static constexpr auto keyword = FString{"define"};
+        static constexpr auto keyword = FStr{"define"};
 
         ShallowErrorable<Identifier> identifier;
 
@@ -400,7 +400,7 @@ namespace stationeers::ic10 {
     // LabelDef（实现于ast.cpp）
 
     struct LabelDef : AST<LabelDef> {
-        static constexpr auto nodeName = FString{"LabelDef"};
+        static constexpr auto nodeName = FStr{"LabelDef"};
 
         ShallowErrorable<Identifier> identifier;
 
