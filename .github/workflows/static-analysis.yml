@@ -1,0 +1,165 @@
+name: Static Analysis
+run-name: Static Analysis | 静态分析
+
+on:
+    workflow_call:
+        inputs:
+            os:
+                description: 'Operating system'
+                type: string
+                required: false
+                default: 'ubuntu-latest'
+            cmake-version:
+                description: 'CMake version'
+                type: string
+                required: false
+                default: '4.2.1'
+            run-cppcheck:
+                description: 'Run cppcheck'
+                type: boolean
+                required: false
+                default: true
+            run-clang-tidy:
+                description: 'Run clang-tidy'
+                type: boolean
+                required: false
+                default: true
+            run-clang-format:
+                description: 'Run clang-format check'
+                type: boolean
+                required: false
+                default: true
+            analyze-ic10:
+                description: 'Analyze IC10 code'
+                type: boolean
+                required: false
+                default: true
+            analyze-stationscript:
+                description: 'Analyze StationScript code'
+                type: boolean
+                required: false
+                default: false
+            analyze-common:
+                description: 'Analyze common library code'
+                type: boolean
+                required: false
+                default: true
+            upload-reports:
+                description: 'Upload analysis reports'
+                type: boolean
+                required: false
+                default: true
+
+jobs:
+    static-analysis:
+        name: static analysis | 静态分析
+        runs-on: ${{ inputs.os }}
+
+        steps:
+            -   name: Checkout source code | 检出源码
+                uses: actions/checkout@v6
+
+            -   name: Install analysis tools | 安装分析工具
+                if: inputs.os == 'ubuntu-latest'
+                shell: bash
+                run: |
+                    wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+                    sudo add-apt-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-22 main"
+                    sudo apt-get update
+                    sudo apt-get install -y \
+                      cppcheck \
+                      clang-tidy-22 \
+                      clang-format-22 \
+                      ninja-build
+                    sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-22 100
+                    sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-22 100
+
+            -   name: Install CMake | 安装 CMake
+                uses: jwlawson/actions-setup-cmake@v2.2.0
+                with:
+                    cmake-version: ${{ inputs.cmake-version }}
+
+            -   name: Collect source directories | 收集源码目录
+                id: sources
+                shell: bash
+                run: |
+                    SRC_DIRS=""
+                    INC_DIRS=""
+                    if [[ "${{ inputs.analyze-common }}" == "true" ]]; then
+                      SRC_DIRS="$SRC_DIRS code/backend/compiler/common/src"
+                      INC_DIRS="$INC_DIRS code/backend/compiler/common/include"
+                    fi
+                    if [[ "${{ inputs.analyze-ic10 }}" == "true" ]]; then
+                      SRC_DIRS="$SRC_DIRS code/backend/compiler/IC10/src"
+                      INC_DIRS="$INC_DIRS code/backend/compiler/IC10/include"
+                    fi
+                    if [[ "${{ inputs.analyze-stationscript }}" == "true" ]]; then
+                      SRC_DIRS="$SRC_DIRS code/backend/compiler/StationScript/src"
+                      INC_DIRS="$INC_DIRS code/backend/compiler/StationScript/include"
+                    fi
+                    echo "src-dirs=$(echo $SRC_DIRS | xargs)" >> $GITHUB_OUTPUT
+                    echo "inc-dirs=$(echo $INC_DIRS | xargs)" >> $GITHUB_OUTPUT
+
+            -   name: Cppcheck analysis | Cppcheck 分析
+                if: inputs.run-cppcheck
+                shell: bash
+                run: |
+                    SRC_DIRS="${{ steps.sources.outputs.src-dirs }}"
+                    INC_DIRS="${{ steps.sources.outputs.inc-dirs }}"
+                    INC_ARGS=""
+                    for dir in $INC_DIRS; do
+                      INC_ARGS="$INC_ARGS -I $dir"
+                    done
+                    cppcheck --enable=all --suppress=missingIncludeSystem \
+                      --suppress=unusedFunction --suppress=missingInclude \
+                      --error-exitcode=1 --inline-suppr --std=c++23 \
+                      $INC_ARGS $SRC_DIRS 2>&1 | tee cppcheck-report.txt
+                continue-on-error: true
+
+            -   name: Generate compile_commands.json | 生成编译数据库
+                if: inputs.run-clang-tidy
+                shell: bash
+                run: |
+                    cmake -B build-tidy -S code/backend/compiler -G Ninja \
+                      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+                      -DCMAKE_CXX_STANDARD=23 \
+                      -DBUILD_IC10=${{ inputs.analyze-ic10 && 'ON' || 'OFF' }} \
+                      -DBUILD_STATIONSCRIPT=${{ inputs.analyze-stationscript && 'ON' || 'OFF' }} \
+                      -DBUILD_NODE_BINDINGS=OFF \
+                      -DBUILD_PYTHON_BINDINGS=OFF \
+                      -DBUILD_TESTS=OFF \
+                      -DENABLE_CCACHE=OFF
+
+            -   name: Clang-tidy analysis | Clang-tidy 分析
+                if: inputs.run-clang-tidy
+                shell: bash
+                run: |
+                    SRC_DIRS="${{ steps.sources.outputs.src-dirs }}"
+                    find $SRC_DIRS -name '*.cpp' | \
+                      xargs clang-tidy -p build-tidy 2> clang-tidy-report.txt
+                continue-on-error: true
+
+            -   name: Clang-format check | Clang-format 检查
+                if: inputs.run-clang-format
+                shell: bash
+                run: |
+                    SRC_DIRS="${{ steps.sources.outputs.src-dirs }}"
+                    INC_DIRS="${{ steps.sources.outputs.inc-dirs }}"
+                    ALL_DIRS="$SRC_DIRS $INC_DIRS"
+                    for dir in $ALL_DIRS; do
+                      [ -d "$dir" ] || continue
+                      find "$dir" \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.inl' \)
+                    done | xargs clang-format --dry-run --Werror \
+                      --style=file:code/backend/compiler/.clang-format 2> clang-format-report.txt
+                continue-on-error: true
+
+            -   name: Upload analysis reports | 上传分析报告
+                if: inputs.upload-reports
+                uses: actions/upload-artifact@v6
+                with:
+                    name: static-analysis-reports
+                    path: |
+                        cppcheck-report.txt
+                        clang-tidy-report.txt
+                        clang-format-report.txt
+                    retention-days: 30
