@@ -2,8 +2,8 @@
 
 [中文](README.zh.md)
 
-A modern C++23 compiler for **IC10**, the assembly‑like scripting language used in the game [Stationeers](https://store.steampowered.com/app/544550/Stationeers/).  
-This project provides lexical analysis, syntax analysis, semantic analysis, and an extensible infrastructure with async coroutine support.
+A modern C++23 compiler suite for **IC10** and **StationScript**, the scripting languages used in the game [Stationeers](https://store.steampowered.com/app/544550/Stationeers/).  
+This project provides lexical analysis, syntax analysis, semantic analysis, an extensible infrastructure with async coroutine support, and Node.js bindings.
 
 ---
 
@@ -14,9 +14,10 @@ This project provides lexical analysis, syntax analysis, semantic analysis, and 
 - **Semantic Analyser** – performs symbol resolution and type checking using a `Promise`/`Future` based asynchronous symbol table.
 - **Error Reporting** – rich error messages with source location, internationalization support (English / Simplified Chinese).
 - **Async Coroutine Infrastructure** – custom `Task<T>`, `Promise<T>`, `Future<T>` and coroutine state management for non‑blocking symbol resolution.
+- **Node.js Bindings** – native Node.js addon via `node-addon-api`, exposing lexer, parser, AST, and semantic analyser to JavaScript/TypeScript.
 - **Cross‑Platform** – builds on Linux (GCC/Clang) and Windows (MSVC).
-- **Testing** – GoogleTest unit tests for lexer and parser.
-- **CI/CD** – GitHub Actions workflows for build, test, static analysis (cppcheck, clang‑tidy).
+- **Testing** – GoogleTest unit tests for C++ core, Jest tests for Node.js bindings.
+- **CI/CD** – GitHub Actions workflows for build, test, and static analysis (cppcheck, clang‑tidy, clang‑format).
 
 ---
 
@@ -24,28 +25,48 @@ This project provides lexical analysis, syntax analysis, semantic analysis, and 
 
 ```
 IC10_Compiler/
-├── CMakeLists.txt                 # Top‑level CMake
-├── common/                        # Shared utilities
-│   ├── include/common/async/      # Coroutine tasks, promises, futures
-│   ├── include/common/exception/  # Error hierarchy
-│   ├── include/common/locals/     # Internationalization framework
-│   └── include/common/utils/      # FStr, BiMap, enum_to_str, type lists, etc.
-├── IC10/                          # IC10 compiler core
-│   ├── include/ic10/lexer/        # Token & Lexer
-│   ├── include/ic10/parser/ast/   # AST node definitions
-│   ├── include/ic10/semantic/     # SymbolTable, Analyser
-│   ├── include/ic10/locals/       # Language resources (en_us, zh_hans)
-│   ├── src/                       # Implementation
-│   └── main.cpp                   # CLI entry point
-├── tests/                         # Unit tests (GoogleTest)
-│   ├── common/                    # Test utilities
-│   └── ic10/                      # Lexer & Parser tests
-├── .github/workflows/             # CI scripts
+├── code/backend/compiler/           # Main compiler source code
+│   ├── CMakeLists.txt               # Top-level CMake
+│   ├── common/                      # Shared utilities library
+│   │   ├── include/common/async/    # Coroutine tasks, promises, futures
+│   │   ├── include/common/exception/# Error hierarchy
+│   │   ├── include/common/locals/   # Internationalization framework
+│   │   └── include/common/utils/    # FStr, BiMap, enum_to_str, type lists, etc.
+│   ├── IC10/                        # IC10 compiler core
+│   │   ├── include/ic10/lexer/      # Token & Lexer
+│   │   ├── include/ic10/parser/ast/ # AST node definitions (nullary to senary)
+│   │   ├── include/ic10/semantic/   # SymbolTable, Analyser
+│   │   ├── include/ic10/locals/     # Language resources (en_us, zh_hans)
+│   │   ├── src/                     # Implementation files
+│   │   └── main.cpp                 # CLI entry point
+│   ├── StationScript/               # StationScript compiler (WIP)
+│   ├── exports/                     # Language bindings
+│   │   ├── common/node/             # Common Node.js adapter utilities
+│   │   └── IC10/node/               # IC10 Node.js bindings (ic10-node-api)
+│   ├── tests/                       # Unit tests
+│   │   ├── common/                  # Test utilities
+│   │   ├── ic10/                    # C++ tests (lexer, parser)
+│   │   │   └── node/                # Node.js binding tests (Jest + TypeScript)
+│   │   ├── station_script/          # StationScript tests
+│   │   └── node/ic10/               # Node.js package (ic10-node-api)
+│   ├── scripts/                     # Build scripts (PowerShell)
+│   ├── cmake/                       # CMake modules (node.cmake, pybind11.cmake)
+│   ├── .clang-format                # Code style configuration
+│   └── .clang-tidy                  # Static analysis configuration
+├── .github/
+│   ├── workflows/                   # CI/CD workflows (build.yml, test.yml)
+│   └── actions/                     # Reusable GitHub Actions
+├── CNAHGELOG.md                     # Changelog
+├── CONTRIBUTING.md                  # Contributing guidelines
+├── CONTRIBUTING.zh.md               # 贡献指南（中文）
+└── LICENSE                          # License file
 ```
 
 ---
 
 ## Requirements
+
+### C++ Core
 
 - **CMake** 3.28.1 or higher
 - **C++23** compiler:
@@ -54,6 +75,12 @@ IC10_Compiler/
 - **Ninja** (recommended) or Make
 - **Git** (for fetching GoogleTest)
 
+### Node.js Bindings
+
+- **Node.js** 16.0+ (26.x recommended)
+- **pnpm** 9.x (package manager)
+- **node-addon-api** ^8.8.0
+
 ---
 
 ## Build Instructions
@@ -61,47 +88,67 @@ IC10_Compiler/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/IC10_Compiler.git
-cd IC10_Compiler
+git clone https://github.com/edoCsItahW/Stationeers.git
+cd Stationeers
 ```
 
-### 2. Configure with CMake
+### 2. Install Node.js dependencies
 
 ```bash
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cd code/backend/compiler
+pnpm i --ignore-workspace
+```
+
+### 3. Configure with CMake
+
+```bash
+cmake -B build -S code/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Release
 ```
 
 On Windows (MSVC) you may need to specify the generator:
 
 ```powershell
-cmake -B build -G "Visual Studio 17 2022" -A x64
+cmake -B build -S code/backend/compiler -G "Visual Studio 17 2022" -A x64
 ```
 
-### 3. Build
+### 4. Build
 
 ```bash
 cmake --build build --parallel
 ```
 
-The executable `IC10_Compiler` will be placed in `build/bin/`.
+The executable `IC10_Compiler` will be placed in `build/bin/`.  
+The Node.js native module `ic10-node-api.node` will be placed in `build/exports/IC10/node/`.
 
-### 4. Run tests
+### 5. Run tests
+
+#### C++ tests
 
 ```bash
 cd build
 ctest --output-on-failure
 ```
 
+#### Node.js tests
+
+```bash
+cd code/backend/compiler
+pnpm test
+```
+
 ---
 
 ## Usage
 
+### CLI
+
 ```bash
-./IC10_Compiler <source.ic>
+cd build/bin
+./IC10_Compiler
 ```
 
-Currently the source file path is hard‑coded in `main.cpp` (pointing to a test file).  
-You can modify `main.cpp` to accept command‑line arguments.
+> **Note:** Currently the source file path is hard‑coded in `main.cpp` (pointing to `../../tests/grammarTest.ic`).  
+> You can modify `main.cpp` to accept command‑line arguments.
 
 Example IC10 program:
 
@@ -113,6 +160,33 @@ start:
     move r0 10
     add r1 r0 PI
     hcf
+```
+
+### Node.js
+
+The `ic10-node-api` package provides JavaScript/TypeScript bindings:
+
+```typescript
+import { Lexer, Parser, Analyser } from 'ic10-node-api';
+
+const source = `
+alias counter r0
+start:
+    move r0 10
+    add r1 r0 5
+    hcf
+`;
+
+// Tokenize
+const tokens = Lexer.tokenize(source);
+
+// Parse
+const ast = Parser.parse(tokens);
+
+// Semantic analysis
+const analyser = new Analyser();
+analyser.analyse(ast);
+console.log(analyser.getSymbolTable());
 ```
 
 ---
@@ -141,7 +215,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to report i
 
 This project is licensed under the **CC BY-NC-SA 4.0** license.  
 See the [LICENSE](LICENSE) file for details.  
-You may not use this software for commercial purposes without the author’s permission.
+You may not use this software for commercial purposes without the author's permission.
 
 ---
 
@@ -155,3 +229,4 @@ Xiao Songtao (edocsitahw) – [2207150234@st.sziit.edu.cn](mailto:2207150234@st.
 
 - Inspired by the IC10 scripting language in [Stationeers](https://stationeers.com/).
 - Built with C++23 coroutines and modern CMake.
+- Node.js bindings powered by [node-addon-api](https://github.com/nodejs/node-addon-api).
