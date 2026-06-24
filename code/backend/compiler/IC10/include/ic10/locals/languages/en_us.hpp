@@ -27,6 +27,24 @@ namespace stationeers::ic10 {
 
     using DefaultLanguage = EnUs;
 
+    /**
+     * @def LOCAL_MSG_EN_US(id, msg)
+     * @if zh
+     *
+     * @brief 定义美式英语本地化消息
+     * @details 为美式英语语言定义本地化消息的便捷宏
+     * @param id 消息ID
+     * @param msg 消息内容
+     *
+     * @elseif en
+     *
+     * @brief Define American English localization message
+     * @details Convenience macro for defining localization messages for American English
+     * @param id Message ID
+     * @param msg Message content
+     *
+     * @endif
+     */
 #define LOCAL_MSG_EN_US(id, msg) LOCAL_MSG(EnUs, id, msg)
 
     LOCAL_MSG_EN_US(

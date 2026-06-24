@@ -10,9 +10,20 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/06/03 12:58
- * @brief
+ * @if zh
+ * @brief IC10一元指令AST定义
+ * @details 定义IC10中的一元指令(含一个操作数的指令),如SNANZ、PEEK、RAND等。
+ *        使用模板元编程自动生成指令类型和TypeMap映射。
+ * @note 实现位于ast_unary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
- * */
+ * @elseif en
+ * @brief IC10 unary instruction AST definitions
+ * @details Defines unary instructions (instructions with one operand) in IC10, such as SNANZ, PEEK, RAND, etc.
+ *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
+ * @note Implementation in ast_unary_ins.inl
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
+ */
 #ifndef COMPILER_AST_UNARY_INS_HPP
 #define COMPILER_AST_UNARY_INS_HPP
 #pragma once
@@ -23,18 +34,91 @@ namespace stationeers {
 
     namespace ic10 {
 
+        /**
+         * @if zh
+         *
+         * @class UnaryInstructionBase
+         * @brief 一元指令基类模板
+         * @details 一元指令是带一个操作数的指令基类。
+         *        继承自NullaryInstructionBase,添加一个操作数。
+         *
+         * @tparam K 指令关键字的FString类型
+         * @tparam O1 第一个操作数类型
+         *
+         * @elseif en
+         *
+         * @class UnaryInstructionBase
+         * @brief Unary instruction base class template
+         * @details Unary instructions are instruction base classes with one operand.
+         *        Inherits from NullaryInstructionBase, adding one operand.
+         *
+         * @tparam K FString type of instruction keyword
+         * @tparam O1 Type of first operand
+         *
+         * @endif
+         */
         template<FString K, typename O1>
         struct UnaryInstructionBase : NullaryInstructionBase<K> {
+            /**
+             * @if zh
+             * @brief 节点名称
+             * @elseif en
+             * @brief Node name
+             * @endif
+             */
             static constexpr auto nodeName = fstr_concat_v<K, "Instruction">;
 
+            /**
+             * @if zh
+             * @brief 第一个操作数
+             * @elseif en
+             * @brief First operand
+             * @endif
+             */
             O1 operand1;
 
+            /**
+             * @if zh
+             * @brief 参数类型元组
+             * @elseif en
+             * @brief Argument types tuple
+             * @endif
+             */
             using Args = std::tuple<O1>;
 
+            /**
+             * @if zh
+             * @brief 参数元组
+             * @elseif en
+             * @brief Argument tuple
+             * @endif
+             */
             Args args;
 
+            /**
+             * @if zh
+             * @brief 默认构造函数
+             * @elseif en
+             * @brief Default constructor
+             * @endif
+             */
             UnaryInstructionBase() = default;
 
+            /**
+             * @if zh
+             *
+             * @brief 构造函数
+             * @param pos 位置信息
+             * @param op1 第一个操作数
+             *
+             * @elseif en
+             *
+             * @brief Constructor
+             * @param pos Position information
+             * @param op1 First operand
+             *
+             * @endif
+             */
             UnaryInstructionBase(Pos pos, O1 op1);
 
             [[nodiscard]] Pos end() const override;
@@ -43,12 +127,51 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
+            /**
+             * @if zh
+             *
+             * @brief JSON基类辅助函数
+             * @tparam ...Ts 字段类型包
+             * @param ... fields 字段名和值的对
+             * @return JSON格式字符串
+             *
+             * @elseif en
+             *
+             * @brief JSON base helper function
+             * @tparam ...Ts Field type pack
+             * @param ... fields Pairs of field names and values
+             * @return JSON format string
+             *
+             * @endif
+             */
             template<typename... Ts>
             [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
         };
 
     }  // namespace ic10
 
+    /**
+     * @def DEFINE_UNARY_INSTRUCTION(upperCase, pascalCase, lowerCase, ...)
+     * @if zh
+     *
+     * @brief 定义一元指令
+     * @details 使用UnaryInstructionBase定义一个一元指令类型并注册到TypeMap
+     * @param upperCase 指令大写下划线名
+     * @param pascalCase 指令PascalCase名
+     * @param lowerCase 指令小写名
+     * @param ... 可变参数(操作数类型)
+     *
+     * @elseif en
+     *
+     * @brief Define unary instruction
+     * @details Defines a unary instruction type using UnaryInstructionBase and registers it in TypeMap
+     * @param upperCase Instruction uppercase underscore name
+     * @param pascalCase Instruction PascalCase name
+     * @param lowerCase Instruction lowercase name
+     * @param ... Variadic parameters (operand types)
+     *
+     * @endif
+     */
 #define DEFINE_UNARY_INSTRUCTION(upperCase, pascalCase, lowerCase, ...)                            \
     DEFINE_INSTRUCTION(upperCase, pascalCase, lowerCase, ic10::UnaryInstructionBase, __VA_ARGS__)
 
