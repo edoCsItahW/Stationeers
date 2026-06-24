@@ -1,0 +1,148 @@
+name: CI
+run-name: CI | 持续集成
+ 
+on:
+    push:
+        branches: [ main, develop, test ]
+    pull_request:
+        branches: [ main, develop, test ]
+    workflow_dispatch:
+ 
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
+ 
+jobs:
+    detect-changes:
+        name: detect changes | 检测变更
+        runs-on: ubuntu-latest
+        outputs:
+            ic10-core: ${{ steps.filter.outputs.ic10-core }}
+            ic10-node: ${{ steps.filter.outputs.ic10-node }}
+            stationscript: ${{ steps.filter.outputs.stationscript }}
+            shared: ${{ steps.filter.outputs.shared }}
+            workflow: ${{ steps.filter.outputs.workflow }}
+            is-full-build: ${{ steps.flags.outputs.is-full-build }}
+ 
+        steps:
+            -   name: Checkout source code | 检出源码
+                uses: actions/checkout@v6
+                with:
+                    fetch-depth: 0
+ 
+            -   name: Path filter | 路径过滤
+                id: filter
+                uses: dorny/paths-filter@v4
+                with:
+                    filters: |
+                        shared:
+                          - 'code/backend/compiler/CMakeLists.txt'
+                          - 'code/backend/compiler/cmake/**'
+                          - 'code/backend/compiler/common/**'
+                          - 'code/backend/compiler/tests/common/**'
+                        ic10-core:
+                          - 'code/backend/compiler/IC10/**'
+                          - 'code/backend/compiler/tests/ic10/*.cpp'
+                          - 'code/backend/compiler/tests/ic10/CMakeLists.txt'
+                          - 'code/backend/compiler/tests/grammarTest.ic'
+                        ic10-node:
+                          - 'code/backend/compiler/exports/**'
+                          - 'code/backend/compiler/tests/ic10/node/**'
+                          - 'code/backend/compiler/tests/node/**'
+                          - 'code/backend/compiler/package.json'
+                          - 'code/backend/compiler/pnpm-*.yaml'
+                          - 'code/backend/compiler/pnpm-workspace.yaml'
+                          - 'code/backend/compiler/jest.config.js'
+                          - 'code/backend/compiler/tsconfig.json'
+                        stationscript:
+                          - 'code/backend/compiler/StationScript/**'
+                          - 'code/backend/compiler/tests/station_script/**'
+                        workflow:
+                          - '.github/workflows/**'
+                          - '.github/actions/**'
+ 
+            -   name: Determine build mode | 确定构建模式
+                id: flags
+                shell: bash
+                run: |
+                    IS_FULL=false
+                    if [[ "${{ github.event_name }}" == "push" && ("${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "develop") ]]; then
+                      IS_FULL=true
+                      echo "Full build: push to ${{ github.ref_name }}"
+                    elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+                      IS_FULL=true
+                      echo "Full build: workflow dispatch"
+                    elif [[ "${{ steps.filter.outputs.shared }}" == "true" || "${{ steps.filter.outputs.workflow }}" == "true" ]]; then
+                      IS_FULL=true
+                      echo "Full build: shared/workflow files changed"
+                    else
+                      echo "Incremental build: only changed modules will be built"
+                    fi
+                    echo "is-full-build=$IS_FULL" >> $GITHUB_OUTPUT
+ 
+            -   name: Summary | 变更摘要
+                shell: bash
+                run: |
+                    echo "### Changed Modules" >> $GITHUB_STEP_SUMMARY
+                    echo "- IC10 Core: ${{ steps.filter.outputs.ic10-core }}" >> $GITHUB_STEP_SUMMARY
+                    echo "- IC10 Node Bindings: ${{ steps.filter.outputs.ic10-node }}" >> $GITHUB_STEP_SUMMARY
+                    echo "- StationScript: ${{ steps.filter.outputs.stationscript }}" >> $GITHUB_STEP_SUMMARY
+                    echo "- Shared (common/cmake): ${{ steps.filter.outputs.shared }}" >> $GITHUB_STEP_SUMMARY
+                    echo "- Workflow/Actions: ${{ steps.filter.outputs.workflow }}" >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    echo "**Full build**: ${{ steps.flags.outputs.is-full-build }}" >> $GITHUB_STEP_SUMMARY
+ 
+    ic10-core-linux:
+        name: ic10-core (linux) | IC10 核心（Linux）
+        needs: detect-changes
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
+        uses: ./.github/workflows/_ic10-core.yml
+        with:
+            os: ubuntu-latest
+            run-tests: true
+            upload-artifact: false
+ 
+    ic10-core-windows:
+        name: ic10-core (windows) | IC10 核心（Windows）
+        needs: detect-changes
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
+        uses: ./.github/workflows/_ic10-core.yml
+        with:
+            os: windows-latest
+            run-tests: true
+            upload-artifact: false
+ 
+    ic10-node-linux:
+        name: ic10-node (linux) | IC10 Node 绑定（Linux）
+        needs: detect-changes
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
+        uses: ./.github/workflows/_ic10-node.yml
+        with:
+            os: ubuntu-latest
+            run-tests: true
+            upload-artifact: false
+ 
+    ic10-node-windows:
+        name: ic10-node (windows) | IC10 Node 绑定（Windows）
+        needs: detect-changes
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
+        uses: ./.github/workflows/_ic10-node.yml
+        with:
+            os: windows-latest
+            run-tests: true
+            upload-artifact: false
+ 
+    static-analysis:
+        name: static analysis | 静态分析
+        needs: detect-changes
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.stationscript == 'true'
+        uses: ./.github/workflows/_static-analysis.yml
+        with:
+            os: ubuntu-latest
+            run-cppcheck: true
+            run-clang-tidy: true
+            run-clang-format: true
+            analyze-ic10: true
+            analyze-stationscript: ${{ needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.stationscript == 'true' }}
+            analyze-common: true
+            upload-reports: true
