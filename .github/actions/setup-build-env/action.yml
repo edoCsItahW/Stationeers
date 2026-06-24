@@ -1,0 +1,147 @@
+name: 'Setup Build Environment'
+description: 'Setup C++, Node.js, pnpm, and compilation cache (ccache/sccache)'
+inputs:
+    os:
+        description: 'Operating system (ubuntu-latest, windows-latest)'
+        required: true
+    cmake-version:
+        description: 'CMake version'
+        required: false
+        default: '4.2.1'
+    node-version:
+        description: 'Node.js version (empty to skip)'
+        required: false
+        default: ''
+    pnpm-version:
+        description: 'pnpm version (empty to skip)'
+        required: false
+        default: '9'
+    cache-key-prefix:
+        description: 'Prefix for cache keys'
+        required: false
+        default: 'build-cache'
+
+outputs:
+    ccache-dir:
+        description: 'ccache/sccache directory path'
+        value: ${{ steps.cache-config.outputs.ccache-dir }}
+
+runs:
+    using: 'composite'
+    steps:
+        -   name: Install Linux build dependencies
+            if: inputs.os == 'ubuntu-latest'
+            shell: bash
+            run: |
+                sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+                sudo apt-get update
+                sudo apt-get install -y \
+                  g++-15 \
+                  gcc-15 \
+                  ninja-build \
+                  ccache \
+                  lld
+                sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-15 100
+                sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 100
+                echo "CC=gcc" >> $GITHUB_ENV
+                echo "CXX=g++" >> $GITHUB_ENV
+
+        -   name: Install Windows build dependencies
+            if: inputs.os == 'windows-latest'
+            shell: pwsh
+            run: |
+                choco install ninja -y
+                choco install sccache -y
+
+        -   name: Configure MSVC environment
+            if: inputs.os == 'windows-latest'
+            uses: ilammy/msvc-dev-cmd@v1.13.0
+
+        -   name: Install CMake
+            uses: jwlawson/actions-setup-cmake@v2.2.0
+            with:
+                cmake-version: ${{ inputs.cmake-version }}
+
+        -   name: Setup Node.js
+            if: inputs.node-version != ''
+            uses: actions/setup-node@v6.4.0
+            with:
+                node-version: ${{ inputs.node-version }}
+
+        -   name: Setup pnpm
+            if: inputs.node-version != '' && inputs.pnpm-version != ''
+            uses: pnpm/action-setup@v4
+            with:
+                version: ${{ inputs.pnpm-version }}
+
+        -   name: Determine cache directories
+            id: cache-config
+            shell: bash
+            run: |
+                if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
+                  echo "ccache-dir=$HOME/.ccache" >> $GITHUB_OUTPUT
+                  echo "cache-tool=ccache" >> $GITHUB_OUTPUT
+                else
+                  echo "ccache-dir=$LOCALAPPDATA/Mozilla/sccache" >> $GITHUB_OUTPUT
+                  echo "cache-tool=sccache" >> $GITHUB_OUTPUT
+                fi
+
+        -   name: Restore ccache/sccache cache
+            uses: actions/cache@v6
+            with:
+                path: ${{ steps.cache-config.outputs.ccache-dir }}
+                key: ${{ inputs.cache-key-prefix }}-${{ inputs.os }}-${{ steps.cache-config.outputs.cache-tool }}-${{ hashFiles('code/backend/compiler/CMakeLists.txt', 'code/backend/compiler/**/CMakeLists.txt', 'code/backend/compiler/**/*.hpp', 'code/backend/compiler/**/*.cpp') }}
+                restore-keys: |
+                    ${{ inputs.cache-key-prefix }}-${{ inputs.os }}-${{ steps.cache-config.outputs.cache-tool }}-
+
+        -   name: Restore pnpm store cache
+            if: inputs.node-version != ''
+            uses: actions/cache@v6
+            with:
+                path: ~/.local/share/pnpm/store
+                key: ${{ inputs.cache-key-prefix }}-pnpm-${{ hashFiles('code/backend/compiler/pnpm-lock.yaml') }}
+                restore-keys: |
+                    ${{ inputs.cache-key-prefix }}-pnpm-
+
+        -   name: Restore node-gyp cache
+            if: inputs.node-version != ''
+            uses: actions/cache@v6
+            with:
+                path: ~/.cache/node-gyp
+                key: ${{ inputs.cache-key-prefix }}-node-gyp-${{ inputs.node-version }}
+                restore-keys: |
+                    ${{ inputs.cache-key-prefix }}-node-gyp-
+
+        -   name: Configure ccache (Linux)
+            if: inputs.os == 'ubuntu-latest'
+            shell: bash
+            run: |
+                ccache --set-config=max_size=500M
+                ccache --set-config=compression=true
+                ccache --zero-stats
+                ccache --show-stats
+
+        -   name: Configure sccache (Windows)
+            if: inputs.os == 'windows-latest'
+            shell: pwsh
+            run: |
+                sccache --stop-server 2>$null
+                $env:SCCACHE_DIR = "$env:LOCALAPPDATA\Mozilla\sccache"
+                sccache --start-server
+                sccache --show-stats
+
+        -   name: Verify toolchain
+            shell: bash
+            run: |
+                echo "=== Toolchain Versions ==="
+                cmake --version
+                ninja --version 2>/dev/null || echo "ninja not available"
+                if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
+                  gcc --version | head -1
+                  g++ --version | head -1
+                  ccache --version | head -1
+                fi
+                if [[ "${{ inputs.node-version }}" != "" ]]; then
+                  node --version
+                  pnpm --version
+                fi

@@ -5,5 +5,10 @@ enable_testing()
 add_subdirectory(common)
 
 # 添加各子项目的测试目录
-add_subdirectory(ic10)
-add_subdirectory(station_script)
+if(BUILD_IC10)
+    add_subdirectory(ic10)
+endif()
+
+if(BUILD_STATIONSCRIPT)
+    add_subdirectory(station_script)
+endif()
