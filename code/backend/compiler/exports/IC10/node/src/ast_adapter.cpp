@@ -27,6 +27,7 @@ namespace stationeers::ic10 {
         node::Function func = DefineClass(
             env, "Program",
             {
+// reslove MSVC ICE C1001
 #ifdef _MSC_VER
                 InstanceAccessor("statements", &ProgramAdapter::getStatements, nullptr),
                 InstanceAccessor("end", &ProgramAdapter::end, nullptr),
