@@ -1,0 +1,60 @@
+{
+    "name": "ic10",
+    "displayName": "IC10",
+    "description": "IC10 language support | IC10语言支持",
+    "author": "edocsitahw",
+    "license": "CC BY-NC-SA 4.0",
+    "version": "1.0.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/edoCsItahW/Stationeers.git"
+    },
+    "engines": {
+        "vscode": "^1.125.0"
+    },
+    "main": "./client/out/extension",
+    "activationEvents": [
+        "onLanguage:ic10"
+    ],
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -b",
+        "watch": "tsc -b -w",
+        "lint": "eslint",
+        "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+        "test": "sh ./scripts/e2e.sh"
+    },
+    "keywords": [
+        "Stationeers",
+        "IC10"
+    ],
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "ic10",
+                "aliases": [
+                    "IC10",
+                    "ic10"
+                ],
+                "extensions": [
+                    ".ic",
+                    ".ic10"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "ic10",
+                "scopeName": "source.ic10",
+                "path": "./syntaxes/ic10.tmLanguage.json"
+            }
+        ]
+    },
+    "devDependencies": {
+        "@types/node": "^26.0.1"
+    }
+}
