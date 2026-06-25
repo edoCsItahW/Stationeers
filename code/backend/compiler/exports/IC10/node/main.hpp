@@ -21,7 +21,7 @@
  *
  * @section architecture 架构设计
  *
- * @code{.mermaid}
+ * ```mermaid
  * graph TB
  *     subgraph JavaScript层
  *         JS[JavaScript 代码]
@@ -59,7 +59,7 @@
  *     Parser --> Lexer
  *     Analyser --> Parser
  *     Analyser --> ST
- * @endcode
+ * ```
  *
  * ### 设计原则
  *
@@ -347,7 +347,7 @@
  *
  * 长时间运行的操作使用 `TaskWorker` 在后台线程执行：
  *
- * @code{.mermaid}
+ * ```mermaid
  * sequenceDiagram
  *     participant JS as JavaScript
  *     participant Worker as TaskWorker
@@ -357,7 +357,7 @@
  *     Worker->>Core: 在后台线程执行
  *     Core-->>Worker: 任务完成
  *     Worker-->>JS: Promise resolved
- * @endcode
+ * ```
  *
  * **优点**:
  * - 不阻塞 Node.js 主事件循环
@@ -502,7 +502,7 @@
  *
  * @section architecture Architecture
  *
- * @code{.mermaid}
+ * ```mermaid
  * graph TB
  *     subgraph JavaScriptLayer
  *         JS[JavaScript Code]
@@ -540,7 +540,7 @@
  *     Parser --> Lexer
  *     Analyser --> Parser
  *     Analyser --> ST
- * @endcode
+ * ```
  *
  * ### Design Principles
  *
@@ -828,7 +828,7 @@
  *
  * Long-running operations use `TaskWorker` to execute in background threads:
  *
- * @code{.mermaid}
+ * ```mermaid
  * sequenceDiagram
  *     participant JS as JavaScript
  *     participant Worker as TaskWorker
@@ -838,7 +838,7 @@
  *     Worker->>Core: Execute in background thread
  *     Core-->>Worker: Task complete
  *     Worker-->>JS: Promise resolved
- * @endcode
+ * ```
  *
  * **Benefits**:
  * - Does not block Node.js main event loop

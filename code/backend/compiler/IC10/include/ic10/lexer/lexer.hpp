@@ -20,7 +20,7 @@
  * @note 本分析器采用**递归下降**方式实现
  *
  * @par 词法分析流程:
- * @code{.mermaid}
+ * ```mermaid
  * graph TD
  *     A[源代码] --> B{当前字符}
  *     B -->|字母/_| C[提取标识符]
@@ -36,7 +36,7 @@
  *     D --> M{点号?}
  *     M -->|是| N[浮点Token]
  *     M -->|否| O[整数Token]
- * @endcode
+ * ```
  *
  * @par 支持的Token类型:
  * | 类型 | 说明 | 示例 |
@@ -67,7 +67,7 @@
  * @note This analyzer is implemented using **recursive descent** approach
  *
  * @par Lexical Analysis Flow:
- * @code{.mermaid}
+ * ```mermaid
  * graph TD
  *     A[Source Code] --> B{Current Char}
  *     B -->|Letter/_| C[Extract Identifier]
@@ -83,7 +83,7 @@
  *     D --> M{Dot?}
  *     M -->|Yes| N[Float Token]
  *     M -->|No| O[Integer Token]
- * @endcode
+ * ```
  *
  * @par Supported Token Types:
  * | Type | Description | Example |
