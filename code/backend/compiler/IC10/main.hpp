@@ -47,7 +47,7 @@
  *
  * IC10 编译器采用经典的**三阶段编译流程**：
  *
- * @code{.mermaid}
+ * ```mermaid
  * graph LR
  *     A[源代码] --> B[词法分析<br/>Lexer]
  *     B --> C[Token序列]
@@ -59,7 +59,7 @@
  *     G --> I{分析完成?}
  *     I -->|是| J[编译产物]
  *     I -->|否| F
- * @endcode
+ * ```
  *
  * ### 1. 词法分析 (Lexical Analysis)
  *
@@ -98,7 +98,7 @@
  * - 生成的 AST 包含错误节点(ErrorNode)以便继续分析
  *
  * **AST 节点类型层次**：
- * @code{.mermaid}
+ * ```mermaid
  * classDiagram
  *     class AST~T~ {
  *         <<template>>
@@ -145,7 +145,7 @@
  *     AST <|-- QuaternaryInstruction
  *     AST <|-- QuinaryInstruction
  *     AST <|-- SenaryInstruction
- * @endcode
+ * ```
  *
  * **指令分类**：
  * | 类型 | 操作数个数 | 示例指令 |
@@ -418,7 +418,7 @@
  *
  * @section dependencies 依赖关系
  *
- * @code{.mermaid}
+ * ```mermaid
  * graph TD
  *     UserCode[用户代码] --> Lexer
  *     Lexer --> Token[Token序列]
@@ -439,7 +439,7 @@
  *
  *     Task --> CoroutineState
  *     FuturePromise --> SharedState
- * @endcode
+ * ```
  *
  * @section glossary 术语表
  *
@@ -507,7 +507,7 @@
  *
  * IC10 compiler uses the classic **three-phase compilation process**:
  *
- * @code{.mermaid}
+ * ```mermaid
  * graph LR
  *     A[Source Code] --> B[Lexical Analysis<br/>Lexer]
  *     B --> C[Token Sequence]
@@ -519,7 +519,7 @@
  *     G --> I{Analysis Complete?}
  *     I -->|Yes| J[Compiled Output]
  *     I -->|No| F
- * @endcode
+ * ```
  *
  * ### 1. Lexical Analysis
  *
@@ -558,7 +558,7 @@
  * - Generated AST contains ErrorNode for continued analysis
  *
  * **AST Node Type Hierarchy**:
- * @code{.mermaid}
+ * ```mermaid
  * classDiagram
  *     class AST~T~ {
  *         <<template>>
@@ -605,7 +605,7 @@
  *     AST <|-- QuaternaryInstruction
  *     AST <|-- QuinaryInstruction
  *     AST <|-- SenaryInstruction
- * @endcode
+ * ```
  *
  * **Instruction Classification**:
  * | Type | Operand Count | Example Instructions |
@@ -878,7 +878,7 @@
  *
  * @section dependencies Dependencies
  *
- * @code{.mermaid}
+ * ```mermaid
  * graph TD
  *     UserCode[User Code] --> Lexer
  *     Lexer --> Token[Token Sequence]
@@ -899,7 +899,7 @@
  *
  *     Task --> CoroutineState
  *     FuturePromise --> SharedState
- * @endcode
+ * ```
  *
  * @section glossary Glossary
  *

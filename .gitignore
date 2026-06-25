@@ -12,3 +12,5 @@
 
 # other file
 *.zip
+/docs/compiler/
+/docs/exports/

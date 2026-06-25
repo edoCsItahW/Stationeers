@@ -18,7 +18,7 @@
  * @note 语义分析是编译过程的**第三阶段**,位于语法分析之后
  *
  * @par 语义分析流程:
- * @code{.mermaid}
+ * ```mermaid
  * graph TD
  *     A[Program AST] --> B[Analyser]
  *     B --> C{遍历AST节点}
@@ -35,7 +35,7 @@
  *     J --> K{所有引用已解析?}
  *     K -->|是| L[分析完成]
  *     K -->|否| M[等待Future]
- * @endcode
+ * ```
  *
  * @par Type枚举值:
  * | 值 | 说明 | 示例 |
@@ -68,7 +68,7 @@
  * @note Semantic analysis is the **third phase** of the compilation process, after syntax analysis
  *
  * @par Semantic Analysis Flow:
- * @code{.mermaid}
+ * ```mermaid
  * graph TD
  *     A[Program AST] --> B[Analyser]
  *     B --> C{Traverse AST Nodes}
@@ -85,7 +85,7 @@
  *     J --> K{All References Resolved?}
  *     K -->|Yes| L[Analysis Complete]
  *     K -->|No| M[Wait for Future]
- * @endcode
+ * ```
  *
  * @par Type Enum Values:
  * | Value | Description | Example |
@@ -284,7 +284,7 @@ namespace stationeers::ic10 {
      * // 查找符号(可前向引用)
      * auto& entry = st.resolve("y", pos);
      * auto sym = co_await entry.future;
-     * @endcode
+     * ```
      *
      * @elseif en
      *
@@ -302,7 +302,7 @@ namespace stationeers::ic10 {
      * // Resolve symbol (supports forward reference)
      * auto& entry = st.resolve("y", pos);
      * auto sym = co_await entry.future;
-     * @endcode
+     * ```
      *
      * @endif
      */
