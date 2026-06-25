@@ -12,7 +12,7 @@
  * @note 本分析器采用**递归下降**解析器实现
  *
  * @par 语法分析流程:
- * @code{.mermaid}
+ * ```mermaid
  * graph LR
  *     A[Token序列] --> B{Parser}
  *     B --> C{解析Statement}
@@ -30,7 +30,7 @@
  *     H & I & J & K & L & M & N --> O[Program.statements]
  *     E --> O
  *     F --> O
- * @endcode
+ * ```
  *
  * @par 支持的语法结构:
  * | 结构 | 说明 | 示例 |
@@ -64,7 +64,7 @@
  * @note This analyzer is implemented as a **recursive descent** parser
  *
  * @par Parsing Flow:
- * @code{.mermaid}
+ * ```mermaid
  * graph LR
  *     A[Token Sequence] --> B{Parser}
  *     B --> C{Parse Statement}
@@ -82,7 +82,7 @@
  *     H & I & J & K & L & M & N --> O[Program.statements]
  *     E --> O
  *     F --> O
- * @endcode
+ * ```
  *
  * @par Supported Syntax Structures:
  * | Structure | Description | Example |
