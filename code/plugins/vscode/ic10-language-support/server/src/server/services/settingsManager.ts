@@ -15,10 +15,11 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import type {Connection, InitializeResult} from "vscode-languageserver";
-import {DocumentCache, GlobalCache} from "../cache";
-import {DidChangeConfigurationNotification} from "vscode-languageserver/node";
-import {CONFIGURATION_SECTION_NAME} from "common/utils";
+import type { Connection, InitializeResult } from "vscode-languageserver";
+import { DocumentCache, GlobalCache } from "../cache";
+import { DidChangeConfigurationNotification } from "vscode-languageserver/node";
+import { CONFIGURATION_SECTION_NAME } from "../../../../common/utils";
+import { IC10Local } from "ic10-node-api";
 
 
 export interface Settings {
@@ -28,9 +29,7 @@ export interface Settings {
 
 
 type OnInitializeHandlerType = Parameters<Connection["onInitialize"]>[0];
-
 type OnInitializedHandlerType = Parameters<Connection["onInitialized"]>[0];
-
 type OnDidChangeConfigurationHandlerType = Parameters<Connection["onDidChangeConfiguration"]>[0];
 
 
@@ -41,7 +40,7 @@ const DEFAULT_SETTINGS: Settings = {
 
 
 export class SettingsManager {
-    private settings: Settings = {...DEFAULT_SETTINGS};
+    private settings: Settings = { ...DEFAULT_SETTINGS };
 
     constructor(
         private connection: Connection,
@@ -56,16 +55,14 @@ export class SettingsManager {
         const result: InitializeResult = {
             capabilities: {
                 // 悬停提示
-                hoverProvider: false
+                hoverProvider: true
             }
         };
 
         if (this.globalCache.flag.workspaceCfg)
-            result.capabilities.workspace = {workspaceFolders: {supported: true}};
+            result.capabilities.workspace = { workspaceFolders: { supported: true } };
 
-        // IC10Local 未定义时静默跳过
-        if (typeof IC10Local !== "undefined" && IC10Local.setLanguage)
-            IC10Local.setLanguage(this.settings.language);
+        IC10Local.setLanguage(this.settings.language);
 
         return result;
     }
@@ -77,11 +74,9 @@ export class SettingsManager {
 
         if (this.globalCache.flag.workspaceCfg)
             this.connection.workspace.getConfiguration(CONFIGURATION_SECTION_NAME).then(cfg => {
-                this.settings = {...this.settings, ...cfg};
+                this.settings = { ...this.settings, ...cfg };
 
-                // IC10Local 未定义时静默跳过
-        if (typeof IC10Local !== "undefined" && IC10Local.setLanguage)
-            IC10Local.setLanguage(this.settings.language);
+                IC10Local.setLanguage(this.settings.language);
             });
     }
 
@@ -91,10 +86,8 @@ export class SettingsManager {
             : params.settings?.[CONFIGURATION_SECTION_NAME] || {};
 
         if (change) {
-            this.settings = {...this.settings, ...(change instanceof Promise ? await change : change)};
+            this.settings = { ...this.settings, ...(change instanceof Promise ? await change : change) };
 
-//            // IC10Local 未定义时静默跳过
-        if (typeof IC10Local !== "undefined" && IC10Local.setLanguage)
             IC10Local.setLanguage(this.settings.language);
 
             this.docCache.invalidateHash(this.globalCache.uri);

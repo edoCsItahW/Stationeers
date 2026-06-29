@@ -15,7 +15,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { property } from "common/utils"
+import { property } from "../../../../common/utils"
 
 
 export class GlobalCache {

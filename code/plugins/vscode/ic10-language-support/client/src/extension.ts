@@ -8,58 +8,74 @@
  */
 
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
+import {workspace, ExtensionContext} from 'vscode';
 
 import {
-	LanguageClient,
-	LanguageClientOptions,
-	ServerOptions,
-	TransportKind
+    LanguageClient,
+    LanguageClientOptions,
+    ServerOptions,
+    TransportKind
 } from 'vscode-languageclient/node';
 
-let client: LanguageClient;
 
-export function activate(context: ExtensionContext) {
-	// The server is implemented in node
-	const serverModule = context.asAbsolutePath(
-		path.join('server', 'out', 'server', 'server.js')
-	);
-	console.log(serverModule)
-	// If the extension is launched in debug mode then the debug server options are used
-	// Otherwise the run options are used
-	const serverOptions: ServerOptions = {
-		run: { module: serverModule, transport: TransportKind.ipc },
-		debug: {
-			module: serverModule,
-			transport: TransportKind.ipc,
-		}
-	};
+class Extension {
+    private readonly serverModule: string;
+    private readonly serverOpt: ServerOptions;
+    private readonly clientOpt: LanguageClientOptions;
+    private readonly client: LanguageClient;
 
-	// Options to control the language client
-	const clientOptions: LanguageClientOptions = {
-		// Register the server for plain text documents
-		documentSelector: [{ scheme: 'file', language: 'ic10' }],
-		synchronize: {
-			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: workspace.createFileSystemWatcher('**/*.ic')
-		}
-	};
+    constructor(
+        private readonly module: string = path.join('server', 'out', 'server', 'src', 'server', 'server.js'),
+        private context: ExtensionContext
+    ) {
+        this.serverModule = this.context.asAbsolutePath(this.module);
 
-	// Create the language client and start the client.
-	client = new LanguageClient(
-		'languageServerExample',
-		'Language Server Example',
-		serverOptions,
-		clientOptions
-	);
+        this.serverOpt = {
+            run: {module: this.serverModule, transport: TransportKind.ipc},
+            debug: {module: this.serverModule, transport: TransportKind.ipc}
+        };
+        this.clientOpt = {
+            documentSelector: [{scheme: 'file', language: 'ic10'}],
+            synchronize: {
+                fileEvents: workspace.createFileSystemWatcher('**/*.ic')
+            }
+        };
+        this.client = new LanguageClient(
+            'ic10',
+            'IC10 Language Client',
+            this.serverOpt,
+            this.clientOpt
+        );
+    }
 
-	// Start the client. This will also launch the server
-	client.start();
+    stop(): Thenable<void> | undefined {
+        if (!this.client) {
+            return undefined;
+        }
+        return this.client.stop();
+    }
+
+
+    run() {
+        this.client.start();
+    }
 }
 
-export function deactivate(): Thenable<void> | undefined {
-	if (!client) {
-		return undefined;
-	}
-	return client.stop();
+
+let extension: Extension;
+
+
+export async function activate(context: ExtensionContext) {
+    extension = new Extension(
+        path.join('server', 'out', 'server', 'src', 'server', 'server.js'),
+        context
+    );
+    extension.run();
+}
+
+export async function deactivate() {
+    if (extension)
+        return extension.stop();
+
+    return undefined;
 }

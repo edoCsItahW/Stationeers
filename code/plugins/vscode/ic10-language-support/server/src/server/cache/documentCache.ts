@@ -15,13 +15,13 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-//import { Token, Program } from "ic10-node-api";
-import {Optional} from "common/types/utils";
+import { Token, Program } from "ic10-node-api";
+import {Optional} from "../../../../common/types/utils";
 
 
 export interface DocCacheValue {
-//    tokens: Token[];
-//    ast: Optional<Program>;
+    tokens: Token[];
+    ast: Optional<Program>;
     errors: Error[];
     hash: string;
 }
@@ -31,8 +31,8 @@ export class DocumentCache {
 
     initDocument(uri: string): void {
         this.caches.set(uri, {
-//            tokens: [],
-//            ast: undefined,
+            tokens: [],
+            ast: undefined,
             errors: [],
             hash: ""
         });
@@ -45,6 +45,14 @@ export class DocumentCache {
     invalidateHash(uri: string): void {
         const cache = this.caches.get(uri);
         if (cache) cache.hash = "";
+    }
+
+    updateAfterParse(uri: string, result: DocCacheValue) {
+        const cache = this.caches.get(uri);
+
+        if (!cache) return;
+
+        Object.assign(cache, result);
     }
 
 }

@@ -8,7 +8,7 @@
 		"sourceMap": true,
 		"types": ["node", "vscode"],
 		"allowArbitraryExtensions": true,  // 允许任意扩展名
-		"moduleResolution": "node",  // 模块解析策略
+		"moduleResolution": "NodeNext",  // 模块解析策略
 		"esModuleInterop": true,  // 允许模块导入时使用.js后缀
 	},
 	"include": [

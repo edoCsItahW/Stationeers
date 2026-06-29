@@ -15,14 +15,15 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import type { Connection } from "vscode-languageserver/node";
+import type {Connection} from "vscode-languageserver/node";
 
-import { createConnection, TextDocuments, ProposedFeatures } from "vscode-languageserver/node";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { SettingsManager } from "./services/settingsManager";
-import { DocumentCache, GlobalCache } from "./cache";
-import { HoverHandler } from "./handlers/hover";
-//import { Lexer } from "ic10-node-api";
+import {createConnection, TextDocuments, ProposedFeatures} from "vscode-languageserver/node";
+import {TextDocument} from "vscode-languageserver-textdocument";
+import {SettingsManager} from "./services/settingsManager";
+import {DocumentCache, GlobalCache} from "./cache";
+import {HoverHandler} from "./handlers/hover";
+import { Lexer } from "ic10-node-api";
+import {ParserPipline} from "./services/parserPipline";
 
 
 type OnInitializeHandlerType = Parameters<Connection["onInitialize"]>[0];
@@ -37,6 +38,7 @@ export class Server {
     private docCache: DocumentCache;
     private globalCache: GlobalCache;
     private hoverHandler: HoverHandler;
+    private pipline: ParserPipline;
 
     constructor(
         private readonly connection: Connection = createConnection(ProposedFeatures.all),
@@ -48,10 +50,12 @@ export class Server {
         this.settingMgr = new SettingsManager(connection, this.docCache, this.globalCache);
 
         this.hoverHandler = new HoverHandler(this.docCache);
+
+        this.pipline = new ParserPipline();
     }
 
     run() {
-        console.log("Server is running");
+        console.log("[IC10 LSP] Server is running");
 
         // 初始化
         this.connection.onInitialize(this.onInitialize.bind(this));
@@ -67,7 +71,7 @@ export class Server {
         this.documents.onDidOpen(this.onDidOpen.bind(this));
         this.documents.onDidChangeContent(this.onDidChangeContent.bind(this));
 
-        // 启动文档监听和连接监听
+        // 启动监听
         this.documents.listen(this.connection);
         this.connection.listen();
     }
@@ -84,26 +88,32 @@ export class Server {
         return this.settingMgr.onDidChangeConfiguration(...args);
     }
 
-    private async onDidOpen(...[{ document }]: Parameters<OnDidOpenHandlerType>) {
+    private async onDidOpen(...[{document}]: Parameters<OnDidOpenHandlerType>) {
         this.docCache.initDocument(document.uri);
         this.globalCache.uri = document.uri;
 
-//        const tokens = Lexer.tokenize(document.getText());
-//
-//        for (const token of tokens)
-//            console.log(token.toString());
+        this.parseAndRefresh(document.getText());
     }
 
-    private onDidChangeContent(...[{ document }]: Parameters<OnDidChangeContentHandlerType>): ReturnType<OnDidChangeContentHandlerType> {
+    private onDidChangeContent(...[{document}]: Parameters<OnDidChangeContentHandlerType>): ReturnType<OnDidChangeContentHandlerType> {
         this.globalCache.uri = document.uri;
 
-//        const tokens = Lexer.tokenize(document.getText());
-//
-//        for (const token of tokens)
-//            console.log(token.toString());
+        this.parseAndRefresh(document.getText());
+    }
+
+    private async parseAndRefresh(code: string) {
+        const uri = this.globalCache.uri;
+        this.pipline.parse(code, this.docCache.getCache(uri)).then(res => {
+            if (!res.changed) return;
+
+            this.docCache.updateAfterParse(uri, res);
+
+            this.connection.languages.diagnostics.refresh();
+        });
     }
 
 }
+
 
 const server = new Server();
 server.run();

@@ -17,6 +17,9 @@
 		"vscode-languageclient": "^10.0.1"
 	},
 	"devDependencies": {
+		"@types/jest": "^30.0.0",
+		"@types/mocha": "^10.0.10",
+		"@types/node": "^26.0.1",
 		"@types/vscode": "^1.125.0",
 		"@vscode/test-electron": "^3.0.0"
 	}

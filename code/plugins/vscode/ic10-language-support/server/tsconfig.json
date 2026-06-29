@@ -4,15 +4,17 @@
 		"lib": [
 			"ES2024", "DOM"
 		],
-		"module": "commonjs",
-		"moduleResolution": "node",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
 		"sourceMap": true,
 		"strict": true,
 		"outDir": "out",
-		"rootDir": "src"
+		"rootDir": "..",
+		"types": ["node"]
 	},
 	"include": [
-		"src"
+		"src",
+		"../common"
 	],
 	"exclude": [
 		"node_modules",

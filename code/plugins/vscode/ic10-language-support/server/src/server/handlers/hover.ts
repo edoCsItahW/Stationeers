@@ -9,8 +9,12 @@
 
 import {DocumentCache} from "../cache";
 import {Connection} from "vscode-languageserver/node";
+import {Program, ASTNode, Token} from "ic10-node-api";
+import {Optional} from "../../../../common/types/utils";
+
 
 type OnHoverHandlerType = Parameters<Connection["onHover"]>[0];
+
 
 /**
  * @file hover.ts
@@ -21,10 +25,43 @@ type OnHoverHandlerType = Parameters<Connection["onHover"]>[0];
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
+
 export class HoverHandler {
     constructor(private docCache: DocumentCache) {
     }
 
-    public handle(...[{ position, textDocument }]: Parameters<OnHoverHandlerType>): ReturnType<OnHoverHandlerType> {
+    public handle(...[{position, textDocument}]: Parameters<OnHoverHandlerType>): ReturnType<OnHoverHandlerType> {
+        const {line: _line, character} = position;
+        const line = _line + 1;
+        const cache = this.docCache.getCache(textDocument.uri);
+
+        if (!cache?.ast) return {contents: []};
+
+        let left = 0, right = cache.tokens.length - 1;
+        while (left <= right) {
+            const mid = Math.floor((left + right) / 2);
+
+            const token = cache.tokens[mid];
+
+            const tLine = token.pos.line;
+            const tCol = token.pos.column;
+
+            if (tLine > line || (tLine === line && tCol > character)) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        const idx = right;
+        if (idx < 0 || idx >= cache.tokens.length) return {contents: []};
+
+        const token = cache.tokens[idx];
+        if (token.pos.line !== line) return {contents: []};
+
+        const endCol = token.pos.column + token.lexeme.length;
+        if (character < token.pos.column || character > endCol) return {contents: []};
+
+        return {contents: [{language: "markdown", value: `(${token.type}, ${token.lexeme})`}]};
     }
 }
