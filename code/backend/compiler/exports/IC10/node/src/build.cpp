@@ -14,11 +14,11 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "common_node/build.hpp"
-#include "ast_adapter.hpp"
-#include "lexer_adapter.hpp"
 #include "local_adapter.hpp"
-#include "parser_adapter.hpp"
 #include "token_adapter.hpp"
+#include "lexer_adapter.hpp"
+#include "ast_adapter.hpp"
+#include "parser_adapter.hpp"
 #include "symbol_table_adapter.hpp"
 #include "analyser_adapter.hpp"
 
