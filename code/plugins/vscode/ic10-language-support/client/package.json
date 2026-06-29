@@ -1,0 +1,21 @@
+{
+    "name": "ic10-client",
+    "description": "IC10 Language Server Client (VSCode Extension)",
+    "version": "1.0.0",
+    "author": "edocsitahw",
+    "license": "CC BY-NC-SA 4.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/edoCsItahW/Stationeers.git"
+    },
+    "engines": {
+        "vscode": "^1.125.0"
+    },
+    "dependencies": {
+        "vscode-languageclient": "^10.0.1"
+    },
+    "devDependencies": {
+        "@types/node": "^26.0.1",
+        "@types/vscode": "^1.125.0"
+    }
+}

@@ -6,9 +6,11 @@
 # nodejs
 **/node_modules/
 *.node
+**/out/
 
 # IDE
 **/.idea/
+**/.vscode/
 
 # other file
 *.zip
