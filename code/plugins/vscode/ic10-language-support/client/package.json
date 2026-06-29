@@ -1,26 +1,21 @@
 {
-	"name": "lsp-sample-client",
-	"description": "VSCode part of a language server",
-	"author": "Microsoft Corporation",
-	"license": "MIT",
-	"version": "0.0.1",
-	"publisher": "vscode",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
-	},
-	"engines": {
-		"vscode": "^1.100.0"
-	},
-	"dependencies": {
-		"glob": "^13.0.6",
-		"vscode-languageclient": "^10.0.1"
-	},
-	"devDependencies": {
-		"@types/jest": "^30.0.0",
-		"@types/mocha": "^10.0.10",
-		"@types/node": "^26.0.1",
-		"@types/vscode": "^1.125.0",
-		"@vscode/test-electron": "^3.0.0"
-	}
+    "name": "ic10-client",
+    "description": "IC10 Language Server Client (VSCode Extension)",
+    "version": "1.0.0",
+    "author": "edocsitahw",
+    "license": "CC BY-NC-SA 4.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/edoCsItahW/Stationeers.git"
+    },
+    "engines": {
+        "vscode": "^1.125.0"
+    },
+    "dependencies": {
+        "vscode-languageclient": "^10.0.1"
+    },
+    "devDependencies": {
+        "@types/node": "^26.0.1",
+        "@types/vscode": "^1.125.0"
+    }
 }

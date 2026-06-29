@@ -1,9 +1,13 @@
-# Change Log
+# Changelog
 
-All notable changes to the "ic10-language-support" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+All notable changes to the "IC10" extension will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-06-29
+
+### Added
 - Initial release
+- LSP (Language Server Protocol) support for IC10 language
+- Hover functionality for token information
+- Basic diagnostics support

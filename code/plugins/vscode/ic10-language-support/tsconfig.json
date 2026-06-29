@@ -1,25 +1,25 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "ES2024",
-		"lib": ["es2024"],
-		"outDir": "out",
-		"rootDir": "src",
-		"sourceMap": true,
-		"types": ["node", "vscode"],
-		"allowArbitraryExtensions": true,  // 允许任意扩展名
-		"moduleResolution": "NodeNext",  // 模块解析策略
-		"esModuleInterop": true,  // 允许模块导入时使用.js后缀
-	},
-	"include": [
-		"src/**/*"
-	],
-	"exclude": [
-		"node_modules",
-		".vscode-test"
-	],
-	"references": [
-		{ "path": "./client" },
-		{ "path": "./server" }
-	]
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "ES2024",
+        "lib": ["es2024"],
+        "outDir": "out",
+        "rootDir": "src",
+        "sourceMap": true,
+        "types": ["node", "vscode"],
+        "allowArbitraryExtensions": true,
+        "moduleResolution": "NodeNext",
+        "esModuleInterop": true
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        ".vscode-test"
+    ],
+    "references": [
+        { "path": "./client" },
+        { "path": "./server" }
+    ]
 }
