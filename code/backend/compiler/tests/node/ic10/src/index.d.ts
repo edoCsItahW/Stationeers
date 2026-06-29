@@ -5203,7 +5203,7 @@ declare module "ic10-node-api" {
          *
          * @desc 执行实际的静态分析，更新符号表和错误列表。
          */
-        visit(program: Program): void;
+        visit(program: Program): Promise<void>;
     }
 
 }

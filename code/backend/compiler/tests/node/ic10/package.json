@@ -1,11 +1,13 @@
 {
     "name": "ic10-node-api",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "description": "IC10 编译器 Node.js 原生绑定 - 提供词法分析、语法分析和语义分析功能 | IC10 Compiler Node.js Native Bindings - Lexer, Parser, and Semantic Analyser",
     "main": "src/ic10-node-api.node",
     "types": "src/index.d.ts",
     "files": [
-        "src/"
+        "src/",
+        "tsconfig.json",
+        "CNAHGELOG.md"
     ],
     "engines": {
         "node": ">=16.0.0"
@@ -25,19 +27,19 @@
         "node-addon-api",
         "n-api"
     ],
-    "author": "Xiao Songtao <2207150234@st.sziit.edu.cn>",
+    "author": "Xiao Songtao <2257699870@qq.com>",
     "contributors": [
         "edocsitahw"
     ],
     "license": "CC BY-NC-SA",
     "repository": {
         "type": "git",
-        "url": "https://github.com/edoCsItahW/Stationeers.git",
+        "url": "git+https://github.com/edoCsItahW/Stationeers.git",
         "directory": "code/backend/compiler/tests/node/ic10"
     },
-    "homepage": "https://github.com/edoCsItahW/Stationeers#readme",
+    "homepage": "https://github.com/edoCsItahW/Stationeers/blob/main/README.md",
     "bugs": {
         "url": "https://github.com/edoCsItahW/Stationeers/issues",
-        "email": "2207150234@st.sziit.edu.cn"
+        "email": "2257699870@qq.com"
     }
 }
