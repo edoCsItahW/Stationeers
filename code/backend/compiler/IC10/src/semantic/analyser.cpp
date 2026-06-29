@@ -15,7 +15,7 @@
  * */
 #include "ic10/semantic/analyser.hpp"
 #include "ic10/locals/local.hpp"
-#include <iostream>
+
 
 namespace stationeers::ic10 {
 
@@ -147,74 +147,50 @@ namespace stationeers::ic10 {
     }
 
     Task<> Analyser::operator()(const StrCall& strCall) {
-        std::cout << "StrCall" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const HashCall& hashCall) {
-        std::cout << "HashCall" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const Constant& constant) {
-        std::cout << "Constant" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const Device& device) {
-        std::cout << "Device" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const Register& register_) {
-        std::cout << "Register" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const String& string) {
-        std::cout << "String" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const Identifier& identifier) {
-        std::cout << "Identifier" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const BinaryNumber& binaryNumber) {
-        std::cout << "BinaryNumber" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const HexNumber& hexNumber) {
-        std::cout << "HexNumber" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const Float& float_) {
-        std::cout << "Float" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const Integer& integer) {
-        std::cout << "Integer" << std::endl;
-
         co_return;
     }
 
     Task<> Analyser::operator()(const ErrorNode& errorNode) {
-        std::cout << "ErrorNode" << std::endl;
-
         co_return;
     }
 
