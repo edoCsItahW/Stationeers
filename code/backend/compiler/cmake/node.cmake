@@ -5,7 +5,7 @@
 # 1. 查找 Node.js 可执行文件
 find_program(NODE_EXECUTABLE node)
 if (NOT NODE_EXECUTABLE)
-    message(FATAL_ERROR "Node.js not found. Please install Node.js and ensure 'node' is in PATH.")
+    message(FATAL_ERROR "Node.js not found. Please install Node.js and ensure 'node' is in PATH. | Node.js 未找到。请安装 Node.js 并确保 'node' 在 PATH 中。")
 endif ()
 
 # 2. 获取 Node.js 版本号（去掉前缀 'v'）
@@ -44,7 +44,7 @@ execute_process(
         ERROR_QUIET
 )
 if (NOT NAPI_INCLUDE_DIRS)
-    message(FATAL_ERROR "node-addon-api not found. Please run 'npm install node-addon-api' in your project root.")
+    message(FATAL_ERROR "node-addon-api not found. Please run 'npm install node-addon-api' in your project root. | node-addon-api 未找到。请在项目根目录运行 'npm install node-addon-api'。")
 endif ()
 
 # 8. 输出诊断信息
