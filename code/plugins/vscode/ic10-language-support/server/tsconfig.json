@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "ES2024",
+		"lib": [
+			"ES2024", "DOM"
+		],
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"sourceMap": true,
+		"strict": true,
+		"outDir": "out",
+		"rootDir": "..",
+		"types": ["node"]
+	},
+	"include": [
+		"src",
+		"../common"
+	],
+	"exclude": [
+		"node_modules",
+		".vscode-test"
+	]
+}
