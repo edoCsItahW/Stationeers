@@ -8,6 +8,11 @@
 *.node
 **/out/
 
+# python
+**/.pytest_cache/
+**/__pycache__/
+*.pyd
+
 # IDE
 **/.idea/
 **/.vscode/

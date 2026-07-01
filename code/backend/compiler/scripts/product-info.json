@@ -7,6 +7,14 @@
         "PackageName": "ic10-node-api",
         "TestDir": "tests/ic10/node"
     },
+    "IC10Python": {
+        "BuildConfig": "Release",
+        "CMakeTarget": "ic10_python",
+        "ArtifactSource": "build/exports/IC10/python/Release/ic10_python.pyd",
+        "PackageRoot": "tests/python/ic10",
+        "PackageName": "ic10_python",
+        "TestDir": "tests/ic10/python"
+    },
     "StationScriptNode": {
         "BuildConfig": "Release",
         "CMakeTarget": "StationScript_Node_API",
