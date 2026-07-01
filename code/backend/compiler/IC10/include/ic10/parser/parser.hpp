@@ -1,3 +1,10 @@
+// Copyright (c) 2026. All rights reserved.
+// This source code is licensed under the CC BY-NC-SA
+// (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
+// This software is protected by copyright law. Reproduction, distribution, or use for commercial
+// purposes is prohibited without the author's permission. If you have any questions or require
+// permission, please contact the author: edocsitahw@qq.com
+
 /**
  * @file parser.hpp
  * @author edocsitahw
@@ -112,12 +119,11 @@
 #define COMPILER_PARSER_HPP
 #pragma once
 
-#include <memory>
-
-#include "common/exception/error.hpp"
-#include "ic10/parser/ast/ast.hpp"
 #include "../lexer/token.hpp"
-
+#include "ic10/locals/local.hpp"
+#include "ic10/parser/ast/ast.hpp"
+#include "common/exception/diagnostic.hpp"
+#include <memory>
 
 namespace stationeers::ic10 {
 
@@ -275,6 +281,8 @@ namespace stationeers::ic10 {
          */
         mutable std::size_t idx_ = 0;
 
+        DiagnosticReporter<IC10MsgPack> reporter_;
+
         /**
          * @if zh
          * @brief 输入标记序列
@@ -314,7 +322,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<LabelDef> parseLabelDef(int layer);
+        LabelDef parseLabelDef(int layer);
 
         /**
          * @if zh
@@ -348,7 +356,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<AliasDirective> parseAliasDirective(int layer);
+        AliasDirective parseAliasDirective(int layer);
 
         /**
          * @if zh
@@ -365,7 +373,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<DefineDirective> parseDefineDirective(int layer);
+        DefineDirective parseDefineDirective(int layer);
 
         /**
          * @if zh
@@ -603,7 +611,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<HashCall> parseHashCall(int layer);
+        HashCall parseHashCall(int layer);
 
         /**
          * @if zh
@@ -620,7 +628,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<StrCall> parseStrCall(int layer);
+        StrCall parseStrCall(int layer);
 
         /**
          * @if zh
@@ -637,7 +645,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<Constant> parseConstant(int layer);
+        Constant parseConstant(int layer);
 
         /**
          * @if zh
@@ -756,7 +764,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<Device> parseDevice(int layer);
+        Device parseDevice(int layer);
 
         /**
          * @if zh
@@ -773,7 +781,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<Register> parseRegister(int layer);
+        Register parseRegister(int layer);
 
         /**
          * @if zh
@@ -790,7 +798,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<String> parseString(int layer);
+        String parseString(int layer);
 
         /**
          * @if zh
@@ -807,7 +815,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<Identifier> parseIdentifier(int layer);
+        Identifier parseIdentifier(int layer);
 
         /**
          * @if zh
@@ -875,7 +883,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<Float> parseFloat(int layer);
+        Float parseFloat(int layer);
 
         /**
          * @if zh
@@ -892,7 +900,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ShallowErrorable<Integer> parseInteger(int layer);
+        Integer parseInteger(int layer);
 
         /**
          * @if zh

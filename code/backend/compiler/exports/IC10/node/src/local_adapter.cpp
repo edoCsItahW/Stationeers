@@ -34,7 +34,7 @@ namespace stationeers::ic10 {
         node::Function func =
             DefineClass(env, "IC10Local", {StaticMethod("setLanguage", &setLanguage)});
 
-        node::FunctionReference* constructor = new node::FunctionReference();
+        auto constructor = std::make_unique<node::FunctionReference>();
 
         *constructor = node::Persistent(func);
 

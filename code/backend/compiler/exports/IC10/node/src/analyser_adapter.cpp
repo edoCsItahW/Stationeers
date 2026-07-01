@@ -41,7 +41,7 @@ namespace stationeers::ic10 {
             }
         );
 
-        node::FunctionReference* constructor = new node::FunctionReference();
+        auto constructor = std::make_unique<node::FunctionReference>();
 
         *constructor = node::Persistent(func);
 

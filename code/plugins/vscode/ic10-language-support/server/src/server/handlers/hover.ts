@@ -31,8 +31,8 @@ export class HoverHandler {
     }
 
     public handle(...[{position, textDocument}]: Parameters<OnHoverHandlerType>): ReturnType<OnHoverHandlerType> {
-        const {line: _line, character} = position;
-        const line = _line + 1;
+        const line = position.line + 1;
+        const character = position.character + 1;
         const cache = this.docCache.getCache(textDocument.uri);
 
         if (!cache?.ast) return {contents: []};

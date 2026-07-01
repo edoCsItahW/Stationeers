@@ -3,7 +3,7 @@
 // (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
 // This software is protected by copyright law. Reproduction, distribution, or use for commercial
 // purposes is prohibited without the author's permission. If you have any questions or require
-// permission, please contact the author: 2207150234@st.sziit.edu.cn
+// permission, please contact the author: edocsitahw@qq.com
 
 /**
  * @file position.hpp
@@ -98,7 +98,7 @@ namespace stationeers {
          *
          * @public @memberof Pos
          */
-        [[nodiscard]] int offset() const;
+        [[nodiscard]] std::size_t offset() const;
 
         /**
          * @if zh
@@ -159,7 +159,7 @@ namespace stationeers {
          *
          * @public @memberof Pos
          */
-        void move(int offset);
+        void move(std::size_t offset);
 
     private:
         /**
@@ -218,7 +218,7 @@ namespace stationeers {
          *
          * @private @memberof Pos
          */
-        int offset_ = 0;
+        std::size_t offset_ = 0;
     };
 
     template<typename>
