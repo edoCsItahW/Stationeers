@@ -22,7 +22,7 @@ namespace stationeers {
 
     int Pos::column() const { return column_; }
 
-    int Pos::offset() const { return offset_; }
+    std::size_t Pos::offset() const { return offset_; }
 
     void Pos::newline() {
         column_ = 1;
@@ -35,7 +35,7 @@ namespace stationeers {
         ++offset_;
     }
 
-    void Pos::move(const int offset) {
+    void Pos::move(const std::size_t offset) {
         column_ += offset;
         offset_ += offset;
     }

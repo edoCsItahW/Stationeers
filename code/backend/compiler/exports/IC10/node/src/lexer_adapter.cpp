@@ -23,10 +23,10 @@ namespace stationeers::ic10 {
     node::Object LexerAdapter::init(node::Env env, node::Object exports) {
         node::Function func = DefineClass(
             env, "Lexer",
-            {StaticMethod("tokenize", &tokenize), InstanceMethod("scan", &LexerAdapter::scan)}
+            {StaticMethod<&tokenize>("tokenize"), InstanceMethod<&LexerAdapter::scan>("scan")}
         );
 
-        node::FunctionReference* constructor = new node::FunctionReference();
+        auto constructor = std::make_unique<node::FunctionReference>();
 
         *constructor = node::Persistent(func);
 

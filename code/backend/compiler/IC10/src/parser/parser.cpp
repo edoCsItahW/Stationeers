@@ -16,6 +16,7 @@
 
 #include "ic10/parser/parser.hpp"
 #include "common/exception/debug.hpp"
+#include "common/exception/error.hpp"
 #include "common/utils/common.hpp"
 #include "ic10/locals/local.hpp"
 #include <format>
@@ -27,31 +28,26 @@ namespace stationeers::ic10 {
         , debug_(debug) {}
 
     Program Parser::parse() {
-        try {
-            auto program = Program{current()->pos};
+        auto program = Program{current()->pos};
 
+        skip();
+
+        while (inScope()) {
+            if (current()->type == TokenType::END) return program;
+
+            program.statements.push_back(parseStatement());
+
+            // 除最后一个语句可以直接以END结尾
+            if (current()->type == TokenType::END) break;
+
+            // 其它语句需要以换行结尾
+            if (current()->type == TokenType::NEWLINE) expect(TokenType::NEWLINE, false);
+
+            // 其余换行跳过
             skip();
-
-            while (inScope()) {
-                if (current()->type == TokenType::END) return program;
-
-                program.statements.push_back(parseStatement());
-
-                // 除最后一个语句可以直接以END结尾
-                if (current()->type == TokenType::END) break;
-
-                // 其它语句需要以换行结尾
-                if (current()->type == TokenType::NEWLINE) expect(TokenType::NEWLINE, false);
-
-                // 其余换行跳过
-                skip();
-            }
-
-            return program;
-        } catch (const std::exception& e) {
-            Console::error(std::string(e.what()));
-            return {};
         }
+
+        return program;
     }
 
     Program Parser::parsing(const std::vector<std::shared_ptr<Token>>& tokens, bool debug) {
@@ -63,105 +59,98 @@ namespace stationeers::ic10 {
     Statement Parser::parseStatement() {
         if (debug_) Console::log(std::format("Statement: {}", current()->toString()));
 
-        try {
-            if (!current()) return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        if (!current()) {
+            reporter_.error<MsgId::IMP1>(current()->pos, endPos(*current()));
 
-            int layer = 1;
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        }
 
-            switch (current()->type) {
-                using enum TokenType;
-                case IDENTIFIER: return wide_cast<Statement>(parseLabelDef(layer));
-                case KEYWORD_ALIAS:
-                case KEYWORD_DEFINE: return wide_cast<Statement>(parsePreprocessorDirective(layer));
-                default: return wide_cast<Statement>(parseExecutableInstruction(layer));
-            }
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        int layer = 1;
+
+        switch (current()->type) {
+            using enum TokenType;
+            case IDENTIFIER: return parseLabelDef(layer);
+            case KEYWORD_ALIAS:
+            case KEYWORD_DEFINE: return wide_cast<Statement>(parsePreprocessorDirective(layer));
+            default: return wide_cast<Statement>(parseExecutableInstruction(layer));
+        }
     }
 
-    ShallowErrorable<LabelDef> Parser::parseLabelDef(int layer) {
+    LabelDef Parser::parseLabelDef(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Label");
 
-        try {
-            LabelDef labelDef{current()->pos};
+        LabelDef labelDef{current()->pos};
 
-            labelDef.identifier = parseIdentifier(++layer);
+        labelDef.identifier = parseIdentifier(++layer);
 
-            expect(TokenType::COLON);
+        expect(TokenType::COLON);
 
-            return labelDef;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return labelDef;
     }
 
     PreprocessorDirective Parser::parsePreprocessorDirective(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "PreprocessorDirective");
 
-        try {
-            ++layer;
+        ++layer;
 
-            if (current()->type == TokenType::KEYWORD_ALIAS)
-                return wide_cast<PreprocessorDirective>(parseAliasDirective(layer));
+        if (current()->type == TokenType::KEYWORD_ALIAS) return parseAliasDirective(layer);
 
-            if (current()->type == TokenType::KEYWORD_DEFINE)
-                return wide_cast<PreprocessorDirective>(parseDefineDirective(layer));
+        if (current()->type == TokenType::KEYWORD_DEFINE) return parseDefineDirective(layer);
 
-            return ErrorNode{
-                *current(), Loc::msgFormat<MsgId::IMP2_1>(enumToStr(current()->type))
-            };
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        reporter_.errorWith<MsgId::IMP2_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
+
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP2_1>(enumToStr(current()->type))};
     }
 
-    ShallowErrorable<AliasDirective> Parser::parseAliasDirective(int layer) {
+    AliasDirective Parser::parseAliasDirective(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "AliasDirective");
 
-        try {
-            ++layer;
+        ++layer;
 
-            AliasDirective aliasDirective{current()->pos};
+        AliasDirective aliasDirective{current()->pos};
 
-            expect(TokenType::KEYWORD_ALIAS);
+        expect(TokenType::KEYWORD_ALIAS);
 
-            aliasDirective.identifier = parseIdentifier(layer);
+        aliasDirective.identifier = parseIdentifier(layer);
 
-            aliasDirective.registerOrDevice = parseRegisterOrDevice(layer);
+        aliasDirective.registerOrDevice = parseRegisterOrDevice(layer);
 
-            return aliasDirective;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return aliasDirective;
     }
 
     ExecutableInstruction Parser::parseExecutableInstruction(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "ExecutableInstruction");
 
-        try {
-            ++layer;
+        ++layer;
 
-            if (NullaryInstructionMap::contains(current()->type))
-                return wide_cast<ExecutableInstruction>(parseNullaryInstruction(layer));
+        if (NullaryInstructionMap::contains(current()->type))
+            return wide_cast<ExecutableInstruction>(parseNullaryInstruction(layer));
 
-            if (UnaryInstructionMap::contains(current()->type))
-                return wide_cast<ExecutableInstruction>(parseUnaryInstruction(layer));
+        if (UnaryInstructionMap::contains(current()->type))
+            return wide_cast<ExecutableInstruction>(parseUnaryInstruction(layer));
 
-            if (BinaryInstructionMap::contains(current()->type))
-                return wide_cast<ExecutableInstruction>(parseBinaryInstruction(layer));
+        if (BinaryInstructionMap::contains(current()->type))
+            return wide_cast<ExecutableInstruction>(parseBinaryInstruction(layer));
 
-            if (TernaryInstructionMap::contains(current()->type))
-                return wide_cast<ExecutableInstruction>(parseTernaryInstruction(layer));
+        if (TernaryInstructionMap::contains(current()->type))
+            return wide_cast<ExecutableInstruction>(parseTernaryInstruction(layer));
 
-            if (QuaternaryInstructionMap::contains(current()->type))
-                return wide_cast<ExecutableInstruction>(parseQuaternaryInstruction(layer));
+        if (QuaternaryInstructionMap::contains(current()->type))
+            return wide_cast<ExecutableInstruction>(parseQuaternaryInstruction(layer));
 
-            if (QuinaryInstructionMap::contains(current()->type))
-                return wide_cast<ExecutableInstruction>(parseQuinaryInstruction(layer));
+        if (QuinaryInstructionMap::contains(current()->type))
+            return wide_cast<ExecutableInstruction>(parseQuinaryInstruction(layer));
 
-            if (SenaryInstructionMap::contains(current()->type))
-                return wide_cast<ExecutableInstruction>(parseSenaryInstruction(layer));
+        if (SenaryInstructionMap::contains(current()->type))
+            return wide_cast<ExecutableInstruction>(parseSenaryInstruction(layer));
 
-            auto errNode =
-                ErrorNode{*current(), Loc::msgFormat<MsgId::IMP3_1>(enumToStr(current()->type))};
+        reporter_.errorWith<MsgId::IMP3_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
-            gotoNextLine();
-
-            return errNode;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP3_1>(enumToStr(current()->type))};
     }
 
 #define VARIANT_TRANS_FACTORY(narrowType, wideType, ...)                                           \
@@ -189,13 +178,11 @@ namespace stationeers::ic10 {
     NullaryInstruction Parser::parseNullaryInstruction(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "NullaryInstruction");
 
-        try {
-            const auto c = current();
+        const auto c = current();
 
-            consume();
+        consume();
 
-            return wide_cast<NullaryInstruction>(NullaryInstructionMap::make(c->type, c->pos));
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return wide_cast<NullaryInstruction>(NullaryInstructionMap::make(c->type, c->pos));
     }
 
     UnaryInstruction Parser::parseUnaryInstruction(int layer) {
@@ -230,11 +217,11 @@ namespace stationeers::ic10 {
             UnaryInstructionMap_O, UnaryInstruction, c->type, c->pos, parseOperand(layer)
         )
 
-        auto errNode = ErrorNode{*current(), Loc::msgFormat<MsgId::IMP4_1>(enumToStr(c->type))};
+        reporter_.errorWith<MsgId::IMP4_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
-        gotoNextLine();
-
-        return errNode;
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP4_1>(enumToStr(c->type))};
     }
 
     BinaryInstruction Parser::parseBinaryInstruction(int layer) {
@@ -266,11 +253,11 @@ namespace stationeers::ic10 {
             parseOperand(layer)
         )
 
-        auto errNode = ErrorNode{*current(), Loc::msgFormat<MsgId::IMP5_1>(enumToStr(c->type))};
+        reporter_.errorWith<MsgId::IMP5_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
-        gotoNextLine();
-
-        return errNode;
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP5_1>(enumToStr(c->type))};
     }
 
     TernaryInstruction Parser::parseTernaryInstruction(int layer) {
@@ -327,11 +314,11 @@ namespace stationeers::ic10 {
             parseOperand(layer), parseOperand(layer)
         )
 
-        auto errNode = ErrorNode{*current(), Loc::msgFormat<MsgId::IMP6_1>(enumToStr(c->type))};
+        reporter_.errorWith<MsgId::IMP6_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
-        gotoNextLine();
-
-        return errNode;
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP6_1>(enumToStr(c->type))};
     }
 
     QuaternaryInstruction Parser::parseQuaternaryInstruction(int layer) {
@@ -378,11 +365,11 @@ namespace stationeers::ic10 {
             parseLogicSlotType(layer)
         )
 
-        auto errNode = ErrorNode{*current(), Loc::msgFormat<MsgId::IMP7_1>(enumToStr(c->type))};
+        reporter_.errorWith<MsgId::IMP7_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
-        gotoNextLine();
-
-        return errNode;
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP7_1>(enumToStr(c->type))};
     }
 
     QuinaryInstruction Parser::parseQuinaryInstruction(int layer) {
@@ -406,11 +393,11 @@ namespace stationeers::ic10 {
             parseLogicSlotType(layer), parseBatchMode(layer)
         )
 
-        auto errNode = ErrorNode{*current(), Loc::msgFormat<MsgId::IMP8_1>(enumToStr(c->type))};
+        reporter_.errorWith<MsgId::IMP8_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
-        gotoNextLine();
-
-        return errNode;
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP8_1>(enumToStr(c->type))};
     }
 
     SenaryInstruction Parser::parseSenaryInstruction(int layer) {
@@ -428,77 +415,80 @@ namespace stationeers::ic10 {
             parseSlotIndex(layer), parseLogicSlotType(layer), parseBatchMode(layer)
         )
 
-        auto errNode = ErrorNode{*current(), Loc::msgFormat<MsgId::IMP9_1>(enumToStr(c->type))};
+        reporter_.errorWith<MsgId::IMP9_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
-        gotoNextLine();
-
-        return errNode;
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP9_1>(enumToStr(c->type))};
     }
 
-    ShallowErrorable<DefineDirective> Parser::parseDefineDirective(int layer) {
+    DefineDirective Parser::parseDefineDirective(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "DefineDirective");
 
-        try {
-            ++layer;
+        ++layer;
 
-            DefineDirective defineDirective{current()->pos};
+        DefineDirective defineDirective{current()->pos};
 
-            expect(TokenType::KEYWORD_DEFINE);
+        expect(TokenType::KEYWORD_DEFINE);
 
-            defineDirective.identifier = parseIdentifier(layer);
+        defineDirective.identifier = parseIdentifier(layer);
 
-            defineDirective.operand = parseOperand(layer);
+        defineDirective.operand = parseOperand(layer);
 
-            return defineDirective;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return defineDirective;
     }
 
     Operand Parser::parseOperand(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Operand");
 
-        try {
-            ++layer;
+        ++layer;
 
-            if (!current()) return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        if (!current()) {
+            reporter_.error<MsgId::IMP1>(current()->pos, endPos(*current()));
 
-            switch (current()->type) {
-                using enum TokenType;
-                case REGISTER: return wide_cast<Operand>(parseRegister(layer));
-                case DEVICE: return wide_cast<Operand>(parseDevice(layer));
-                case INTEGER:
-                case FLOAT:
-                case HEX_NUMBER:
-                case BINARY_NUMBER: return wide_cast<Operand>(parseNumber(layer));
-                case IDENTIFIER: return wide_cast<Operand>(parseIdentifier(layer));
-                case KEYWORD_HASH:
-                case KEYWORD_STR: return wide_cast<Operand>(parseMacroCall(layer));
-                case KEYWORD_NAN:
-                case KEYWORD_PINF:
-                case KEYWORD_NINF:
-                case KEYWORD_PI:
-                case KEYWORD_TAN:
-                case KEYWORD_DEG2RAD:
-                case KEYWORD_RAD2DEG:
-                case KEYWORD_EPSILON:
-                case KEYWORD_GAS_CONSTANT: return wide_cast<Operand>(parseConstant(layer));
-                default:
-                    return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP10_1>(enumToStr(current()->type))
-                    };
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        }
+
+        switch (current()->type) {
+            using enum TokenType;
+            case REGISTER: return parseRegister(layer);
+            case DEVICE: return parseDevice(layer);
+            case INTEGER:
+            case FLOAT:
+            case HEX_NUMBER:
+            case BINARY_NUMBER: return wide_cast<Operand>(parseNumber(layer));
+            case IDENTIFIER: return parseIdentifier(layer);
+            case KEYWORD_HASH:
+            case KEYWORD_STR: return wide_cast<Operand>(parseMacroCall(layer));
+            case KEYWORD_NAN:
+            case KEYWORD_PINF:
+            case KEYWORD_NINF:
+            case KEYWORD_PI:
+            case KEYWORD_TAN:
+            case KEYWORD_DEG2RAD:
+            case KEYWORD_RAD2DEG:
+            case KEYWORD_EPSILON:
+            case KEYWORD_GAS_CONSTANT: return parseConstant(layer);
+            default: {
+                reporter_.errorWith<MsgId::IMP10_1>(
+                    current()->pos, endPos(*current()), enumToStr(current()->type)
+                );
+
+                return ErrorNode{
+                    *current(), Loc::msgFormat<MsgId::IMP10_1>(enumToStr(current()->type))
+                };
             }
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        }
     }
 
-    ShallowErrorable<Register> Parser::parseRegister(int layer) {
+    Register Parser::parseRegister(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Register");
 
-        try {
-            Register reg{current()->pos};
+        Register reg{current()->pos};
 
-            reg.value = expect(TokenType::REGISTER)->lexeme;
+        reg.value = expect(TokenType::REGISTER)->lexeme;
 
-            return reg;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return reg;
     }
 
     RegisterOrDevice Parser::parseRegisterOrDevice(int layer) {
@@ -506,11 +496,13 @@ namespace stationeers::ic10 {
 
         ++layer;
 
-        if (current()->type == TokenType::REGISTER)
-            return wide_cast<RegisterOrDevice>(parseRegister(layer));
+        if (current()->type == TokenType::REGISTER) return parseRegister(layer);
 
-        if (current()->type == TokenType::DEVICE)
-            return wide_cast<RegisterOrDevice>(parseDevice(layer));
+        if (current()->type == TokenType::DEVICE) return parseDevice(layer);
+
+        reporter_.errorWith<MsgId::IMP11_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
         return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP11_1>(enumToStr(current()->type))};
     }
@@ -520,11 +512,13 @@ namespace stationeers::ic10 {
 
         ++layer;
 
-        if (current()->type == TokenType::REGISTER)
-            return wide_cast<RegisterOrIdentifier>(parseRegister(layer));
+        if (current()->type == TokenType::REGISTER) return parseRegister(layer);
 
-        if (current()->type == TokenType::IDENTIFIER)
-            return wide_cast<RegisterOrIdentifier>(parseIdentifier(layer));
+        if (current()->type == TokenType::IDENTIFIER) return parseIdentifier(layer);
+
+        reporter_.errorWith<MsgId::IMP12_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
         return ErrorNode{
             *current(true), Loc::msgFormat<MsgId::IMP12_1>(enumToStr(current()->type))
@@ -534,26 +528,33 @@ namespace stationeers::ic10 {
     DeviceReference Parser::parseDeviceReference(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "DeviceReference");
 
-        try {
-            ++layer;
+        ++layer;
 
-            if (!current()) return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        if (!current()) {
+            reporter_.error<MsgId::IMP1>(current()->pos, endPos(*current()));
 
-            switch (current()->type) {
-                using enum TokenType;
-                case DEVICE: return wide_cast<DeviceReference>(parseDevice(layer));
-                case IDENTIFIER:
-                case REGISTER: return wide_cast<DeviceReference>(parseRegisterOrIdentifier(layer));
-                case INTEGER:
-                case FLOAT:
-                case HEX_NUMBER:
-                case BINARY_NUMBER: return wide_cast<DeviceReference>(parseNumber(layer));
-                default:
-                    return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP13_1>(enumToStr(current()->type))
-                    };
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        }
+
+        switch (current()->type) {
+            using enum TokenType;
+            case DEVICE: return parseDevice(layer);
+            case IDENTIFIER:
+            case REGISTER: return wide_cast<DeviceReference>(parseRegisterOrIdentifier(layer));
+            case INTEGER:
+            case FLOAT:
+            case HEX_NUMBER:
+            case BINARY_NUMBER: return wide_cast<DeviceReference>(parseNumber(layer));
+            default: {
+                reporter_.errorWith<MsgId::IMP13_1>(
+                    current()->pos, endPos(*current()), enumToStr(current()->type)
+                );
+
+                return ErrorNode{
+                    *current(), Loc::msgFormat<MsgId::IMP13_1>(enumToStr(current()->type))
+                };
             }
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        }
     }
 
     MacroCall Parser::parseMacroCall(int layer) {
@@ -561,70 +562,65 @@ namespace stationeers::ic10 {
 
         ++layer;
 
-        if (current()->type == TokenType::KEYWORD_HASH)
-            return wide_cast<MacroCall>(parseHashCall(layer));
+        if (current()->type == TokenType::KEYWORD_HASH) return parseHashCall(layer);
 
-        if (current()->type == TokenType::KEYWORD_STR)
-            return wide_cast<MacroCall>(parseStrCall(layer));
+        if (current()->type == TokenType::KEYWORD_STR) return parseStrCall(layer);
+
+        reporter_.errorWith<MsgId::IMP14_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
 
         return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP14_1>(enumToStr(current()->type))};
     }
 
-    ShallowErrorable<HashCall> Parser::parseHashCall(int layer) {
+    HashCall Parser::parseHashCall(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "HashCall");
 
-        try {
-            HashCall hashCall{current()->pos};
+        HashCall hashCall{current()->pos};
 
-            expect(TokenType::KEYWORD_HASH);
+        expect(TokenType::KEYWORD_HASH);
 
-            expect(TokenType::LPAREN);
+        expect(TokenType::LPAREN);
 
-            hashCall.value = parseString(++layer);
+        hashCall.value = parseString(++layer);
 
-            hashCall.endPosition = expect(TokenType::RPAREN)->pos;
+        hashCall.endPosition = expect(TokenType::RPAREN)->pos;
 
-            return hashCall;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return hashCall;
     }
 
-    ShallowErrorable<StrCall> Parser::parseStrCall(int layer) {
+    StrCall Parser::parseStrCall(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "StrCall");
 
-        try {
-            StrCall strCall{current()->pos};
+        StrCall strCall{current()->pos};
 
-            expect(TokenType::KEYWORD_STR);
+        expect(TokenType::KEYWORD_STR);
 
-            expect(TokenType::LPAREN);
+        expect(TokenType::LPAREN);
 
-            strCall.value = parseString(++layer);
+        strCall.value = parseString(++layer);
 
-            strCall.endPosition = expect(TokenType::RPAREN)->pos;
+        strCall.endPosition = expect(TokenType::RPAREN)->pos;
 
-            return strCall;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return strCall;
     }
 
-    ShallowErrorable<Constant> Parser::parseConstant(int layer) {
+    Constant Parser::parseConstant(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Constant");
 
-        try {
-            Constant constant{current()->pos};
+        Constant constant{current()->pos};
 
-            constant.keyword = current()->lexeme;
+        constant.keyword = current()->lexeme;
 
-            consume();
+        consume();
 
-            return constant;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return constant;
     }
 
     LogicType Parser::parseLogicType(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "LogicType");
-        try {
-            return parseIdentifierOrNumber(++layer);
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+
+        return parseIdentifierOrNumber(++layer);
     }
 
     SlotIndex Parser::parseSlotIndex(int layer) {
@@ -652,61 +648,61 @@ namespace stationeers::ic10 {
     }
 
     Errorable<Identifier, Number> Parser::parseIdentifierOrNumber(int layer) {
-        try {
-            ++layer;
+        ++layer;
 
-            if (!current()) return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        if (!current()) {
+            reporter_.error<MsgId::IMP1>(current()->pos, endPos(*current()));
 
-            switch (current()->type) {
-                using enum TokenType;
-                case IDENTIFIER:
-                    return wide_cast<Errorable<Identifier, Number>>(parseIdentifier(layer));
-                case INTEGER:
-                case FLOAT:
-                case HEX_NUMBER:
-                case BINARY_NUMBER:
-                    return wide_cast<Errorable<Identifier, Number>>(parseNumber(layer));
-                default:
-                    return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP15_1>(enumToStr(current()->type))
-                    };
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        }
+
+        switch (current()->type) {
+            using enum TokenType;
+            case IDENTIFIER: return parseIdentifier(layer);
+            case INTEGER:
+            case FLOAT:
+            case HEX_NUMBER:
+            case BINARY_NUMBER: return wide_cast<Errorable<Identifier, Number>>(parseNumber(layer));
+            default: {
+                reporter_.errorWith<MsgId::IMP15_1>(
+                    current()->pos, endPos(*current()), enumToStr(current()->type)
+                );
+
+                return ErrorNode{
+                    *current(), Loc::msgFormat<MsgId::IMP15_1>(enumToStr(current()->type))
+                };
             }
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        }
     }
 
-    ShallowErrorable<Device> Parser::parseDevice(int layer) {
+    Device Parser::parseDevice(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Device");
 
-        try {
-            Device device{current()->pos};
+        Device device{current()->pos};
 
-            device.value = expect(TokenType::DEVICE)->lexeme;
+        device.value = expect(TokenType::DEVICE)->lexeme;
 
-            return device;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return device;
     }
 
-    ShallowErrorable<String> Parser::parseString(int layer) {
+    String Parser::parseString(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "String");
-        try {
-            String string{current()->pos};
 
-            string.value = expect(TokenType::STRING)->lexeme;
+        String string{current()->pos};
 
-            return string;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        string.value = expect(TokenType::STRING)->lexeme;
+
+        return string;
     }
 
-    ShallowErrorable<Identifier> Parser::parseIdentifier(int layer) {
+    Identifier Parser::parseIdentifier(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Identifier");
 
-        try {
-            Identifier identifier{current()->pos};
+        Identifier identifier{current()->pos};
 
-            identifier.value = expect(TokenType::IDENTIFIER)->lexeme;
+        identifier.value = expect(TokenType::IDENTIFIER)->lexeme;
 
-            return identifier;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return identifier;
     }
 
     Number Parser::parseNumber(int layer) {
@@ -715,60 +711,76 @@ namespace stationeers::ic10 {
         try {
             ++layer;
 
-            if (!current()) return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+            if (!current()) {
+                reporter_.error<MsgId::IMP1>(current()->pos, endPos(*current()));
+
+                return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+            }
 
             switch (current()->type) {
                 using enum TokenType;
-                case INTEGER: return wide_cast<Number>(parseInteger(layer));
-                case FLOAT: return wide_cast<Number>(parseFloat(layer));
+                case INTEGER: return parseInteger(layer);
+                case FLOAT: return parseFloat(layer);
                 case HEX_NUMBER: return wide_cast<Number>(parseHexNumber(layer));
                 case BINARY_NUMBER: return wide_cast<Number>(parseBinaryNumber(layer));
-                default:
+                default: {
+                    reporter_.errorWith<MsgId::IMP16_1>(
+                        current()->pos, endPos(*current()), enumToStr(current()->type)
+                    );
+
                     return ErrorNode{
                         *current(), Loc::msgFormat<MsgId::IMP16_1>(enumToStr(current()->type))
                     };
+                }
             }
         } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
     }
 
-    ShallowErrorable<Integer> Parser::parseInteger(int layer) {
-        try {
-            Integer integer{current()->pos};
+    Integer Parser::parseInteger(int layer) {
+        Integer integer{current()->pos};
 
-            integer.value = expect(TokenType::INTEGER)->lexeme;
+        integer.value = expect(TokenType::INTEGER)->lexeme;
 
-            return integer;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return integer;
     }
 
-    ShallowErrorable<Float> Parser::parseFloat(int layer) {
-        try {
-            Float floatNum{current()->pos};
+    Float Parser::parseFloat(int layer) {
+        Float floatNum{current()->pos};
 
-            floatNum.value = expect(TokenType::FLOAT)->lexeme;
+        floatNum.value = expect(TokenType::FLOAT)->lexeme;
 
-            return floatNum;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        return floatNum;
     }
 
     ShallowErrorable<HexNumber> Parser::parseHexNumber(int layer) {
-        try {
-            HexNumber hexNum{current()->pos};
+        HexNumber hexNum{current()->pos};
 
+        try {
             hexNum.value = expect(TokenType::HEX_NUMBER)->lexeme;
 
-            return hexNum;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        } catch (const Error& e) {
+            reporter_.emplace<MsgId::IEA1_2>(e);
+
+            return ErrorNode{*current(), {e.message().data()}};
+        }
+
+
+        return hexNum;
     }
 
     ShallowErrorable<BinaryNumber> Parser::parseBinaryNumber(int layer) {
-        try {
-            BinaryNumber binNum{current()->pos};
+        BinaryNumber binNum{current()->pos};
 
+        try {
             binNum.value = expect(TokenType::BINARY_NUMBER)->lexeme;
 
-            return binNum;
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
+        } catch (const Error& e) {
+            reporter_.emplace<MsgId::IEA1_2>(e);
+
+            return ErrorNode{*current(), {e.message().data()}};
+        }
+
+        return binNum;
     }
 
     bool Parser::inScope() const {
@@ -801,7 +813,16 @@ namespace stationeers::ic10 {
 
         if (inScope() && errorConsume) consume();
 
-        throw std::runtime_error(Loc::msgFormat<MsgId::IEP1_1>(enumToStr(type)));
+        reporter_.errorWith<MsgId::IEP1_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
+
+        throw Error{
+            RuntimeError{
+                         Loc::msgFormat<MsgId::IEP1_1>(enumToStr(current()->type)), current()->pos,
+                         endPos(*current())
+            }
+        };
     }
 
     std::shared_ptr<Token> Parser::current(const bool consume) const {

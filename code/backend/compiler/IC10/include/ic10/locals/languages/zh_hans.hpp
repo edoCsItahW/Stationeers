@@ -3,7 +3,7 @@
 // (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
 // This software is protected by copyright law. Reproduction, distribution, or use for commercial
 // purposes is prohibited without the author's permission. If you have any questions or require
-// permission, please contact the author: 2207150234@st.sziit.edu.cn
+// permission, please contact the author: edocsitahw@qq.com
 
 /**
  * @file zh_hans.hpp
@@ -48,6 +48,8 @@ namespace stationeers::ic10 {
     LOCAL_MSG_ZH_HANS(IWL1, "文件结束时未如期遇到END令牌 - 词法分析器。");
 
     LOCAL_MSG_ZH_HANS(IEL1_1, "未知操作符号'{}' - 词法分析器。")
+
+    LOCAL_MSG_ZH_HANS(IEL1_2, "未闭合的成对符号'{}' - 词法分析器。")
 
     LOCAL_MSG_ZH_HANS(IMP1, "意外的遇到文件结尾 - 语法分析器。")
 

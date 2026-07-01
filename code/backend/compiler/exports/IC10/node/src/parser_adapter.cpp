@@ -45,7 +45,7 @@ namespace stationeers::ic10 {
             {InstanceMethod<&ParserAdapter::parse>("parse"), StaticMethod<&parsing>("parsing")}
         );
 
-        node::FunctionReference* constructor = new node::FunctionReference();
+        auto constructor = std::make_unique<node::FunctionReference>();
 
         *constructor = node::Persistent(func);
 
