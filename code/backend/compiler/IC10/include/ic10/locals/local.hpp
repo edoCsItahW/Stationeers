@@ -3,7 +3,7 @@
 // (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
 // This software is protected by copyright law. Reproduction, distribution, or use for commercial
 // purposes is prohibited without the author's permission. If you have any questions or require
-// permission, please contact the author: 2207150234@st.sziit.edu.cn
+// permission, please contact the author: edocsitahw@qq.com
 
 /**
  * @file local.hpp
@@ -26,6 +26,8 @@ namespace stationeers::ic10 {
      * + (E(Error) | W(Warning) | I(Info))
      * + (L(Lexer) | P(Parser) + A(Analysis))
      * + {Number}
+     * + '_'
+     * + {ArgumentNumber}
      */
     enum class IC10MsgId : uint32_t {
         /* Lexer */
@@ -36,6 +38,7 @@ namespace stationeers::ic10 {
 
         // Error
         IEL1_1,  // Unknown operation symbol'{}' - lexical analysis.
+        IEL1_2,  // Unclosed paired symbols '{}' - lexical analysis.
 
         /* Parser */
 

@@ -3,7 +3,7 @@
 // (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
 // This software is protected by copyright law. Reproduction, distribution, or use for commercial
 // purposes is prohibited without the author's permission. If you have any questions or require
-// permission, please contact the author: 2207150234@st.sziit.edu.cn
+// permission, please contact the author: edocsitahw@qq.com
 
 /**
  * @file en_us.hpp
@@ -53,6 +53,8 @@ namespace stationeers::ic10 {
     )
 
     LOCAL_MSG_EN_US(IEL1_1, "Unknown operation symbol'{}' - lexical analysis.")
+
+    LOCAL_MSG_EN_US(IEL1_2, "Unclosed paired symbols '{}' - lexical analysis.")
 
     LOCAL_MSG_EN_US(IMP1, "Unexpectedly encountered the end of the file - syntax analysis.")
 

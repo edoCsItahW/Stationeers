@@ -3,7 +3,7 @@
 // (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
 // This software is protected by copyright law. Reproduction, distribution, or use for commercial
 // purposes is prohibited without the author's permission. If you have any questions or require
-// permission, please contact the author: 2207150234@st.sziit.edu.cn
+// permission, please contact the author: edocsitahw@qq.com
 
 /**
  * @file lexer.hpp
@@ -109,13 +109,13 @@
 #define COMPILER_LEXER_HPP
 #pragma once
 
-#include <string_view>
-#include <optional>
-#include <memory>
-#include <vector>
-
+#include "common/exception/diagnostic.hpp"
+#include "ic10/locals/local.hpp"
 #include "token.hpp"
-
+#include <memory>
+#include <optional>
+#include <string_view>
+#include <vector>
 
 namespace stationeers::ic10 {
 
@@ -235,7 +235,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        [[nodiscard]] std::vector<std::shared_ptr<Token>> scan() const;
+        [[nodiscard]] std::vector<std::shared_ptr<Token>> scan();
 
         /**
          * @if zh
@@ -286,6 +286,8 @@ namespace stationeers::ic10 {
          */
         bool debug_;
 
+        DiagnosticReporter<IC10MsgPack> reporter_;
+
         /**
          * @if zh
          *
@@ -314,7 +316,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Token next() const;
+        Token next();
 
         /**
          * @if zh
@@ -404,7 +406,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Token extractString() const;
+        Token extractString();
 
         /**
          * @if zh
@@ -419,7 +421,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Token extractSymbol() const;
+        Token extractSymbol();
 
         /**
          * @if zh

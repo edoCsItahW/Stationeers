@@ -13,11 +13,10 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+#include "ic10/lexer/lexer.hpp"
 #include "common/exception/debug.hpp"
 #include "common/utils/common.hpp"
 #include "ic10/locals/local.hpp"
-#include "ic10/lexer/lexer.hpp"
-
 
 namespace stationeers::ic10 {
 
@@ -25,16 +24,12 @@ namespace stationeers::ic10 {
         : src_(src)
         , debug_(debug) {}
 
-    std::vector<std::shared_ptr<Token>> Lexer::scan() const {
+    std::vector<std::shared_ptr<Token>> Lexer::scan() {
         auto tokens = std::vector<std::shared_ptr<Token>>{};
 
-        while (inScope()) tokens.emplace_back(std::make_shared<Token>(next()));
-
-        if (tokens.empty() || tokens.back()->type != TokenType::END) {
-            Console::warning(Loc::msg<MsgId::IWL1>());
-
-            tokens.emplace_back(std::make_shared<Token>(TokenType::END, pos_));
-        }
+        do {
+            tokens.emplace_back(std::make_shared<Token>(next()));
+        } while (tokens.back()->type != TokenType::END);
 
         return tokens;
     }
@@ -51,13 +46,14 @@ namespace stationeers::ic10 {
         return std::nullopt;
     }
 
-    Token Lexer::next() const {
+    Token Lexer::next() {
         skip();
 
         const auto start = pos_;
-        const auto c     = current();
 
-        if (!c) return {TokenType::END, start};
+        if (!inScope()) return {TokenType::END, start};
+
+        const auto c = current();
 
         if (*c == '\n') {
             pos_.newline();
@@ -86,18 +82,8 @@ namespace stationeers::ic10 {
             && isAsciiSpace(peek(p ? 3 : 2).value_or('z')))
             return extractRegister();
 
+        // 为适配不同语言变量名，但难以判断，因此所有分支至此都认为是标识符
         return extractIdentifier();
-
-        // TODO: 更改为记录异常
-        // Console::error("Unknown token: " + std::string(1, *c));
-        //
-        // const Token token{
-        //     .type = TokenType::UNKNOWN, .pos = start, .category = TokenCategory::INVALID
-        // };
-        //
-        // pos_.next();
-        //
-        // return token;
     }
 
     bool Lexer::inScope() const noexcept { return pos_.offset() < src_.size(); }
@@ -207,7 +193,7 @@ namespace stationeers::ic10 {
         return {TokenType::BINARY_NUMBER, start, value, TokenCategory::LITERAL};
     }
 
-    Token Lexer::extractString() const {
+    Token Lexer::extractString() {
         std::string value = "\"";
         pos_.next();
 
@@ -218,13 +204,19 @@ namespace stationeers::ic10 {
             if (const auto it = WHITESPACE_MAP.find(*current()); it != WHITESPACE_MAP.end()) {
                 value += '\\';
                 value += it->second;
-                // TODO: next?
+                // 循环末尾的 pos_.next() 会推进到下一个字符，无需额外处理
             }
 
             else
                 value += *current();
 
             pos_.next();
+        }
+
+        if (!inScope()) {
+            reporter_.errorWith<MsgId::IEL1_2>(start, stationeers::endPos(start, value.size()), std::string{ 1, '\"' });
+
+            return { TokenType::UNKNOWN, start, std::move(value), TokenCategory::INVALID };
         }
 
         value += *current();
@@ -261,7 +253,7 @@ namespace stationeers::ic10 {
         return {TokenType::SLASH_COMMENT, start, std::move(value), TokenCategory::COMMENT};
     }
 
-    Token Lexer::extractSymbol() const {
+    Token Lexer::extractSymbol() {
         const auto start = pos_;
 
         Token token;
@@ -270,8 +262,8 @@ namespace stationeers::ic10 {
             token = {it->second, start, std::string(1, *current()), TokenCategory::SYMBOL};
 
         else {
-            // TODO: 更改为记录异常
-            Console::error(Loc::msgFormat<MsgId::IEL1_1>(std::string(1, *current())));
+            reporter_.errorWith<MsgId::IEL1_1>(start, endPos(token), std::string{1, *current()});
+
             token = {TokenType::UNKNOWN, start, std::string(1, *current()), TokenCategory::INVALID};
         }
 
