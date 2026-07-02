@@ -64,7 +64,7 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    class Analyser : std::enable_shared_from_this<Analyser> {
+    class Analyser : public std::enable_shared_from_this<Analyser> {
     public:
         /**
          * @if zh
