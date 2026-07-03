@@ -6,8 +6,8 @@
 // permission, please contact the author: edocsitahw@qq.com
 
 /**
- * @file semantic.cpp 
- * @author edocsitahw 
+ * @file semantic.cpp
+ * @author edocsitahw
  * @version 1.1
  * @date 2026/06/05 17:53
  * @brief
@@ -17,9 +17,8 @@
 #include "common/exception/error.hpp"
 #include "ic10/locals/local.hpp"
 #include <format>
-#include <sstream>
 #include <ranges>
-
+#include <sstream>
 
 namespace stationeers::ic10 {
 
@@ -92,4 +91,4 @@ namespace stationeers::ic10 {
                 );
     }
 
-}
+}  // namespace stationeers::ic10

@@ -15,6 +15,7 @@
  * */
 #include "parser_adapter.hpp"
 #include "ast_adapter.hpp"
+#include "common_node/diagnostic_adapter.hpp"
 #include "token_adapter.hpp"
 #include <iostream>
 namespace stationeers::ic10 {
@@ -42,7 +43,15 @@ namespace stationeers::ic10 {
     node::Object ParserAdapter::init(node::Env env, node::Object exports) {
         node::Function func = DefineClass(
             env, "Parser",
-            {InstanceMethod<&ParserAdapter::parse>("parse"), StaticMethod<&parsing>("parsing")}
+            {
+// reslove MSVC ICE C1001
+#ifdef _MSC_VER
+                InstanceAccessor("diagnostics", &ParserAdapter::getDiagnostics, nullptr),
+#else
+                InstanceAccessor<&ParserAdapter::getDiagnostics>("diagnostics"),
+#endif
+                InstanceMethod<&ParserAdapter::parse>("parse"), StaticMethod<&parsing>("parsing")
+            }
         );
 
         auto constructor = std::make_unique<node::FunctionReference>();
@@ -79,6 +88,17 @@ namespace stationeers::ic10 {
         auto result = std::apply([](auto&... tp) { return Parser::parsing(tp...); }, params);
 
         return ProgramAdapter::to(info.Env(), result);
+    }
+
+    node::Value ParserAdapter::getDiagnostics(const node::CallbackInfo& info) {
+        auto diagnostics = parser_.getDiagnostics();
+
+        auto size   = diagnostics.size();
+        auto result = node::Array::New(info.Env(), size);
+
+        for (std::size_t i = 0; i < size; i++) result[i] = DiagnosticAdapter::to(info.Env(), diagnostics[i]);
+
+        return result;
     }
 
 }  // namespace stationeers::ic10

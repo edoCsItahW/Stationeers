@@ -30,6 +30,8 @@
 #pragma once
 
 #include "common/exception/error.hpp"
+#include "common/exception/diagnostic.hpp"
+#include "ic10/locals/local.hpp"
 #include "semantic.hpp"
 
 namespace stationeers::ic10 {
@@ -101,17 +103,17 @@ namespace stationeers::ic10 {
         /**
          * @if zh
          *
-         * @brief 获取错误列表
-         * @return 错误向量引用
+         * @brief 获取诊断信息列表
+         * @return 诊断信息列表的常引用
          *
          * @elseif en
          *
-         * @brief Get error list
-         * @return Error vector reference
+         * @brief Get the list of diagnostics
+         * @return Const reference to the diagnostic list
          *
          * @endif
          */
-        std::vector<Error>& getErrors();
+        const std::vector<Diagnostic>& getDiagnostics() const;
 
         /**
          * @if zh
@@ -140,34 +142,7 @@ namespace stationeers::ic10 {
          */
         SymbolTable symbolTable_{};
 
-        /**
-         * @if zh
-         * @brief 语义错误列表
-         * @elseif en
-         * @brief Semantic error list
-         * @endif
-         */
-        std::vector<Error> errors_;
-
-        /**
-         * @if zh
-         *
-         * @brief 报告错误
-         * @tparam T 错误类型
-         * @tparam Args 构造参数类型包
-         * @param args 构造错误的参数
-         *
-         * @elseif en
-         *
-         * @brief Report error
-         * @tparam T Error type
-         * @tparam Args Constructor argument type pack
-         * @param args Arguments to construct error
-         *
-         * @endif
-         */
-        template<typename T, typename... Args>
-        void reportError(Args&&... args);
+        DiagnosticReporter<IC10MsgPack> reporter_;
 
         /**
          * @if zh

@@ -15,6 +15,7 @@
  * */
 #include "lexer_adapter.hpp"
 #include "common/exception/debug.hpp"
+#include "common_node/diagnostic_adapter.hpp"
 #include "token_adapter.hpp"
 
 
@@ -23,7 +24,15 @@ namespace stationeers::ic10 {
     node::Object LexerAdapter::init(node::Env env, node::Object exports) {
         node::Function func = DefineClass(
             env, "Lexer",
-            {StaticMethod<&tokenize>("tokenize"), InstanceMethod<&LexerAdapter::scan>("scan")}
+            {
+// reslove MSVC ICE C1001
+#ifdef _MSC_VER
+                InstanceAccessor("diagnostics", &LexerAdapter::getDiagnostics, nullptr),
+#else
+                InstanceAccessor<&LexerAdapter::getDiagnostics>("diagnostics"),
+#endif
+                StaticMethod<&tokenize>("tokenize"), InstanceMethod<&LexerAdapter::scan>("scan")
+            }
         );
 
         auto constructor = std::make_unique<node::FunctionReference>();
@@ -70,6 +79,17 @@ namespace stationeers::ic10 {
         auto result = node::Array::New(info.Env(), size);
 
         for (std::size_t i = 0; i < size; ++i) result[i] = TokenAdapter::to(info.Env(), *tokens[i]);
+
+        return result;
+    }
+
+    node::Value LexerAdapter::getDiagnostics(const node::CallbackInfo& info) {
+        auto diagnostics = lexer_.getDiagnostics();
+
+        auto size   = diagnostics.size();
+        auto result = node::Array::New(info.Env(), size);
+
+        for (std::size_t i = 0; i < size; i++) result[i] = DiagnosticAdapter::to(info.Env(), diagnostics[i]);
 
         return result;
     }

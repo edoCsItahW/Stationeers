@@ -169,6 +169,34 @@ namespace stationeers::ic10 {
          * @private @memberof ParserAdapter
          */
         static node::Value parsing(const node::CallbackInfo& info);
+
+        /**
+         * @if zh
+         *
+         * @brief 获取诊断列表
+         * @details 返回语法分析过程中收集到的所有诊断信息（包含错误、警告、提示）。
+         *          每个诊断信息以普通 JS 对象形式暴露，包含 level、id、start、end、message 字段。
+         *
+         * @param info Node.js回调信息对象
+         * @return 诊断列表的JavaScript数组
+         *
+         *
+         * @elseif en
+         *
+         * @brief Get diagnostic list
+         * @details Returns all diagnostics collected during parsing
+         *          (including errors, warnings, info). Each diagnostic is exposed as a plain
+         *          JS object with level, id, start, end, message fields.
+         *
+         * @param info Node.js callback information object
+         * @return JavaScript array of diagnostic list
+         *
+         *
+         * @endif
+         *
+         * @private @memberof ParserAdapter
+         */
+        node::Value getDiagnostics(const node::CallbackInfo& info);
     };
 
 }  // namespace stationeers::ic10
