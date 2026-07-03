@@ -14,6 +14,7 @@ IC10 compiler Python bindings - type stubs
          from the IC10 compiler C++ core.
 """
 
+import enum
 from typing import List, Dict, Any, Optional, TypedDict
 
 
@@ -46,152 +47,215 @@ class IC10RuntimeError(RuntimeError):
 # Enums
 # ============================================================================
 
-class TokenType:
-    """IC10 token type enumeration."""
-    INTEGER: TokenType
-    FLOAT: TokenType
-    HEX_NUMBER: TokenType
-    BINARY_NUMBER: TokenType
-    STRING: TokenType
-    IDENTIFIER: TokenType
-    REGISTER: TokenType
-    DEVICE: TokenType
-    LPAREN: TokenType
-    RPAREN: TokenType
-    COLON: TokenType
-    HEX_COMMENT: TokenType
-    SLASH_COMMENT: TokenType
-    NEWLINE: TokenType
-    KEYWORD_HASH: TokenType
-    KEYWORD_STR: TokenType
-    KEYWORD_NAN: TokenType
-    KEYWORD_PINF: TokenType
-    KEYWORD_NINF: TokenType
-    KEYWORD_PI: TokenType
-    KEYWORD_TAU: TokenType
-    KEYWORD_DEG2RAD: TokenType
-    KEYWORD_RAD2DEG: TokenType
-    KEYWORD_EPSILON: TokenType
-    KEYWORD_GAS_CONSTANT: TokenType
-    END: TokenType
-    UNKNOWN: TokenType
-    KEYWORD_HCF: TokenType
-    KEYWORD_YIELD: TokenType
-    KEYWORD_ALIAS: TokenType
-    KEYWORD_DEFINE: TokenType
-    KEYWORD_PEEK: TokenType
-    KEYWORD_POP: TokenType
-    KEYWORD_PUSH: TokenType
-    KEYWORD_CLR: TokenType
-    KEYWORD_J: TokenType
-    KEYWORD_JAL: TokenType
-    KEYWORD_JR: TokenType
-    KEYWORD_RAND: TokenType
-    KEYWORD_SLEEP: TokenType
-    KEYWORD_ABS: TokenType
-    KEYWORD_ACOS: TokenType
-    KEYWORD_ADD: TokenType
-    KEYWORD_ASIN: TokenType
-    KEYWORD_ATAN: TokenType
-    KEYWORD_ATAN2: TokenType
-    KEYWORD_CEIL: TokenType
-    KEYWORD_COS: TokenType
-    KEYWORD_DIV: TokenType
-    KEYWORD_EXP: TokenType
-    KEYWORD_FLOOR: TokenType
-    KEYWORD_LOG: TokenType
-    KEYWORD_MAX: TokenType
-    KEYWORD_MIN: TokenType
-    KEYWORD_MOD: TokenType
-    KEYWORD_MUL: TokenType
-    KEYWORD_SGN: TokenType
-    KEYWORD_SIN: TokenType
-    KEYWORD_SQRT: TokenType
-    KEYWORD_TAN: TokenType
-    KEYWORD_MOVE: TokenType
-    KEYWORD_SDB: TokenType
-    KEYWORD_SBP: TokenType
-    KEYWORD_SLB: TokenType
-    KEYWORD_SLT: TokenType
-    KEYWORD_LB: TokenType
-    KEYWORD_LBN: TokenType
-    KEYWORD_LBNS: TokenType
-    KEYWORD_LBS: TokenType
-    KEYWORD_SB: TokenType
-    KEYWORD_SBN: TokenType
-    KEYWORD_SBNS: TokenType
-    KEYWORD_SBS: TokenType
-    KEYWORD_SAP: TokenType
-    KEYWORD_SELECT: TokenType
-    KEYWORD_SD: TokenType
-    KEYWORD_SL: TokenType
-    KEYWORD_DBNZ: TokenType
-    KEYWORD_DBZ: TokenType
-    KEYWORD_DGE: TokenType
-    KEYWORD_DGT: TokenType
-    KEYWORD_DLE: TokenType
-    KEYWORD_DLT: TokenType
-    KEYWORD_DNE: TokenType
-    KEYWORD_DEQ: TokenType
-    KEYWORD_BEZ: TokenType
-    KEYWORD_BNZ: TokenType
-    KEYWORD_BGE: TokenType
-    KEYWORD_BGT: TokenType
-    KEYWORD_BLE: TokenType
-    KEYWORD_BLT: TokenType
-    KEYWORD_BNE: TokenType
-    KEYWORD_BEQ: TokenType
-    KEYWORD_SEQZ: TokenType
-    KEYWORD_SNEZ: TokenType
-    KEYWORD_SGEZ: TokenType
-    KEYWORD_SGTZ: TokenType
-    KEYWORD_SLEZ: TokenType
-    KEYWORD_SLTZ: TokenType
-    KEYWORD_SNAN: TokenType
-    KEYWORD_SNANZ: TokenType
-    KEYWORD_LERP: TokenType
-    KEYWORD_MIX: TokenType
-    KEYWORD_CLAMP: TokenType
-    KEYWORD_MINIMUM: TokenType
-    KEYWORD_MAXIMUM: TokenType
-    KEYWORD_FENCE: TokenType
-    KEYWORD_RENDEZVOUS: TokenType
-    KEYWORD_PASS: TokenType
-    KEYWORD_PE: TokenType
-    KEYWORD_PD: TokenType
-    KEYWORD_ALE: TokenType
-    KEYWORD_ALE: TokenType
-    KEYWORD_ALG: TokenType
-    KEYWORD_ALGE: TokenType
-    KEYWORD_ALE_MIN: TokenType
-    KEYWORD_ALE_MAX: TokenType
-    KEYWORD_ALG_MIN: TokenType
-    KEYWORD_ALG_MAX: TokenType
-    KEYWORD_LINE: TokenType
-    KEYWORD_LR: TokenType
-    KEYWORD_HALT: TokenType
-    KEYWORD_START: TokenType
-    KEYWORD_STOP: TokenType
-    KEYWORD_SLEEPING: TokenType
-    KEYWORD_TRIG: TokenType
-    KEYWORD_REAGENT_MODE: TokenType
-    KEYWORD_REAGENT: TokenType
-    KEYWORD_SLOT: TokenType
-    KEYWORD_EXPORT: TokenType
-    KEYWORD_IMPORT: TokenType
-    KEYWORD_DEVICE: TokenType
-    KEYWORD_DUP: TokenType
-    KEYWORD_SWAP: TokenType
+class TokenType(enum.IntEnum):
+    """IC10 token type enumeration.
+
+    Auto-synced with C++ ``ic10::TokenType`` via pybind11 ``py::enum_``.
+    Values are contiguous starting from 0.
+    """
+    # 数字
+    INTEGER = 0
+    FLOAT
+    HEX_NUMBER
+    BINARY_NUMBER
+    STRING
+    # 变量名
+    IDENTIFIER
+    # 寄存器设备
+    REGISTER
+    DEVICE
+    # 符号
+    LPAREN
+    RPAREN
+    COLON
+    # 注释
+    HEX_COMMENT
+    SLASH_COMMENT
+    # 换行
+    NEWLINE
+    # 关键字 - 宏与函数
+    KEYWORD_HASH
+    KEYWORD_STR
+    # 关键字 - 常量
+    KEYWORD_NAN
+    KEYWORD_PINF
+    KEYWORD_NINF
+    KEYWORD_PI
+    KEYWORD_TAU
+    KEYWORD_DEG2RAD
+    KEYWORD_RAD2DEG
+    KEYWORD_EPSILON
+    KEYWORD_GAS_CONSTANT
+    # 文件结束标记
+    END
+    # 未知标记
+    UNKNOWN
+    # 关键字 - 空指令
+    KEYWORD_HCF
+    KEYWORD_YIELD
+    # 关键字 - 预处理指令
+    KEYWORD_ALIAS
+    KEYWORD_DEFINE
+    # 关键字 - 一元指令
+    KEYWORD_PEEK
+    KEYWORD_POP
+    KEYWORD_PUSH
+    KEYWORD_CLR
+    KEYWORD_J
+    KEYWORD_JAL
+    KEYWORD_JR
+    KEYWORD_RAND
+    KEYWORD_SLEEP
+    # 关键字 - 二元指令
+    KEYWORD_ABS
+    KEYWORD_ACOS
+    KEYWORD_ADD
+    KEYWORD_ASIN
+    KEYWORD_ATAN
+    KEYWORD_ATAN2
+    KEYWORD_CEIL
+    KEYWORD_COS
+    KEYWORD_DIV
+    KEYWORD_EXP
+    KEYWORD_FLOOR
+    KEYWORD_LOG
+    KEYWORD_MAX
+    KEYWORD_MIN
+    KEYWORD_MOD
+    KEYWORD_MUL
+    KEYWORD_POW
+    KEYWORD_ROUND
+    KEYWORD_SIN
+    KEYWORD_SQRT
+    KEYWORD_SUB
+    KEYWORD_TAN
+    KEYWORD_TRUNC
+    KEYWORD_NOT
+    KEYWORD_MOVE
+    KEYWORD_POKE
+    KEYWORD_BEQZ
+    KEYWORD_BEQZAL
+    KEYWORD_BNEZ
+    KEYWORD_BNEZAL
+    KEYWORD_BGEZ
+    KEYWORD_BGEZAL
+    KEYWORD_BGTZ
+    KEYWORD_BGTZAL
+    KEYWORD_BLEZ
+    KEYWORD_BLEZAL
+    KEYWORD_BLTZ
+    KEYWORD_BLTZAL
+    KEYWORD_BNAN
+    KEYWORD_BNANZ
+    KEYWORD_BDNS
+    KEYWORD_BDNSAL
+    KEYWORD_BDSE
+    KEYWORD_BDSEAL
+    KEYWORD_BREQZ
+    KEYWORD_BRNZ
+    KEYWORD_BRGEZ
+    KEYWORD_BRGTZ
+    KEYWORD_BRLEZ
+    KEYWORD_BRLTZ
+    KEYWORD_BRNAN
+    KEYWORD_BRDNS
+    KEYWORD_BRDSE
+    KEYWORD_SEQZ
+    KEYWORD_SNEZ
+    KEYWORD_SGEZ
+    KEYWORD_SGTZ
+    KEYWORD_SLEZ
+    KEYWORD_SLTZ
+    KEYWORD_SNAN
+    KEYWORD_SNANZ
+    KEYWORD_SDNS
+    KEYWORD_SDSE
+    # 关键字 - 三元指令
+    KEYWORD_AND
+    KEYWORD_NOR
+    KEYWORD_OR
+    KEYWORD_SLA
+    KEYWORD_SLL
+    KEYWORD_SRA
+    KEYWORD_SRL
+    KEYWORD_XOR
+    KEYWORD_GET
+    KEYWORD_PUT
+    KEYWORD_L
+    KEYWORD_LS
+    KEYWORD_LR
+    KEYWORD_S
+    KEYWORD_SB
+    KEYWORD_RMAP
+    KEYWORD_BEQ
+    KEYWORD_BEQAL
+    KEYWORD_BNE
+    KEYWORD_BNEAL
+    KEYWORD_BGE
+    KEYWORD_BGEAL
+    KEYWORD_BGT
+    KEYWORD_BGTAL
+    KEYWORD_BLE
+    KEYWORD_BLEAL
+    KEYWORD_BLT
+    KEYWORD_BLTAL
+    KEYWORD_BAPZ
+    KEYWORD_BAPZAL
+    KEYWORD_BNAZ
+    KEYWORD_BNAZAL
+    KEYWORD_BDNVL
+    KEYWORD_BDNVS
+    KEYWORD_BREQ
+    KEYWORD_BRNE
+    KEYWORD_BRGE
+    KEYWORD_BRGT
+    KEYWORD_BRLE
+    KEYWORD_BRLT
+    KEYWORD_BRAPZ
+    KEYWORD_BRNAZ
+    KEYWORD_SAPZ
+    KEYWORD_SNAZ
+    KEYWORD_SEQ
+    KEYWORD_SNE
+    KEYWORD_SGE
+    KEYWORD_SGT
+    KEYWORD_SLE
+    KEYWORD_SLT
+    # 关键字 - 四元指令
+    KEYWORD_LERP
+    KEYWORD_EXT
+    KEYWORD_INS
+    KEYWORD_SS
+    KEYWORD_LB
+    KEYWORD_SBN
+    KEYWORD_SBS
+    KEYWORD_BAP
+    KEYWORD_BAPAL
+    KEYWORD_BNA
+    KEYWORD_BNAAL
+    KEYWORD_BRAP
+    KEYWORD_BRNA
+    KEYWORD_SAP
+    KEYWORD_SNA
+    KEYWORD_SELECT
+    # 关键字 - 五元指令
+    KEYWORD_LBN
+    KEYWORD_LBS
+    # 关键字 - 六元指令
+    KEYWORD_LBNS
 
 
-class TokenCategory:
-    """IC10 token category enumeration."""
-    LITERAL: TokenCategory
-    SYMBOL: TokenCategory
-    COMMENT: TokenCategory
-    WHITESPACE: TokenCategory
-    END: TokenCategory
-    INVALID: TokenCategory
+class TokenCategory(enum.IntEnum):
+    """IC10 token category enumeration.
+
+    Auto-synced with C++ ``ic10::TokenCategory`` via pybind11 ``py::enum_``.
+    """
+    LITERAL = 0
+    SYMBOL
+    COMMENT
+    WHITESPACE
+    END
+    INVALID
 
 
 # ============================================================================

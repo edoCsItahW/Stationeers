@@ -9,7 +9,7 @@
 import IC10NodeAPI = require('ic10-node-api');
 import {setupUTF8Console} from "../utils";
 
-const {IC10Local, Token, Pos, Lexer, Program, Parser, Analyser, SymbolTable} = IC10NodeAPI;
+const {IC10Local, Token, TokenType, TokenCategory, Pos, Lexer, Program, Parser, Analyser, SymbolTable} = IC10NodeAPI;
 
 
 beforeAll(() => {
@@ -22,7 +22,7 @@ beforeAll(() => {
 
 describe('Token', () => {
     it('should create token and toString correctly', () => {
-        const token = new Token(1, new Pos(), 'a', 3);
+        const token = new Token(TokenType.FLOAT, new Pos(), 'a', TokenCategory.LITERAL);
 
         expect(token.toString()).toBe("Token<1,1>[FLOAT]('a')");
     });
