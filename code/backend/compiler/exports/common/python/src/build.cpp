@@ -14,10 +14,12 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "common_python/build.hpp"
+#include "common_python/diagnostic_adapter.hpp"
 #include "common_python/error_adapter.hpp"
 #include "common_python/pos_adapter.hpp"
 
 void commonInit(py::module_& m) {
     stationeers::initPos(m);
     stationeers::initError(m);
+    stationeers::initDiagnostic(m);
 }

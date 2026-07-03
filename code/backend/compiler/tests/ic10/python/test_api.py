@@ -141,13 +141,13 @@ class TestAnalyser:
         program = parser.parse()
         Analyser.analyse(program)
 
-    def test_analyser_errors(self):
+    def test_analyser_diagnostics(self):
         tokens = Lexer.tokenize("alias ic d0")
         parser = Parser(tokens)
         program = parser.parse()
         analyser = Analyser()
         analyser.visit(program)
-        assert isinstance(analyser.errors, list)
+        assert isinstance(analyser.diagnostics, list)
 
 
 class TestSymbolTable:
