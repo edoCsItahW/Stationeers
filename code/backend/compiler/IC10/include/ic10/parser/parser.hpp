@@ -1,3 +1,10 @@
+// Copyright (c) 2026. All rights reserved.
+// This source code is licensed under the CC BY-NC-SA
+// (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
+// This software is protected by copyright law. Reproduction, distribution, or use for commercial
+// purposes is prohibited without the author's permission. If you have any questions or require
+// permission, please contact the author: edocsitahw@qq.com
+
 /**
  * @file parser.hpp
  * @author edocsitahw
@@ -112,12 +119,11 @@
 #define COMPILER_PARSER_HPP
 #pragma once
 
-#include <memory>
-
-#include "common/exception/error.hpp"
-#include "ic10/parser/ast/ast.hpp"
 #include "../lexer/token.hpp"
-
+#include "ic10/locals/local.hpp"
+#include "ic10/parser/ast/ast.hpp"
+#include "common/exception/diagnostic.hpp"
+#include <memory>
 
 namespace stationeers::ic10 {
 
@@ -247,6 +253,23 @@ namespace stationeers::ic10 {
         /**
          * @if zh
          *
+         * @brief 获取诊断列表
+         * @details 返回语法分析过程中收集到的所有诊断信息（包含错误、警告、提示）
+         * @return 诊断列表的常量引用
+         *
+         * @elseif en
+         *
+         * @brief Get the list of diagnostics
+         * @details Returns all diagnostics collected during parsing (including errors, warnings, info)
+         * @return Const reference to the diagnostic list
+         *
+         * @endif
+         */
+        const std::vector<Diagnostic>& getDiagnostics() const { return reporter_.getDiagnostics(); }
+
+        /**
+         * @if zh
+         *
          * @brief 静态解析入口
          * @param tokens 词法标记向量
          * @param debug 是否启用调试模式
@@ -274,6 +297,17 @@ namespace stationeers::ic10 {
          * @endif
          */
         mutable std::size_t idx_ = 0;
+
+        /**
+         * @if zh
+         * @brief 诊断报告器
+         * @details 收集词法/语法分析过程中产生的错误、警告等诊断信息
+         * @elseif en
+         * @brief Diagnostic reporter
+         * @details Collects errors, warnings and other diagnostic information during parsing
+         * @endif
+         */
+        DiagnosticReporter<IC10MsgPack> reporter_;
 
         /**
          * @if zh
@@ -985,6 +1019,20 @@ namespace stationeers::ic10 {
          * @endif
          */
         std::shared_ptr<Token> expect(TokenType type, bool skipWs = true, bool consume = true);
+
+        /**
+         * @if zh
+         * @brief 操作数起始 Token 集合（编译期推导）
+         * @details 从 Operand variant 的所有成员类型的 startTokens 编译期聚合而来，
+         *          用于错误恢复时快速判断当前 token 是否为合法操作数起始
+         * @elseif en
+         * @brief Operand start token set (compile-time derived)
+         * @details Compile-time aggregated from startTokens of all member types in the Operand variant,
+         *          used for quickly checking whether the current token is a valid operand start during error recovery
+         * @endif
+         */
+        static constexpr auto OPERAND_STARTS = getStartTokens<Operand>();
+
     };
 
 }  // namespace stationeers::ic10

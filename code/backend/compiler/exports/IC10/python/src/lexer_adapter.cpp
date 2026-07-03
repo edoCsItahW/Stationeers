@@ -14,6 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "lexer_adapter.hpp"
+#include "common_python/diagnostic_adapter.hpp"
 #include "ic10/lexer/lexer.hpp"
 
 namespace stationeers::ic10 {
@@ -64,7 +65,28 @@ namespace stationeers::ic10 {
              * @endif
              */
             .def_static("tokenize", &Lexer::tokenize,
-                        py::arg("src"), py::arg("debug") = false);
+                        py::arg("src"), py::arg("debug") = false)
+            /**
+             * @if zh
+             * @brief 获取诊断列表
+             * @details 返回词法分析过程中收集到的所有诊断信息(包含错误、警告、提示)。
+             *          每个诊断信息为字典,包含level/id/start/end/message字段。
+             * @return Python字典列表
+             * @elseif en
+             * @brief Get diagnostic list
+             * @details Returns all diagnostics collected during lexical analysis
+             *          (including errors, warnings, info).
+             *          Each diagnostic is a dict with level/id/start/end/message fields.
+             * @return List of Python dicts
+             * @endif
+             */
+            .def_property_readonly("diagnostics", [](Lexer& self) {
+                py::list list;
+                for (const auto& diag : self.getDiagnostics()) {
+                    list.append(diagnosticToPython(diag));
+                }
+                return list;
+            });
     }
 
 }  // namespace stationeers::ic10

@@ -209,7 +209,6 @@ namespace stationeers::ic10 {
         {'\t', 't'},
         {'\n', 'n'},
         {'\r', 'r'},
-        {'\r', 'r'},
         {'\b', 'b'}
     };
 

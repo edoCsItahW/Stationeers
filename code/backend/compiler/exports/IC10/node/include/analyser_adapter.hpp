@@ -174,27 +174,30 @@ namespace stationeers::ic10 {
         /**
          * @if zh
          *
-         * @brief 获取错误列表
-         * @details 返回语义分析过程中收集到的所有错误信息
+         * @brief 获取诊断列表
+         * @details 返回语义分析过程中收集到的所有诊断信息（包含错误、警告、提示）。
+         *          每个诊断信息以普通 JS 对象形式暴露，包含 level、id、start、end、message 字段。
          *
          * @param info Node.js回调信息对象
-         * @return 错误列表的JavaScript数组
+         * @return 诊断列表的JavaScript数组
          *
          *
          * @elseif en
          *
-         * @brief Get error list
-         * @details Returns all error information collected during the semantic analysis process
+         * @brief Get diagnostic list
+         * @details Returns all diagnostics collected during the semantic analysis process
+         *          (including errors, warnings, info). Each diagnostic is exposed as a plain
+         *          JS object with level, id, start, end, message fields.
          *
          * @param info Node.js callback information object
-         * @return JavaScript array of error list
+         * @return JavaScript array of diagnostic list
          *
          *
          * @endif
          *
          * @private @memberof AnalyserAdapter
          */
-        node::Value getErrors(const node::CallbackInfo& info);
+        node::Value getDiagnostics(const node::CallbackInfo& info);
 
         /**
          * @if zh

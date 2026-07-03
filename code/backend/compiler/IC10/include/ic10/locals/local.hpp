@@ -3,7 +3,7 @@
 // (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
 // This software is protected by copyright law. Reproduction, distribution, or use for commercial
 // purposes is prohibited without the author's permission. If you have any questions or require
-// permission, please contact the author: 2207150234@st.sziit.edu.cn
+// permission, please contact the author: edocsitahw@qq.com
 
 /**
  * @file local.hpp
@@ -26,8 +26,13 @@ namespace stationeers::ic10 {
      * + (E(Error) | W(Warning) | I(Info))
      * + (L(Lexer) | P(Parser) + A(Analysis))
      * + {Number}
+     * + '_'
+     * + {ArgumentNumber}
      */
     enum class IC10MsgId : uint32_t {
+        // Inner Error
+        IE0_1,  // '{}'
+
         /* Lexer */
 
         // Warning
@@ -36,6 +41,7 @@ namespace stationeers::ic10 {
 
         // Error
         IEL1_1,  // Unknown operation symbol'{}' - lexical analysis.
+        IEL2_1,  // Unclosed paired symbols '{}' - lexical analysis.
 
         /* Parser */
 
@@ -75,6 +81,16 @@ namespace stationeers::ic10 {
         IMP16_1,  // Expected to read a number token, but a '{}' token was read instead - syntax
                   // analysis.
 
+        IMP17,    // Missing operand - syntax analysis.
+        IMP18,    // Missing register or device - syntax analysis.
+        IMP19,    // Missing register or identifier - syntax analysis.
+        IMP20,    // Missing device reference - syntax analysis.
+        IMP21,    // Missing macro call - syntax analysis.
+        IMP22,    // Missing identifier or number - syntax analysis.
+        IMP23,    // Missing colon after label - syntax analysis.
+        IMP24,    // Missing alias keyword - syntax analysis.
+        IMP25,    // Missing define keyword - syntax analysis.
+
         // Error
 
         IEP1_1,  // Unexpected token '{}' - syntax analysis.
@@ -86,6 +102,7 @@ namespace stationeers::ic10 {
         IEA2_1,  // The symbol '{}' has been redefined - semantic analysis.
         IEA3_1,  // Identifier '{}' has not been defined - semantic analysis.
         IEA4,    // An alias cannot be defined for another alias - semantic analysis.
+        IEA5,    // Unknown Grammar Type '{}' - semantic analysis.
     };
 
     template<typename, IC10MsgId>

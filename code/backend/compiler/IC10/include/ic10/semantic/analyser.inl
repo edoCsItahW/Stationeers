@@ -3,7 +3,7 @@
 // (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
 // This software is protected by copyright law. Reproduction, distribution, or use for commercial
 // purposes is prohibited without the author's permission. If you have any questions or require
-// permission, please contact the author: 2207150234@st.sziit.edu.cn
+// permission, please contact the author: edocsitahw@qq.com
 
 /**
  * @file analyser.inl
@@ -17,23 +17,32 @@
 #define COMPILER_ANALYSER_INL
 #pragma once
 
-#include <iostream>
+#include "ic10/locals/local.hpp"
+
 
 namespace stationeers::ic10 {
 
-    template<typename T, typename... Args>
-    void Analyser::reportError(Args&&... args) {
-        errors_.emplace_back(T{std::forward<Args>(args)...});
-    }
-
+    // 通用指令访问器：遍历指令的所有操作数（args 元组），按操作数类型分派处理
     template<template<auto, typename...> class Ins, FString V, typename... Args>
     Task<> Analyser::operator()(const Ins<V, Args...>& ins) {
+        // 单个操作数处理：对 variant 分派
+        // - Identifier: 解析符号（可能为前向引用，需等待 Future）
+        // - ErrorNode : Parser 已上报，跳过避免重复诊断
+        // - 其他类型  : 递归访问（走叶节点访问器或其他专用访问器）
         auto process = [&](const auto& variant) -> Task<> {
             (void)co_await std::visit(
                 [&]<typename T>(const T& arg) -> Task<> {
-                    if constexpr (std::is_same_v<std::remove_cvref_t<T>, Identifier>)
+                    using U = std::remove_cvref_t<T>;
+
+                    // Identifier: 需要解析符号
+                    if constexpr (std::is_same_v<U, Identifier>)
                         (void)co_await resolveSymbol(arg.value, arg.position);
 
+                    // ErrorNode: Parser 已报错，跳过
+                    else if constexpr (std::is_same_v<U, ErrorNode>)
+                        co_return;
+
+                    // 其他类型: 递归访问
                     else
                         (void)co_await this->operator()(arg);
 
@@ -43,6 +52,7 @@ namespace stationeers::ic10 {
             );
         };
 
+        // 折叠表达式依次处理指令的所有操作数
         std::apply(
             [&](const auto&... args) -> Task<> {
                 (((void)co_await process(args)), ...);
@@ -54,10 +64,25 @@ namespace stationeers::ic10 {
         co_return;
     }
 
+    // 泛型 fallback 访问器：未匹配到专用访问器的节点走此分支，统一上报 IEA5（未知语法类型）
     template<typename T>
-    Task<> Analyser::operator()(T&&) {
+    Task<> Analyser::operator()(T&& arg) {
         using U = std::remove_cvref_t<T>;
-        std::cout << "Unknown Grammar Type: " << std::string(U::nodeName) << std::endl;
+
+        // 如果是 tuple-like 类型，尝试提取内部元素
+        if constexpr (requires { std::get<0>(arg); })
+            std::apply(
+                [this](const auto& innerArg) {
+                    reporter_.errorWith<MsgId::IEA5>(
+                        innerArg.start(), innerArg.end(), std::string(U::nodeName)
+                    );
+                },
+                arg
+            );
+        else
+            reporter_.errorWith<MsgId::IEA5>(
+                arg.start(), arg.end(), std::string(U::nodeName)
+            );
 
         co_return;
     }

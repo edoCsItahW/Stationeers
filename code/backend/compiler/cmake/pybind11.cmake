@@ -36,12 +36,12 @@ endif()
 # 5. 导出 pybind11 包含目录（供需要手动 include 的场景使用，但推荐通过 target 自动传递）
 get_target_property(PYBIND11_INCLUDE_DIRS pybind11::pybind11 INTERFACE_INCLUDE_DIRECTORIES)
 if(PYBIND11_INCLUDE_DIRS)
-    message(STATUS "pybind11.cmake <PYBIND11_INCLUDE_DIRS>: ${PYBIND11_INCLUDE_DIRS} | <PYBIND11_INCLUDE_DIRS>：${PYBIND11_INCLUDE_DIRS}")
+    message(STATUS "pybind11.cmake <PYBIND11_INCLUDE_DIRS>: ${PYBIND11_INCLUDE_DIRS}")
 else()
     message(STATUS "pybind11.cmake <PYBIND11_INCLUDE_DIRS>: (not available)")
 endif()
 
 # 6. 输出诊断信息（与 node.cmake 风格统一）
-message(STATUS "pybind11.cmake <Python_EXECUTABLE>: ${Python_EXECUTABLE} | <Python_EXECUTABLE>：${Python_EXECUTABLE}")
-message(STATUS "pybind11.cmake <pybind11_DIR>: ${pybind11_DIR} | <pybind11_DIR>：${pybind11_DIR}")
+message(STATUS "pybind11.cmake <Python_EXECUTABLE>: ${Python_EXECUTABLE}")
+message(STATUS "pybind11.cmake <pybind11_DIR>: ${pybind11_DIR}")
 message(STATUS "pybind11.cmake <NOTE>: The target 'pybind11::pybind11' automatically provides Python headers and libraries | <NOTE>：目标 'pybind11::pybind11' 自动提供 Python 头文件和库")
