@@ -214,7 +214,7 @@ namespace stationeers::ic10 {
         }
 
         if (!inScope()) {
-            reporter_.errorWith<MsgId::IEL1_2>(start, stationeers::endPos(start, value.size()), std::string{ 1, '\"' });
+            reporter_.errorWith<MsgId::IEL2_1>(start, stationeers::endPos(start, value.size()), std::string{ 1, '\"' });
 
             return { TokenType::UNKNOWN, start, std::move(value), TokenCategory::INVALID };
         }

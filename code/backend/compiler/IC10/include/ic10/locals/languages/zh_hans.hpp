@@ -45,11 +45,13 @@ namespace stationeers::ic10 {
      */
 #define LOCAL_MSG_ZH_HANS(id, msg) LOCAL_MSG(ZhHans, id, msg)
 
+    LOCAL_MSG_ZH_HANS(IE0_1, "{}")
+
     LOCAL_MSG_ZH_HANS(IWL1, "文件结束时未如期遇到END令牌 - 词法分析器。");
 
     LOCAL_MSG_ZH_HANS(IEL1_1, "未知操作符号'{}' - 词法分析器。")
 
-    LOCAL_MSG_ZH_HANS(IEL1_2, "未闭合的成对符号'{}' - 词法分析器。")
+    LOCAL_MSG_ZH_HANS(IEL2_1, "未闭合的成对符号'{}' - 词法分析器。")
 
     LOCAL_MSG_ZH_HANS(IMP1, "意外的遇到文件结尾 - 语法分析器。")
 
@@ -83,6 +85,16 @@ namespace stationeers::ic10 {
 
     LOCAL_MSG_ZH_HANS(IMP16_1, "期望读取数字令牌，结果读到'{}'令牌 - 语法分析器。")
 
+    LOCAL_MSG_ZH_HANS(IMP17, "缺少操作数 - 语法分析器。")
+    LOCAL_MSG_ZH_HANS(IMP18, "缺少寄存器或设备 - 语法分析器。")
+    LOCAL_MSG_ZH_HANS(IMP19, "缺少寄存器或标识符 - 语法分析器。")
+    LOCAL_MSG_ZH_HANS(IMP20, "缺少设备引用 - 语法分析器。")
+    LOCAL_MSG_ZH_HANS(IMP21, "缺少宏调用 - 语法分析器。")
+    LOCAL_MSG_ZH_HANS(IMP22, "缺少标识符或数字 - 语法分析器。")
+    LOCAL_MSG_ZH_HANS(IMP23, "标签后缺少冒号 - 语法分析器。")
+    LOCAL_MSG_ZH_HANS(IMP24, "缺少 alias 关键字 - 语法分析器。")
+    LOCAL_MSG_ZH_HANS(IMP25, "缺少 define 关键字 - 语法分析器。")
+
     LOCAL_MSG_ZH_HANS(IEP1_1, "意外的'{}'令牌 - 语法分析器。")
 
     LOCAL_MSG_ZH_HANS(IEA1_2, "期望'{}'，结果找到'{}' - 语义分析器。")
@@ -92,6 +104,8 @@ namespace stationeers::ic10 {
     LOCAL_MSG_ZH_HANS(IEA3_1, "未找到符号'{}' - 语义分析器。")
 
     LOCAL_MSG_ZH_HANS(IEA4, "不能对别名定义别名 - 语义分析器。")
+
+    LOCAL_MSG_ZH_HANS(IEA5, "未知语法类型'{}' - 语义分析器。")
 
 }  // namespace stationeers::ic10
 

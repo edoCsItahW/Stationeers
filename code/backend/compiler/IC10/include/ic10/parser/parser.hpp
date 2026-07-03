@@ -253,6 +253,23 @@ namespace stationeers::ic10 {
         /**
          * @if zh
          *
+         * @brief 获取诊断列表
+         * @details 返回语法分析过程中收集到的所有诊断信息（包含错误、警告、提示）
+         * @return 诊断列表的常量引用
+         *
+         * @elseif en
+         *
+         * @brief Get the list of diagnostics
+         * @details Returns all diagnostics collected during parsing (including errors, warnings, info)
+         * @return Const reference to the diagnostic list
+         *
+         * @endif
+         */
+        const std::vector<Diagnostic>& getDiagnostics() const { return reporter_.getDiagnostics(); }
+
+        /**
+         * @if zh
+         *
          * @brief 静态解析入口
          * @param tokens 词法标记向量
          * @param debug 是否启用调试模式
@@ -281,6 +298,15 @@ namespace stationeers::ic10 {
          */
         mutable std::size_t idx_ = 0;
 
+        /**
+         * @if zh
+         * @brief 诊断报告器
+         * @details 收集词法/语法分析过程中产生的错误、警告等诊断信息
+         * @elseif en
+         * @brief Diagnostic reporter
+         * @details Collects errors, warnings and other diagnostic information during parsing
+         * @endif
+         */
         DiagnosticReporter<IC10MsgPack> reporter_;
 
         /**
@@ -322,7 +348,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        LabelDef parseLabelDef(int layer);
+        ShallowErrorable<LabelDef> parseLabelDef(int layer);
 
         /**
          * @if zh
@@ -356,7 +382,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        AliasDirective parseAliasDirective(int layer);
+        ShallowErrorable<AliasDirective> parseAliasDirective(int layer);
 
         /**
          * @if zh
@@ -373,7 +399,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        DefineDirective parseDefineDirective(int layer);
+        ShallowErrorable<DefineDirective> parseDefineDirective(int layer);
 
         /**
          * @if zh
@@ -611,7 +637,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        HashCall parseHashCall(int layer);
+        ShallowErrorable<HashCall> parseHashCall(int layer);
 
         /**
          * @if zh
@@ -628,7 +654,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        StrCall parseStrCall(int layer);
+        ShallowErrorable<StrCall> parseStrCall(int layer);
 
         /**
          * @if zh
@@ -645,7 +671,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Constant parseConstant(int layer);
+        ShallowErrorable<Constant> parseConstant(int layer);
 
         /**
          * @if zh
@@ -764,7 +790,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Device parseDevice(int layer);
+        ShallowErrorable<Device> parseDevice(int layer);
 
         /**
          * @if zh
@@ -781,7 +807,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Register parseRegister(int layer);
+        ShallowErrorable<Register> parseRegister(int layer);
 
         /**
          * @if zh
@@ -798,7 +824,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        String parseString(int layer);
+        ShallowErrorable<String> parseString(int layer);
 
         /**
          * @if zh
@@ -815,7 +841,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Identifier parseIdentifier(int layer);
+        ShallowErrorable<Identifier> parseIdentifier(int layer);
 
         /**
          * @if zh
@@ -883,7 +909,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Float parseFloat(int layer);
+        ShallowErrorable<Float> parseFloat(int layer);
 
         /**
          * @if zh
@@ -900,7 +926,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Integer parseInteger(int layer);
+        ShallowErrorable<Integer> parseInteger(int layer);
 
         /**
          * @if zh
@@ -993,6 +1019,20 @@ namespace stationeers::ic10 {
          * @endif
          */
         std::shared_ptr<Token> expect(TokenType type, bool skipWs = true, bool consume = true);
+
+        /**
+         * @if zh
+         * @brief 操作数起始 Token 集合（编译期推导）
+         * @details 从 Operand variant 的所有成员类型的 startTokens 编译期聚合而来，
+         *          用于错误恢复时快速判断当前 token 是否为合法操作数起始
+         * @elseif en
+         * @brief Operand start token set (compile-time derived)
+         * @details Compile-time aggregated from startTokens of all member types in the Operand variant,
+         *          used for quickly checking whether the current token is a valid operand start during error recovery
+         * @endif
+         */
+        static constexpr auto OPERAND_STARTS = getStartTokens<Operand>();
+
     };
 
 }  // namespace stationeers::ic10

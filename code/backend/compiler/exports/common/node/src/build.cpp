@@ -14,6 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "common_node/build.hpp"
+#include "common_node/diagnostic_adapter.hpp"
 #include "common_node/error_adapter.hpp"
 #include "common_node/pos_adapter.hpp"
 
@@ -21,6 +22,8 @@ node::Object commonInit(const node::Env env, const node::Object exports) {
     stationeers::PosAdapter::init(env, exports);
 
     stationeers::ErrorAdapter::init(env, exports);
+
+    stationeers::DiagnosticAdapter::init(env, exports);
 
     return exports;
 }

@@ -240,6 +240,23 @@ namespace stationeers::ic10 {
         /**
          * @if zh
          *
+         * @brief 获取诊断列表
+         * @details 返回词法分析过程中收集到的所有诊断信息（包含错误、警告、提示）
+         * @return 诊断列表的常量引用
+         *
+         * @elseif en
+         *
+         * @brief Get the list of diagnostics
+         * @details Returns all diagnostics collected during lexical analysis (including errors, warnings, info)
+         * @return Const reference to the diagnostic list
+         *
+         * @endif
+         */
+        const std::vector<Diagnostic>& getDiagnostics() const { return reporter_.getDiagnostics(); }
+
+        /**
+         * @if zh
+         *
          * @brief 静态词法分析入口
          * @param src 源代码字符串
          * @param debug 是否启用调试模式
@@ -286,6 +303,15 @@ namespace stationeers::ic10 {
          */
         bool debug_;
 
+        /**
+         * @if zh
+         * @brief 诊断报告器
+         * @details 收集词法分析过程中产生的错误、警告等诊断信息
+         * @elseif en
+         * @brief Diagnostic reporter
+         * @details Collects errors, warnings and other diagnostic information during lexical analysis
+         * @endif
+         */
         DiagnosticReporter<IC10MsgPack> reporter_;
 
         /**

@@ -84,5 +84,6 @@ int main() {
 
     std::cout << analyser.getSymbolTable().toJSON() << std::endl;
 
-    for (auto& error : analyser.getErrors()) std::cout << error << std::endl;
+    for (auto& error : analyser.getDiagnostics())
+        std::cout << error.message << std::endl;
 }

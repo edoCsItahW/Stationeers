@@ -47,6 +47,8 @@ namespace stationeers::ic10 {
      */
 #define LOCAL_MSG_EN_US(id, msg) LOCAL_MSG(EnUs, id, msg)
 
+    LOCAL_MSG_EN_US(IE0_1, "{}")
+
     LOCAL_MSG_EN_US(
         IWL1,
         "The END token was not encountered as expected at the end of the file - lexical analysis."
@@ -54,7 +56,7 @@ namespace stationeers::ic10 {
 
     LOCAL_MSG_EN_US(IEL1_1, "Unknown operation symbol'{}' - lexical analysis.")
 
-    LOCAL_MSG_EN_US(IEL1_2, "Unclosed paired symbols '{}' - lexical analysis.")
+    LOCAL_MSG_EN_US(IEL2_1, "Unclosed paired symbols '{}' - lexical analysis.")
 
     LOCAL_MSG_EN_US(IMP1, "Unexpectedly encountered the end of the file - syntax analysis.")
 
@@ -138,6 +140,16 @@ namespace stationeers::ic10 {
         "Expected to read a number token, but a '{}' token was read instead - syntax analysis."
     )
 
+    LOCAL_MSG_EN_US(IMP17, "Missing operand - syntax analysis.")
+    LOCAL_MSG_EN_US(IMP18, "Missing register or device - syntax analysis.")
+    LOCAL_MSG_EN_US(IMP19, "Missing register or identifier - syntax analysis.")
+    LOCAL_MSG_EN_US(IMP20, "Missing device reference - syntax analysis.")
+    LOCAL_MSG_EN_US(IMP21, "Missing macro call - syntax analysis.")
+    LOCAL_MSG_EN_US(IMP22, "Missing identifier or number - syntax analysis.")
+    LOCAL_MSG_EN_US(IMP23, "Missing colon after label - syntax analysis.")
+    LOCAL_MSG_EN_US(IMP24, "Missing alias keyword - syntax analysis.")
+    LOCAL_MSG_EN_US(IMP25, "Missing define keyword - syntax analysis.")
+
     LOCAL_MSG_EN_US(IEP1_1, "Unexpected token '{}' - syntax analysis.")
 
     LOCAL_MSG_EN_US(IEA1_2, "'{}' expected, but found '{}' - syntax analysis.")
@@ -147,6 +159,8 @@ namespace stationeers::ic10 {
     LOCAL_MSG_EN_US(IEA3_1, "Identifier '{}' has not been defined - semantic analysis.")
 
     LOCAL_MSG_EN_US(IEA4, "An alias cannot be defined for another alias - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IEA5, "Unknown Grammar Type '{}' - semantic analysis.")
 
 }  // namespace stationeers::ic10
 

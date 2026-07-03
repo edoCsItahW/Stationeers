@@ -15,7 +15,7 @@
  * */
 #include "analyser_adapter.hpp"
 #include "ast_adapter.hpp"
-#include "common_node/error_adapter.hpp"
+#include "common_node/diagnostic_adapter.hpp"
 #include "ic10/semantic/analyser.hpp"
 #include "symbol_table_adapter.hpp"
 
@@ -31,10 +31,10 @@ namespace stationeers::ic10 {
 // reslove MSVC ICE C1001
 #ifdef _MSC_VER
                 InstanceAccessor("symbolTable", &AnalyserAdapter::getSymbolTable, nullptr),
-                InstanceAccessor("errors", &AnalyserAdapter::getErrors, nullptr),
+                InstanceAccessor("diagnostics", &AnalyserAdapter::getDiagnostics, nullptr),
 #else
                 InstanceAccessor<&AnalyserAdapter::getSymbolTable>("symbolTable"),
-                InstanceAccessor<&AnalyserAdapter::getErrors>("errors"),
+                InstanceAccessor<&AnalyserAdapter::getDiagnostics>("diagnostics"),
 #endif
                 StaticMethod<&analyse>("analyse"),
                 InstanceMethod<&AnalyserAdapter::visit>("visit"),
@@ -72,13 +72,13 @@ namespace stationeers::ic10 {
         return SymbolTableAdapter::to(info.Env(), analyser_.getSymbolTable());
     }
 
-    node::Value AnalyserAdapter::getErrors(const node::CallbackInfo& info) {
-        auto errors = analyser_.getErrors();
+    node::Value AnalyserAdapter::getDiagnostics(const node::CallbackInfo& info) {
+        auto diagnostics = analyser_.getDiagnostics();
 
-        auto size   = errors.size();
+        auto size   = diagnostics.size();
         auto result = node::Array::New(info.Env(), size);
 
-        for (std::size_t i = 0; i < size; i++) result[i] = ErrorAdapter::to(info.Env(), errors[i]);
+        for (std::size_t i = 0; i < size; i++) result[i] = DiagnosticAdapter::to(info.Env(), diagnostics[i]);
 
         return result;
     }

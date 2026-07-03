@@ -30,13 +30,12 @@
 #pragma once
 
 #include "common/utils/position.hpp"
+#include "common/utils/common.hpp"
 #include "ic10/lexer/token.hpp"
 #include "pch/utils.hpp"
-
 #include <string>
 #include <utility>
 #include <variant>
-
 
 namespace stationeers::ic10 {
 
@@ -211,7 +210,7 @@ namespace stationeers::ic10 {
          * @brief Node name
          * @endif
          */
-        static constexpr auto nodeName = FString{"Error"};
+        static constexpr auto nodeName = "Error"_fs;
 
         /**
          * @if zh
@@ -327,7 +326,10 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct Integer : AST<Integer> {
-        static constexpr auto nodeName = FString{"Integer"};
+        static constexpr auto nodeName = "Integer"_fs;
+
+        static constexpr auto startTokens = std::array{TokenType::INTEGER};
+
         std::string value;
         Integer() = default;
         using AST::AST;
@@ -355,7 +357,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct Float : AST<Float> {
-        static constexpr auto nodeName = FString{"Float"};
+        static constexpr auto nodeName    = "Float"_fs;
+        static constexpr auto startTokens = std::array{TokenType::FLOAT};
         std::string value;
         Float() = default;
         using AST::AST;
@@ -383,7 +386,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct HexNumber : AST<HexNumber> {
-        static constexpr auto nodeName = FString{"HexNumber"};
+        static constexpr auto nodeName    = "HexNumber"_fs;
+        static constexpr auto startTokens = std::array{TokenType::HEX_NUMBER};
         std::string value;
         HexNumber() = default;
         using AST::AST;
@@ -411,7 +415,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct BinaryNumber : AST<BinaryNumber> {
-        static constexpr auto nodeName = FString{"BinaryNumber"};
+        static constexpr auto nodeName    = "BinaryNumber"_fs;
+        static constexpr auto startTokens = std::array{TokenType::BINARY_NUMBER};
         std::string value;
         BinaryNumber() = default;
         using AST::AST;
@@ -456,7 +461,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct Identifier : AST<Identifier> {
-        static constexpr auto nodeName = FString{"Identifier"};
+        static constexpr auto nodeName    = "Identifier"_fs;
+        static constexpr auto startTokens = std::array{TokenType::IDENTIFIER};
         std::string value;
         Identifier() = default;
         using AST::AST;
@@ -484,7 +490,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct String : AST<String> {
-        static constexpr auto nodeName = FString{"String"};
+        static constexpr auto nodeName    = "String"_fs;
+        static constexpr auto startTokens = std::array{TokenType::STRING};
         std::string value;
         String() = default;
         using AST::AST;
@@ -512,7 +519,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct Register : AST<Register> {
-        static constexpr auto nodeName = FString{"Register"};
+        static constexpr auto nodeName    = "Register"_fs;
+        static constexpr auto startTokens = std::array{TokenType::REGISTER};
         std::string value;
         Register() = default;
         using AST::AST;
@@ -540,7 +548,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct Device : AST<Device> {
-        static constexpr auto nodeName = FString{"Device"};
+        static constexpr auto nodeName    = "Device"_fs;
+        static constexpr auto startTokens = std::array{TokenType::DEVICE};
         std::string value;
         Device() = default;
         using AST::AST;
@@ -623,7 +632,13 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct Constant : AST<Constant> {
-        static constexpr auto nodeName = FString{"Constant"};
+        static constexpr auto nodeName = "Constant"_fs;
+        static constexpr auto startTokens =
+            std::array{TokenType::KEYWORD_NAN,         TokenType::KEYWORD_PINF,
+                       TokenType::KEYWORD_NINF,        TokenType::KEYWORD_PI,
+                       TokenType::KEYWORD_TAU,         TokenType::KEYWORD_DEG2RAD,
+                       TokenType::KEYWORD_RAD2DEG,     TokenType::KEYWORD_EPSILON,
+                       TokenType::KEYWORD_GAS_CONSTANT};
         std::string keyword;
         Constant() = default;
         using AST::AST;
@@ -684,7 +699,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct HashCall : AST<HashCall> {
-        static constexpr auto nodeName = FString{"HashCall"};
+        static constexpr auto nodeName    = "HashCall"_fs;
+        static constexpr auto startTokens = std::array{TokenType::KEYWORD_HASH};
         ShallowErrorable<String> value;
         Pos endPosition;
         HashCall() = default;
@@ -713,7 +729,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct StrCall : AST<StrCall> {
-        static constexpr auto nodeName = FString{"StrCall"};
+        static constexpr auto nodeName    = "StrCall"_fs;
+        static constexpr auto startTokens = std::array{TokenType::KEYWORD_STR};
         ShallowErrorable<String> value;
         Pos endPosition;
         StrCall() = default;
@@ -759,13 +776,14 @@ namespace stationeers::ic10 {
      *
      * @class AliasDirective
      * @brief Alias directive node
-     * @details Represents an alias preprocessor directive in IC10, used to alias devices or registers
+     * @details Represents an alias preprocessor directive in IC10, used to alias devices or
+     * registers
      *
      * @endif
      */
     struct AliasDirective : AST<AliasDirective> {
-        static constexpr auto nodeName = FString{"AliasDirective"};
-        static constexpr auto keyword = FString{"alias"};
+        static constexpr auto nodeName = "AliasDirective"_fs;
+        static constexpr auto keyword  = "alias"_fs;
         ShallowErrorable<Identifier> identifier;
         RegisterOrDevice registerOrDevice;
         AliasDirective() = default;
@@ -794,8 +812,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct DefineDirective : AST<DefineDirective> {
-        static constexpr auto nodeName = FString{"DefineDirective"};
-        static constexpr auto keyword = FString{"define"};
+        static constexpr auto nodeName = "DefineDirective"_fs;
+        static constexpr auto keyword  = "define"_fs;
         ShallowErrorable<Identifier> identifier;
         Operand operand;
         DefineDirective() = default;
@@ -835,7 +853,7 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct LabelDef : AST<LabelDef> {
-        static constexpr auto nodeName = FString{"LabelDef"};
+        static constexpr auto nodeName = "LabelDef"_fs;
         ShallowErrorable<Identifier> identifier;
         LabelDef() = default;
         using AST::AST;
@@ -844,6 +862,206 @@ namespace stationeers::ic10 {
         [[nodiscard]] std::string toString() const override;
         [[nodiscard]] std::string toJSON() const override;
     };
+
+    /**
+     * @if zh
+     * @brief 编译期 token 集合推导的内部实现细节
+     * @details 提供从 AST 节点元数据（startTokens）编译期推导 variant 合法起始 token 集合的工具。
+     *          采用非递归 fold expression 实现以兼容 MSVC 的 constexpr 限制。
+     * @note 外部不应直接使用此命名空间中的符号
+     * @elseif en
+     * @brief Internal implementation details for compile-time token set derivation
+     * @details Provides utilities for compile-time derivation of valid starting token sets
+     *          for variant types from AST node metadata (startTokens).
+     *          Implemented with non-recursive fold expressions to be compatible with MSVC constexpr limits.
+     * @note External code should not directly use symbols in this namespace
+     * @endif
+     */
+    namespace detail {
+
+        /**
+         * @if zh
+         * @brief 类型萃取：判断是否为 std::array<TokenType, N>
+         * @tparam T 待检测类型
+         * @elseif en
+         * @brief Type trait: check whether a type is std::array<TokenType, N>
+         * @tparam T Type to check
+         * @endif
+         */
+        template<typename>
+        struct is_std_array_of_token : std::false_type {};
+
+        template<std::size_t N>
+        struct is_std_array_of_token<std::array<TokenType, N>> : std::true_type {};
+
+        /**
+         * @if zh
+         * @brief 概念：类型 T 具有 static constexpr startTokens 成员且为 TokenType 数组
+         * @tparam T 待检测类型
+         * @elseif en
+         * @brief Concept: type T has a static constexpr startTokens member that is a TokenType array
+         * @tparam T Type to check
+         * @endif
+         */
+        template<typename T>
+        concept HasStartTokens = requires {
+            requires is_std_array_of_token<std::remove_cvref_t<decltype(T::startTokens)>>::value;
+        };
+
+        // 前向声明（实现于 ast_node.inl）
+
+        /**
+         * @if zh
+         * @brief 编译期计算多个数组的总大小（fold expression）
+         * @tparam Arrays 数组类型包
+         * @return 所有数组大小之和
+         * @elseif en
+         * @brief Compile-time total size calculation of multiple arrays (fold expression)
+         * @tparam Arrays Array type pack
+         * @return Sum of all array sizes
+         * @endif
+         */
+        template<typename... Arrays>
+        constexpr std::size_t totalArraySize();
+
+        /**
+         * @if zh
+         * @brief 编译期合并多个数组到固定大小的结果数组（非递归，直接拷贝）
+         * @tparam N 结果数组大小
+         * @tparam Arrays 输入数组类型包
+         * @param arrays 输入数组
+         * @return 合并后的数组
+         * @elseif en
+         * @brief Compile-time concatenation of multiple arrays into a fixed-size result (non-recursive, direct copy)
+         * @tparam N Result array size
+         * @tparam Arrays Input array type pack
+         * @param arrays Input arrays
+         * @return Concatenated array
+         * @endif
+         */
+        template<std::size_t N, typename... Arrays>
+        constexpr std::array<TokenType, N> concatArraysDirect(Arrays... arrays);
+
+        /**
+         * @if zh
+         * @brief 编译期数组合并（自动推导大小）
+         * @tparam Arrays 输入数组类型包
+         * @param arrays 输入数组
+         * @return 合并后的数组
+         * @elseif en
+         * @brief Compile-time array concatenation (size auto-deduced)
+         * @tparam Arrays Input array type pack
+         * @param arrays Input arrays
+         * @return Concatenated array
+         * @endif
+         */
+        template<typename... Arrays>
+        constexpr auto concatArrays(Arrays... arrays);
+
+        /**
+         * @if zh
+         * @brief variant token 集合推导实现（通过索引序列展开每个 alternative）
+         * @tparam Variant variant 类型
+         * @tparam Is 索引序列
+         * @elseif en
+         * @brief Variant token set derivation implementation (expand each alternative via index sequence)
+         * @tparam Variant Variant type
+         * @tparam Is Index sequence
+         * @endif
+         */
+        template<IsVariant Variant, std::size_t... Is>
+        constexpr auto variantTokensImpl(std::index_sequence<Is...>);
+
+        /**
+         * @if zh
+         * @brief 推导 variant 类型所有成员的起始 token 集合
+         * @tparam Variant variant 类型
+         * @return 包含所有成员起始 token 的数组（自动展开嵌套 variant）
+         * @elseif en
+         * @brief Derive starting token set for all members of a variant type
+         * @tparam Variant Variant type
+         * @return Array containing starting tokens of all members (nested variants are auto-expanded)
+         * @endif
+         */
+        template<IsVariant Variant>
+        constexpr auto variantTokens();
+
+        /**
+         * @if zh
+         * @brief 提取类型 T 的起始 token 集合
+         * @details 若 T 是 variant 则递归展开；若 T 有 startTokens 则直接返回；否则返回空数组
+         * @tparam T 待提取的类型
+         * @return 起始 token 数组
+         * @elseif en
+         * @brief Extract starting token set for type T
+         * @details If T is a variant, recursively expand; if T has startTokens, return it directly;
+         *          otherwise return an empty array
+         * @tparam T Type to extract from
+         * @return Starting token array
+         * @endif
+         */
+        template<typename T>
+        constexpr auto extractTokens();
+
+    }  // namespace detail
+
+    /**
+     * @if zh
+     * @brief 获取 variant 类型所有成员的起始 token 集合
+     * @tparam Variant 要分析的 variant 类型
+     * @return 包含所有可能起始 token 的数组（包含嵌套 variant 的展开）
+     * @elseif en
+     * @brief Get all starting tokens for a variant type's members
+     * @tparam Variant The variant type to analyze
+     * @return Array containing all possible starting tokens (including nested variant expansion)
+     * @endif
+     */
+    template<IsVariant Variant>
+    constexpr auto getStartTokens();
+
+    /**
+     * @if zh
+     * @brief 判断给定 token 类型是否是某个 variant 的合法起始
+     * @tparam Variant 要检查的 variant 类型
+     * @param t 要判断的 token 类型
+     * @return 如果 t 是 variant 任一成员的起始 token，返回 true
+     * @elseif en
+     * @brief Check if a given token type is a valid start for a variant type
+     * @tparam Variant The variant type to check
+     * @param t The token type to test
+     * @return true if t is a starting token for any member of the variant
+     * @endif
+     */
+    template<IsVariant Variant>
+    constexpr bool isStartToken(TokenType t);
+
+    /**
+     * @if zh
+     * @brief 判断 token 是否为合法操作数起始
+     * @param t 要判断的 token 类型
+     * @return 如果 t 是 Operand variant 任一成员的起始 token，返回 true
+     * @elseif en
+     * @brief Check if a token is a valid operand start
+     * @param t Token type to test
+     * @return true if t is a starting token for any member of the Operand variant
+     * @endif
+     */
+    constexpr bool isOperandStart(TokenType t);
+
+    /**
+     * @if zh
+     * @brief 判断给定 token 类型是否是语句的合法起始
+     * @details 包含所有指令关键字、标签(IDENTIFIER)、预处理指令(ALIAS/DEFINE)
+     * @param t 要判断的 token 类型
+     * @return 如果 t 是语句起始 token，返回 true
+     * @elseif en
+     * @brief Check if a given token type is a valid start of a statement
+     * @details Includes all instruction keywords, labels (IDENTIFIER), and preprocessor directives (ALIAS/DEFINE)
+     * @param t The token type to test
+     * @return true if t is a statement starting token
+     * @endif
+     */
+    constexpr bool isStatementStart(TokenType t);
 
 }  // namespace stationeers::ic10
 
