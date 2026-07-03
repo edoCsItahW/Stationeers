@@ -14,7 +14,7 @@ IC10 compiler Python bindings - type stubs
          from the IC10 compiler C++ core.
 """
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, TypedDict
 
 
 # ============================================================================
@@ -301,6 +301,14 @@ class Lexer:
         """
         ...
 
+    @property
+    def diagnostics(self) -> List["Diagnostic"]:
+        """Get the list of diagnostics from lexical analysis.
+
+        Each diagnostic is a dict with level, id, start, end, message fields.
+        """
+        ...
+
 
 # ============================================================================
 # Program / AST
@@ -356,6 +364,14 @@ class Parser:
         """
         ...
 
+    @property
+    def diagnostics(self) -> List["Diagnostic"]:
+        """Get the list of diagnostics from parsing.
+
+        Each diagnostic is a dict with level, id, start, end, message fields.
+        """
+        ...
+
 
 # ============================================================================
 # SymbolTable
@@ -371,6 +387,27 @@ class SymbolTable:
         ...
 
     def __repr__(self) -> str: ...
+
+
+# ============================================================================
+# Diagnostic
+# ============================================================================
+
+class Diagnostic(TypedDict):
+    """Diagnostic information from analysis.
+
+    @ivar level: Diagnostic level - "error", "warning", or "info"
+    @ivar id: Diagnostic ID string (e.g. "IEA1_2", "IMP17")
+    @ivar start: Start position in source code
+    @ivar end: End position in source code
+    @ivar message: Diagnostic message text
+    """
+
+    level: str
+    id: str
+    start: "Pos"
+    end: "Pos"
+    message: str
 
 
 # ============================================================================
@@ -398,7 +435,7 @@ class Analyser:
     def visit(self, program: Program) -> None:
         """Visit and analyse a program (blocking).
 
-        After analysis, results are available via symbolTable and errors.
+        After analysis, results are available via symbolTable and diagnostics.
 
         @param program: Program AST to visit
         """
@@ -410,9 +447,9 @@ class Analyser:
         ...
 
     @property
-    def errors(self) -> List[BaseException]:
-        """Get the list of semantic errors after analysis.
+    def diagnostics(self) -> List[Diagnostic]:
+        """Get the list of diagnostics after analysis.
 
-        Each error is a Python exception object with start, end, and name attributes.
+        Each diagnostic is a dict with level, id, start, end, message fields.
         """
         ...

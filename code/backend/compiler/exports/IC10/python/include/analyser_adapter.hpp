@@ -35,7 +35,7 @@ namespace stationeers::ic10 {
      *
      * @brief 注册Analyser类到Python模块
      * @details 绑定Analyser类,暴露构造函数、静态方法analyse(program)、实例方法visit(program)
-     *          和只读属性symbolTable/errors
+     *          和只读属性symbolTable/diagnostics
      *
      * @param m pybind11模块对象
      *
@@ -43,7 +43,7 @@ namespace stationeers::ic10 {
      *
      * @brief Register Analyser class to Python module
      * @details Binds Analyser class, exposes constructor, static method analyse(program),
-     *          instance method visit(program) and readonly properties symbolTable/errors
+     *          instance method visit(program) and readonly properties symbolTable/diagnostics
      *
      * @param m pybind11 module object
      *

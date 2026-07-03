@@ -32,13 +32,13 @@ namespace stationeers::ic10 {
     template<IsMsgPack P>
     template<typename DiagnosticReporter<P>::E I>
     void DiagnosticReporter<P>::emplace(const Error& error) {
-        diagnostics_.push_back({ DiagnosticLevel::Error, enumToStr(I), error.getStart(), error.getEnd(), error.message() });
+        diagnostics_.emplace_back(DiagnosticLevel::Error, std::string(enumToStr(I)), error.getStart(), error.getEnd(), error.message());
     }
 
     template<IsMsgPack P>
     template<typename DiagnosticReporter<P>::E I>
     void DiagnosticReporter<P>::report(DiagnosticLevel level, Pos start, Pos end) {
-        diagnostics_.push_back({level, enumToStr(I), start, end, Local<P>::template msgStr<I>()});
+        diagnostics_.emplace_back(level, std::string(enumToStr(I)), start, end, Local<P>::template msgStr<I>());
     }
 
     template<IsMsgPack P>
@@ -49,7 +49,7 @@ namespace stationeers::ic10 {
 
     template<IsMsgPack P>
     template<typename DiagnosticReporter<P>::E I>
-    void DiagnosticReporter<P>::warning(Pos start, Pos end) {
+    void DiagnosticReporter<P>::warn(Pos start, Pos end) {
         report<I>(DiagnosticLevel::Warning, start, end);
     }
 
@@ -64,9 +64,9 @@ namespace stationeers::ic10 {
     void DiagnosticReporter<P>::reportWith(
         DiagnosticLevel level, Pos start, Pos end, Args&&... args
     ) {
-        diagnostics_.push_back(
-            {level, enumToStr(I), start, end,
-             Local<P>::template msgFormat<I>(std::forward<Args>(args)...)}
+        diagnostics_.emplace_back(
+            level, std::string(enumToStr(I)), start, end,
+            Local<P>::template msgFormat<I>(std::forward<Args>(args)...)
         );
     }
 
