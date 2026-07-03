@@ -15,6 +15,7 @@
  * */
 #include "token_adapter.hpp"
 #include "common/utils/enum_to_str.hpp"
+#include "common_node/enum_adapter.hpp"
 
 namespace stationeers::ic10 {
 
@@ -62,6 +63,11 @@ namespace stationeers::ic10 {
         constructor.SuppressDestruct();
 
         (void)exports.Set("Token", func);
+
+        // 通过编译期反射导出 TokenType/TokenCategory 枚举对象
+        // 保证与 C++ 枚举定义自动同步,无需手工维护
+        (void)exports.Set("TokenType", exportEnum<TokenType>(env));
+        (void)exports.Set("TokenCategory", exportEnum<TokenCategory>(env));
 
         return exports;
     }

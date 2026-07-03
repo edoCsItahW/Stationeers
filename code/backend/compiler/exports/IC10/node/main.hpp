@@ -191,6 +191,12 @@
  * | `pos` | `Pos` | 位置信息 |
  * | `category` | `TokenCategory` | 标记类别 |
  *
+ * **导出枚举**:
+ * | 枚举 | 说明 |
+ * |:-----|:-----|
+ * | `TokenType` | 词法标记类型(通过编译期反射自动同步 C++ 枚举) |
+ * | `TokenCategory` | 词法标记类别 |
+ *
  * ### ParserAdapter
  *
  * [ParserAdapter](@ref stationeers::ic10::ParserAdapter) 将 C++ 语法分析器导出到 Node.js。
@@ -675,6 +681,12 @@
  * | `lexeme` | `string` | Raw lexeme text |
  * | `pos` | `Pos` | Position info |
  * | `category` | `TokenCategory` | Token category |
+ *
+ * **Exported Enums**:
+ * | Enum | Description |
+ * |:-----|:------------|
+ * | `TokenType` | Token type (auto-synced with C++ enum via compile-time reflection) |
+ * | `TokenCategory` | Token category |
  *
  * ### ParserAdapter
  *
