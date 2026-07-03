@@ -30,7 +30,7 @@ namespace stationeers {
     )
         : start(start)
         , end(end)
-        , message_(std::format("[{}]: {}", std::string_view(Derived::name), message))
+        , message_(std::format("{}: {}", std::string_view(Derived::name), message))
         , loc_(loc) {}
 
     template<typename Derived>
@@ -39,7 +39,7 @@ namespace stationeers {
     )
         : start(start)
         , end(end)
-        , message_(std::format("[{}]: {}", std::string_view(Derived::name), message))
+        , message_(std::format("{}: {}", std::string_view(Derived::name), message))
         , loc_(loc) {}
 
     template<typename Derived>

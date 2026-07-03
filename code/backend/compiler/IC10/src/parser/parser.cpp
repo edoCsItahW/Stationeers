@@ -69,21 +69,28 @@ namespace stationeers::ic10 {
 
         switch (current()->type) {
             using enum TokenType;
-            case IDENTIFIER: return parseLabelDef(layer);
+            case IDENTIFIER: return wide_cast<Statement>(parseLabelDef(layer));
             case KEYWORD_ALIAS:
             case KEYWORD_DEFINE: return wide_cast<Statement>(parsePreprocessorDirective(layer));
             default: return wide_cast<Statement>(parseExecutableInstruction(layer));
         }
     }
 
-    LabelDef Parser::parseLabelDef(int layer) {
+    ShallowErrorable<LabelDef> Parser::parseLabelDef(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Label");
 
         LabelDef labelDef{current()->pos};
 
         labelDef.identifier = parseIdentifier(++layer);
 
-        expect(TokenType::COLON);
+        try {
+            expect(TokenType::COLON);
+
+        } catch (const Error& e) {
+            reporter_.error<MsgId::IMP23>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP23>()};
+        }
 
         return labelDef;
     }
@@ -93,9 +100,9 @@ namespace stationeers::ic10 {
 
         ++layer;
 
-        if (current()->type == TokenType::KEYWORD_ALIAS) return parseAliasDirective(layer);
+        if (current()->type == TokenType::KEYWORD_ALIAS) return wide_cast<PreprocessorDirective>(parseAliasDirective(layer));
 
-        if (current()->type == TokenType::KEYWORD_DEFINE) return parseDefineDirective(layer);
+        if (current()->type == TokenType::KEYWORD_DEFINE) return wide_cast<PreprocessorDirective>(parseDefineDirective(layer));
 
         reporter_.errorWith<MsgId::IMP2_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
@@ -104,14 +111,21 @@ namespace stationeers::ic10 {
         return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP2_1>(enumToStr(current()->type))};
     }
 
-    AliasDirective Parser::parseAliasDirective(int layer) {
+    ShallowErrorable<AliasDirective> Parser::parseAliasDirective(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "AliasDirective");
 
         ++layer;
 
         AliasDirective aliasDirective{current()->pos};
 
-        expect(TokenType::KEYWORD_ALIAS);
+        try {
+            expect(TokenType::KEYWORD_ALIAS);
+
+        } catch (const Error& e) {
+            reporter_.error<MsgId::IMP24>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP24>()};
+        }
 
         aliasDirective.identifier = parseIdentifier(layer);
 
@@ -422,14 +436,21 @@ namespace stationeers::ic10 {
         return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP9_1>(enumToStr(c->type))};
     }
 
-    DefineDirective Parser::parseDefineDirective(int layer) {
+    ShallowErrorable<DefineDirective> Parser::parseDefineDirective(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "DefineDirective");
 
         ++layer;
 
         DefineDirective defineDirective{current()->pos};
 
-        expect(TokenType::KEYWORD_DEFINE);
+        try {
+            expect(TokenType::KEYWORD_DEFINE);
+
+        } catch (const Error& e) {
+            reporter_.error<MsgId::IMP25>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP25>()};
+        }
 
         defineDirective.identifier = parseIdentifier(layer);
 
@@ -449,44 +470,71 @@ namespace stationeers::ic10 {
             return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
         }
 
-        switch (current()->type) {
-            using enum TokenType;
-            case REGISTER: return parseRegister(layer);
-            case DEVICE: return parseDevice(layer);
-            case INTEGER:
-            case FLOAT:
-            case HEX_NUMBER:
-            case BINARY_NUMBER: return wide_cast<Operand>(parseNumber(layer));
-            case IDENTIFIER: return parseIdentifier(layer);
-            case KEYWORD_HASH:
-            case KEYWORD_STR: return wide_cast<Operand>(parseMacroCall(layer));
-            case KEYWORD_NAN:
-            case KEYWORD_PINF:
-            case KEYWORD_NINF:
-            case KEYWORD_PI:
-            case KEYWORD_TAN:
-            case KEYWORD_DEG2RAD:
-            case KEYWORD_RAD2DEG:
-            case KEYWORD_EPSILON:
-            case KEYWORD_GAS_CONSTANT: return parseConstant(layer);
-            default: {
-                reporter_.errorWith<MsgId::IMP10_1>(
-                    current()->pos, endPos(*current()), enumToStr(current()->type)
-                );
+        // 情况1：是操作数起始 → 正常解析
+        if (isStartToken<Operand>(current()->type)) {
+            switch (current()->type) {
+                using enum TokenType;
+                case REGISTER: return wide_cast<Operand>(parseRegister(layer));
+                case DEVICE: return wide_cast<Operand>(parseDevice(layer));
+                case INTEGER:
+                case FLOAT:
+                case HEX_NUMBER:
+                case BINARY_NUMBER: return wide_cast<Operand>(parseNumber(layer));
+                case IDENTIFIER: return wide_cast<Operand>(parseIdentifier(layer));
+                case KEYWORD_HASH:
+                case KEYWORD_STR: return wide_cast<Operand>(parseMacroCall(layer));
+                case KEYWORD_NAN:
+                case KEYWORD_PINF:
+                case KEYWORD_NINF:
+                case KEYWORD_PI:
+                case KEYWORD_TAU:
+                case KEYWORD_DEG2RAD:
+                case KEYWORD_RAD2DEG:
+                case KEYWORD_EPSILON:
+                case KEYWORD_GAS_CONSTANT: return wide_cast<Operand>(parseConstant(layer));
+                default: {
+                    // 理论上不会到这里，isStartToken 已过滤
+                    reporter_.errorWith<MsgId::IMP10_1>(
+                        current()->pos, endPos(*current()), enumToStr(current()->type)
+                    );
 
-                return ErrorNode{
-                    *current(), Loc::msgFormat<MsgId::IMP10_1>(enumToStr(current()->type))
-                };
+                    return ErrorNode{
+                        *current(), Loc::msgFormat<MsgId::IMP10_1>(enumToStr(current()->type))
+                    };
+                }
             }
         }
+
+        // 情况2：是停止点（语句开始/行结束）→ 不消耗，返回 ErrorNode
+        if (current()->type == TokenType::NEWLINE ||
+            current()->type == TokenType::END ||
+            isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IMP17>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP17>()};
+        }
+
+        // 情况3：坏 token → 消耗，继续尝试
+        reporter_.errorWith<MsgId::IMP10_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
+
+        consume();
+
+        return parseOperand(layer);
     }
 
-    Register Parser::parseRegister(int layer) {
+    ShallowErrorable<Register> Parser::parseRegister(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Register");
 
         Register reg{current()->pos};
 
-        reg.value = expect(TokenType::REGISTER)->lexeme;
+        try {
+            reg.value = expect(TokenType::REGISTER)->lexeme;
+
+        } catch (const Error& e) {
+            return ErrorNode{*current(), {e.message().data()}};
+        }
 
         return reg;
     }
@@ -496,15 +544,32 @@ namespace stationeers::ic10 {
 
         ++layer;
 
-        if (current()->type == TokenType::REGISTER) return parseRegister(layer);
+        // 情况1：是合法起始 → 正常解析
+        if (isStartToken<RegisterOrDevice>(current()->type)) {
+            if (current()->type == TokenType::REGISTER)
+                return wide_cast<RegisterOrDevice>(parseRegister(layer));
 
-        if (current()->type == TokenType::DEVICE) return parseDevice(layer);
+            if (current()->type == TokenType::DEVICE)
+                return wide_cast<RegisterOrDevice>(parseDevice(layer));
+        }
 
+        // 情况2：停止点 → 不消耗
+        if (current()->type == TokenType::NEWLINE ||
+            current()->type == TokenType::END ||
+            isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IMP18>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP18>()};
+        }
+
+        // 情况3：坏 token → 消耗，继续尝试
         reporter_.errorWith<MsgId::IMP11_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP11_1>(enumToStr(current()->type))};
+        consume();
+
+        return parseRegisterOrDevice(layer);
     }
 
     RegisterOrIdentifier Parser::parseRegisterOrIdentifier(int layer) {
@@ -512,17 +577,32 @@ namespace stationeers::ic10 {
 
         ++layer;
 
-        if (current()->type == TokenType::REGISTER) return parseRegister(layer);
+        // 情况1：是合法起始 → 正常解析
+        if (isStartToken<RegisterOrIdentifier>(current()->type)) {
+            if (current()->type == TokenType::REGISTER)
+                return wide_cast<RegisterOrIdentifier>(parseRegister(layer));
 
-        if (current()->type == TokenType::IDENTIFIER) return parseIdentifier(layer);
+            if (current()->type == TokenType::IDENTIFIER)
+                return wide_cast<RegisterOrIdentifier>(parseIdentifier(layer));
+        }
 
+        // 情况2：停止点 → 不消耗
+        if (current()->type == TokenType::NEWLINE ||
+            current()->type == TokenType::END ||
+            isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IMP19>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP19>()};
+        }
+
+        // 情况3：坏 token → 消耗，继续尝试
         reporter_.errorWith<MsgId::IMP12_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{
-            *current(true), Loc::msgFormat<MsgId::IMP12_1>(enumToStr(current()->type))
-        };
+        consume();
+
+        return parseRegisterOrIdentifier(layer);
     }
 
     DeviceReference Parser::parseDeviceReference(int layer) {
@@ -536,25 +616,46 @@ namespace stationeers::ic10 {
             return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
         }
 
-        switch (current()->type) {
-            using enum TokenType;
-            case DEVICE: return parseDevice(layer);
-            case IDENTIFIER:
-            case REGISTER: return wide_cast<DeviceReference>(parseRegisterOrIdentifier(layer));
-            case INTEGER:
-            case FLOAT:
-            case HEX_NUMBER:
-            case BINARY_NUMBER: return wide_cast<DeviceReference>(parseNumber(layer));
-            default: {
-                reporter_.errorWith<MsgId::IMP13_1>(
-                    current()->pos, endPos(*current()), enumToStr(current()->type)
-                );
+        // 情况1：是合法起始 → 正常解析
+        if (isStartToken<DeviceReference>(current()->type)) {
+            switch (current()->type) {
+                using enum TokenType;
+                case DEVICE: return wide_cast<DeviceReference>(parseDevice(layer));
+                case IDENTIFIER:
+                case REGISTER: return wide_cast<DeviceReference>(parseRegisterOrIdentifier(layer));
+                case INTEGER:
+                case FLOAT:
+                case HEX_NUMBER:
+                case BINARY_NUMBER: return wide_cast<DeviceReference>(parseNumber(layer));
+                default: {
+                    reporter_.errorWith<MsgId::IMP13_1>(
+                        current()->pos, endPos(*current()), enumToStr(current()->type)
+                    );
 
-                return ErrorNode{
-                    *current(), Loc::msgFormat<MsgId::IMP13_1>(enumToStr(current()->type))
-                };
+                    return ErrorNode{
+                        *current(), Loc::msgFormat<MsgId::IMP13_1>(enumToStr(current()->type))
+                    };
+                }
             }
         }
+
+        // 情况2：停止点 → 不消耗
+        if (current()->type == TokenType::NEWLINE ||
+            current()->type == TokenType::END ||
+            isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IMP20>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP20>()};
+        }
+
+        // 情况3：坏 token → 消耗，继续尝试
+        reporter_.errorWith<MsgId::IMP13_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
+
+        consume();
+
+        return parseDeviceReference(layer);
     }
 
     MacroCall Parser::parseMacroCall(int layer) {
@@ -562,18 +663,35 @@ namespace stationeers::ic10 {
 
         ++layer;
 
-        if (current()->type == TokenType::KEYWORD_HASH) return parseHashCall(layer);
+        // 情况1：是合法起始 → 正常解析
+        if (isStartToken<MacroCall>(current()->type)) {
+            if (current()->type == TokenType::KEYWORD_HASH)
+                return wide_cast<MacroCall>(parseHashCall(layer));
 
-        if (current()->type == TokenType::KEYWORD_STR) return parseStrCall(layer);
+            if (current()->type == TokenType::KEYWORD_STR)
+                return wide_cast<MacroCall>(parseStrCall(layer));
+        }
 
+        // 情况2：停止点 → 不消耗
+        if (current()->type == TokenType::NEWLINE ||
+            current()->type == TokenType::END ||
+            isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IMP21>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP21>()};
+        }
+
+        // 情况3：坏 token → 消耗，继续尝试
         reporter_.errorWith<MsgId::IMP14_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP14_1>(enumToStr(current()->type))};
+        consume();
+
+        return parseMacroCall(layer);
     }
 
-    HashCall Parser::parseHashCall(int layer) {
+    ShallowErrorable<HashCall> Parser::parseHashCall(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "HashCall");
 
         HashCall hashCall{current()->pos};
@@ -582,14 +700,19 @@ namespace stationeers::ic10 {
 
         expect(TokenType::LPAREN);
 
-        hashCall.value = parseString(++layer);
+        try {
+            hashCall.value = parseString(++layer);
+
+        } catch (const Error& e) {
+            return ErrorNode{*current(), {e.message().data()}};
+        }
 
         hashCall.endPosition = expect(TokenType::RPAREN)->pos;
 
         return hashCall;
     }
 
-    StrCall Parser::parseStrCall(int layer) {
+    ShallowErrorable<StrCall> Parser::parseStrCall(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "StrCall");
 
         StrCall strCall{current()->pos};
@@ -600,17 +723,28 @@ namespace stationeers::ic10 {
 
         strCall.value = parseString(++layer);
 
-        strCall.endPosition = expect(TokenType::RPAREN)->pos;
+        try {
+            strCall.endPosition = expect(TokenType::RPAREN)->pos;
+
+        } catch (const Error& e) {
+            return ErrorNode{*current(), {e.message().data()}};
+        }
+
 
         return strCall;
     }
 
-    Constant Parser::parseConstant(int layer) {
+    ShallowErrorable<Constant> Parser::parseConstant(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Constant");
 
         Constant constant{current()->pos};
 
-        constant.keyword = current()->lexeme;
+        try {
+            constant.keyword = current()->lexeme;
+
+        } catch (const Error& e) {
+            return ErrorNode{*current(), {e.message().data()}};
+        }
 
         consume();
 
@@ -656,51 +790,89 @@ namespace stationeers::ic10 {
             return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
         }
 
-        switch (current()->type) {
-            using enum TokenType;
-            case IDENTIFIER: return parseIdentifier(layer);
-            case INTEGER:
-            case FLOAT:
-            case HEX_NUMBER:
-            case BINARY_NUMBER: return wide_cast<Errorable<Identifier, Number>>(parseNumber(layer));
-            default: {
-                reporter_.errorWith<MsgId::IMP15_1>(
-                    current()->pos, endPos(*current()), enumToStr(current()->type)
-                );
+        // 情况1：是合法起始 → 正常解析
+        if (isStartToken<Errorable<Identifier, Number>>(current()->type)) {
+            switch (current()->type) {
+                using enum TokenType;
+                case IDENTIFIER:
+                    return wide_cast<Errorable<Identifier, Number>>(parseIdentifier(layer));
+                case INTEGER:
+                case FLOAT:
+                case HEX_NUMBER:
+                case BINARY_NUMBER:
+                    return wide_cast<Errorable<Identifier, Number>>(parseNumber(layer));
+                default: {
+                    reporter_.errorWith<MsgId::IMP15_1>(
+                        current()->pos, endPos(*current()), enumToStr(current()->type)
+                    );
 
-                return ErrorNode{
-                    *current(), Loc::msgFormat<MsgId::IMP15_1>(enumToStr(current()->type))
-                };
+                    return ErrorNode{
+                        *current(), Loc::msgFormat<MsgId::IMP15_1>(enumToStr(current()->type))
+                    };
+                }
             }
         }
+
+        // 情况2：停止点 → 不消耗
+        if (current()->type == TokenType::NEWLINE ||
+            current()->type == TokenType::END ||
+            isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IMP22>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP22>()};
+        }
+
+        // 情况3：坏 token → 消耗，继续尝试
+        reporter_.errorWith<MsgId::IMP15_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
+
+        consume();
+
+        return parseIdentifierOrNumber(layer);
     }
 
-    Device Parser::parseDevice(int layer) {
+    ShallowErrorable<Device> Parser::parseDevice(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Device");
 
         Device device{current()->pos};
 
-        device.value = expect(TokenType::DEVICE)->lexeme;
+        try {
+            device.value = expect(TokenType::DEVICE)->lexeme;
+
+        } catch (const Error& e) {
+            return ErrorNode{*current(), {e.message().data()}};
+        }
 
         return device;
     }
 
-    String Parser::parseString(int layer) {
+    ShallowErrorable<String> Parser::parseString(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "String");
 
         String string{current()->pos};
 
-        string.value = expect(TokenType::STRING)->lexeme;
+        try {
+            string.value = expect(TokenType::STRING)->lexeme;
+
+        } catch (const Error& e) {
+            return ErrorNode{*current(), {e.message().data()}};
+        }
 
         return string;
     }
 
-    Identifier Parser::parseIdentifier(int layer) {
+    ShallowErrorable<Identifier> Parser::parseIdentifier(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "Identifier");
 
         Identifier identifier{current()->pos};
 
-        identifier.value = expect(TokenType::IDENTIFIER)->lexeme;
+        try {
+            identifier.value = expect(TokenType::IDENTIFIER)->lexeme;
+
+        } catch (const Error& e) {
+            return ErrorNode{*current(), {e.message().data()}};
+        }
 
         return identifier;
     }
@@ -719,8 +891,8 @@ namespace stationeers::ic10 {
 
             switch (current()->type) {
                 using enum TokenType;
-                case INTEGER: return parseInteger(layer);
-                case FLOAT: return parseFloat(layer);
+                case INTEGER: return wide_cast<Number>(parseInteger(layer));
+                case FLOAT: return wide_cast<Number>(parseFloat(layer));
                 case HEX_NUMBER: return wide_cast<Number>(parseHexNumber(layer));
                 case BINARY_NUMBER: return wide_cast<Number>(parseBinaryNumber(layer));
                 default: {
@@ -736,18 +908,28 @@ namespace stationeers::ic10 {
         } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
     }
 
-    Integer Parser::parseInteger(int layer) {
+    ShallowErrorable<Integer> Parser::parseInteger(int layer) {
         Integer integer{current()->pos};
 
-        integer.value = expect(TokenType::INTEGER)->lexeme;
+        try {
+            integer.value = expect(TokenType::INTEGER)->lexeme;
+
+        } catch (const Error& e) {
+            return ErrorNode{*current(), {e.message().data()}};
+        }
 
         return integer;
     }
 
-    Float Parser::parseFloat(int layer) {
+    ShallowErrorable<Float> Parser::parseFloat(int layer) {
         Float floatNum{current()->pos};
 
-        floatNum.value = expect(TokenType::FLOAT)->lexeme;
+        try {
+            floatNum.value = expect(TokenType::FLOAT)->lexeme;
+
+        } catch (const Error& e) {
+            return ErrorNode{*current(), {e.message().data()}};
+        }
 
         return floatNum;
     }
@@ -759,11 +941,8 @@ namespace stationeers::ic10 {
             hexNum.value = expect(TokenType::HEX_NUMBER)->lexeme;
 
         } catch (const Error& e) {
-            reporter_.emplace<MsgId::IEA1_2>(e);
-
             return ErrorNode{*current(), {e.message().data()}};
         }
-
 
         return hexNum;
     }
@@ -775,8 +954,6 @@ namespace stationeers::ic10 {
             binNum.value = expect(TokenType::BINARY_NUMBER)->lexeme;
 
         } catch (const Error& e) {
-            reporter_.emplace<MsgId::IEA1_2>(e);
-
             return ErrorNode{*current(), {e.message().data()}};
         }
 

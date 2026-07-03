@@ -51,7 +51,7 @@ namespace stationeers::ic10 {
 #ifdef _MSC_VER
         {
             diagnostics_.push_back(
-                {DiagnosticLevel::Error, enumToStr(I), error.getStart(), error.getEnd(),
+                {DiagnosticLevel::Error, std::string(enumToStr(I)), error.getStart(), error.getEnd(),
                  error.message()}
             );
         }
@@ -64,7 +64,7 @@ namespace stationeers::ic10 {
 #ifdef _MSC_VER
         {
             diagnostics_.push_back(
-                {level, enumToStr(I), start, end, Local<P>::template msgStr<I>()}
+                {level, std::string(enumToStr(I)), start, end, Local<P>::template msgStr<I>()}
             );
         }
 #else
@@ -107,7 +107,7 @@ namespace stationeers::ic10 {
 #ifdef _MSC_VER
         {
             diagnostics_.push_back(
-                {level, enumToStr(I), start, end,
+                {level, std::string(enumToStr(I)), start, end,
                  Local<P>::template msgFormat<I>(std::forward<Args>(args)...)}
             );
         }

@@ -245,6 +245,14 @@ declare module "ic10-node-api" {
          * ```
          */
         scan(): Token[];
+
+        /**
+         * @summary 诊断列表
+         *
+         * @desc 词法分析过程中产生的诊断信息（包含错误、警告、提示）。
+         *       每个诊断对象包含 level、id、start、end、message 字段。
+         */
+        get diagnostics(): Diagnostic[];
     }
 
     // =========================================================================
@@ -5092,6 +5100,14 @@ declare module "ic10-node-api" {
          * @desc 便捷方法，无需创建 Parser 实例即可解析。
          */
         parsing(tokens: Token[], debug?: boolean): Program;
+
+        /**
+         * @summary 诊断列表
+         *
+         * @desc 语法分析过程中产生的诊断信息（包含错误、警告、提示）。
+         *       每个诊断对象包含 level、id、start、end、message 字段。
+         */
+        get diagnostics(): Diagnostic[];
     }
 
     // -------------------------------------------------------------------------
@@ -5134,6 +5150,54 @@ declare module "ic10-node-api" {
     }
 
     // -------------------------------------------------------------------------
+    // Diagnostic 接口
+    // -------------------------------------------------------------------------
+
+    /**
+     * @summary 诊断信息
+     *
+     * @desc 语义分析过程中产生的诊断信息，包含级别、ID、位置和消息。
+     *       - level: 诊断级别（"error" | "warning" | "info"）
+     *       - id: 诊断 ID 字符串（如 "IEA1_2"、"IMP17"）
+     *       - start: 起始位置（Pos 对象）
+     *       - end: 结束位置（Pos 对象）
+     *       - message: 诊断消息文本
+     *
+     * @public
+     */
+    export interface Diagnostic {
+        /**
+         * @summary 诊断级别
+         * @desc 诊断的严重级别：error（错误）、warning（警告）、info（提示）。
+         */
+        level: "error" | "warning" | "info";
+
+        /**
+         * @summary 诊断 ID
+         * @desc 诊断标识符字符串，如 "IEA1_2"、"IMP17"。
+         */
+        id: string;
+
+        /**
+         * @summary 起始位置
+         * @desc 诊断信息对应的源代码起始位置。
+         */
+        start: Pos;
+
+        /**
+         * @summary 结束位置
+         * @desc 诊断信息对应的源代码结束位置。
+         */
+        end: Pos;
+
+        /**
+         * @summary 诊断消息
+         * @desc 诊断信息的文本描述。
+         */
+        message: string;
+    }
+
+    // -------------------------------------------------------------------------
     // Analyser 类
     // -------------------------------------------------------------------------
 
@@ -5161,9 +5225,9 @@ declare module "ic10-node-api" {
      * const analyser = new ic10.Analyser();
      * analyser.visit(program);
      *
-     * // 检查是否有错误
-     * if (analyser.errors.length > 0) {
-     *     console.log('分析错误:', analyser.errors);
+     * // 检查是否有诊断信息
+     * if (analyser.diagnostics.length > 0) {
+     *     console.log('诊断信息:', analyser.diagnostics);
      * }
      *
      * // 获取符号表
@@ -5181,11 +5245,12 @@ declare module "ic10-node-api" {
         get symbolTable(): SymbolTable;
 
         /**
-         * @summary 错误列表
+         * @summary 诊断列表
          *
-         * @desc 分析过程中检测到的错误。
+         * @desc 分析过程中产生的诊断信息（包含错误、警告、提示）。
+         *       每个诊断对象包含 level、id、start、end、message 字段。
          */
-        get errors(): Error[];
+        get diagnostics(): Diagnostic[];
 
         /**
          * @summary 静态方法：分析程序
@@ -5201,7 +5266,7 @@ declare module "ic10-node-api" {
          *
          * @param program - 要访问的 Program 节点
          *
-         * @desc 执行实际的静态分析，更新符号表和错误列表。
+         * @desc 执行实际的静态分析，更新符号表和诊断列表。
          */
         visit(program: Program): Promise<void>;
     }

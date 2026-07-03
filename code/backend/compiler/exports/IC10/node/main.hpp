@@ -167,6 +167,7 @@
  * |:-----|:-----|:-------|
  * | `tokenize(src)` | 静态方法，词法分析 | `Token[]` |
  * | `scan()` | 扫描源代码 | `Token[]` |
+ * | `diagnostics` | 获取诊断列表（访问器） | `Diagnostic[]` |
  *
  * ### TokenAdapter
  *
@@ -215,6 +216,7 @@
  * |:-----|:-----|:-------|
  * | `parse(tokens)` | 解析 Token 序列 | `Program` |
  * | `parsing(tokens)` | 静态解析方法 | `Program` |
+ * | `diagnostics` | 获取诊断列表（访问器） | `Diagnostic[]` |
  *
  * ### ProgramAdapter (AST)
  *
@@ -260,16 +262,17 @@
  * const program = Parser.parse(tokens);
  *
  * // 异步语义分析
- * await Analyser.analyse(program);
+ * const analyser = new Analyser();
+ * await analyser.visit(program);
  *
  * // 获取分析结果
- * const symbolTable = program.getSymbolTable();
- * const errors = program.getErrors();
+ * const symbolTable = analyser.symbolTable;
+ * const diagnostics = analyser.diagnostics;
  *
- * if (errors.length > 0) {
- *     console.log('发现错误:');
- *     for (const err of errors) {
- *         console.log(`  - ${err}`);
+ * if (diagnostics.length > 0) {
+ *     console.log('发现诊断信息:');
+ *     for (const diag of diagnostics) {
+ *         console.log(`  - ${diag.message}`);
  *     }
  * }
  * @endcode
@@ -277,9 +280,10 @@
  * **导出方法**:
  * | 方法 | 说明 | 返回值 |
  * |:-----|:-----|:-------|
- * | `analyse(program)` | 异步语义分析 | `Promise<void>` |
- * | `getErrors()` | 获取错误列表 | `Error[]` |
- * | `getSymbolTable()` | 获取符号表 | `SymbolTable` |
+ * | `analyse(program)` | 异步语义分析（静态） | `Promise<void>` |
+ * | `visit(program)` | 访问程序节点（实例） | `Promise<void>` |
+ * | `diagnostics` | 获取诊断列表（访问器） | `Diagnostic[]` |
+ * | `symbolTable` | 获取符号表（访问器） | `SymbolTable` |
  *
  * ### SymbolTableAdapter
  *
@@ -648,6 +652,7 @@
  * |:-------|:------------|:-------|
  * | `tokenize(src)` | Static method, lex analysis | `Token[]` |
  * | `scan()` | Scan source code | `Token[]` |
+ * | `diagnostics` | Get diagnostic list (accessor) | `Diagnostic[]` |
  *
  * ### TokenAdapter
  *
@@ -696,6 +701,7 @@
  * |:-------|:------------|:-------|
  * | `parse(tokens)` | Parse Token sequence | `Program` |
  * | `parsing(tokens)` | Static parse method | `Program` |
+ * | `diagnostics` | Get diagnostic list (accessor) | `Diagnostic[]` |
  *
  * ### ProgramAdapter (AST)
  *
@@ -741,16 +747,17 @@
  * const program = Parser.parse(tokens);
  *
  * // Async semantic analysis
- * await Analyser.analyse(program);
+ * const analyser = new Analyser();
+ * await analyser.visit(program);
  *
  * // Get analysis results
- * const symbolTable = program.getSymbolTable();
- * const errors = program.getErrors();
+ * const symbolTable = analyser.symbolTable;
+ * const diagnostics = analyser.diagnostics;
  *
- * if (errors.length > 0) {
- *     console.log('Errors found:');
- *     for (const err of errors) {
- *         console.log(`  - ${err}`);
+ * if (diagnostics.length > 0) {
+ *     console.log('Diagnostics found:');
+ *     for (const diag of diagnostics) {
+ *         console.log(`  - ${diag.message}`);
  *     }
  * }
  * @endcode
@@ -758,9 +765,10 @@
  * **Exported Methods**:
  * | Method | Description | Return |
  * |:-------|:------------|:-------|
- * | `analyse(program)` | Async semantic analysis | `Promise<void>` |
- * | `getErrors()` | Get error list | `Error[]` |
- * | `getSymbolTable()` | Get symbol table | `SymbolTable` |
+ * | `analyse(program)` | Async semantic analysis (static) | `Promise<void>` |
+ * | `visit(program)` | Visit program node (instance) | `Promise<void>` |
+ * | `diagnostics` | Get diagnostic list (accessor) | `Diagnostic[]` |
+ * | `symbolTable` | Get symbol table (accessor) | `SymbolTable` |
  *
  * ### SymbolTableAdapter
  *
