@@ -68,11 +68,14 @@
 #ifndef COMPILER_INC_COMPILER_HPP
 #define COMPILER_INC_COMPILER_HPP
 #pragma once
-#include "ic10/parser/ast/ast.hpp"
-#include "inc_lexer.hpp"
-#include "inc_parser.hpp"
+
 #include <memory>
 #include <vector>
+
+#include "ic10/parser/ast/ast.hpp"
+#include "inc_parser.hpp"
+#include "inc_lexer.hpp"
+
 
 namespace stationeers::ic10 {
 

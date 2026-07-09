@@ -8,6 +8,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# 性能优化：启用多线程编译
+if(NOT DEFINED CMAKE_BUILD_PARALLEL_LEVEL)
+    set(CMAKE_BUILD_PARALLEL_LEVEL 4)
+endif()
+
 option(BUILD_IC10 "Build IC10 compiler core" ON)
 option(BUILD_STATIONSCRIPT "Build StationScript compiler" ON)
 option(BUILD_NODE_BINDINGS "Build Node.js bindings" ON)
@@ -17,12 +22,14 @@ option(ENABLE_CCACHE "Enable ccache/sccache if available" ON)
 
 # 全局编译选项
 if (MSVC)
-
-    add_compile_options(/wd4819 /utf-8 /diagnostics:caret /bigobj)
+    add_compile_options(/wd4819 /utf-8 /diagnostics:caret /bigobj /MP)
+    add_compile_options($<$<CONFIG:Release>:/O1>)
+    add_compile_options($<$<CONFIG:Debug>:/Od>)
 
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-
     add_compile_options(-ftime-trace)
+    add_compile_options($<$<CONFIG:Release>:-O1>)
+    add_compile_options($<$<CONFIG:Debug>:-O0>)
 
 endif ()
 
