@@ -13,11 +13,12 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "analyser_adapter.hpp"
-#include "ast_adapter.hpp"
 #include "common_node/diagnostic_adapter.hpp"
+#include "ic10_node/semantic/symbol_table_adapter.hpp"
+#include "ic10_node/semantic/analyser_adapter.hpp"
 #include "ic10/semantic/analyser.hpp"
-#include "symbol_table_adapter.hpp"
+#include "ic10_node/parser/ast_adapter.hpp"
+
 
 namespace stationeers::ic10 {
 

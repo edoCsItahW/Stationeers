@@ -13,7 +13,7 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "inc_compiler_adapter.hpp"
+#include "ic10_python/incremental/inc_compiler_adapter.hpp"
 #include "ic10/incremental/inc_compiler.hpp"
 
 namespace stationeers::ic10 {
