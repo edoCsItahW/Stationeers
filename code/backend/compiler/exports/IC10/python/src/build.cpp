@@ -32,6 +32,9 @@
 #include "parser_adapter.hpp"
 #include "symbol_table_adapter.hpp"
 #include "token_adapter.hpp"
+#include "inc_lexer_adapter.hpp"
+#include "inc_parser_adapter.hpp"
+#include "inc_compiler_adapter.hpp"
 
 namespace ic = stationeers::ic10;
 
@@ -63,4 +66,7 @@ PYBIND11_MODULE(ic10_python, m) {
     ic::initParser(m);
     ic::initSymbolTable(m);
     ic::initAnalyser(m);
+    ic::initIncLexer(m);
+    ic::initIncParser(m);
+    ic::initIncCompiler(m);
 }

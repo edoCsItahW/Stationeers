@@ -89,7 +89,9 @@ namespace stationeers::ic10 {
         } catch (const Error& e) {
             reporter_.error<MsgId::IMP23>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP23>()};
+            auto errToken = *current();
+            consume();
+            return ErrorNode{errToken, Loc::msgStr<MsgId::IMP23>()};
         }
 
         return labelDef;
@@ -108,7 +110,9 @@ namespace stationeers::ic10 {
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP2_1>(enumToStr(current()->type))};
+        auto errToken = *current();
+        consume();
+        return ErrorNode{errToken, Loc::msgFormat<MsgId::IMP2_1>(enumToStr(errToken.type))};
     }
 
     ShallowErrorable<AliasDirective> Parser::parseAliasDirective(int layer) {
@@ -164,7 +168,9 @@ namespace stationeers::ic10 {
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP3_1>(enumToStr(current()->type))};
+        auto errToken = *current();
+        consume();
+        return ErrorNode{errToken, Loc::msgFormat<MsgId::IMP3_1>(enumToStr(errToken.type))};
     }
 
 #define VARIANT_TRANS_FACTORY(narrowType, wideType, ...)                                           \
