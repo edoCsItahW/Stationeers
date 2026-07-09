@@ -49,10 +49,12 @@ runs:
         -   name: Install Windows build dependencies
             if: inputs.os == 'windows-latest'
             shell: pwsh
+            continue-on-error: true
             run: |
                 choco install ninja -y
                 choco install sccache -y
- 
+                choco install ccache -y --no-progress
+
         -   name: Configure MSVC environment
             if: inputs.os == 'windows-latest'
             uses: ilammy/msvc-dev-cmd@v1.13.0
@@ -82,11 +84,21 @@ runs:
                   echo "ccache-dir=$HOME/.ccache" >> $GITHUB_OUTPUT
                   echo "cache-tool=ccache" >> $GITHUB_OUTPUT
                 else
-                  echo "ccache-dir=$LOCALAPPDATA/Mozilla/sccache" >> $GITHUB_OUTPUT
-                  echo "cache-tool=sccache" >> $GITHUB_OUTPUT
+                  # Windows: try sccache first, fallback to ccache
+                  if command -v sccache &>/dev/null; then
+                    echo "ccache-dir=$LOCALAPPDATA/Mozilla/sccache" >> $GITHUB_OUTPUT
+                    echo "cache-tool=sccache" >> $GITHUB_OUTPUT
+                  elif command -v ccache &>/dev/null; then
+                    echo "ccache-dir=$HOME/.ccache" >> $GITHUB_OUTPUT
+                    echo "cache-tool=ccache" >> $GITHUB_OUTPUT
+                  else
+                    echo "ccache-dir=" >> $GITHUB_OUTPUT
+                    echo "cache-tool=none" >> $GITHUB_OUTPUT
+                  fi
                 fi
  
         -   name: Restore ccache/sccache cache
+            if: steps.cache-config.outputs.cache-tool != 'none'
             uses: actions/cache@v6
             with:
                 path: ${{ steps.cache-config.outputs.ccache-dir }}
@@ -122,13 +134,22 @@ runs:
                 ccache --show-stats
  
         -   name: Configure sccache (Windows)
-            if: inputs.os == 'windows-latest'
+            if: inputs.os == 'windows-latest' && steps.cache-config.outputs.cache-tool == 'sccache'
             shell: pwsh
             run: |
                 sccache --stop-server 2>$null
                 $env:SCCACHE_DIR = "$env:LOCALAPPDATA\Mozilla\sccache"
                 sccache --start-server
                 sccache --show-stats
+
+        -   name: Configure ccache (Windows fallback)
+            if: inputs.os == 'windows-latest' && steps.cache-config.outputs.cache-tool == 'ccache'
+            shell: pwsh
+            run: |
+                ccache --set-config=max_size=500M
+                ccache --set-config=compression=true
+                ccache --zero-stats
+                ccache --show-stats
  
         -   name: Verify toolchain
             shell: bash
