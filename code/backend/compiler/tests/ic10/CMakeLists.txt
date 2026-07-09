@@ -2,6 +2,7 @@
 add_executable(ic10_tests
         test_lexer.cpp
         test_parser.cpp
+        test_incremental.cpp
 )
 
 # 链接必要的库

@@ -21,6 +21,9 @@
 #include "parser_adapter.hpp"
 #include "symbol_table_adapter.hpp"
 #include "analyser_adapter.hpp"
+#include "inc_lexer_adapter.hpp"
+#include "inc_parser_adapter.hpp"
+#include "inc_compiler_adapter.hpp"
 
 namespace ic = stationeers::ic10;
 
@@ -38,8 +41,10 @@ node::Object Init(node::Env env, node::Object exports) {
     ic::ParserAdapter::init(env, exports);
 
     ic::SymbolTableAdapter::init(env, exports);
-
     ic::AnalyserAdapter::init(env, exports);
+    ic::IncLexerAdapter::init(env, exports);
+    ic::IncParserAdapter::init(env, exports);
+    ic::IncCompilerAdapter::init(env, exports);
 
     return exports;
 }
