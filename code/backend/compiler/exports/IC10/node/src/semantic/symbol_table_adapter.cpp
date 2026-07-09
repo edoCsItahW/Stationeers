@@ -13,7 +13,7 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "symbol_table_adapter.hpp"
+#include "ic10_node/semantic/symbol_table_adapter.hpp"
 
 namespace stationeers::ic10 {
 
