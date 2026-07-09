@@ -18,6 +18,9 @@
 
 namespace stationeers {
 
+    Pos::Pos(int line, int column, std::size_t offset)
+        : line_(line), column_(column), offset_(offset) {}
+
     int Pos::line() const { return line_; }
 
     int Pos::column() const { return column_; }

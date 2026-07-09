@@ -11,7 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(BUILD_IC10 "Build IC10 compiler core" ON)
 option(BUILD_STATIONSCRIPT "Build StationScript compiler" ON)
 option(BUILD_NODE_BINDINGS "Build Node.js bindings" ON)
-option(BUILD_PYTHON_BINDINGS "Build Python bindings" OFF)
+option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
 option(BUILD_TESTS "Build tests" ON)
 option(ENABLE_CCACHE "Enable ccache/sccache if available" ON)
 

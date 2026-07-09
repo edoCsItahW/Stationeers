@@ -5514,6 +5514,58 @@ declare module "ic10-node-api" {
         visit(program: Program): Promise<void>;
     }
 
+    // -------------------------------------------------------------------------
+    //  增量编译相关
+    // -------------------------------------------------------------------------
+
+    export interface IncLexerResult {
+        tokens: Token[];
+        incremental: boolean;
+        relexedLines: number;
+        changedStartLine: number;
+        oldChangedEndLine: number;
+        newChangedEndLine: number;
+    }
+
+    export class IncLexer {
+        constructor();
+        tokenizeFull(source: string): IncLexerResult;
+        tokenizeInc(newSource: string): IncLexerResult;
+        hasCache(): boolean;
+        clear(): void;
+    }
+
+    export interface IncParserResult {
+        ast: Program;
+        incremental: boolean;
+        reparsedStmts: number;
+        affectedStmtStart: number;
+    }
+
+    export class IncParser {
+        constructor();
+        parseFull(tokens: Token[]): IncParserResult;
+        parseInc(tokens: Token[], changedStartLine: number): IncParserResult;
+        hasCache(): boolean;
+        clear(): void;
+    }
+
+    export interface IncCompileResult {
+        tokens: Token[];
+        ast: Program;
+        incremental: boolean;
+        relexedLines: number;
+        reparsedStmts: number;
+    }
+
+    export class IncCompiler {
+        constructor();
+        compileFull(source: string): IncCompileResult;
+        compileInc(newSource: string): IncCompileResult;
+        hasCache(): boolean;
+        clear(): void;
+    }
+
 }
 
 

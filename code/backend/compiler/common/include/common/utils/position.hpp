@@ -46,6 +46,39 @@ namespace stationeers {
         /**
          * @if zh
          *
+         * @brief 默认构造函数
+         * @details 初始位置为第1行第1列，偏移量为0
+         *
+         * @elseif en
+         *
+         * @brief Default constructor
+         * @details Initial position is line 1, column 1, offset 0
+         *
+         * @endif
+         */
+        Pos() = default;
+
+        /**
+         * @if zh
+         *
+         * @brief 带参数的构造函数
+         * @param line 行号(从1开始)
+         * @param column 列号(从1开始)
+         * @param offset 偏移量(从0开始)
+         *
+         * @elseif en
+         *
+         * @brief Constructor with parameters
+         * @param line Line number (starts from 1)
+         * @param column Column number (starts from 1)
+         * @param offset Offset (starts from 0)
+         *
+         * @endif
+         */
+        Pos(int line, int column, std::size_t offset);
+        /**
+         * @if zh
+         *
          * @brief 私有属性line_的getter
          * @return 令牌起始行号(从1开始)
          *
