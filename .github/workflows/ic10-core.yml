@@ -84,15 +84,22 @@ jobs:
                 run: |
                     cmake --build build --config ${{ inputs.build-type }} --parallel 4
  
-            -   name: Show ccache stats | 显示缓存统计
+            -   name: (Linux) Show ccache/sccache stats | 显示缓存统计
                 if: inputs.os == 'ubuntu-latest'
                 shell: bash
                 run: ccache --show-stats
 
-            -   name: Show sccache stats | 显示缓存统计
+            -   name: (Windows) Show sccache stats | 显示缓存统计
                 if: inputs.os == 'windows-latest'
                 shell: pwsh
-                run: sccache --show-stats
+                run: |
+                    if (Get-Command sccache -ErrorAction SilentlyContinue) {
+                        sccache --show-stats
+                    } elseif (Get-Command ccache -ErrorAction SilentlyContinue) {
+                        ccache --show-stats
+                    } else {
+                        Write-Host "No cache tool available"
+                    }
 
             -   name: Run CTest tests | 运行 CTest 测试
                 if: inputs.run-tests
