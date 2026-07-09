@@ -13,9 +13,9 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "inc_parser_adapter.hpp"
-#include "ast_adapter.hpp"
-#include "token_adapter.hpp"
+#include "ic10_node/incremental/inc_parser_adapter.hpp"
+#include "ic10_node/lexer/token_adapter.hpp"
+#include "ic10_node/parser/ast_adapter.hpp"
 
 namespace stationeers::ic10 {
 

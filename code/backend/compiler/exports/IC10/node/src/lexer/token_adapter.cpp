@@ -13,8 +13,7 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "token_adapter.hpp"
-#include "common/utils/enum_to_str.hpp"
+#include "ic10_node/lexer/token_adapter.hpp"
 #include "common_node/enum_adapter.hpp"
 
 namespace stationeers::ic10 {

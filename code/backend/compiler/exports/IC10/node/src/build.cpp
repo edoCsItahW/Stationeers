@@ -13,17 +13,18 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+#include "ic10_node/incremental/inc_compiler_adapter.hpp"
+#include "ic10_node/incremental/inc_parser_adapter.hpp"
+#include "ic10_node/semantic/symbol_table_adapter.hpp"
+#include "ic10_node/incremental/inc_lexer_adapter.hpp"
+#include "ic10_node/semantic/analyser_adapter.hpp"
+#include "ic10_node/parser/parser_adapter.hpp"
+#include "ic10_node/locals/local_adapter.hpp"
+#include "ic10_node/lexer/lexer_adapter.hpp"
+#include "ic10_node/lexer/token_adapter.hpp"
+#include "ic10_node/parser/ast_adapter.hpp"
 #include "common_node/build.hpp"
-#include "local_adapter.hpp"
-#include "token_adapter.hpp"
-#include "lexer_adapter.hpp"
-#include "ast_adapter.hpp"
-#include "parser_adapter.hpp"
-#include "symbol_table_adapter.hpp"
-#include "analyser_adapter.hpp"
-#include "inc_lexer_adapter.hpp"
-#include "inc_parser_adapter.hpp"
-#include "inc_compiler_adapter.hpp"
+
 
 namespace ic = stationeers::ic10;
 

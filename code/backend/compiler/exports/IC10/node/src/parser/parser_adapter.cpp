@@ -13,11 +13,13 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "parser_adapter.hpp"
-#include "ast_adapter.hpp"
+#include "ic10_node/parser/parser_adapter.hpp"
+#include "ic10_node/lexer/token_adapter.hpp"
+#include "ic10_node/parser/ast_adapter.hpp"
 #include "common_node/diagnostic_adapter.hpp"
-#include "token_adapter.hpp"
 #include <iostream>
+
+
 namespace stationeers::ic10 {
 
     ParserAdapter::ParserAdapter(const node::CallbackInfo& info)

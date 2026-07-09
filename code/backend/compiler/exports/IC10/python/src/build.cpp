@@ -24,17 +24,17 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  * */
+#include "ic10_python/incremental/inc_compiler_adapter.hpp"
+#include "ic10_python/incremental/inc_parser_adapter.hpp"
+#include "ic10_python/incremental/inc_lexer_adapter.hpp"
+#include "ic10_python/semantic/symbol_table_adapter.hpp"
+#include "ic10_python/semantic/analyser_adapter.hpp"
+#include "ic10_python/parser/parser_adapter.hpp"
+#include "ic10_python/locals/local_adapter.hpp"
+#include "ic10_python/lexer/lexer_adapter.hpp"
+#include "ic10_python/lexer/token_adapter.hpp"
+#include "ic10_python/parser/ast_adapter.hpp"
 #include "common_python/build.hpp"
-#include "analyser_adapter.hpp"
-#include "ast_adapter.hpp"
-#include "lexer_adapter.hpp"
-#include "local_adapter.hpp"
-#include "parser_adapter.hpp"
-#include "symbol_table_adapter.hpp"
-#include "token_adapter.hpp"
-#include "inc_lexer_adapter.hpp"
-#include "inc_parser_adapter.hpp"
-#include "inc_compiler_adapter.hpp"
 
 namespace ic = stationeers::ic10;
 

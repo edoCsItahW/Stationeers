@@ -13,7 +13,7 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "inc_lexer_adapter.hpp"
+#include "ic10_python/incremental/inc_lexer_adapter.hpp"
 #include "ic10/incremental/inc_lexer.hpp"
 
 namespace stationeers::ic10 {

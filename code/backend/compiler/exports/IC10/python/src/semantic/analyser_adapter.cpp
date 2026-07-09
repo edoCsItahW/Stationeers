@@ -13,7 +13,7 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "analyser_adapter.hpp"
+#include "ic10_python/semantic/analyser_adapter.hpp"
 #include "common_python/base.hpp"
 #include "common_python/diagnostic_adapter.hpp"
 #include "ic10/semantic/analyser.hpp"
