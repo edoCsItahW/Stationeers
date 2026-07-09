@@ -13,8 +13,9 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "ast_adapter.hpp"
+#include "ic10_node/parser/ast_adapter.hpp"
 #include "common_node/pos_adapter.hpp"
+
 
 namespace stationeers::ic10 {
 

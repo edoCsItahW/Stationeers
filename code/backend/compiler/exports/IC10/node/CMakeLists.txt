@@ -15,7 +15,7 @@ endif()
 # ============================================================================
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-file(GLOB SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 if(MSVC)
     list(APPEND SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/win_delay_load_hook.cc")

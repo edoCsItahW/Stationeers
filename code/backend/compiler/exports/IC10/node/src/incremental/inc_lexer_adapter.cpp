@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "inc_lexer_adapter.hpp"
-#include "token_adapter.hpp"
+#include "ic10_node/incremental/inc_lexer_adapter.hpp"
+#include "ic10_node/lexer/token_adapter.hpp"
 
 namespace stationeers::ic10 {
 

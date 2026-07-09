@@ -6,21 +6,21 @@
 // permission, please contact the author: edocsitahw@qq.com
 
 /**
- * @file parser_adapter.cpp
+ * @file lexer_adapter.cpp
  * @author edocsitahw
  * @version 1.0
  * @date 2026/07/01
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "parser_adapter.hpp"
+#include "ic10_python/lexer/lexer_adapter.hpp"
 #include "common_python/diagnostic_adapter.hpp"
-#include "ic10/parser/parser.hpp"
+#include "ic10/lexer/lexer.hpp"
 
 namespace stationeers::ic10 {
 
-    void initParser(py::module_& m) {
-        py::class_<Parser>(m, "Parser")
+    void initLexer(py::module_& m) {
+        py::class_<Lexer>(m, "Lexer")
             /**
              * @if zh
              * @brief 默认构造函数
@@ -32,56 +32,55 @@ namespace stationeers::ic10 {
             /**
              * @if zh
              * @brief 构造函数
-             * @param tokens 词法标记列表
+             * @param src 源代码字符串
              * @param debug 是否启用调试模式
              * @elseif en
              * @brief Constructor
-             * @param tokens Token list
+             * @param src Source code string
              * @param debug Whether to enable debug mode
              * @endif
              */
-            .def(py::init<const std::vector<std::shared_ptr<Token>>&, bool>(),
-                 py::arg("tokens"), py::arg("debug") = false)
+            .def(py::init<std::string_view, bool>(), py::arg("src"), py::arg("debug") = false)
             /**
              * @if zh
-             * @brief 解析整个程序
-             * @return 解析后的Program节点
+             * @brief 扫描源代码生成标记序列
+             * @return Token列表
              * @elseif en
-             * @brief Parse the whole program
-             * @return Parsed Program node
+             * @brief Scan source code to generate token sequence
+             * @return Token list
              * @endif
              */
-            .def("parse", &Parser::parse)
+            .def("scan", &Lexer::scan)
             /**
              * @if zh
-             * @brief 静态解析入口
-             * @param tokens 词法标记列表
+             * @brief 静态词法分析入口
+             * @param src 源代码字符串
              * @param debug 是否启用调试模式
-             * @return 解析后的Program节点
+             * @return Token列表
              * @elseif en
-             * @brief Static parse entry point
-             * @param tokens Token list
+             * @brief Static lexical analysis entry point
+             * @param src Source code string
              * @param debug Whether to enable debug mode
-             * @return Parsed Program node
+             * @return Token list
              * @endif
              */
-            .def_static("parsing", &Parser::parsing,
-                        py::arg("tokens"), py::arg("debug") = false)
+            .def_static("tokenize", &Lexer::tokenize,
+                        py::arg("src"), py::arg("debug") = false)
             /**
              * @if zh
              * @brief 获取诊断列表
-             * @details 返回语法分析过程中收集到的所有诊断信息(包含错误、警告、提示)。
+             * @details 返回词法分析过程中收集到的所有诊断信息(包含错误、警告、提示)。
              *          每个诊断信息为字典,包含level/id/start/end/message字段。
              * @return Python字典列表
              * @elseif en
              * @brief Get diagnostic list
-             * @details Returns all diagnostics collected during parsing
+             * @details Returns all diagnostics collected during lexical analysis
              *          (including errors, warnings, info).
              *          Each diagnostic is a dict with level/id/start/end/message fields.
              * @return List of Python dicts
              * @endif
              */
-            .def_property_readonly("diagnostics", [](Parser& self) {
+            .def_property_readonly("diagnostics", [](Lexer& self) {
                 py::list list;
                 for (const auto& diag : self.getDiagnostics()) {
                     list.append(diagnosticToPython(diag));
