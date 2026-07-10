@@ -212,7 +212,7 @@ namespace stationeers::ic10 {
         {'\b', 'b'}
     };
 
-    const std::string SYMBOLS = "`~!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?";
+    const std::string SYMBOLS = "`~!@#$%^&*()-=+[{]}\\|;:'\",<.>/?";  // exclude '_'
 
     // Token
 

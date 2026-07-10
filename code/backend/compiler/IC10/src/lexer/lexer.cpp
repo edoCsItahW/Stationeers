@@ -51,7 +51,7 @@ namespace stationeers::ic10 {
 
         const auto start = pos_;
 
-        if (!inScope()) return {TokenType::END, start};
+        if (!inScope()) return {TokenType::END, start, "", TokenCategory::END};
 
         const auto c = current();
 
@@ -77,9 +77,7 @@ namespace stationeers::ic10 {
         if (*c == 'd' && isAsciiDigit(peek().value_or(' ')) && isAsciiSpace(peek(2).value_or(' ')))
             return extractDevice();
 
-        if (auto p = isAsciiDigit(peek(2).value_or(' '));
-            *c == 'r' && isAsciiDigit(peek().value_or(' '))
-            && isAsciiSpace(peek(p ? 3 : 2).value_or('z')))
+        if (isAsciiDigit(peek(2).value_or(' ')); *c == 'r' && isAsciiDigit(peek().value_or(' ')))
             return extractRegister();
 
         // 为适配不同语言变量名，但难以判断，因此所有分支至此都认为是标识符
@@ -119,10 +117,27 @@ namespace stationeers::ic10 {
         std::string value;
         const auto start = pos_;
 
-        while (inScope() && (isAsciiDigit(*current()) || *current() == '.')
-               && !value.contains('.')) {
+        int pointCount = 0;
+
+        while (                                                 //
+            inScope()                                           //
+            && (isAsciiDigit(*current()) || *current() == '.')  //
+            && pointCount <= 1                                  //
+        ) {
+            if (*current() == '.') pointCount++;
+
             value += *current();
             pos_.next();
+        }
+
+        // 处理特殊常量19as
+        if (inScope() && *current() == 'a' && peek().value_or(' ') == 's') {
+            value += "as";
+            pos_.move(2);
+
+            return {
+                TokenType::KEYWORD_GAS_CONSTANT, start, std::move(value), TokenCategory::LITERAL
+            };
         }
 
         // 处理科学计数法
@@ -147,7 +162,7 @@ namespace stationeers::ic10 {
                     pos_.next();
                 }
 
-                return {TokenType::FLOAT, start, currentValue, TokenCategory::LITERAL};
+                return {TokenType::FLOAT, start, value, TokenCategory::LITERAL};
             }
 
             // 指数部分没有数字，这不是一个有效的科学计数法
@@ -199,7 +214,9 @@ namespace stationeers::ic10 {
 
         const auto start = pos_;
 
-        while (inScope() && *current() != '"') {
+        // 循环直到遇到闭合引号、换行符或输入结束
+        // 换行符作为同步点：IC10中字符串不应跨行，遇到换行说明字符串未闭合
+        while (inScope() && *current() != '"' && *current() != '\n') {
             // 处理转义字符
             if (const auto it = WHITESPACE_MAP.find(*current()); it != WHITESPACE_MAP.end()) {
                 value += '\\';
@@ -213,10 +230,14 @@ namespace stationeers::ic10 {
             pos_.next();
         }
 
-        if (!inScope()) {
-            reporter_.errorWith<MsgId::IEL2_1>(start, stationeers::endPos(start, value.size()), std::string{ 1, '\"' });
+        // 未闭合字符串：到达输入末尾或遇到换行符
+        if (!inScope() || *current() == '\n') {
+            reporter_.errorWith<MsgId::IEL2_1>(
+                start, stationeers::endPos(start, value.size()), std::string{1, '\"'}
+            );
 
-            return { TokenType::UNKNOWN, start, std::move(value), TokenCategory::INVALID };
+            // 不消耗换行符，让lexer从下一行恢复解析（同步点）
+            return {TokenType::UNKNOWN, start, std::move(value), TokenCategory::INVALID};
         }
 
         value += *current();
@@ -278,10 +299,17 @@ namespace stationeers::ic10 {
         std::string value = "d";
         pos_.next();
 
+        int deviceIdx = *current() - '0';
         value += *current();
         pos_.next();
 
-        return {TokenType::DEVICE, start, std::move(value), TokenCategory::LITERAL};
+        if (deviceIdx > 5)
+            reporter_.warn<IC10MsgId::IWL3>(start, stationeers::endPos(start, value.size()));
+
+        return {
+            deviceIdx > 5 ? TokenType::IDENTIFIER : TokenType::DEVICE, start, std::move(value),
+            TokenCategory::LITERAL
+        };
     }
 
     Token Lexer::extractRegister() const {
@@ -290,15 +318,24 @@ namespace stationeers::ic10 {
         std::string value = "r";
         pos_.next();
 
+        int registerIdx = *current() - '0';
         value += *current();
         pos_.next();
 
         if (inScope() && isAsciiDigit(*current())) {
+            registerIdx *= 10;
+            registerIdx += *current() - '0';
             value += *current();
             pos_.next();
         }
 
-        return {TokenType::REGISTER, start, std::move(value), TokenCategory::LITERAL};
+        if (registerIdx > 15)
+            reporter_.warn<IC10MsgId::IWL2>(start, stationeers::endPos(start, value.size()));
+
+        return {
+            registerIdx > 15 ? TokenType::IDENTIFIER : TokenType::REGISTER, start, std::move(value),
+            TokenCategory::LITERAL
+        };
     }
 
 }  // namespace stationeers::ic10
