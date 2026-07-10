@@ -312,7 +312,7 @@ namespace stationeers::ic10 {
          * @details Collects errors, warnings and other diagnostic information during lexical analysis
          * @endif
          */
-        DiagnosticReporter<IC10MsgPack> reporter_;
+        mutable DiagnosticReporter<IC10MsgPack> reporter_;
 
         /**
          * @if zh

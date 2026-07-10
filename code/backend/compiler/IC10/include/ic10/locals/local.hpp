@@ -38,6 +38,8 @@ namespace stationeers::ic10 {
         // Warning
         IWL1,  // The END token was not encountered as expected at the end of the file - lexical
                // analysis.
+        IWL2,  // In IC10 syntax, registers only have r0-r15 - lexical
+        IWL3,  // In IC10 syntax, device only has r0-r5 - lexical
 
         // Error
         IEL1_1,  // Unknown operation symbol'{}' - lexical analysis.
