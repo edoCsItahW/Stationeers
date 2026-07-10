@@ -32,7 +32,7 @@ namespace stationeers::ic10 {
 
     template<FString K>
     std::string NullaryInstructionBase<K>::toString() const {
-        return keyword.value.data();
+        return std::string(keyword.value.data(), keyword.value.size());
     }
 
     template<FString K>
@@ -44,7 +44,7 @@ namespace stationeers::ic10 {
     template<typename... Ts>
     std::string NullaryInstructionBase<K>::jsonBase(std::pair<std::string, Ts>... fields) const {
         return this->AST<NullaryInstructionBase>::template jsonBase<std::string, Ts...>(
-            {"keyword", '"' + std::string(keyword.value.data()) + '"'}, fields...
+            {"keyword", '"' + std::string(keyword.value.data(), keyword.value.size()) + '"'}, fields...
         );
     }
 
