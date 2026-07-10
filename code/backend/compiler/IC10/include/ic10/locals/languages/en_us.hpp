@@ -54,6 +54,10 @@ namespace stationeers::ic10 {
         "The END token was not encountered as expected at the end of the file - lexical analysis."
     )
 
+    LOCAL_MSG_EN_US(IWL2, "In IC10 syntax, registers only have r0-r15 - lexical")
+
+    LOCAL_MSG_EN_US(IWL3, "In IC10 syntax, device only has r0-r5 - lexical")
+
     LOCAL_MSG_EN_US(IEL1_1, "Unknown operation symbol'{}' - lexical analysis.")
 
     LOCAL_MSG_EN_US(IEL2_1, "Unclosed paired symbols '{}' - lexical analysis.")

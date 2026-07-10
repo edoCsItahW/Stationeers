@@ -49,6 +49,10 @@ namespace stationeers::ic10 {
 
     LOCAL_MSG_ZH_HANS(IWL1, "文件结束时未如期遇到END令牌 - 词法分析器。");
 
+    LOCAL_MSG_ZH_HANS(IWL2, "在IC10语法中，寄存器只有r0-r15 - 词法分析器。")
+
+    LOCAL_MSG_ZH_HANS(IWL3, "在IC10语法中，设备只有r0-r5 - 词法分析器。")
+
     LOCAL_MSG_ZH_HANS(IEL1_1, "未知操作符号'{}' - 词法分析器。")
 
     LOCAL_MSG_ZH_HANS(IEL2_1, "未闭合的成对符号'{}' - 词法分析器。")
