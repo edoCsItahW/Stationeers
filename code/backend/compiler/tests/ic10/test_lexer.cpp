@@ -610,13 +610,13 @@ TEST(LexerTest, KeywordStr) {
 }
 
 
-TEST(LexerTest, KeywordGasConstant) {
+TEST(LexerTest, KeywordRgas) {
     initLocale();
-    auto tokens = tokenize("19as");
+    auto tokens = tokenize("rgas");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_GAS_CONSTANT);
-    EXPECT_EQ(toks[0]->lexeme, "19as");
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_RGAS);
+    EXPECT_EQ(toks[0]->lexeme, "rgas");
 }
 
 // ============================================================

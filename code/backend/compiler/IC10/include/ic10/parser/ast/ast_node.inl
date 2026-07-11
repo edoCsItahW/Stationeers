@@ -166,6 +166,7 @@ namespace stationeers::ic10 {
             case T::KEYWORD_JR:
             case T::KEYWORD_RAND:
             case T::KEYWORD_SLEEP:
+            case T::KEYWORD_CLRD:
 
             // 二元指令
             case T::KEYWORD_ABS:
@@ -188,6 +189,7 @@ namespace stationeers::ic10 {
             case T::KEYWORD_ROUND:
             case T::KEYWORD_SIN:
             case T::KEYWORD_SQRT:
+            case T::KEYWORD_SGN:
             case T::KEYWORD_SUB:
             case T::KEYWORD_TAN:
             case T::KEYWORD_TRUNC:
@@ -207,13 +209,12 @@ namespace stationeers::ic10 {
             case T::KEYWORD_BLTZ:
             case T::KEYWORD_BLTZAL:
             case T::KEYWORD_BNAN:
-            case T::KEYWORD_BNANZ:
             case T::KEYWORD_BDNS:
             case T::KEYWORD_BDNSAL:
             case T::KEYWORD_BDSE:
             case T::KEYWORD_BDSEAL:
             case T::KEYWORD_BREQZ:
-            case T::KEYWORD_BRNZ:
+            case T::KEYWORD_BRNEZ:
             case T::KEYWORD_BRGEZ:
             case T::KEYWORD_BRGTZ:
             case T::KEYWORD_BRLEZ:
@@ -245,10 +246,11 @@ namespace stationeers::ic10 {
             case T::KEYWORD_PUT:
             case T::KEYWORD_L:
             case T::KEYWORD_LS:
-            case T::KEYWORD_LR:
             case T::KEYWORD_S:
             case T::KEYWORD_SB:
             case T::KEYWORD_RMAP:
+            case T::KEYWORD_ROL:
+            case T::KEYWORD_ROR:
             case T::KEYWORD_BEQ:
             case T::KEYWORD_BEQAL:
             case T::KEYWORD_BNE:
@@ -286,6 +288,8 @@ namespace stationeers::ic10 {
 
             // 四元指令
             case T::KEYWORD_LERP:
+            case T::KEYWORD_CLAMP:
+            case T::KEYWORD_LR:
             case T::KEYWORD_EXT:
             case T::KEYWORD_INS:
             case T::KEYWORD_SS:

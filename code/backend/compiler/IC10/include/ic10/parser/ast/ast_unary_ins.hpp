@@ -8,19 +8,28 @@
 /**
  * @file ast_unary_ins.hpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/03 12:58
+ * @version 1.2
+ * @date 2026/07/12
  * @if zh
  * @brief IC10一元指令AST定义
- * @details 定义IC10中的一元指令(含一个操作数的指令),如SNANZ、PEEK、RAND等。
+ * @details 定义IC10中的一元指令(含一个操作数的指令),按操作数类型分为四组:
+ *        - RI组(RegisterOrIdentifier操作数): peek、rand、pop
+ *        - DAR组(DeviceAliasRef操作数): clr
+ *        - RON组(RegisterOrNumber操作数): sleep、clrd、push
+ *        - JT组(JumpTarget操作数): jal、jr、j
  *        使用模板元编程自动生成指令类型和TypeMap映射。
  * @note 实现位于ast_unary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief IC10 unary instruction AST definitions
- * @details Defines unary instructions (instructions with one operand) in IC10, such as SNANZ, PEEK,
- * RAND, etc. Uses template metaprogramming to automatically generate instruction types and TypeMap
- * mappings.
+ * @details Defines unary instructions (instructions with one operand) in IC10, grouped by operand
+ *        type into four groups:
+ *        - RI group (RegisterOrIdentifier operand): peek, rand, pop
+ *        - DAR group (DeviceAliasRef operand): clr
+ *        - RON group (RegisterOrNumber operand): sleep, clrd, push
+ *        - JT group (JumpTarget operand): jal, jr, j
+ *        Uses template metaprogramming to automatically generate instruction types and TypeMap
+ *        mappings.
  * @note Implementation in ast_unary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -177,38 +186,11 @@ namespace stationeers {
 #define DEFINE_UNARY_INSTRUCTION(upperCase, pascalCase, lowerCase, ...)                            \
     DEFINE_INSTRUCTION(upperCase, pascalCase, lowerCase, ic10::UnaryInstructionBase, __VA_ARGS__)
 
-    DEFINE_UNARY_INSTRUCTION(snanz, Snanz, SNANZ, ic10::RegisterOrIdentifier)
-
 #ifndef IC10_SIMPLE_MODE
 
     DEFINE_UNARY_INSTRUCTION(peek, Peek, PEEK, ic10::RegisterOrIdentifier)
 
     DEFINE_UNARY_INSTRUCTION(rand, Rand, RAND, ic10::RegisterOrIdentifier)
-
-    DEFINE_UNARY_INSTRUCTION(seqz, Seqz, SEQZ, ic10::RegisterOrIdentifier)
-
-    DEFINE_UNARY_INSTRUCTION(snez, Snez, SNEZ, ic10::RegisterOrIdentifier)
-
-    DEFINE_UNARY_INSTRUCTION(sgez, Sgez, SGEZ, ic10::RegisterOrIdentifier)
-
-    DEFINE_UNARY_INSTRUCTION(sgtz, Sgtz, SGTZ, ic10::RegisterOrIdentifier)
-
-    DEFINE_UNARY_INSTRUCTION(slez, Slez, SLEZ, ic10::RegisterOrIdentifier)
-
-    DEFINE_UNARY_INSTRUCTION(sltz, Sltz, SLTZ, ic10::RegisterOrIdentifier)
-
-    // GCC Error pasting "KEYWORD_" and "(" does not give a valid preprocessing token
-    #ifndef _MSC_VER
-        #pragma push_macro("SNAN")
-        #undef SNAN
-    #endif
-
-    DEFINE_UNARY_INSTRUCTION(snan, Snan, SNAN, ic10::RegisterOrIdentifier)
-
-    #ifndef _MSC_VER
-        #pragma pop_macro("SNAN")
-    #endif
-
 
     DEFINE_UNARY_INSTRUCTION(pop, Pop, POP, ic10::RegisterOrIdentifier)
 
@@ -216,72 +198,111 @@ namespace stationeers {
 
     namespace ic10 {
 
+        /**
+         * @if zh
+         * @brief RI组一元指令TypeMap
+         * @details 包含使用RegisterOrIdentifier操作数的一元指令: peek、rand、pop。
+         * @elseif en
+         * @brief RI group unary instruction TypeMap
+         * @details Contains unary instructions with RegisterOrIdentifier operand: peek, rand, pop.
+         * @endif
+         */
         using UnaryInstructionMap_RI = TypeMap<
-            TokenType, TokenType::KEYWORD_SNANZ
+            TokenType
 #ifndef IC10_SIMPLE_MODE
             ,
-            TokenType::KEYWORD_PEEK, TokenType::KEYWORD_RAND, TokenType::KEYWORD_SEQZ,
-            TokenType::KEYWORD_SNEZ, TokenType::KEYWORD_SGEZ, TokenType::KEYWORD_SGTZ,
-            TokenType::KEYWORD_SLEZ, TokenType::KEYWORD_SLTZ, TokenType::KEYWORD_SNAN,
-            TokenType::KEYWORD_POP
+            TokenType::KEYWORD_PEEK, TokenType::KEYWORD_RAND, TokenType::KEYWORD_POP
 #endif
             >;
 
     }  // namespace ic10
 
 
-    DEFINE_UNARY_INSTRUCTION(clr, Clr, CLR, ic10::DeviceReference)
+    DEFINE_UNARY_INSTRUCTION(clr, Clr, CLR, ic10::DeviceAliasRef)
 
     namespace ic10 {
 
-        using UnaryInstructionMap_DR = TypeMap<TokenType, TokenType::KEYWORD_CLR>;
+        /**
+         * @if zh
+         * @brief DAR组一元指令TypeMap
+         * @details 包含使用DeviceAliasRef操作数的一元指令: clr。
+         * @elseif en
+         * @brief DAR group unary instruction TypeMap
+         * @details Contains unary instructions with DeviceAliasRef operand: clr.
+         * @endif
+         */
+        using UnaryInstructionMap_DAR = TypeMap<TokenType, TokenType::KEYWORD_CLR>;
 
     }
 
-    DEFINE_UNARY_INSTRUCTION(sleep, Sleep, SLEEP, ic10::Operand)
+    DEFINE_UNARY_INSTRUCTION(sleep, Sleep, SLEEP, ic10::RegisterOrNumber)
+
+    DEFINE_UNARY_INSTRUCTION(clrd, Clrd, CLRD, ic10::RegisterOrNumber)
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_UNARY_INSTRUCTION(push, Push, PUSH, ic10::Operand)
+    DEFINE_UNARY_INSTRUCTION(push, Push, PUSH, ic10::RegisterOrNumber)
 
-    DEFINE_UNARY_INSTRUCTION(jal, Jal, JAL, ic10::Operand)
+    DEFINE_UNARY_INSTRUCTION(jal, Jal, JAL, ic10::JumpTarget)
 
-    DEFINE_UNARY_INSTRUCTION(jr, Jr, JR, ic10::Operand)
+    DEFINE_UNARY_INSTRUCTION(jr, Jr, JR, ic10::JumpTarget)
 
-    DEFINE_UNARY_INSTRUCTION(j, J, J, ic10::Operand)
+    DEFINE_UNARY_INSTRUCTION(j, J, J, ic10::JumpTarget)
 
 #endif
 
     namespace ic10 {
 
-        using UnaryInstructionMap_O = TypeMap<
-            TokenType, TokenType::KEYWORD_SLEEP
+        /**
+         * @if zh
+         * @brief RON组一元指令TypeMap
+         * @details 包含使用RegisterOrNumber操作数的一元指令: sleep、clrd、push。
+         * @elseif en
+         * @brief RON group unary instruction TypeMap
+         * @details Contains unary instructions with RegisterOrNumber operand: sleep, clrd, push.
+         * @endif
+         */
+        using UnaryInstructionMap_RON = TypeMap<
+            TokenType, TokenType::KEYWORD_SLEEP, TokenType::KEYWORD_CLRD
 #ifndef IC10_SIMPLE_MODE
             ,
-            TokenType::KEYWORD_PUSH, TokenType::KEYWORD_JAL, TokenType::KEYWORD_JR,
-            TokenType::KEYWORD_J
+            TokenType::KEYWORD_PUSH
+#endif
+            >;
+
+        /**
+         * @if zh
+         * @brief JT组一元指令TypeMap
+         * @details 包含使用JumpTarget操作数的一元指令: jal、jr、j。
+         * @elseif en
+         * @brief JT group unary instruction TypeMap
+         * @details Contains unary instructions with JumpTarget operand: jal, jr, j.
+         * @endif
+         */
+        using UnaryInstructionMap_JT = TypeMap<
+            TokenType
+#ifndef IC10_SIMPLE_MODE
+            ,
+            TokenType::KEYWORD_JAL, TokenType::KEYWORD_JR, TokenType::KEYWORD_J
 #endif
             >;
 
         using UnaryInstruction = ShallowErrorable<
-            SnanzInstruction, ClrInstruction, SleepInstruction
+            ClrInstruction, SleepInstruction, ClrdInstruction
 #ifndef IC10_SIMPLE_MODE
             ,
-            PeekInstruction, RandInstruction, SeqzInstruction, SnezInstruction, SgezInstruction,
-            SgtzInstruction, SlezInstruction, SltzInstruction, SnanInstruction, PopInstruction,
-            PushInstruction, JalInstruction, JrInstruction, JInstruction
+            PeekInstruction, RandInstruction, PopInstruction, PushInstruction, JalInstruction,
+            JrInstruction, JInstruction
 #endif
             >;
 
         using UnaryInstructionMap = TypeMap<
-            TokenType, TokenType::KEYWORD_SNANZ, TokenType::KEYWORD_CLR, TokenType::KEYWORD_SLEEP
+            TokenType, TokenType::KEYWORD_CLR, TokenType::KEYWORD_SLEEP, TokenType::KEYWORD_CLRD
 #ifndef IC10_SIMPLE_MODE
             ,
-            TokenType::KEYWORD_PEEK, TokenType::KEYWORD_RAND, TokenType::KEYWORD_SEQZ,
-            TokenType::KEYWORD_SNEZ, TokenType::KEYWORD_SGEZ, TokenType::KEYWORD_SGTZ,
-            TokenType::KEYWORD_SLEZ, TokenType::KEYWORD_SLTZ, TokenType::KEYWORD_SNAN,
-            TokenType::KEYWORD_POP, TokenType::KEYWORD_PUSH, TokenType::KEYWORD_JAL,
-            TokenType::KEYWORD_JR, TokenType::KEYWORD_J
+            TokenType::KEYWORD_PEEK, TokenType::KEYWORD_RAND, TokenType::KEYWORD_POP,
+            TokenType::KEYWORD_PUSH, TokenType::KEYWORD_JAL, TokenType::KEYWORD_JR,
+            TokenType::KEYWORD_J
 #endif
             >;
 

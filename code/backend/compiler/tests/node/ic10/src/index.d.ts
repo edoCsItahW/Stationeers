@@ -177,7 +177,7 @@ declare module "ic10-node-api" {
         KEYWORD_DEG2RAD,
         KEYWORD_RAD2DEG,
         KEYWORD_EPSILON,
-        KEYWORD_GAS_CONSTANT,
+        KEYWORD_RGAS,
 
         /* 文件结束标记 */
         END,
@@ -203,6 +203,7 @@ declare module "ic10-node-api" {
         KEYWORD_JR,
         KEYWORD_RAND,
         KEYWORD_SLEEP,
+        KEYWORD_CLRD,
 
         /* 关键字 - 二元指令 */
         KEYWORD_ABS,
@@ -225,6 +226,7 @@ declare module "ic10-node-api" {
         KEYWORD_ROUND,
         KEYWORD_SIN,
         KEYWORD_SQRT,
+        KEYWORD_SGN,
         KEYWORD_SUB,
         KEYWORD_TAN,
         KEYWORD_TRUNC,
@@ -244,13 +246,12 @@ declare module "ic10-node-api" {
         KEYWORD_BLTZ,
         KEYWORD_BLTZAL,
         KEYWORD_BNAN,
-        KEYWORD_BNANZ,
         KEYWORD_BDNS,
         KEYWORD_BDNSAL,
         KEYWORD_BDSE,
         KEYWORD_BDSEAL,
         KEYWORD_BREQZ,
-        KEYWORD_BRNZ,
+        KEYWORD_BRNEZ,
         KEYWORD_BRGEZ,
         KEYWORD_BRGTZ,
         KEYWORD_BRLEZ,
@@ -285,6 +286,8 @@ declare module "ic10-node-api" {
         KEYWORD_LR,
         KEYWORD_S,
         KEYWORD_SB,
+        KEYWORD_ROL,
+        KEYWORD_ROR,
         KEYWORD_RMAP,
         KEYWORD_BEQ,
         KEYWORD_BEQAL,
@@ -323,6 +326,7 @@ declare module "ic10-node-api" {
 
         /* 关键字 - 四元指令 */
         KEYWORD_LERP,
+        KEYWORD_CLAMP,
         KEYWORD_EXT,
         KEYWORD_INS,
         KEYWORD_SS,
