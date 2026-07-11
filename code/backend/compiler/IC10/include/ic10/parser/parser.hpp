@@ -8,8 +8,8 @@
 /**
  * @file parser.hpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/03 13:36
+ * @version 1.2
+ * @date 2026/07/12
  * @if zh
  * @brief IC10语法分析器
  * @details 提供IC10编程语言的语法分析功能,将词法标记序列解析为抽象语法树(AST)。
@@ -592,18 +592,124 @@ namespace stationeers::ic10 {
          * @if zh
          *
          * @brief 解析设备引用
-         * @param layer 递归层级
+         * @details 解析设备引用,支持Device和RegisterOrIdentifier两种形式。
+         *        不再支持Number(INTEGER/FLOAT/HEX_NUMBER/BINARY_NUMBER)。
+         * @param layer 递归层级,用于调试输出
          * @return 解析后的DeviceReference
+         * @note 已移除对Number类型的支持,数字引用应使用parseNumberValue
          *
          * @elseif en
          *
          * @brief Parse device reference
-         * @param layer Recursion level
+         * @details Parses device reference, supporting Device and RegisterOrIdentifier forms.
+         *        Number (INTEGER/FLOAT/HEX_NUMBER/BINARY_NUMBER) is no longer supported.
+         * @param layer Recursion level, for debug output
          * @return Parsed DeviceReference
+         * @note Support for Number type has been removed; use parseNumberValue for number references
          *
          * @endif
          */
         DeviceReference parseDeviceReference(int layer);
+
+        /**
+         * @if zh
+         *
+         * @brief 解析寄存器或数字
+         * @details 解析寄存器(r?)或数字字面量。支持的Token类型包括:
+         *        REGISTER、IDENTIFIER、INTEGER、FLOAT、HEX_NUMBER、BINARY_NUMBER,
+         *        以及KEYWORD_HASH、KEYWORD_STR、KEYWORD_NAN、KEYWORD_PINF、KEYWORD_NINF、
+         *        KEYWORD_PI、KEYWORD_TAU、KEYWORD_DEG2RAD、KEYWORD_RAD2DEG、KEYWORD_EPSILON、
+         *        KEYWORD_RGAS等常量关键字。
+         * @param layer 递归层级,用于调试输出
+         * @return 解析后的RegisterOrNumber
+         * @note 该方法取代了五元/六元指令中原本使用的通用Operand类型
+         *
+         * @elseif en
+         *
+         * @brief Parse register or number
+         * @details Parses a register (r?) or number literal. Supported Token types include:
+         *        REGISTER, IDENTIFIER, INTEGER, FLOAT, HEX_NUMBER, BINARY_NUMBER,
+         *        and constant keywords such as KEYWORD_HASH, KEYWORD_STR, KEYWORD_NAN, KEYWORD_PINF,
+         *        KEYWORD_NINF, KEYWORD_PI, KEYWORD_TAU, KEYWORD_DEG2RAD, KEYWORD_RAD2DEG,
+         *        KEYWORD_EPSILON, KEYWORD_RGAS.
+         * @param layer Recursion level, for debug output
+         * @return Parsed RegisterOrNumber
+         * @note This method replaces the generic Operand type previously used in quinary/senary instructions
+         *
+         * @endif
+         */
+        RegisterOrNumber parseRegisterOrNumber(int layer);
+
+        /**
+         * @if zh
+         *
+         * @brief 解析数字值
+         * @details 解析数字字面量或常量。支持的Token类型包括:
+         *        INTEGER、FLOAT、HEX_NUMBER、BINARY_NUMBER、IDENTIFIER,
+         *        以及KEYWORD_HASH、KEYWORD_STR和常量关键字(如PI、TAU等)。
+         * @param layer 递归层级,用于调试输出
+         * @return 解析后的NumberValue
+         * @note 被parseJumpTarget复用,作为跳转目标解析的基础
+         *
+         * @elseif en
+         *
+         * @brief Parse number value
+         * @details Parses a number literal or constant. Supported Token types include:
+         *        INTEGER, FLOAT, HEX_NUMBER, BINARY_NUMBER, IDENTIFIER,
+         *        and KEYWORD_HASH, KEYWORD_STR, and constant keywords (e.g., PI, TAU, etc.).
+         * @param layer Recursion level, for debug output
+         * @return Parsed NumberValue
+         * @note Reused by parseJumpTarget as the basis for jump target parsing
+         *
+         * @endif
+         */
+        NumberValue parseNumberValue(int layer);
+
+        /**
+         * @if zh
+         *
+         * @brief 解析跳转目标
+         * @details 解析跳转指令的目标地址。委托给parseNumberValue进行实际解析,
+         *        支持所有NumberValue可接受的Token类型。
+         * @param layer 递归层级,用于调试输出
+         * @return 解析后的JumpTarget
+         * @note 解析逻辑完全委托给parseNumberValue
+         *
+         * @elseif en
+         *
+         * @brief Parse jump target
+         * @details Parses the target address of a jump instruction. Delegates to parseNumberValue
+         *        for actual parsing, supporting all Token types accepted by NumberValue.
+         * @param layer Recursion level, for debug output
+         * @return Parsed JumpTarget
+         * @note Parsing logic is fully delegated to parseNumberValue
+         *
+         * @endif
+         */
+        JumpTarget parseJumpTarget(int layer);
+
+        /**
+         * @if zh
+         *
+         * @brief 解析设备别名引用
+         * @details 解析设备别名引用,支持DEVICE和IDENTIFIER两种Token类型。
+         *        用于alias指令等场景中对已定义设备别名的引用。
+         * @param layer 递归层级,用于调试输出
+         * @return 解析后的DeviceAliasRef
+         * @note 仅接受DEVICE和IDENTIFIER,不解析其他形式
+         *
+         * @elseif en
+         *
+         * @brief Parse device alias reference
+         * @details Parses a device alias reference, supporting DEVICE and IDENTIFIER Token types.
+         *        Used in scenarios such as alias directives for referencing defined device aliases.
+         * @param layer Recursion level, for debug output
+         * @return Parsed DeviceAliasRef
+         * @note Only accepts DEVICE and IDENTIFIER; other forms are not parsed
+         *
+         * @endif
+         */
+        DeviceAliasRef parseDeviceAliasRef(int layer);
 
         /**
          * @if zh

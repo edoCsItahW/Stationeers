@@ -8,18 +8,22 @@
 /**
  * @file ast_quinary_ins.hpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/03 13:21
+ * @version 1.2
+ * @date 2026/07/12
  * @if zh
  * @brief IC10五元指令AST定义
  * @details 定义IC10中的五元指令(含五个操作数的指令),如LBN、LBS等。
  *        使用模板元编程自动生成指令类型和TypeMap映射。
+ *        LBN与LBS的操作数类型使用RegisterOrNumber而非通用的Operand,
+ *        移除了不合适的Device等类型,确保操作数仅为寄存器或数字。
  * @note 实现位于ast_quinary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief IC10 quinary instruction AST definitions
  * @details Defines quinary instructions (instructions with five operands) in IC10, such as LBN, LBS, etc.
  *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
+ *        LBN and LBS operand types use RegisterOrNumber instead of the generic Operand,
+ *        removing inappropriate types such as Device, ensuring operands are registers or numbers only.
  * @note Implementation in ast_quinary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -193,31 +197,48 @@ namespace stationeers {
 #define DEFINE_QUINARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)                          \
     DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, ic10::QuinaryInstructionBase, __VA_ARGS__)
 
-    // 五元指令 - 操作数类型 RegisterOrIdentifier, Operand, Operand, LogicType, BatchMode
+    // 五元指令 - 操作数类型 RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, LogicType,
+    // BatchMode
     DEFINE_QUINARY_INSTRUCTION(
-        lbn, Lbn, LBN, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand, ic10::LogicType,
-        ic10::BatchMode
+        lbn, Lbn, LBN, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber,
+        ic10::LogicType, ic10::BatchMode
     )
 
     namespace ic10 {
 
-        using QuinaryInstructionMap_RI_O_O_LT_BM = TypeMap<TokenType, TokenType::KEYWORD_LBN>;
+        using QuinaryInstructionMap_RI_RON_RON_LT_BM = TypeMap<TokenType, TokenType::KEYWORD_LBN>;
 
     }
 
-    // 五元指令 - 操作数类型 RegisterOrIdentifier, Operand, SlotIndex, LogicSlotType,
+    // 五元指令 - 操作数类型 RegisterOrIdentifier, RegisterOrNumber, SlotIndex, LogicSlotType,
     // BatchMode
     DEFINE_QUINARY_INSTRUCTION(
-        lbs, Lbs, LBS, ic10::RegisterOrIdentifier, ic10::Operand, ic10::SlotIndex, ic10::LogicSlotType,
-        ic10::BatchMode
+        lbs, Lbs, LBS, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::SlotIndex,
+        ic10::LogicSlotType, ic10::BatchMode
     )
 
     namespace ic10 {
 
-        using QuinaryInstructionMap_RI_O_SI_LS_BM = TypeMap<TokenType, TokenType::KEYWORD_LBS>;
+        using QuinaryInstructionMap_RI_RON_SI_LS_BM = TypeMap<TokenType, TokenType::KEYWORD_LBS>;
 
         using QuinaryInstruction = ShallowErrorable<LbnInstruction, LbsInstruction>;
 
+        /**
+         * @if zh
+         *
+         * @brief 五元指令映射表
+         * @details 将指令关键字Token类型映射到对应的五元指令类型。
+         *        包含LBN和LBS两个五元指令,用于语法分析阶段根据关键字确定指令类型。
+         *
+         * @elseif en
+         *
+         * @brief Quinary instruction map
+         * @details Maps instruction keyword Token types to corresponding quinary instruction types.
+         *        Contains two quinary instructions, LBN and LBS, used during parsing to determine
+         *        instruction type based on keywords.
+         *
+         * @endif
+         */
         using QuinaryInstructionMap =
             TypeMap<TokenType, TokenType::KEYWORD_LBN, TokenType::KEYWORD_LBS>;
 

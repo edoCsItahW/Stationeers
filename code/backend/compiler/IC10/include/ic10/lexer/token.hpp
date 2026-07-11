@@ -8,18 +8,22 @@
 /**
  * @file token.hpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/02 22:00
+ * @version 1.2
+ * @date 2026/07/12
  * @if zh
  * @brief IC10词法标记定义
  * @details 定义IC10编程语言的词法标记类型、标记类别、关键字映射表和Token结构。
- *        包含数字、字符串、标识符、寄存器、设备、各类指令关键字等标记类型。
+ *        包含数字、字符串、标识符、寄存器、设备、各类指令关键字
+ *        （算术、逻辑、移位与循环移位、分支与相对跳转、批量加载/存储、设备别名清除等）
+ *        以及关键字常量（如nan、pi、rgas等）等标记类型。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief IC10 lexical token definitions
  * @details Defines lexical token types, token categories, keyword mapping tables and Token structure
  *        for IC10 programming language. Includes token types such as numbers, strings, identifiers,
- *        registers, devices, and various instruction keywords.
+ *        registers, devices, and various instruction keywords
+ *        (arithmetic, logical, shift and rotate, branches and relative jumps, batch load/store,
+ *        device-alias clear, etc.) as well as keyword constants (such as nan, pi, rgas, etc.).
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
@@ -76,7 +80,7 @@ namespace stationeers::ic10 {
         KEYWORD_DEG2RAD,       ///< @if zh 关键字@c deg2rad @else Keyword @c deg2rad @endif
         KEYWORD_RAD2DEG,       ///< @if zh 关键字@c rad2deg @else Keyword @c rad2deg @endif
         KEYWORD_EPSILON,       ///< @if zh 关键字@c epsilon @else Keyword @c epsilon @endif
-        KEYWORD_GAS_CONSTANT,  ///< @if zh 关键字@c 19as @else Keyword @c 19as @endif
+        KEYWORD_RGAS,          ///< @if zh 关键字@c rgas @else Keyword @c rgas @endif
 
         // 文件结束标记
         END,  ///< @if zh 文件结束标记 @else End of file @endif
@@ -102,6 +106,7 @@ namespace stationeers::ic10 {
         KEYWORD_JR,     ///< @if zh 关键字@c jr @else Keyword @c jr @endif
         KEYWORD_RAND,   ///< @if zh 关键字@c rand @else Keyword @c rand @endif
         KEYWORD_SLEEP,  ///< @if zh 关键字@c sleep @else Keyword @c sleep @endif
+        KEYWORD_CLRD,   ///< @if zh 关键字@c clrd @else Keyword @c clrd @endif
 
         // 二元指令
         KEYWORD_ABS,     ///< @if zh 关键字@c abs @else Keyword @c abs @endif
@@ -124,6 +129,7 @@ namespace stationeers::ic10 {
         KEYWORD_ROUND,   ///< @if zh 关键字@c round @else Keyword @c round @endif
         KEYWORD_SIN,     ///< @if zh 关键字@c sin @else Keyword @c sin @endif
         KEYWORD_SQRT,    ///< @if zh 关键字@c sqrt @else Keyword @c sqrt @endif
+        KEYWORD_SGN,     ///< @if zh 关键字@c sgn @else Keyword @c sgn @endif
         KEYWORD_SUB,     ///< @if zh 关键字@c sub @else Keyword @c sub @endif
         KEYWORD_TAN,     ///< @if zh 关键字@c tan @else Keyword @c tan @endif
         KEYWORD_TRUNC,   ///< @if zh 关键字@c trunc @else Keyword @c trunc @endif
@@ -143,18 +149,17 @@ namespace stationeers::ic10 {
         KEYWORD_BLTZ,    ///< @if zh 关键字@c bltz @else Keyword @c bltz @endif
         KEYWORD_BLTZAL,  ///< @if zh 关键字@c bltzal @else Keyword @c bltzal @endif
         KEYWORD_BNAN,    ///< @if zh 关键字@c bnan @else Keyword @c bnan @endif
-        KEYWORD_BNANZ,   ///< @if zh 关键字@c bnanz @else Keyword @c bnanz @endif
         KEYWORD_BDNS,    ///< @if zh 关键字@c bdns @else Keyword @c bdns @endif
         KEYWORD_BDNSAL,  ///< @if zh 关键字@c bdnsal @else Keyword @c bdnsal @endif
         KEYWORD_BDSE,    ///< @if zh 关键字@c bdse @else Keyword @c bdse @endif
         KEYWORD_BDSEAL,  ///< @if zh 关键字@c bdseal @else Keyword @c bdseal @endif
         KEYWORD_BREQZ,   ///< @if zh 关键字@c breqz @else Keyword @c breqz @endif
-        KEYWORD_BRNZ,    ///< @if zh 关键字@c brnz @else Keyword @c brnz @endif
         KEYWORD_BRGEZ,   ///< @if zh 关键字@c brgez @else Keyword @c brgez @endif
         KEYWORD_BRGTZ,   ///< @if zh 关键字@c brgtz @else Keyword @c brgtz @endif
         KEYWORD_BRLEZ,   ///< @if zh 关键字@c brlez @else Keyword @c brlez @endif
         KEYWORD_BRLTZ,   ///< @if zh 关键字@c brltz @else Keyword @c brltz @endif
         KEYWORD_BRNAN,   ///< @if zh 关键字@c brnan @else Keyword @c brnan @endif
+        KEYWORD_BRNEZ,   ///< @if zh 关键字@c brnez @else Keyword @c brnez @endif
         KEYWORD_BRDNS,   ///< @if zh 关键字@c brdns @else Keyword @c brdns @endif
         KEYWORD_BRDSE,   ///< @if zh 关键字@c brdse @else Keyword @c brdse @endif
         KEYWORD_SEQZ,    ///< @if zh 关键字@c seqz @else Keyword @c seqz @endif
@@ -184,6 +189,8 @@ namespace stationeers::ic10 {
         KEYWORD_LR,      ///< @if zh 关键字@c lr @else Keyword @c lr @endif
         KEYWORD_S,       ///< @if zh 关键字@c s @else Keyword @c s @endif
         KEYWORD_SB,      ///< @if zh 关键字@c sb @else Keyword @c sb @endif
+        KEYWORD_ROL,     ///< @if zh 关键字@c rol @else Keyword @c rol @endif
+        KEYWORD_ROR,     ///< @if zh 关键字@c ror @else Keyword @c ror @endif
         KEYWORD_RMAP,    ///< @if zh 关键字@c rmap @else Keyword @c rmap @endif
         KEYWORD_BEQ,     ///< @if zh 关键字@c beq @else Keyword @c beq @endif
         KEYWORD_BEQAL,   ///< @if zh 关键字@c beqal @else Keyword @c beqal @endif
@@ -222,6 +229,7 @@ namespace stationeers::ic10 {
 
         // 四元指令
         KEYWORD_LERP,    ///< @if zh 关键字@c lerp @else Keyword @c lerp @endif
+        KEYWORD_CLAMP,   ///< @if zh 关键字@c clamp @else Keyword @c clamp @endif
         KEYWORD_EXT,     ///< @if zh 关键字@c ext @else Keyword @c ext @endif
         KEYWORD_INS,     ///< @if zh 关键字@c ins @else Keyword @c ins @endif
         KEYWORD_SS,      ///< @if zh 关键字@c ss @else Keyword @c ss @endif

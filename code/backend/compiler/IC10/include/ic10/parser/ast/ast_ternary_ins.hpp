@@ -8,17 +8,35 @@
 /**
  * @file ast_ternary_ins.hpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/03 13:05
+ * @version 1.2
+ * @date 2026/07/12
  * @if zh
  * @brief IC10三元指令AST定义
- * @details 定义IC10中的三元指令(含三个操作数的指令),如ADD、DIV、MUL、GET、PUT等。
+ * @details 定义IC10中的三元指令(含三个操作数的指令),按操作数类型分组:
+ *        - RI_RON_RON: add, and, nor, or, sla, sll, sra, srl, xor, sub, mul, div, mod, pow, max, min, atan2, rol, ror, sapz, snaz, seq, sne, sge, sgt, sle, slt
+ *        - RI_DR_RON: get
+ *        - RI_DAR_RON: rmap
+ *        - DR_RON_RON: put
+ *        - RI_DR_LT: l
+ *        - DR_LT_RI: s
+ *        - RON_LT_RI: sb
+ *        - DR_LT_RON: bdnvl, bdnvs
+ *        - RON_RON_RON: beq, beqal, bne, bneal, bge, bgeal, bgt, bgtal, ble, bleal, blt, bltal, bapz, bapzal, bnaz, bnazal, breq, brne, brge, brgt, brle, brlt, brapz, brnaz
  *        使用模板元编程自动生成指令类型和TypeMap映射。
  * @note 实现位于ast_ternary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief IC10 ternary instruction AST definitions
- * @details Defines ternary instructions (instructions with three operands) in IC10, such as ADD, DIV, MUL, GET, PUT, etc.
+ * @details Defines ternary instructions (instructions with three operands) in IC10, grouped by operand types:
+ *        - RI_RON_RON: add, and, nor, or, sla, sll, sra, srl, xor, sub, mul, div, mod, pow, max, min, atan2, rol, ror, sapz, snaz, seq, sne, sge, sgt, sle, slt
+ *        - RI_DR_RON: get
+ *        - RI_DAR_RON: rmap
+ *        - DR_RON_RON: put
+ *        - RI_DR_LT: l
+ *        - DR_LT_RI: s
+ *        - RON_LT_RI: sb
+ *        - DR_LT_RON: bdnvl, bdnvs
+ *        - RON_RON_RON: beq, beqal, bne, bneal, bge, bgeal, bgt, bgtal, ble, bleal, blt, bltal, bapz, bapzal, bnaz, bnazal, breq, brne, brge, brgt, brle, brlt, brapz, brnaz
  *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
  * @note Implementation in ast_ternary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
@@ -187,88 +205,103 @@ namespace stationeers {
 
     // 三元指令别名
     DEFINE_TERNARY_INSTRUCTION(
-        add, Add, ADD, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        add, Add, ADD, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
 
 #ifndef IC10_SIMPLE_MODE
 
     DEFINE_TERNARY_INSTRUCTION(
-        atan2, Atan2, ATAN2, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        atan2, Atan2, ATAN2, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        div, Div, DIV, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        div, Div, DIV, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        max, Max, MAX, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        max, Max, MAX, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        min, Min, MIN, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        min, Min, MIN, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        mod, Mod, MOD, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        mod, Mod, MOD, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        mul, Mul, MUL, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        mul, Mul, MUL, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        pow, Pow, POW, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        pow, Pow, POW, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
-    DEFINE_TERNARY_INSTRUCTION(and, And, AND, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand)
+    DEFINE_TERNARY_INSTRUCTION(sub, Sub, SUB, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(rol, Rol, ROL, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(ror, Ror, ROR, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(and, And, AND, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
     DEFINE_TERNARY_INSTRUCTION(
-        nor, Nor, NOR, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        nor, Nor, NOR, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
-    DEFINE_TERNARY_INSTRUCTION(or, Or, OR, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand)
+    DEFINE_TERNARY_INSTRUCTION(or, Or, OR, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
     DEFINE_TERNARY_INSTRUCTION(
-        sla, Sla, SLA, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
-    )
-    DEFINE_TERNARY_INSTRUCTION(
-        sll, Sll, SLL, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
-    )
-    DEFINE_TERNARY_INSTRUCTION(
-        sra, Sra, SRA, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        sla, Sla, SLA, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        srl, Srl, SRL, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        sll, Sll, SLL, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        xor, Xor, XOR, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        sra, Sra, SRA, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sapz, Sapz, SAPZ, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        srl, Srl, SRL, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        snaz, Snaz, SNAZ, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        xor, Xor, XOR, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        seq, Seq, SEQ, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        sapz, Sapz, SAPZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sne, Sne, SNE, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        snaz, Snaz, SNAZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sge, Sge, SGE, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        seq, Seq, SEQ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sgt, Sgt, SGT, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        sne, Sne, SNE, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sle, Sle, SLE, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        sge, Sge, SGE, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
     DEFINE_TERNARY_INSTRUCTION(
-        slt, Slt, SLT, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand
+        sgt, Sgt, SGT, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+    )
+    DEFINE_TERNARY_INSTRUCTION(
+        sle, Sle, SLE, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+    )
+    DEFINE_TERNARY_INSTRUCTION(
+        slt, Slt, SLT, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
     )
 
 #endif
 
     namespace ic10 {
 
-        using TernaryInstructionMap_RI_O_O = TypeMap<
+        /**
+         * @if zh
+         * @brief RI_RON_RON 操作数类型的三元指令 TypeMap
+         * @details 操作数类型为 (RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)。
+         *        包含指令: add, atan2, div, max, min, mod, mul, pow, sub, rol, ror, and, nor, or, sla, sll, sra, srl, xor, sapz, snaz, seq, sne, sge, sgt, sle, slt。
+         * @elseif en
+         * @brief Ternary instruction TypeMap for RI_RON_RON operand types
+         * @details Operand types: (RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber).
+         *        Contains instructions: add, atan2, div, max, min, mod, mul, pow, sub, rol, ror, and, nor, or, sla, sll, sra, srl, xor, sapz, snaz, seq, sne, sge, sgt, sle, slt.
+         * @endif
+         */
+        using TernaryInstructionMap_RI_RON_RON = TypeMap<
             TokenType, TokenType::KEYWORD_ADD
 #ifndef IC10_SIMPLE_MODE
             ,
             TokenType::KEYWORD_ATAN2, TokenType::KEYWORD_DIV, TokenType::KEYWORD_MAX,
             TokenType::KEYWORD_MIN, TokenType::KEYWORD_MOD, TokenType::KEYWORD_MUL,
-            TokenType::KEYWORD_POW, TokenType::KEYWORD_AND, TokenType::KEYWORD_NOR,
+            TokenType::KEYWORD_POW, TokenType::KEYWORD_SUB, TokenType::KEYWORD_ROL,
+            TokenType::KEYWORD_ROR, TokenType::KEYWORD_AND, TokenType::KEYWORD_NOR,
             TokenType::KEYWORD_OR, TokenType::KEYWORD_SLA, TokenType::KEYWORD_SLL,
             TokenType::KEYWORD_SRA, TokenType::KEYWORD_SRL, TokenType::KEYWORD_XOR,
             TokenType::KEYWORD_SAPZ, TokenType::KEYWORD_SNAZ, TokenType::KEYWORD_SEQ,
@@ -279,37 +312,71 @@ namespace stationeers {
 
     }  // namespace ic10
 
-    // 三元指令 - 操作数类型 ic10::RegisterOrIdentifier, ic10::DeviceReference, ic10::Operand
+    // 三元指令 - 操作数类型 ic10::RegisterOrIdentifier, ic10::DeviceReference, ic10::RegisterOrNumber
     DEFINE_TERNARY_INSTRUCTION(
-        get, Get, GET, ic10::RegisterOrIdentifier, ic10::DeviceReference, ic10::Operand
+        get, Get, GET, ic10::RegisterOrIdentifier, ic10::DeviceReference, ic10::RegisterOrNumber
     )
-
-#ifndef IC10_SIMPLE_MODE
-
-    DEFINE_TERNARY_INSTRUCTION(
-        rmap, Rmap, RMAP, ic10::RegisterOrIdentifier, ic10::DeviceReference, ic10::Operand
-    )
-
-#endif
 
     namespace ic10 {
 
-        using TernaryInstructionMap_RI_DR_O = TypeMap<
-            TokenType, TokenType::KEYWORD_GET
-#ifndef IC10_SIMPLE_MODE
-            ,
-            TokenType::KEYWORD_RMAP
-#endif
-            >;
+        /**
+         * @if zh
+         * @brief RI_DR_RON 操作数类型的三元指令 TypeMap
+         * @details 操作数类型为 (RegisterOrIdentifier, DeviceReference, RegisterOrNumber)。
+         *        包含指令: get。
+         * @elseif en
+         * @brief Ternary instruction TypeMap for RI_DR_RON operand types
+         * @details Operand types: (RegisterOrIdentifier, DeviceReference, RegisterOrNumber).
+         *        Contains instructions: get.
+         * @endif
+         */
+        using TernaryInstructionMap_RI_DR_RON = TypeMap<TokenType, TokenType::KEYWORD_GET>;
 
     }  // namespace ic10
 
-    // 三元指令 - 操作数类型 ic10::DeviceReference, ic10::Operand, ic10::Operand
-    DEFINE_TERNARY_INSTRUCTION(put, Put, PUT, ic10::DeviceReference, ic10::Operand, ic10::Operand)
+#ifndef IC10_SIMPLE_MODE
+
+    // 三元指令 - 操作数类型 ic10::RegisterOrIdentifier, ic10::DeviceAliasRef, ic10::RegisterOrNumber
+    DEFINE_TERNARY_INSTRUCTION(
+        rmap, Rmap, RMAP, ic10::RegisterOrIdentifier, ic10::DeviceAliasRef, ic10::RegisterOrNumber
+    )
 
     namespace ic10 {
 
-        using TernaryInstructionMap_DR_O_O = TypeMap<TokenType, TokenType::KEYWORD_PUT>;
+        /**
+         * @if zh
+         * @brief RI_DAR_RON 操作数类型的三元指令 TypeMap
+         * @details 操作数类型为 (RegisterOrIdentifier, DeviceAliasRef, RegisterOrNumber)。
+         *        包含指令: rmap。rmap 的第二操作数为设备别名引用(DeviceAliasRef)。
+         * @elseif en
+         * @brief Ternary instruction TypeMap for RI_DAR_RON operand types
+         * @details Operand types: (RegisterOrIdentifier, DeviceAliasRef, RegisterOrNumber).
+         *        Contains instructions: rmap. The second operand of rmap is a device alias reference (DeviceAliasRef).
+         * @endif
+         */
+        using TernaryInstructionMap_RI_DAR_RON = TypeMap<TokenType, TokenType::KEYWORD_RMAP>;
+
+    }  // namespace ic10
+
+#endif
+
+    // 三元指令 - 操作数类型 ic10::DeviceReference, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+    DEFINE_TERNARY_INSTRUCTION(put, Put, PUT, ic10::DeviceReference, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+
+    namespace ic10 {
+
+        /**
+         * @if zh
+         * @brief DR_RON_RON 操作数类型的三元指令 TypeMap
+         * @details 操作数类型为 (DeviceReference, RegisterOrNumber, RegisterOrNumber)。
+         *        包含指令: put。
+         * @elseif en
+         * @brief Ternary instruction TypeMap for DR_RON_RON operand types
+         * @details Operand types: (DeviceReference, RegisterOrNumber, RegisterOrNumber).
+         *        Contains instructions: put.
+         * @endif
+         */
+        using TernaryInstructionMap_DR_RON_RON = TypeMap<TokenType, TokenType::KEYWORD_PUT>;
 
     }
 
@@ -320,18 +387,18 @@ namespace stationeers {
 
     namespace ic10 {
 
+        /**
+         * @if zh
+         * @brief RI_DR_LT 操作数类型的三元指令 TypeMap
+         * @details 操作数类型为 (RegisterOrIdentifier, DeviceReference, LogicType)。
+         *        包含指令: l。
+         * @elseif en
+         * @brief Ternary instruction TypeMap for RI_DR_LT operand types
+         * @details Operand types: (RegisterOrIdentifier, DeviceReference, LogicType).
+         *        Contains instructions: l.
+         * @endif
+         */
         using TernaryInstructionMap_RI_DR_LT = TypeMap<TokenType, TokenType::KEYWORD_L>;
-
-    }
-
-    // 三元指令 - 操作数类型 ic10::RegisterOrIdentifier, ic10::DeviceReference, ReagentMode
-    DEFINE_TERNARY_INSTRUCTION(
-        lr, Lr, LR, ic10::RegisterOrIdentifier, ic10::DeviceReference, ic10::ReagentMode
-    )
-
-    namespace ic10 {
-
-        using TernaryInstructionMap_RI_DR_RM = TypeMap<TokenType, TokenType::KEYWORD_LR>;
 
     }
 
@@ -342,37 +409,70 @@ namespace stationeers {
 
     namespace ic10 {
 
+        /**
+         * @if zh
+         * @brief DR_LT_RI 操作数类型的三元指令 TypeMap
+         * @details 操作数类型为 (DeviceReference, LogicType, RegisterOrIdentifier)。
+         *        包含指令: s。
+         * @elseif en
+         * @brief Ternary instruction TypeMap for DR_LT_RI operand types
+         * @details Operand types: (DeviceReference, LogicType, RegisterOrIdentifier).
+         *        Contains instructions: s.
+         * @endif
+         */
         using TernaryInstructionMap_DR_LT_RI = TypeMap<TokenType, TokenType::KEYWORD_S>;
 
     }
 
-    // 三元指令 - 操作数类型 ic10::Operand, LogicType, ic10::RegisterOrIdentifier
+    // 三元指令 - 操作数类型 ic10::RegisterOrNumber, LogicType, ic10::RegisterOrIdentifier
     DEFINE_TERNARY_INSTRUCTION(
-        sb, Sb, SB, ic10::Operand, ic10::LogicType, ic10::RegisterOrIdentifier
+        sb, Sb, SB, ic10::RegisterOrNumber, ic10::LogicType, ic10::RegisterOrIdentifier
     )
 
     namespace ic10 {
 
-        using TernaryInstructionMap_O_LT_RI = TypeMap<TokenType, TokenType::KEYWORD_SB>;
+        /**
+         * @if zh
+         * @brief RON_LT_RI 操作数类型的三元指令 TypeMap
+         * @details 操作数类型为 (RegisterOrNumber, LogicType, RegisterOrIdentifier)。
+         *        包含指令: sb。
+         * @elseif en
+         * @brief Ternary instruction TypeMap for RON_LT_RI operand types
+         * @details Operand types: (RegisterOrNumber, LogicType, RegisterOrIdentifier).
+         *        Contains instructions: sb.
+         * @endif
+         */
+        using TernaryInstructionMap_RON_LT_RI = TypeMap<TokenType, TokenType::KEYWORD_SB>;
 
     }
 
-    // 三元指令 - 操作数类型 ic10::DeviceReference, LogicType, ic10::Operand
+    // 三元指令 - 操作数类型 ic10::DeviceReference, LogicType, ic10::RegisterOrNumber
     DEFINE_TERNARY_INSTRUCTION(
-        bdnvl, Bdnvl, BDNVL, ic10::DeviceReference, ic10::LogicType, ic10::Operand
+        bdnvl, Bdnvl, BDNVL, ic10::DeviceReference, ic10::LogicType, ic10::RegisterOrNumber
     )
 
 #ifndef IC10_SIMPLE_MODE
 
     DEFINE_TERNARY_INSTRUCTION(
-        bdnvs, Bdnvs, BDNVS, ic10::DeviceReference, ic10::LogicType, ic10::Operand
+        bdnvs, Bdnvs, BDNVS, ic10::DeviceReference, ic10::LogicType, ic10::RegisterOrNumber
     )
 
 #endif
 
     namespace ic10 {
 
-        using TernaryInstructionMap_DR_LT_O = TypeMap<
+        /**
+         * @if zh
+         * @brief DR_LT_RON 操作数类型的三元指令 TypeMap
+         * @details 操作数类型为 (DeviceReference, LogicType, RegisterOrNumber)。
+         *        包含指令: bdnvl, bdnvs。
+         * @elseif en
+         * @brief Ternary instruction TypeMap for DR_LT_RON operand types
+         * @details Operand types: (DeviceReference, LogicType, RegisterOrNumber).
+         *        Contains instructions: bdnvl, bdnvs.
+         * @endif
+         */
+        using TernaryInstructionMap_DR_LT_RON = TypeMap<
             TokenType, TokenType::KEYWORD_BDNVL
 #ifndef IC10_SIMPLE_MODE
             ,
@@ -382,40 +482,51 @@ namespace stationeers {
 
     }  // namespace ic10
 
-    // 三元指令 - 操作数类型 ic10::Operand, ic10::Operand, ic10::Operand
-    DEFINE_TERNARY_INSTRUCTION(beq, Beq, BEQ, ic10::Operand, ic10::Operand, ic10::Operand)
+    // 三元指令 - 操作数类型 ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+    DEFINE_TERNARY_INSTRUCTION(beq, Beq, BEQ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_TERNARY_INSTRUCTION(beqal, Beqal, BEQAL, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bne, Bne, BNE, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bneal, Bneal, BNEAL, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bge, Bge, BGE, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bgeal, Bgeal, BGEAL, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bgt, Bgt, BGT, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bgtal, Bgtal, BGTAL, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(ble, Ble, BLE, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bleal, Bleal, BLEAL, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(blt, Blt, BLT, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bltal, Bltal, BLTAL, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bapz, Bapz, BAPZ, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bapzal, Bapzal, BAPZAL, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bnaz, Bnaz, BNAZ, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(bnazal, Bnazal, BNAZAL, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(breq, Breq, BREQ, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(brne, Brne, BRNE, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(brge, Brge, BRGE, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(brgt, Brgt, BRGT, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(brle, Brle, BRLE, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(brlt, Brlt, BRLT, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(brapz, Brapz, BRAPZ, ic10::Operand, ic10::Operand, ic10::Operand)
-    DEFINE_TERNARY_INSTRUCTION(brnaz, Brnaz, BRNAZ, ic10::Operand, ic10::Operand, ic10::Operand)
+    DEFINE_TERNARY_INSTRUCTION(beqal, Beqal, BEQAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bne, Bne, BNE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bneal, Bneal, BNEAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bge, Bge, BGE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bgeal, Bgeal, BGEAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bgt, Bgt, BGT, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bgtal, Bgtal, BGTAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(ble, Ble, BLE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bleal, Bleal, BLEAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(blt, Blt, BLT, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bltal, Bltal, BLTAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bapz, Bapz, BAPZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bapzal, Bapzal, BAPZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bnaz, Bnaz, BNAZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(bnazal, Bnazal, BNAZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(breq, Breq, BREQ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(brne, Brne, BRNE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(brge, Brge, BRGE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(brgt, Brgt, BRGT, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(brle, Brle, BRLE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(brlt, Brlt, BRLT, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(brapz, Brapz, BRAPZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(brnaz, Brnaz, BRNAZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
 
 #endif
 
     namespace ic10 {
 
-        using TernaryInstructionMap_O_O_O = TypeMap<
+        /**
+         * @if zh
+         * @brief RON_RON_RON 操作数类型的三元指令 TypeMap
+         * @details 操作数类型为 (RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)。
+         *        包含指令: beq, beqal, bne, bneal, bge, bgeal, bgt, bgtal, ble, bleal, blt, bltal, bapz, bapzal, bnaz, bnazal, breq, brne, brge, brgt, brle, brlt, brapz, brnaz。
+         * @elseif en
+         * @brief Ternary instruction TypeMap for RON_RON_RON operand types
+         * @details Operand types: (RegisterOrNumber, RegisterOrNumber, RegisterOrNumber).
+         *        Contains instructions: beq, beqal, bne, bneal, bge, bgeal, bgt, bgtal, ble, bleal, blt, bltal, bapz, bapzal, bnaz, bnazal, breq, brne, brge, brgt, brle, brlt, brapz, brnaz.
+         * @endif
+         */
+        using TernaryInstructionMap_RON_RON_RON = TypeMap<
             TokenType, TokenType::KEYWORD_BEQ
 #ifndef IC10_SIMPLE_MODE
             ,
@@ -431,32 +542,34 @@ namespace stationeers {
             >;
 
         using TernaryInstruction = ShallowErrorable<
-            AddInstruction, GetInstruction, PutInstruction, LInstruction, LrInstruction,
+            AddInstruction, GetInstruction, PutInstruction, LInstruction,
             SInstruction, SbInstruction, BeqInstruction, BdnvlInstruction
 #ifndef IC10_SIMPLE_MODE
             ,
             Atan2Instruction, DivInstruction, MaxInstruction, MinInstruction, ModInstruction,
-            MulInstruction, PowInstruction, AndInstruction, NorInstruction, OrInstruction,
-            SlaInstruction, SllInstruction, SraInstruction, SrlInstruction, XorInstruction,
-            RmapInstruction, BeqalInstruction, BneInstruction, BnealInstruction, BgeInstruction,
-            BgealInstruction, BgtInstruction, BgtalInstruction, BleInstruction, BlealInstruction,
-            BltInstruction, BltalInstruction, BapzInstruction, BapzalInstruction, BnazInstruction,
-            BnazalInstruction, BdnvsInstruction, BreqInstruction, BrneInstruction, BrgeInstruction,
-            BrgtInstruction, BrleInstruction, BrltInstruction, BrapzInstruction, BrnazInstruction,
-            SapzInstruction, SnazInstruction, SeqInstruction, SneInstruction, SgeInstruction,
-            SgtInstruction, SleInstruction, SltInstruction
+            MulInstruction, PowInstruction, SubInstruction, RolInstruction, RorInstruction,
+            AndInstruction, NorInstruction, OrInstruction, SlaInstruction, SllInstruction,
+            SraInstruction, SrlInstruction, XorInstruction, RmapInstruction, BeqalInstruction,
+            BneInstruction, BnealInstruction, BgeInstruction, BgealInstruction, BgtInstruction,
+            BgtalInstruction, BleInstruction, BlealInstruction, BltInstruction, BltalInstruction,
+            BapzInstruction, BapzalInstruction, BnazInstruction, BnazalInstruction, BdnvsInstruction,
+            BreqInstruction, BrneInstruction, BrgeInstruction, BrgtInstruction, BrleInstruction,
+            BrltInstruction, BrapzInstruction, BrnazInstruction, SapzInstruction, SnazInstruction,
+            SeqInstruction, SneInstruction, SgeInstruction, SgtInstruction, SleInstruction,
+            SltInstruction
 #endif
             >;
 
         using TernaryInstructionMap = TypeMap<
             TokenType, TokenType::KEYWORD_ADD, TokenType::KEYWORD_GET, TokenType::KEYWORD_PUT,
-            TokenType::KEYWORD_L, TokenType::KEYWORD_LR, TokenType::KEYWORD_S,
-            TokenType::KEYWORD_SB, TokenType::KEYWORD_BEQ, TokenType::KEYWORD_BDNVL
+            TokenType::KEYWORD_L, TokenType::KEYWORD_S, TokenType::KEYWORD_SB,
+            TokenType::KEYWORD_BEQ, TokenType::KEYWORD_BDNVL
 #ifndef IC10_SIMPLE_MODE
             ,
             TokenType::KEYWORD_ATAN2, TokenType::KEYWORD_DIV, TokenType::KEYWORD_MAX,
             TokenType::KEYWORD_MIN, TokenType::KEYWORD_MOD, TokenType::KEYWORD_MUL,
-            TokenType::KEYWORD_POW, TokenType::KEYWORD_AND, TokenType::KEYWORD_NOR,
+            TokenType::KEYWORD_POW, TokenType::KEYWORD_SUB, TokenType::KEYWORD_ROL,
+            TokenType::KEYWORD_ROR, TokenType::KEYWORD_AND, TokenType::KEYWORD_NOR,
             TokenType::KEYWORD_OR, TokenType::KEYWORD_SLA, TokenType::KEYWORD_SLL,
             TokenType::KEYWORD_SRA, TokenType::KEYWORD_SRL, TokenType::KEYWORD_XOR,
             TokenType::KEYWORD_RMAP, TokenType::KEYWORD_BEQAL, TokenType::KEYWORD_BNE,

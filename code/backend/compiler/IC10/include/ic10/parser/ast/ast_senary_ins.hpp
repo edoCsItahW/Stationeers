@@ -8,13 +8,15 @@
 /**
  * @file ast_senary_ins.hpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/03 13:23
+ * @version 1.2
+ * @date 2026/07/12
  * @if zh
  * @brief IC10六元指令AST定义
  * @details 定义IC10中的六元指令(含六个操作数的指令),如LBNS等。
  *        使用模板元编程自动生成指令类型和TypeMap映射。同时定义ExecutableInstruction类型别名,
  *        用于表示所有可执行指令类型的联合。
+ *        LBNS的操作数类型使用RegisterOrNumber而非通用的Operand,
+ *        移除了不合适的Device等类型,确保操作数仅为寄存器或数字。
  * @note 实现位于ast_senary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
@@ -22,6 +24,8 @@
  * @details Defines senary instructions (instructions with six operands) in IC10, such as LBNS, etc.
  *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
  *        Also defines ExecutableInstruction type alias for the union of all executable instruction types.
+ *        LBNS operand types use RegisterOrNumber instead of the generic Operand,
+ *        removing inappropriate types such as Device, ensuring operands are registers or numbers only.
  * @note Implementation in ast_senary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -200,19 +204,35 @@ namespace stationeers {
 #define DEFINE_SENARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)                           \
     DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, ic10::SenaryInstructionBase, __VA_ARGS__)
 
-    // 六元指令 - 操作数类型 RegisterOrIdentifier, Operand, Operand, SlotIndex,
+    // 六元指令 - 操作数类型 RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, SlotIndex,
     // LogicSlotType, BatchMode
     DEFINE_SENARY_INSTRUCTION(
-        lbns, Lbns, LBNS, ic10::RegisterOrIdentifier, ic10::Operand, ic10::Operand, ic10::SlotIndex,
-        ic10::LogicSlotType, ic10::BatchMode
+        lbns, Lbns, LBNS, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber,
+        ic10::RegisterOrNumber, ic10::SlotIndex, ic10::LogicSlotType, ic10::BatchMode
     )
 
     namespace ic10 {
 
-        using SenaryInstructionMap_RI_O_O_SI_LS_BM = TypeMap<TokenType, TokenType::KEYWORD_LBNS>;
+        using SenaryInstructionMap_RI_RON_RON_SI_LS_BM = TypeMap<TokenType, TokenType::KEYWORD_LBNS>;
 
         using SenaryInstruction = ShallowErrorable<LbnsInstruction>;
 
+        /**
+         * @if zh
+         *
+         * @brief 六元指令映射表
+         * @details 将指令关键字Token类型映射到对应的六元指令类型。
+         *        包含LBNS六元指令,用于语法分析阶段根据关键字确定指令类型。
+         *
+         * @elseif en
+         *
+         * @brief Senary instruction map
+         * @details Maps instruction keyword Token types to corresponding senary instruction types.
+         *        Contains the LBNS senary instruction, used during parsing to determine
+         *        instruction type based on keywords.
+         *
+         * @endif
+         */
         using SenaryInstructionMap = TypeMap<TokenType, TokenType::KEYWORD_LBNS>;
 
         using ExecutableInstruction = Errorable<

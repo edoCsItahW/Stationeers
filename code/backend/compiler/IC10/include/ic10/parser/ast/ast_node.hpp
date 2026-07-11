@@ -8,8 +8,8 @@
 /**
  * @file ast_node.hpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/03 11:51
+ * @version 1.2
+ * @date 2026/07/12
  * @if zh
  * @brief IC10抽象语法树节点定义
  * @details 定义IC10程序AST的各类节点,包括基础类型(AST基类)、字面量(Integer、Float等)、
@@ -621,13 +621,14 @@ namespace stationeers::ic10 {
      *
      * @class Constant
      * @brief 常量节点
-     * @details 表示IC10中的关键字常量(如nan, pi等)
+     * @details 表示IC10中的关键字常量(如nan、pinf、ninf、pi、tau、deg2rad、rad2deg、epsilon、rgas等)
      *
      * @elseif en
      *
      * @class Constant
      * @brief Constant node
-     * @details Represents a keyword constant in IC10 (such as nan, pi, etc.)
+     * @details Represents a keyword constant in IC10 (such as nan, pinf, ninf, pi, tau, deg2rad,
+     *          rad2deg, epsilon, rgas, etc.)
      *
      * @endif
      */
@@ -638,7 +639,7 @@ namespace stationeers::ic10 {
                        TokenType::KEYWORD_NINF,        TokenType::KEYWORD_PI,
                        TokenType::KEYWORD_TAU,         TokenType::KEYWORD_DEG2RAD,
                        TokenType::KEYWORD_RAD2DEG,     TokenType::KEYWORD_EPSILON,
-                       TokenType::KEYWORD_GAS_CONSTANT};
+                       TokenType::KEYWORD_RGAS};
         std::string keyword;
         Constant() = default;
         using AST::AST;
@@ -664,11 +665,18 @@ namespace stationeers::ic10 {
     /**
      * @if zh
      * @brief 设备引用类型别名
+     * @details 表示对设备的引用,可为设备字面量(Device)或寄存器/标识符(RegisterOrIdentifier)。
+     *          设备引用用于指令中需要设备操作数的场景(如get/put/l/s等)。
+     * @note 不再接受Number类型,数值字面量不再视为合法的设备引用
      * @elseif en
      * @brief DeviceReference type alias
+     * @details Represents a reference to a device, which can be a device literal (Device)
+     *          or a register/identifier (RegisterOrIdentifier).
+     *          Device references are used in instructions that require a device operand (such as get/put/l/s, etc.).
+     * @note Number is no longer accepted; numeric literals are not valid device references
      * @endif
      */
-    using DeviceReference = Errorable<Device, RegisterOrIdentifier, Number>;
+    using DeviceReference = Errorable<Device, RegisterOrIdentifier>;
 
     // RegisterOrDevice
 
@@ -680,6 +688,10 @@ namespace stationeers::ic10 {
      * @endif
      */
     using RegisterOrDevice = Errorable<RegisterOrIdentifier, Device>;
+
+    // RegisterOrNumber - 移到 MacroCall 定义之后
+
+    // DeviceAliasRef - 移到 MacroCall 定义之后
 
     // HashCall（实现于ast.cpp）
 
@@ -752,6 +764,83 @@ namespace stationeers::ic10 {
      */
     using MacroCall = ShallowErrorable<HashCall, StrCall>;
 
+    // RegisterOrNumber (r?|num)
+
+    /**
+     * @if zh
+     * @brief 寄存器或数字类型别名 (语法: r?|num)
+     * @details 表示一个可以是寄存器或数字值的操作数,包含以下子类型:
+     *          RegisterOrIdentifier(寄存器或标识符)、Number(数值字面量)、
+     *          Constant(关键字常量)和MacroCall(宏调用)。
+     *          用于接受寄存器或数字字面量作为操作数的指令场景(如算术、逻辑、移位指令的源操作数)。
+     * @elseif en
+     * @brief Register or number type alias (syntax: r?|num)
+     * @details Represents an operand that can be a register or a numeric value, including the following
+     *          subtypes: RegisterOrIdentifier (register or identifier), Number (numeric literal),
+     *          Constant (keyword constant) and MacroCall (macro call).
+     *          Used in instruction scenarios that accept a register or numeric literal as an operand
+     *          (such as source operands of arithmetic, logical, and shift instructions).
+     * @endif
+     */
+    using RegisterOrNumber = Errorable<RegisterOrIdentifier, Number, Constant, MacroCall>;
+
+    // DeviceAliasRef (d?)
+
+    /**
+     * @if zh
+     * @brief 设备别名引用类型别名 (语法: d?)
+     * @details 表示对一个设备的引用,包含以下子类型: Device(设备字面量)和Identifier(标识符)。
+     *          标识符通常是通过 alias 预处理指令定义的设备别名。
+     *          用于需要引用具名设备的场景(如 clrd 指令的设备参数、设备别名解析等)。
+     * @elseif en
+     * @brief Device alias reference type alias (syntax: d?)
+     * @details Represents a reference to a device, including the following subtypes:
+     *          Device (device literal) and Identifier.
+     *          The identifier is typically a device alias defined via the alias preprocessor directive.
+     *          Used in scenarios that require referencing a named device
+     *          (such as the device parameter of the clrd instruction, device alias resolution, etc.).
+     * @endif
+     */
+    using DeviceAliasRef = Errorable<Device, Identifier>;
+
+    // NumberValue (num)
+
+    /**
+     * @if zh
+     * @brief 数字值类型别名 (语法: num)
+     * @details 表示任意的数字值,包含以下子类型: Number(数值字面量)、Constant(关键字常量)、
+     *          MacroCall(宏调用)和Identifier(标识符)。
+     *          标识符子类型用于支持通过 define 定义的常量名。
+     *          用于需要数值语义的位置(如 define 指令的操作数、跳转目标等)。
+     * @elseif en
+     * @brief Number value type alias (syntax: num)
+     * @details Represents an arbitrary numeric value, including the following subtypes:
+     *          Number (numeric literal), Constant (keyword constant), MacroCall (macro call)
+     *          and Identifier.
+     *          The identifier subtype supports constant names defined via define.
+     *          Used in positions that require numeric semantics (such as the operand of the define
+     *          directive, jump targets, etc.).
+     * @endif
+     */
+    using NumberValue = Errorable<Number, Constant, MacroCall, Identifier>;
+
+    // JumpTarget
+
+    /**
+     * @if zh
+     * @brief 跳转目标类型别名
+     * @details 表示跳转指令的目标地址,类型等同于 NumberValue。
+     *          用于 j、jal、jr 以及各类相对跳转(br*|brnez 等)指令的目标操作数,
+     *          目标通常以行号(整数)形式给出。
+     * @elseif en
+     * @brief Jump target type alias
+     * @details Represents the target address of a jump instruction, type-identical to NumberValue.
+     *          Used as the target operand of j, jal, jr and various relative jump instructions
+     *          (br*|brnez, etc.), where the target is typically given as a line number (integer).
+     * @endif
+     */
+    using JumpTarget = NumberValue;
+
     // Operand
 
     /**
@@ -801,13 +890,20 @@ namespace stationeers::ic10 {
      *
      * @class DefineDirective
      * @brief define预处理指令节点
-     * @details 表示IC10中的define预处理指令,用于定义常量
+     * @details 表示IC10中的define预处理指令,用于定义常量。
+     *          其操作数(operand)类型为NumberValue,接受数值字面量(Number)、关键字常量(Constant)、
+     *          宏调用(MacroCall)或标识符(Identifier,用于引用其他已定义的常量),
+     *          不再接受寄存器或设备等非数值类型。
      *
      * @elseif en
      *
      * @class DefineDirective
      * @brief Define directive node
-     * @details Represents a define preprocessor directive in IC10, used to define constants
+     * @details Represents a define preprocessor directive in IC10, used to define constants.
+     *          Its operand is of type NumberValue, accepting numeric literals (Number),
+     *          keyword constants (Constant), macro calls (MacroCall), or identifiers
+     *          (Identifier, to reference other defined constants),
+     *          but no longer accepting non-numeric types such as registers or devices.
      *
      * @endif
      */
@@ -815,10 +911,10 @@ namespace stationeers::ic10 {
         static constexpr auto nodeName = "DefineDirective"_fs;
         static constexpr auto keyword  = "define"_fs;
         ShallowErrorable<Identifier> identifier;
-        Operand operand;
+        NumberValue operand;
         DefineDirective() = default;
         using AST::AST;
-        DefineDirective(Pos pos, Identifier id, Operand op);
+        DefineDirective(Pos pos, Identifier id, NumberValue op);
         [[nodiscard]] Pos end() const override;
         [[nodiscard]] std::string toString() const override;
         [[nodiscard]] std::string toJSON() const override;

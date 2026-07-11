@@ -130,16 +130,6 @@ namespace stationeers::ic10 {
             pos_.next();
         }
 
-        // 处理特殊常量19as
-        if (inScope() && *current() == 'a' && peek().value_or(' ') == 's') {
-            value += "as";
-            pos_.move(2);
-
-            return {
-                TokenType::KEYWORD_GAS_CONSTANT, start, std::move(value), TokenCategory::LITERAL
-            };
-        }
-
         // 处理科学计数法
         if (inScope() && (*current() == 'e' || *current() == 'E')) {
             const auto currentPos   = pos_;
