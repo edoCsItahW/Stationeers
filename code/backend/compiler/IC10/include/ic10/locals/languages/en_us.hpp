@@ -62,6 +62,8 @@ namespace stationeers::ic10 {
 
     LOCAL_MSG_EN_US(IEL2_1, "Unclosed paired symbols '{}' - lexical analysis.")
 
+    LOCAL_MSG_EN_US(IEL3_2, "Token '{}' is immediately followed by '{}' without whitespace - lexical analysis.")
+
     LOCAL_MSG_EN_US(IMP1, "Unexpectedly encountered the end of the file - syntax analysis.")
 
     LOCAL_MSG_EN_US(
@@ -155,6 +157,8 @@ namespace stationeers::ic10 {
     LOCAL_MSG_EN_US(IMP25, "Missing define keyword - syntax analysis.")
 
     LOCAL_MSG_EN_US(IEP1_1, "Unexpected token '{}' - syntax analysis.")
+
+    LOCAL_MSG_EN_US(IEP2, "Missing newline between statements - syntax analysis.")
 
     LOCAL_MSG_EN_US(IEA1_2, "'{}' expected, but found '{}' - syntax analysis.")
 

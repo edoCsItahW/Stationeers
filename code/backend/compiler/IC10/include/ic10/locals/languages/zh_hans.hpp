@@ -57,6 +57,8 @@ namespace stationeers::ic10 {
 
     LOCAL_MSG_ZH_HANS(IEL2_1, "未闭合的成对符号'{}' - 词法分析器。")
 
+    LOCAL_MSG_ZH_HANS(IEL3_2, "令牌'{}'后紧随'{}'，缺少空白字符分隔 - 词法分析器。")
+
     LOCAL_MSG_ZH_HANS(IMP1, "意外的遇到文件结尾 - 语法分析器。")
 
     LOCAL_MSG_ZH_HANS(IMP2_1, "期望读取预处理指令令牌，结果读到'{}'令牌 - 语法分析器。")
@@ -100,6 +102,8 @@ namespace stationeers::ic10 {
     LOCAL_MSG_ZH_HANS(IMP25, "缺少 define 关键字 - 语法分析器。")
 
     LOCAL_MSG_ZH_HANS(IEP1_1, "意外的'{}'令牌 - 语法分析器。")
+
+    LOCAL_MSG_ZH_HANS(IEP2, "语句之间缺少换行符 - 语法分析器。")
 
     LOCAL_MSG_ZH_HANS(IEA1_2, "期望'{}'，结果找到'{}' - 语义分析器。")
 

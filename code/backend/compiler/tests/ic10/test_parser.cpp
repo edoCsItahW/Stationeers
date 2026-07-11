@@ -239,3 +239,43 @@ TEST_F(ParserTestFixture, ParserGetDiagnostics) {
     auto& diags = parser.getDiagnostics();
     EXPECT_GE(ast.statements.size(), 1u);
 }
+
+// ============================================================
+// 语句换行分隔测试（IEP2: 语句之间缺少换行符）
+// 参考IC10.g4: program : statement (NEWLINE+ statement)* NEWLINE* EOF;
+// ============================================================
+
+TEST_F(ParserTestFixture, StatementsWithoutNewlineProducesError) {
+    // 两个语句在同一行，缺少换行分隔
+    auto tokens = Lexer::tokenize("hcf yield\n");
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    EXPECT_FALSE(parser.getDiagnostics().empty());
+}
+
+TEST_F(ParserTestFixture, StatementsWithNewlineNoError) {
+    // 语句间有换行分隔，不应产生错误
+    auto tokens = Lexer::tokenize("hcf\nyield\n");
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    EXPECT_TRUE(parser.getDiagnostics().empty());
+    EXPECT_GE(ast.statements.size(), 2u);
+}
+
+TEST_F(ParserTestFixture, LastStatementWithoutNewlineNoError) {
+    // 最后一个语句不需要尾随换行
+    auto tokens = Lexer::tokenize("hcf\nyield");
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    EXPECT_TRUE(parser.getDiagnostics().empty());
+    EXPECT_GE(ast.statements.size(), 2u);
+}
+
+TEST_F(ParserTestFixture, StatementFollowedByCommentThenNewline) {
+    // 语句后跟行内注释，然后换行
+    auto tokens = Lexer::tokenize("hcf # comment\nyield\n");
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    EXPECT_TRUE(parser.getDiagnostics().empty());
+    EXPECT_GE(ast.statements.size(), 2u);
+}
