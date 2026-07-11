@@ -102,8 +102,8 @@ namespace stationeers::ic10 {
     Task<> Analyser::operator()(const AliasDirective& aliasDirective) {
         // 若 registerOrDevice 为 Identifier，需先解析（检查是否已定义）
         // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
-        if (std::holds_alternative<Identifier>(aliasDirective.identifier) &&
-            std::holds_alternative<Identifier>(aliasDirective.registerOrDevice)) {
+        if (std::holds_alternative<Identifier>(aliasDirective.identifier)
+            && std::holds_alternative<Identifier>(aliasDirective.registerOrDevice)) {
             const auto& refId = std::get<Identifier>(aliasDirective.registerOrDevice);
             (void)co_await resolveSymbol(refId.value, refId.position);
         }
@@ -129,7 +129,7 @@ namespace stationeers::ic10 {
                                      else if constexpr (std::is_same_v<V, ErrorNode>)
                                          return Type::UNKNOWN;
 
-                                    else
+                                     else
                                          return type_of<V>;
                                  },
                                  aliasDirective.registerOrDevice
@@ -152,8 +152,8 @@ namespace stationeers::ic10 {
     Task<> Analyser::operator()(const DefineDirective& defineDirective) {
         // 若 operand 为 Identifier，需先解析（检查是否已定义）
         // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
-        if (std::holds_alternative<Identifier>(defineDirective.identifier) &&
-            std::holds_alternative<Identifier>(defineDirective.operand)) {
+        if (std::holds_alternative<Identifier>(defineDirective.identifier)
+            && std::holds_alternative<Identifier>(defineDirective.operand)) {
             const auto& opId = std::get<Identifier>(defineDirective.operand);
             (void)co_await resolveSymbol(opId.value, opId.position);
         }
@@ -171,7 +171,8 @@ namespace stationeers::ic10 {
                                       if constexpr (std::is_same_v<V, ErrorNode>)
                                           return Type::UNKNOWN;
 
-                                      return type_of<V>;
+                                      else
+                                          return type_of<V>;
                                   },
                                   defineDirective.operand
                               ),

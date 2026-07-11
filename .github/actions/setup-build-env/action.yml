@@ -1,5 +1,5 @@
 name: 'Setup Build Environment'
-description: 'Setup C++, Node.js, pnpm, and compilation cache (ccache/sccache)'
+description: 'Setup C++, Node.js, Python, pnpm, and compilation cache (ccache/sccache)'
 inputs:
     os:
         description: 'Operating system (ubuntu-latest, windows-latest)'
@@ -10,6 +10,10 @@ inputs:
         default: '4.2.1'
     node-version:
         description: 'Node.js version (empty to skip)'
+        required: false
+        default: ''
+    python-version:
+        description: 'Python version (empty to skip)'
         required: false
         default: ''
     pnpm-version:
@@ -69,6 +73,12 @@ runs:
             uses: actions/setup-node@v6.4.0
             with:
                 node-version: ${{ inputs.node-version }}
+
+        -   name: Setup Python
+            if: inputs.python-version != ''
+            uses: actions/setup-python@v5
+            with:
+                python-version: ${{ inputs.python-version }}
 
         -   name: Setup pnpm
             if: inputs.node-version != '' && inputs.pnpm-version != ''
@@ -165,4 +175,8 @@ runs:
                 if [[ "${{ inputs.node-version }}" != "" ]]; then
                   node --version
                   pnpm --version
+                fi
+                if [[ "${{ inputs.python-version }}" != "" ]]; then
+                  python --version
+                  pip --version
                 fi
