@@ -114,7 +114,7 @@ namespace stationeers::ic10 {
 
             defineSymbol(
                 identifier, {std::visit(
-                                 [&]<typename U>(U&& arg) -> Type {
+                                 [&]<typename U>(U&&) -> Type {
                                      using V = std::decay_t<U>;
 
                                      // 不允许为别名定义别名
@@ -129,7 +129,8 @@ namespace stationeers::ic10 {
                                      else if constexpr (std::is_same_v<V, ErrorNode>)
                                          return Type::UNKNOWN;
 
-                                     return type_of<V>;
+                                    else
+                                         return type_of<V>;
                                  },
                                  aliasDirective.registerOrDevice
                              ),

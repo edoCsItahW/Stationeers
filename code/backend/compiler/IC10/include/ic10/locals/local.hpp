@@ -44,6 +44,7 @@ namespace stationeers::ic10 {
         // Error
         IEL1_1,  // Unknown operation symbol'{}' - lexical analysis.
         IEL2_1,  // Unclosed paired symbols '{}' - lexical analysis.
+        IEL3_2,  // Token '{}' is immediately followed by '{}' without whitespace - lexical analysis.
 
         /* Parser */
 
@@ -96,6 +97,7 @@ namespace stationeers::ic10 {
         // Error
 
         IEP1_1,  // Unexpected token '{}' - syntax analysis.
+        IEP2,    // Missing newline between statements - syntax analysis.
 
         /* Analysis */
 

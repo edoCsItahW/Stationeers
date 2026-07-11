@@ -351,7 +351,7 @@ namespace stationeers {
          *
          * @endif
          */
-        static constexpr std::size_t findIndex(E id);
+        static constexpr long long findIndex(E id);
 
         /**
          * @if zh
