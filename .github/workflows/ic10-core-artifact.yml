@@ -29,6 +29,11 @@ on:
                 type: boolean
                 required: false
                 default: true
+            build-compiler:
+                description: 'Whether to build the IC10_Compiler executable'
+                type: boolean
+                required: false
+                default: false
             artifact-name:
                 description: 'Artifact name prefix'
                 type: string
@@ -87,6 +92,9 @@ jobs:
                     if [[ "${{ inputs.run-tests }}" == "true" ]]; then
                       BUILD_TARGETS="$BUILD_TARGETS ic10_tests"
                     fi
+                    if [[ "${{ inputs.build-compiler }}" == "true" ]]; then
+                      BUILD_TARGETS="$BUILD_TARGETS IC10_Compiler"
+                    fi
                     cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target $BUILD_TARGETS
 
             -   name: (Linux) Show ccache/sccache stats | 显示缓存统计
@@ -120,6 +128,9 @@ jobs:
                     mkdir -p artifacts/lib/IC10/${{ inputs.build-type }}
                     mkdir -p artifacts/include/common
                     mkdir -p artifacts/include/IC10
+                    if [[ "${{ inputs.build-compiler }}" == "true" ]]; then
+                      mkdir -p artifacts/bin
+                    fi
 
             -   name: Copy libraries | 复制库文件
                 shell: bash
@@ -136,6 +147,22 @@ jobs:
                       cp -f build/IC10/${{ inputs.build-type }}/libic10_lib.a artifacts/lib/IC10/${{ inputs.build-type }}/ 2>/dev/null || \
                       echo "libic10_lib.a not found"
                     fi
+
+            -   name: Copy compiler executable | 复制编译器可执行文件
+                if: inputs.build-compiler
+                shell: bash
+                run: |
+                    if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
+                      # Windows: 查找 .exe 文件
+                      cp -f build/bin/IC10_Compiler.exe artifacts/bin/ 2>/dev/null || \
+                      cp -f build/bin/${{ inputs.build-type }}/IC10_Compiler.exe artifacts/bin/ 2>/dev/null || \
+                      echo "IC10_Compiler.exe not found"
+                    else
+                      # Linux: 可执行文件无扩展名
+                      cp -f build/bin/IC10_Compiler artifacts/bin/ 2>/dev/null || \
+                      echo "IC10_Compiler not found"
+                    fi
+                    ls -la artifacts/bin/ || true
 
             -   name: Copy headers | 复制头文件
                 shell: bash
