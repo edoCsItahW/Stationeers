@@ -19,6 +19,7 @@ jobs:
         outputs:
             ic10-core: ${{ steps.filter.outputs.ic10-core }}
             ic10-node: ${{ steps.filter.outputs.ic10-node }}
+            ic10-python: ${{ steps.filter.outputs.ic10-python }}
             stationscript: ${{ steps.filter.outputs.stationscript }}
             shared: ${{ steps.filter.outputs.shared }}
             workflow: ${{ steps.filter.outputs.workflow }}
@@ -46,7 +47,8 @@ jobs:
                           - 'code/backend/compiler/tests/ic10/CMakeLists.txt'
                           - 'code/backend/compiler/tests/grammarTest.ic'
                         ic10-node:
-                          - 'code/backend/compiler/exports/**'
+                          - 'code/backend/compiler/exports/IC10/node/**'
+                          - 'code/backend/compiler/exports/common/node/**'
                           - 'code/backend/compiler/tests/ic10/node/**'
                           - 'code/backend/compiler/tests/node/**'
                           - 'code/backend/compiler/package.json'
@@ -54,6 +56,10 @@ jobs:
                           - 'code/backend/compiler/pnpm-workspace.yaml'
                           - 'code/backend/compiler/jest.config.js'
                           - 'code/backend/compiler/tsconfig.json'
+                        ic10-python:
+                          - 'code/backend/compiler/exports/IC10/python/**'
+                          - 'code/backend/compiler/exports/common/python/**'
+                          - 'code/backend/compiler/tests/python/**'
                         stationscript:
                           - 'code/backend/compiler/StationScript/**'
                           - 'code/backend/compiler/tests/station_script/**'
@@ -86,6 +92,7 @@ jobs:
                     echo "### Changed Modules" >> $GITHUB_STEP_SUMMARY
                     echo "- IC10 Core: ${{ steps.filter.outputs.ic10-core }}" >> $GITHUB_STEP_SUMMARY
                     echo "- IC10 Node Bindings: ${{ steps.filter.outputs.ic10-node }}" >> $GITHUB_STEP_SUMMARY
+                    echo "- IC10 Python Bindings: ${{ steps.filter.outputs.ic10-python }}" >> $GITHUB_STEP_SUMMARY
                     echo "- StationScript: ${{ steps.filter.outputs.stationscript }}" >> $GITHUB_STEP_SUMMARY
                     echo "- Shared (common/cmake): ${{ steps.filter.outputs.shared }}" >> $GITHUB_STEP_SUMMARY
                     echo "- Workflow/Actions: ${{ steps.filter.outputs.workflow }}" >> $GITHUB_STEP_SUMMARY
@@ -131,7 +138,27 @@ jobs:
             os: windows-latest
             run-tests: true
             upload-artifact: false
- 
+
+    ic10-python-linux:
+        name: (linux) ic10-python | IC10 Python 绑定
+        needs: detect-changes
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
+        uses: ./.github/workflows/ic10-python.yml
+        with:
+            os: ubuntu-latest
+            run-tests: true
+            upload-artifact: false
+
+    ic10-python-windows:
+        name: (windows) ic10-python | IC10 Python 绑定
+        needs: detect-changes
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
+        uses: ./.github/workflows/ic10-python.yml
+        with:
+            os: windows-latest
+            run-tests: true
+            upload-artifact: false
+
     static-analysis:
         name: static analysis | 静态分析
         needs: detect-changes
