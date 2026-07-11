@@ -99,65 +99,69 @@ jobs:
                     echo "" >> $GITHUB_STEP_SUMMARY
                     echo "**Full build**: ${{ steps.flags.outputs.is-full-build }}" >> $GITHUB_STEP_SUMMARY
  
-    ic10-core-linux:
-        name: (linux) ic10-core | IC10 核心
+    ic10-core-artifact-linux:
+        name: (linux) ic10-core-artifact | IC10 核心构件
         needs: detect-changes
-        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
-        uses: ./.github/workflows/ic10-core.yml
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.shared == 'true'
+        uses: ./.github/workflows/ic10-core-artifact.yml
         with:
             os: ubuntu-latest
             run-tests: true
-            upload-artifact: false
- 
-    ic10-core-windows:
-        name: (windows) ic10-core | IC10 核心
+            upload-artifact: true
+
+    ic10-core-artifact-windows:
+        name: (windows) ic10-core-artifact | IC10 核心构件
         needs: detect-changes
-        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
-        uses: ./.github/workflows/ic10-core.yml
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.shared == 'true'
+        uses: ./.github/workflows/ic10-core-artifact.yml
         with:
             os: windows-latest
             run-tests: true
-            upload-artifact: false
+            upload-artifact: true
  
     ic10-node-linux:
         name: (linux) ic10-node | IC10 Node 绑定 
-        needs: detect-changes
+        needs: [detect-changes, ic10-core-artifact-linux]
         if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
         uses: ./.github/workflows/ic10-node.yml
         with:
             os: ubuntu-latest
             run-tests: true
             upload-artifact: false
+            core-artifact-name: ${{ needs.ic10-core-artifact-linux.outputs.artifact-name }}
  
     ic10-node-windows:
         name: (windows) ic10-node | IC10 Node 绑定 
-        needs: detect-changes
+        needs: [detect-changes, ic10-core-artifact-windows]
         if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
         uses: ./.github/workflows/ic10-node.yml
         with:
             os: windows-latest
             run-tests: true
             upload-artifact: false
+            core-artifact-name: ${{ needs.ic10-core-artifact-windows.outputs.artifact-name }}
 
     ic10-python-linux:
         name: (linux) ic10-python | IC10 Python 绑定
-        needs: detect-changes
+        needs: [detect-changes, ic10-core-artifact-linux]
         if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
         uses: ./.github/workflows/ic10-python.yml
         with:
             os: ubuntu-latest
             run-tests: true
             upload-artifact: false
+            core-artifact-name: ${{ needs.ic10-core-artifact-linux.outputs.artifact-name }}
 
     ic10-python-windows:
         name: (windows) ic10-python | IC10 Python 绑定
-        needs: detect-changes
+        needs: [detect-changes, ic10-core-artifact-windows]
         if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
         uses: ./.github/workflows/ic10-python.yml
         with:
             os: windows-latest
             run-tests: true
             upload-artifact: false
+            core-artifact-name: ${{ needs.ic10-core-artifact-windows.outputs.artifact-name }}
 
     static-analysis:
         name: static analysis | 静态分析
@@ -173,3 +177,62 @@ jobs:
             analyze-stationscript: ${{ needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.stationscript == 'true' }}
             analyze-common: true
             upload-reports: true
+
+    final-verification:
+        name: final verification | 最终验证
+        needs:
+            - detect-changes
+            - ic10-core-artifact-linux
+            - ic10-core-artifact-windows
+            - ic10-node-linux
+            - ic10-node-windows
+            - ic10-python-linux
+            - ic10-python-windows
+            - static-analysis
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Verify all required jobs | 验证所有必需的作业
+                shell: bash
+                run: |
+                    echo "=== Job Results ==="
+                    echo "detect-changes:        ${{ needs.detect-changes.result }}"
+                    echo "ic10-core-artifact-linux:   ${{ needs.ic10-core-artifact-linux.result }}"
+                    echo "ic10-core-artifact-windows: ${{ needs.ic10-core-artifact-windows.result }}"
+                    echo "ic10-node-linux:           ${{ needs.ic10-node-linux.result }}"
+                    echo "ic10-node-windows:         ${{ needs.ic10-node-windows.result }}"
+                    echo "ic10-python-linux:         ${{ needs.ic10-python-linux.result }}"
+                    echo "ic10-python-windows:       ${{ needs.ic10-python-windows.result }}"
+                    echo "static-analysis:           ${{ needs.static-analysis.result }}"
+                    echo ""
+
+                    HAS_FAILURE=false
+
+                    check_job() {
+                        local name="$1"
+                        local result="$2"
+                        if [[ "$result" == "failure" || "$result" == "timed_out" || "$result" == "cancelled" ]]; then
+                            echo "::error::Job \"$name\" failed with status: $result"
+                            HAS_FAILURE=true
+                        else
+                            echo "✅ Job \"$name\" -> $result"
+                        fi
+                    }
+
+                    check_job "detect-changes"             "${{ needs.detect-changes.result }}"
+                    check_job "ic10-core-artifact-linux"   "${{ needs.ic10-core-artifact-linux.result }}"
+                    check_job "ic10-core-artifact-windows" "${{ needs.ic10-core-artifact-windows.result }}"
+                    check_job "ic10-node-linux"            "${{ needs.ic10-node-linux.result }}"
+                    check_job "ic10-node-windows"          "${{ needs.ic10-node-windows.result }}"
+                    check_job "ic10-python-linux"          "${{ needs.ic10-python-linux.result }}"
+                    check_job "ic10-python-windows"        "${{ needs.ic10-python-windows.result }}"
+                    check_job "static-analysis"            "${{ needs.static-analysis.result }}"
+
+                    if [[ "$HAS_FAILURE" == "true" ]]; then
+                        echo ""
+                        echo "::error::One or more required jobs failed"
+                        exit 1
+                    fi
+
+                    echo ""
+                    echo "✅ All required jobs passed or were skipped."
