@@ -48,27 +48,34 @@ if(ENABLE_CCACHE)
     endif()
 endif()
 
-# 全局包含路径（供子项目使用公共头文件）
-set(COMMON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/common/include)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_artifact.cmake)
 
-# 开启测试
-if(BUILD_TESTS)
-    enable_testing()
+if(NOT IC10_CORE_ARTIFACT_DIR OR NOT EXISTS "${IC10_CORE_ARTIFACT_DIR}")
+    set(COMMON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/common/include)
 
-    include(FetchContent)
-    FetchContent_Declare(
-            googletest
-            GIT_REPOSITORY https://github.com/google/googletest.git
-            GIT_TAG        v1.17.0
-    )
-    FetchContent_MakeAvailable(googletest)
-endif()
+    # 开启测试
+    if(BUILD_TESTS)
+        enable_testing()
 
-# 子目录
-add_subdirectory(common)
+        include(FetchContent)
+        FetchContent_Declare(
+                googletest
+                GIT_REPOSITORY https://github.com/google/googletest.git
+                GIT_TAG        v1.17.0
+        )
+        FetchContent_MakeAvailable(googletest)
+    endif()
 
-if(BUILD_IC10)
-    add_subdirectory(IC10)
+    # 子目录
+    add_subdirectory(common)
+
+    if(BUILD_IC10)
+        add_subdirectory(IC10)
+    endif()
+else()
+    if(BUILD_TESTS)
+        message(WARNING "BUILD_TESTS is ON but using prebuilt core artifact - tests may not work correctly")
+    endif()
 endif()
 
 if(BUILD_STATIONSCRIPT)

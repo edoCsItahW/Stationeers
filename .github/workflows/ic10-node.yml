@@ -39,6 +39,11 @@ on:
                 type: string
                 required: false
                 default: 'ic10-node'
+            core-artifact-name:
+                description: 'Name of the IC10 core artifact to reuse (empty to build from source)'
+                type: string
+                required: false
+                default: ''
         outputs:
             artifact-name:
                 description: 'Name of the uploaded artifact'
@@ -76,6 +81,13 @@ jobs:
                     pnpm add -D node-gyp --ignore-workspace
                     npx node-gyp install
 
+            -   name: Download core artifact | 下载核心构件
+                if: inputs.core-artifact-name != ''
+                uses: actions/download-artifact@v6
+                with:
+                    name: ${{ inputs.core-artifact-name }}
+                    path: core-artifact
+
             -   name: Configure CMake | 配置 CMake
                 shell: bash
                 run: |
@@ -91,6 +103,11 @@ jobs:
                     CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CCACHE=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DNODE_ADDON_API_DIR=$GITHUB_WORKSPACE/code/backend/compiler/node_modules/node-addon-api"
+
+                    if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
+                      CMAKE_ARGS="$CMAKE_ARGS -DIC10_CORE_ARTIFACT_DIR=$GITHUB_WORKSPACE/core-artifact"
+                      echo "Using prebuilt core artifact from: $GITHUB_WORKSPACE/core-artifact"
+                    fi
  
                     if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
                       CMAKE_ARGS="$CMAKE_ARGS -G Ninja"
@@ -103,17 +120,28 @@ jobs:
             -   name: Build | 编译
                 shell: bash
                 run: |
-                    cmake --build build --config ${{ inputs.build-type }} --parallel 4
+                    if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
+                      cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target IC10_Node_API common_node
+                    else
+                      cmake --build build --config ${{ inputs.build-type }} --parallel 4
+                    fi
 
-            -   name: Show ccache stats | 显示缓存统计
+            -   name: (Linux) Show ccache/sccache stats | 显示缓存统计
                 if: inputs.os == 'ubuntu-latest'
                 shell: bash
                 run: ccache --show-stats
 
-            -   name: Show sccache stats | 显示缓存统计
+            -   name: (Windows) Show sccache stats | 显示缓存统计
                 if: inputs.os == 'windows-latest'
                 shell: pwsh
-                run: sccache --show-stats
+                run: |
+                    if (Get-Command sccache -ErrorAction SilentlyContinue) {
+                        sccache --show-stats
+                    } elseif (Get-Command ccache -ErrorAction SilentlyContinue) {
+                        ccache --show-stats
+                    } else {
+                        Write-Host "No cache tool available"
+                    }
 
             -   name: Run C++ tests (CTest) | 运行 C++ 测试
                 if: inputs.run-tests

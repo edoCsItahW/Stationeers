@@ -6,21 +6,22 @@ $PROJECT = $CONFIG.IC10Node
 Push-Location (Join-Path $PSScriptRoot "..")
 
 try {
-    # 1. CMake 配置（仅首次）
-    if (-not (Test-Path "build")) {
-        Write-Header "配置CMake"
-        cmake -B build -S .
+    $coreArtifactDir = ""
+    if (Test-CoreArtifactCache -Config $PROJECT.BuildConfig) {
+        $coreArtifactDir = Get-CoreArtifactCacheDir
+        Write-Info "使用缓存的核心构件: $coreArtifactDir"
+    } else {
+        Write-Info "核心构件缓存不存在，将从源码编译"
     }
 
-    # 2. 构建
+    Invoke-CMakeConfigure -BuildDir "build" -SourceDir "." -CoreArtifactDir $coreArtifactDir
+
     Invoke-CMakeBuild -BuildDir "build" -Target $PROJECT.CMakeTarget -Config $PROJECT.BuildConfig
 
-    # 3. 复制工件
     Write-Header "复制工件"
 
     Copy-Artifact -Source $PROJECT.ArtifactSource -Destination "$($PROJECT.PackageRoot)/src" -Force
 
-    # 4. 测试
     Write-Header "测试"
 
     pnpm run test
