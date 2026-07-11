@@ -16,6 +16,8 @@ define typeCarbon 3
 define typeNitrous 4
 define typeHydrogen 5
 define typePollutant 6
+define stateOff 0
+define stateOn 1
 
 loop:
     jal updateDisplay       # display gas pressure
@@ -90,9 +92,9 @@ ciGotRatio:
     blt r0 1 ciOff          # nothing left in the pipe? disable filter.
     j ciDone
 ciOff:
-    s filter On 0
+    s filter On stateOff
     j ciDone
 ciOn:
-    s filter On 1
+    s filter On stateOn
 ciDone:
     j ra
