@@ -798,3 +798,51 @@ TEST(LexerTest, EndTokenPosition) {
     // END token应该在输入末尾
     EXPECT_EQ(endTok->pos.offset(), 3u);
 }
+
+// ============================================================
+// 令牌边界检查测试（IEL3_2: 令牌间缺少空白分隔）
+// 参考IC10.g4: 词法规则间默认需要至少一个空格（词和注释间除外）
+// ============================================================
+
+TEST(LexerTest, IntegerFollowedByIdentifierNoSpace) {
+    initLocale();
+    Lexer lexer("100abc");
+    (void)lexer.scan();
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, IntegerFollowedByIdentifierWithSpace) {
+    initLocale();
+    Lexer lexer("100 abc");
+    (void)lexer.scan();
+    EXPECT_TRUE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, HexNumberFollowedByNonHexChar) {
+    initLocale();
+    Lexer lexer("$ffg");
+    (void)lexer.scan();
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, BinaryNumberFollowedByIdentifier) {
+    initLocale();
+    Lexer lexer("%101abc");
+    (void)lexer.scan();
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, StringFollowedByIdentifierNoSpace) {
+    initLocale();
+    Lexer lexer("\"hello\"world");
+    (void)lexer.scan();
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, NumberFollowedBySymbolNoError) {
+    initLocale();
+    // 符号（如冒号、括号）不需要空格分隔
+    Lexer lexer("main:");
+    (void)lexer.scan();
+    EXPECT_TRUE(lexer.getDiagnostics().empty());
+}

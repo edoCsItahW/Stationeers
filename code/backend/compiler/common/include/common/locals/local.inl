@@ -40,7 +40,7 @@ namespace stationeers {
     // Language
 
     template<typename T, IsMsgPack P>
-    constexpr std::size_t Language<T, P>::findIndex(E id) {
+    constexpr long long Language<T, P>::findIndex(E id) {
         std::size_t l = 0, r = msg_id_len<E> - 1;
 
         while (l <= r) {

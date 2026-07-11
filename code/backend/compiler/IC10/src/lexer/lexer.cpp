@@ -174,6 +174,13 @@ namespace stationeers::ic10 {
         }
 
         // finally:
+        // 令牌边界检查：数字后若紧跟字母/数字/下划线，说明缺少空白分隔
+        if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
+            reporter_.errorWith<MsgId::IEL3_2>(
+                pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
+            );
+        }
+
         return {
             value.contains('.') ? TokenType::FLOAT : TokenType::INTEGER, start, value,
             TokenCategory::LITERAL
@@ -191,6 +198,13 @@ namespace stationeers::ic10 {
             pos_.next();
         }
 
+        // 令牌边界检查
+        if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
+            reporter_.errorWith<MsgId::IEL3_2>(
+                pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
+            );
+        }
+
         return {TokenType::HEX_NUMBER, start, value, TokenCategory::LITERAL};
     }
 
@@ -203,6 +217,13 @@ namespace stationeers::ic10 {
         while (inScope() && isAsciiBinDigit(*current())) {
             value += *current();
             pos_.next();
+        }
+
+        // 令牌边界检查
+        if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
+            reporter_.errorWith<MsgId::IEL3_2>(
+                pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
+            );
         }
 
         return {TokenType::BINARY_NUMBER, start, value, TokenCategory::LITERAL};
@@ -242,6 +263,13 @@ namespace stationeers::ic10 {
 
         value += *current();
         pos_.next();
+
+        // 令牌边界检查：字符串后若紧跟字母/数字/下划线，说明缺少空白分隔
+        if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
+            reporter_.errorWith<MsgId::IEL3_2>(
+                pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
+            );
+        }
 
         return {TokenType::STRING, start, std::move(value), TokenCategory::LITERAL};
     }

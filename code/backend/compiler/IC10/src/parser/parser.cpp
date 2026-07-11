@@ -37,13 +37,23 @@ namespace stationeers::ic10 {
 
             program.statements.push_back(parseStatement());
 
+            // 跳过行内注释（注释与语句在同一行，不需要换行分隔）
+            while (inScope() && current()->category == TokenCategory::COMMENT) {
+                consume();
+            }
+
             // 除最后一个语句可以直接以END结尾
             if (current()->type == TokenType::END) break;
 
-            // 其它语句需要以换行结尾
-            if (current()->type == TokenType::NEWLINE) expect(TokenType::NEWLINE, false);
+            // 语句之间必须以换行分隔
+            // 参考IC10.g4: program : statement (NEWLINE+ statement)* NEWLINE* EOF;
+            if (current()->type == TokenType::NEWLINE) {
+                expect(TokenType::NEWLINE, false);
+            } else {
+                reporter_.error<MsgId::IEP2>(current()->pos, endPos(*current()));
+            }
 
-            // 其余换行跳过
+            // 其余换行和注释跳过
             skip();
         }
 
@@ -86,7 +96,7 @@ namespace stationeers::ic10 {
         try {
             expect(TokenType::COLON);
 
-        } catch (const Error& e) {
+        } catch (const Error&) {
             reporter_.error<MsgId::IMP23>(current()->pos, endPos(*current()));
 
             auto errToken = *current();
@@ -125,7 +135,7 @@ namespace stationeers::ic10 {
         try {
             expect(TokenType::KEYWORD_ALIAS);
 
-        } catch (const Error& e) {
+        } catch (const Error&) {
             reporter_.error<MsgId::IMP24>(current()->pos, endPos(*current()));
 
             return ErrorNode{*current(), Loc::msgStr<MsgId::IMP24>()};
@@ -452,7 +462,7 @@ namespace stationeers::ic10 {
         try {
             expect(TokenType::KEYWORD_DEFINE);
 
-        } catch (const Error& e) {
+        } catch (const Error&) {
             reporter_.error<MsgId::IMP25>(current()->pos, endPos(*current()));
 
             return ErrorNode{*current(), Loc::msgStr<MsgId::IMP25>()};
@@ -914,7 +924,7 @@ namespace stationeers::ic10 {
         } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
     }
 
-    ShallowErrorable<Integer> Parser::parseInteger(int layer) {
+    ShallowErrorable<Integer> Parser::parseInteger(int) {
         Integer integer{current()->pos};
 
         try {
@@ -927,7 +937,7 @@ namespace stationeers::ic10 {
         return integer;
     }
 
-    ShallowErrorable<Float> Parser::parseFloat(int layer) {
+    ShallowErrorable<Float> Parser::parseFloat(int) {
         Float floatNum{current()->pos};
 
         try {
@@ -940,7 +950,7 @@ namespace stationeers::ic10 {
         return floatNum;
     }
 
-    ShallowErrorable<HexNumber> Parser::parseHexNumber(int layer) {
+    ShallowErrorable<HexNumber> Parser::parseHexNumber(int) {
         HexNumber hexNum{current()->pos};
 
         try {
@@ -953,7 +963,7 @@ namespace stationeers::ic10 {
         return hexNum;
     }
 
-    ShallowErrorable<BinaryNumber> Parser::parseBinaryNumber(int layer) {
+    ShallowErrorable<BinaryNumber> Parser::parseBinaryNumber(int) {
         BinaryNumber binNum{current()->pos};
 
         try {
