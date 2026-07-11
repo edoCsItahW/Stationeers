@@ -3,6 +3,8 @@ add_executable(ic10_tests
         test_lexer.cpp
         test_parser.cpp
         test_incremental.cpp
+        test_integration.cpp
+        test_system.cpp
 )
 
 # 链接必要的库
@@ -25,6 +27,6 @@ add_test(NAME ic10_tests COMMAND ic10_tests)
 
 # 为 IC10 测试单独设置超时、工作目录等
 set_tests_properties(ic10_tests PROPERTIES
-        TIMEOUT 30
+        TIMEOUT 120
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
