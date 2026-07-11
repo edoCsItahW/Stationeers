@@ -18,8 +18,9 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief IC10 unary instruction AST definitions
- * @details Defines unary instructions (instructions with one operand) in IC10, such as SNANZ, PEEK, RAND, etc.
- *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
+ * @details Defines unary instructions (instructions with one operand) in IC10, such as SNANZ, PEEK,
+ * RAND, etc. Uses template metaprogramming to automatically generate instruction types and TypeMap
+ * mappings.
  * @note Implementation in ast_unary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -164,7 +165,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Define unary instruction
-     * @details Defines a unary instruction type using UnaryInstructionBase and registers it in TypeMap
+     * @details Defines a unary instruction type using UnaryInstructionBase and registers it in
+     * TypeMap
      * @param upperCase Instruction uppercase underscore name
      * @param pascalCase Instruction PascalCase name
      * @param lowerCase Instruction lowercase name
@@ -195,7 +197,18 @@ namespace stationeers {
 
     DEFINE_UNARY_INSTRUCTION(sltz, Sltz, SLTZ, ic10::RegisterOrIdentifier)
 
+    // GCC Error pasting "KEYWORD_" and "(" does not give a valid preprocessing token
+    #ifndef _MSC_VER
+        #pragma push_macro("SNAN")
+        #undef SNAN
+    #endif
+
     DEFINE_UNARY_INSTRUCTION(snan, Snan, SNAN, ic10::RegisterOrIdentifier)
+
+    #ifndef _MSC_VER
+        #pragma pop_macro("SNAN")
+    #endif
+
 
     DEFINE_UNARY_INSTRUCTION(pop, Pop, POP, ic10::RegisterOrIdentifier)
 
