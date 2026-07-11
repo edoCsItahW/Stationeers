@@ -102,7 +102,7 @@ jobs:
     ic10-core-artifact-linux:
         name: (linux) ic10-core-artifact | IC10 核心构件
         needs: detect-changes
-        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.shared == 'true'
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.shared == 'true'
         uses: ./.github/workflows/ic10-core-artifact.yml
         with:
             os: ubuntu-latest
@@ -112,7 +112,7 @@ jobs:
     ic10-core-artifact-windows:
         name: (windows) ic10-core-artifact | IC10 核心构件
         needs: detect-changes
-        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.shared == 'true'
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.shared == 'true'
         uses: ./.github/workflows/ic10-core-artifact.yml
         with:
             os: windows-latest
@@ -206,33 +206,75 @@ jobs:
                     echo "static-analysis:           ${{ needs.static-analysis.result }}"
                     echo ""
 
+                    echo "=== Change Detection ==="
+                    echo "is-full-build: ${{ needs.detect-changes.outputs.is-full-build }}"
+                    echo "ic10-core:      ${{ needs.detect-changes.outputs.ic10-core }}"
+                    echo "ic10-node:      ${{ needs.detect-changes.outputs.ic10-node }}"
+                    echo "ic10-python:    ${{ needs.detect-changes.outputs.ic10-python }}"
+                    echo "stationscript:  ${{ needs.detect-changes.outputs.stationscript }}"
+                    echo "shared:         ${{ needs.detect-changes.outputs.shared }}"
+                    echo "workflow:       ${{ needs.detect-changes.outputs.workflow }}"
+                    echo ""
+
+                    IS_FULL="${{ needs.detect-changes.outputs.is-full-build }}"
+                    CORE_CHANGED="${{ needs.detect-changes.outputs.ic10-core }}"
+                    NODE_CHANGED="${{ needs.detect-changes.outputs.ic10-node }}"
+                    PYTHON_CHANGED="${{ needs.detect-changes.outputs.ic10-python }}"
+                    SHARED_CHANGED="${{ needs.detect-changes.outputs.shared }}"
+                    STATIONSCRIPT_CHANGED="${{ needs.detect-changes.outputs.stationscript }}"
+
                     HAS_FAILURE=false
 
+                    # 检查作业：如果应该运行却被跳过，则视为失败
                     check_job() {
                         local name="$1"
                         local result="$2"
+                        local should_run="$3"
+
                         if [[ "$result" == "failure" || "$result" == "timed_out" || "$result" == "cancelled" ]]; then
                             echo "::error::Job \"$name\" failed with status: $result"
                             HAS_FAILURE=true
+                        elif [[ "$should_run" == "true" && "$result" == "skipped" ]]; then
+                            echo "::error::Job \"$name\" was expected to run but was skipped"
+                            HAS_FAILURE=true
+                        elif [[ "$result" == "skipped" ]]; then
+                            echo "⏭️  Job \"$name\" -> skipped (not required)"
                         else
                             echo "✅ Job \"$name\" -> $result"
                         fi
                     }
 
-                    check_job "detect-changes"             "${{ needs.detect-changes.result }}"
-                    check_job "ic10-core-artifact-linux"   "${{ needs.ic10-core-artifact-linux.result }}"
-                    check_job "ic10-core-artifact-windows" "${{ needs.ic10-core-artifact-windows.result }}"
-                    check_job "ic10-node-linux"            "${{ needs.ic10-node-linux.result }}"
-                    check_job "ic10-node-windows"          "${{ needs.ic10-node-windows.result }}"
-                    check_job "ic10-python-linux"          "${{ needs.ic10-python-linux.result }}"
-                    check_job "ic10-python-windows"        "${{ needs.ic10-python-windows.result }}"
-                    check_job "static-analysis"            "${{ needs.static-analysis.result }}"
+                    # detect-changes 总是应该运行
+                    check_job "detect-changes" "${{ needs.detect-changes.result }}" "true"
+
+                    # 核心库：全量构建 / core变更 / node变更 / python变更 / shared变更 时应运行
+                    CORE_SHOULD_RUN="false"
+                    [[ "$IS_FULL" == "true" || "$CORE_CHANGED" == "true" || "$NODE_CHANGED" == "true" || "$PYTHON_CHANGED" == "true" || "$SHARED_CHANGED" == "true" ]] && CORE_SHOULD_RUN="true"
+                    check_job "ic10-core-artifact-linux"   "${{ needs.ic10-core-artifact-linux.result }}" "$CORE_SHOULD_RUN"
+                    check_job "ic10-core-artifact-windows" "${{ needs.ic10-core-artifact-windows.result }}" "$CORE_SHOULD_RUN"
+
+                    # Node绑定：全量构建 / node变更 / core变更 时应运行
+                    NODE_SHOULD_RUN="false"
+                    [[ "$IS_FULL" == "true" || "$NODE_CHANGED" == "true" || "$CORE_CHANGED" == "true" ]] && NODE_SHOULD_RUN="true"
+                    check_job "ic10-node-linux"    "${{ needs.ic10-node-linux.result }}" "$NODE_SHOULD_RUN"
+                    check_job "ic10-node-windows"  "${{ needs.ic10-node-windows.result }}" "$NODE_SHOULD_RUN"
+
+                    # Python绑定：全量构建 / python变更 / core变更 时应运行
+                    PYTHON_SHOULD_RUN="false"
+                    [[ "$IS_FULL" == "true" || "$PYTHON_CHANGED" == "true" || "$CORE_CHANGED" == "true" ]] && PYTHON_SHOULD_RUN="true"
+                    check_job "ic10-python-linux"    "${{ needs.ic10-python-linux.result }}" "$PYTHON_SHOULD_RUN"
+                    check_job "ic10-python-windows"  "${{ needs.ic10-python-windows.result }}" "$PYTHON_SHOULD_RUN"
+
+                    # 静态分析：全量构建 / core变更 / stationscript变更 时应运行
+                    SA_SHOULD_RUN="false"
+                    [[ "$IS_FULL" == "true" || "$CORE_CHANGED" == "true" || "$STATIONSCRIPT_CHANGED" == "true" ]] && SA_SHOULD_RUN="true"
+                    check_job "static-analysis" "${{ needs.static-analysis.result }}" "$SA_SHOULD_RUN"
 
                     if [[ "$HAS_FAILURE" == "true" ]]; then
                         echo ""
-                        echo "::error::One or more required jobs failed"
+                        echo "::error::One or more required jobs failed or were unexpectedly skipped"
                         exit 1
                     fi
 
                     echo ""
-                    echo "✅ All required jobs passed or were skipped."
+                    echo "✅ All required jobs passed successfully."
