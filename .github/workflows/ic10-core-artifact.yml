@@ -1,5 +1,5 @@
-name: IC10 Python Bindings Build & Test
-run-name: IC10 Python | IC10 Python 绑定
+name: IC10 Core Artifact Build
+run-name: IC10 Core Artifact | IC10 核心构件
 
 on:
     workflow_call:
@@ -14,11 +14,6 @@ on:
                 type: string
                 required: false
                 default: '4.2.1'
-            python-version:
-                description: 'Python version'
-                type: string
-                required: false
-                default: '3.12'
             build-type:
                 description: 'Build type'
                 type: string
@@ -33,17 +28,12 @@ on:
                 description: 'Whether to upload build artifacts'
                 type: boolean
                 required: false
-                default: false
+                default: true
             artifact-name:
                 description: 'Artifact name prefix'
                 type: string
                 required: false
-                default: 'ic10-python'
-            core-artifact-name:
-                description: 'Name of the IC10 core artifact to reuse (empty to build from source)'
-                type: string
-                required: false
-                default: ''
+                default: 'ic10-core'
         outputs:
             artifact-name:
                 description: 'Name of the uploaded artifact'
@@ -65,19 +55,7 @@ jobs:
                 with:
                     os: ${{ inputs.os }}
                     cmake-version: ${{ inputs.cmake-version }}
-                    python-version: ${{ inputs.python-version }}
-                    cache-key-prefix: ic10-python
-
-            -   name: Install pybind11 | 安装 pybind11
-                shell: bash
-                run: pip install pybind11
-
-            -   name: Download core artifact | 下载核心构件
-                if: inputs.core-artifact-name != ''
-                uses: actions/download-artifact@v6
-                with:
-                    name: ${{ inputs.core-artifact-name }}
-                    path: core-artifact
+                    cache-key-prefix: ic10-core
 
             -   name: Configure CMake | 配置 CMake
                 shell: bash
@@ -89,15 +67,10 @@ jobs:
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_STATIONSCRIPT=OFF"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_NODE_BINDINGS=OFF"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=OFF"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_TESTS=${{ inputs.run-tests && 'ON' || 'OFF' }}"
                     CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CCACHE=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
-
-                    if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
-                      CMAKE_ARGS="$CMAKE_ARGS -DIC10_CORE_ARTIFACT_DIR=$GITHUB_WORKSPACE/core-artifact"
-                      echo "Using prebuilt core artifact from: $GITHUB_WORKSPACE/core-artifact"
-                    fi
 
                     if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
                       CMAKE_ARGS="$CMAKE_ARGS -G Ninja"
@@ -107,14 +80,14 @@ jobs:
                     echo "CMake args: $CMAKE_ARGS"
                     cmake $CMAKE_ARGS
 
-            -   name: Build | 编译
+            -   name: Build core libraries | 编译核心库
                 shell: bash
                 run: |
-                    if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
-                      cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target ic10_python common_python
-                    else
-                      cmake --build build --config ${{ inputs.build-type }} --parallel 4
+                    BUILD_TARGETS="common ic10_lib"
+                    if [[ "${{ inputs.run-tests }}" == "true" ]]; then
+                      BUILD_TARGETS="$BUILD_TARGETS ic10_tests"
                     fi
+                    cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target $BUILD_TARGETS
 
             -   name: (Linux) Show ccache/sccache stats | 显示缓存统计
                 if: inputs.os == 'ubuntu-latest'
@@ -140,12 +113,42 @@ jobs:
                     cd build
                     ctest --output-on-failure --parallel 4 -C ${{ inputs.build-type }}
 
+            -   name: Prepare artifact directory | 准备构件目录
+                shell: bash
+                run: |
+                    mkdir -p artifacts/lib/common/${{ inputs.build-type }}
+                    mkdir -p artifacts/lib/IC10/${{ inputs.build-type }}
+                    mkdir -p artifacts/include/common
+                    mkdir -p artifacts/include/IC10
+
+            -   name: Copy libraries | 复制库文件
+                shell: bash
+                run: |
+                    if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
+                      cp -f build/common/${{ inputs.build-type }}/common.lib artifacts/lib/common/${{ inputs.build-type }}/ || echo "common.lib not found in expected path"
+                      cp -f build/IC10/${{ inputs.build-type }}/ic10_lib.lib artifacts/lib/IC10/${{ inputs.build-type }}/ || echo "ic10_lib.lib not found in expected path"
+                    else
+                      cp -f build/common/libcommon.a artifacts/lib/common/${{ inputs.build-type }}/ 2>/dev/null || \
+                      cp -f build/common/${{ inputs.build-type }}/libcommon.a artifacts/lib/common/${{ inputs.build-type }}/ 2>/dev/null || \
+                      echo "libcommon.a not found"
+
+                      cp -f build/IC10/libic10_lib.a artifacts/lib/IC10/${{ inputs.build-type }}/ 2>/dev/null || \
+                      cp -f build/IC10/${{ inputs.build-type }}/libic10_lib.a artifacts/lib/IC10/${{ inputs.build-type }}/ 2>/dev/null || \
+                      echo "libic10_lib.a not found"
+                    fi
+
+            -   name: Copy headers | 复制头文件
+                shell: bash
+                run: |
+                    cp -r code/backend/compiler/common/include/. artifacts/include/common/
+                    cp -r code/backend/compiler/IC10/include/. artifacts/include/IC10/
+
             -   name: Set artifact name | 设置产物名称
                 id: artifact
                 if: inputs.upload-artifact
                 shell: bash
                 run: |
-                    NAME="${{ inputs.artifact-name }}-${{ inputs.os }}"
+                    NAME="${{ inputs.artifact-name }}-${{ inputs.os }}-${{ inputs.build-type }}"
                     echo "name=$NAME" >> $GITHUB_OUTPUT
 
             -   name: Upload build artifacts | 上传构建产物
@@ -154,6 +157,5 @@ jobs:
                 with:
                     name: ${{ steps.artifact.outputs.name }}
                     path: |
-                        build/exports/IC10/python/**
-                        build/bin/**
+                        artifacts/**
                     retention-days: 7
