@@ -8,18 +8,36 @@
 /**
  * @file ast_binary_ins.hpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/03 13:02
+ * @version 1.2
+ * @date 2026/07/12
  * @if zh
  * @brief IC10二元指令AST定义
- * @details 定义IC10中的二元指令(含两个操作数的指令),如ABS、ACOS、MOVE、SUB等。
+ * @details 定义IC10中的二元指令(含两个操作数的指令),按操作数类型分为四组:
+ *        - RI_RON组(RegisterOrIdentifier, RegisterOrNumber): abs、acos、asin、atan、ceil、
+ *          cos、exp、floor、log、round、sin、sqrt、tan、trunc、not、move、sgn、seqz、snez、
+ *          sgez、sgtz、slez、sltz、snan、snanz
+ *        - DR_RON组(DeviceReference, RegisterOrNumber): bdns、bdnsal、bdse、bdseal、brdns、brdse
+ *        - RI_DR组(RegisterOrIdentifier, DeviceReference): sdns、sdse
+ *        - RON_RON组(RegisterOrNumber, RegisterOrNumber): poke、beqz、beqzal、bnez、bnezal、
+ *          bgez、bgezal、bgtz、bgtzal、blez、blezal、bltz、bltzal、bnan、breqz、brnez、brgez、
+ *          brgtz、brlez、brltz、brnan
  *        使用模板元编程自动生成指令类型和TypeMap映射。
  * @note 实现位于ast_binary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief IC10 binary instruction AST definitions
- * @details Defines binary instructions (instructions with two operands) in IC10, such as ABS, ACOS, MOVE, SUB, etc.
- *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
+ * @details Defines binary instructions (instructions with two operands) in IC10, grouped by operand
+ *        type into four groups:
+ *        - RI_RON group (RegisterOrIdentifier, RegisterOrNumber): abs, acos, asin, atan, ceil,
+ *          cos, exp, floor, log, round, sin, sqrt, tan, trunc, not, move, sgn, seqz, snez,
+ *          sgez, sgtz, slez, sltz, snan, snanz
+ *        - DR_RON group (DeviceReference, RegisterOrNumber): bdns, bdnsal, bdse, bdseal, brdns, brdse
+ *        - RI_DR group (RegisterOrIdentifier, DeviceReference): sdns, sdse
+ *        - RON_RON group (RegisterOrNumber, RegisterOrNumber): poke, beqz, beqzal, bnez, bnezal,
+ *          bgez, bgezal, bgtz, bgtzal, blez, blezal, bltz, bltzal, bnan, breqz, brnez, brgez,
+ *          brgtz, brlez, brltz, brnan
+ *        Uses template metaprogramming to automatically generate instruction types and TypeMap
+ *        mappings.
  * @note Implementation in ast_binary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -180,48 +198,80 @@ namespace stationeers {
         DEFINE_INSTRUCTION(upperCase, pascalCase, lowerCase, ic10::BinaryInstructionBase, __VA_ARGS__)
 
     // 二元指令别名
-    DEFINE_BINARY_INSTRUCTION(abs, Abs, ABS, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(abs, Abs, ABS, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_BINARY_INSTRUCTION(acos, Acos, ACOS, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(acos, Acos, ACOS, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(asin, Asin, ASIN, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(asin, Asin, ASIN, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(atan, Atan, ATAN, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(atan, Atan, ATAN, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(ceil, Ceil, CEIL, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(ceil, Ceil, CEIL, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(cos, Cos, COS, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(cos, Cos, COS, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(exp, Exp, EXP, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(exp, Exp, EXP, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(floor, Floor, FLOOR, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(floor, Floor, FLOOR, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(log, Log, LOG, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(log, Log, LOG, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(round, Round, ROUND, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(round, Round, ROUND, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(sin, Sin, SIN, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(sin, Sin, SIN, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(sqrt, Sqrt, SQRT, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(sqrt, Sqrt, SQRT, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(tan, Tan, TAN, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(tan, Tan, TAN, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(trunc, Trunc, TRUNC, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(trunc, Trunc, TRUNC, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(not, Not, NOT, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(not, Not, NOT, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(move, Move, MOVE, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(move, Move, MOVE, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(sub, Sub, SUB, ic10::RegisterOrIdentifier, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(sgn, Sgn, SGN, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
+
+    DEFINE_BINARY_INSTRUCTION(seqz, Seqz, SEQZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
+
+    DEFINE_BINARY_INSTRUCTION(snez, Snez, SNEZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
+
+    DEFINE_BINARY_INSTRUCTION(sgez, Sgez, SGEZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
+
+    DEFINE_BINARY_INSTRUCTION(sgtz, Sgtz, SGTZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
+
+    DEFINE_BINARY_INSTRUCTION(slez, Slez, SLEZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
+
+    DEFINE_BINARY_INSTRUCTION(sltz, Sltz, SLTZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
+
+#ifdef SNAN
+#undef SNAN
+#endif
+    DEFINE_BINARY_INSTRUCTION(snan, Snan, SNAN, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
+
+    DEFINE_BINARY_INSTRUCTION(snanz, Snanz, SNANZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber)
 
 #endif
 
 
     namespace ic10 {
 
-        using BinaryInstructionMap_RI_O = TypeMap<
+        /**
+         * @if zh
+         * @brief RI_RON组二元指令TypeMap
+         * @details 包含操作数类型为(RegisterOrIdentifier, RegisterOrNumber)的二元指令:
+         *          abs、acos、asin、atan、ceil、cos、exp、floor、log、round、sin、sqrt、tan、
+         *          trunc、not、move、sgn、seqz、snez、sgez、sgtz、slez、sltz、snan、snanz。
+         * @elseif en
+         * @brief RI_RON group binary instruction TypeMap
+         * @details Contains binary instructions with operand types (RegisterOrIdentifier, RegisterOrNumber):
+         *          abs, acos, asin, atan, ceil, cos, exp, floor, log, round, sin, sqrt, tan,
+         *          trunc, not, move, sgn, seqz, snez, sgez, sgtz, slez, sltz, snan, snanz.
+         * @endif
+         */
+        using BinaryInstructionMap_RI_RON = TypeMap<
             TokenType, TokenType::KEYWORD_ABS
 #ifndef IC10_SIMPLE_MODE
             ,
@@ -230,31 +280,44 @@ namespace stationeers {
             TokenType::KEYWORD_FLOOR, TokenType::KEYWORD_LOG, TokenType::KEYWORD_ROUND,
             TokenType::KEYWORD_SIN, TokenType::KEYWORD_SQRT, TokenType::KEYWORD_TAN,
             TokenType::KEYWORD_TRUNC, TokenType::KEYWORD_NOT, TokenType::KEYWORD_MOVE,
-            TokenType::KEYWORD_SUB
+            TokenType::KEYWORD_SGN, TokenType::KEYWORD_SEQZ, TokenType::KEYWORD_SNEZ,
+            TokenType::KEYWORD_SGEZ, TokenType::KEYWORD_SGTZ, TokenType::KEYWORD_SLEZ,
+            TokenType::KEYWORD_SLTZ, TokenType::KEYWORD_SNAN, TokenType::KEYWORD_SNANZ
 #endif
             >;
 
     }  // namespace ic10
 
-    DEFINE_BINARY_INSTRUCTION(bdns, Bdns, BDNS, ic10::DeviceReference, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(bdns, Bdns, BDNS, ic10::DeviceReference, ic10::RegisterOrNumber)
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_BINARY_INSTRUCTION(bdnsal, Bdnsal, BDNSAL, ic10::DeviceReference, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(bdnsal, Bdnsal, BDNSAL, ic10::DeviceReference, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(bdse, Bdse, BDSE, ic10::DeviceReference, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(bdse, Bdse, BDSE, ic10::DeviceReference, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(bdseal, Bdseal, BDSEAL, ic10::DeviceReference, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(bdseal, Bdseal, BDSEAL, ic10::DeviceReference, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(brdns, Brdns, BRDNS, ic10::DeviceReference, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(brdns, Brdns, BRDNS, ic10::DeviceReference, ic10::RegisterOrNumber)
 
-    DEFINE_BINARY_INSTRUCTION(brdse, Brdse, BRDSE, ic10::DeviceReference, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(brdse, Brdse, BRDSE, ic10::DeviceReference, ic10::RegisterOrNumber)
 
 #endif
 
     namespace ic10 {
 
-        using BinaryInstructionMap_DR_O = TypeMap<
+        /**
+         * @if zh
+         * @brief DR_RON组二元指令TypeMap
+         * @details 包含操作数类型为(DeviceReference, RegisterOrNumber)的二元指令:
+         *          bdns、bdnsal、bdse、bdseal、brdns、brdse。
+         * @elseif en
+         * @brief DR_RON group binary instruction TypeMap
+         * @details Contains binary instructions with operand types (DeviceReference, RegisterOrNumber):
+         *          bdns, bdnsal, bdse, bdseal, brdns, brdse.
+         * @endif
+         */
+        using BinaryInstructionMap_DR_RON = TypeMap<
             TokenType, TokenType::KEYWORD_BDNS
 #ifndef IC10_SIMPLE_MODE
             ,
@@ -275,6 +338,17 @@ namespace stationeers {
 
     namespace ic10 {
 
+        /**
+         * @if zh
+         * @brief RI_DR组二元指令TypeMap
+         * @details 包含操作数类型为(RegisterOrIdentifier, DeviceReference)的二元指令:
+         *          sdns、sdse。
+         * @elseif en
+         * @brief RI_DR group binary instruction TypeMap
+         * @details Contains binary instructions with operand types (RegisterOrIdentifier, DeviceReference):
+         *          sdns, sdse.
+         * @endif
+         */
         using BinaryInstructionMap_RI_DR = TypeMap<
             TokenType, TokenType::KEYWORD_SDNS
 #ifndef IC10_SIMPLE_MODE
@@ -285,37 +359,49 @@ namespace stationeers {
 
     }  // namespace ic10
 
-    DEFINE_BINARY_INSTRUCTION(poke, Poke, POKE, ic10::Operand, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(poke, Poke, POKE, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_BINARY_INSTRUCTION(beqz, Beqz, BEQZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(beqzal, Beqzal, BEQZAL, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bnez, Bnez, BNEZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bnezal, Bnezal, BNEZAL, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bgez, Bgez, BGEZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bgezal, Bgezal, BGEZAL, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bgtz, Bgtz, BGTZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bgtzal, Bgtzal, BGTZAL, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(blez, Blez, BLEZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(blezal, Blezal, BLEZAL, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bltz, Bltz, BLTZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bltzal, Bltzal, BLTZAL, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bnan, Bnan, BNAN, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(bnanz, Bnanz, BNANZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(breqz, Breqz, BREQZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(brnz, Brnz, BRNZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(brgez, Brgez, BRGEZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(brgtz, Brgtz, BRGTZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(brlez, Brlez, BRLEZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(brltz, Brltz, BRLTZ, ic10::Operand, ic10::Operand)
-    DEFINE_BINARY_INSTRUCTION(brnan, Brnan, BRNAN, ic10::Operand, ic10::Operand)
+    DEFINE_BINARY_INSTRUCTION(beqz, Beqz, BEQZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(beqzal, Beqzal, BEQZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(bnez, Bnez, BNEZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(bnezal, Bnezal, BNEZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(bgez, Bgez, BGEZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(bgezal, Bgezal, BGEZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(bgtz, Bgtz, BGTZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(bgtzal, Bgtzal, BGTZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(blez, Blez, BLEZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(blezal, Blezal, BLEZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(bltz, Bltz, BLTZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(bltzal, Bltzal, BLTZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(bnan, Bnan, BNAN, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(breqz, Breqz, BREQZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(brnez, Brnez, BRNEZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(brgez, Brgez, BRGEZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(brgtz, Brgtz, BRGTZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(brlez, Brlez, BRLEZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(brltz, Brltz, BRLTZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_BINARY_INSTRUCTION(brnan, Brnan, BRNAN, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
 
 #endif
 
     namespace ic10 {
 
-        using BinaryInstructionMap_O_O = TypeMap<
+        /**
+         * @if zh
+         * @brief RON_RON组二元指令TypeMap
+         * @details 包含操作数类型为(RegisterOrNumber, RegisterOrNumber)的二元指令:
+         *          poke、beqz、beqzal、bnez、bnezal、bgez、bgezal、bgtz、bgtzal、blez、blezal、
+         *          bltz、bltzal、bnan、breqz、brnez、brgez、brgtz、brlez、brltz、brnan。
+         * @elseif en
+         * @brief RON_RON group binary instruction TypeMap
+         * @details Contains binary instructions with operand types (RegisterOrNumber, RegisterOrNumber):
+         *          poke, beqz, beqzal, bnez, bnezal, bgez, bgezal, bgtz, bgtzal, blez, blezal,
+         *          bltz, bltzal, bnan, breqz, brnez, brgez, brgtz, brlez, brltz, brnan.
+         * @endif
+         */
+        using BinaryInstructionMap_RON_RON = TypeMap<
             TokenType, TokenType::KEYWORD_POKE
 #ifndef IC10_SIMPLE_MODE
             ,
@@ -323,8 +409,8 @@ namespace stationeers {
             TokenType::KEYWORD_BNEZAL, TokenType::KEYWORD_BGEZ, TokenType::KEYWORD_BGEZAL,
             TokenType::KEYWORD_BGTZ, TokenType::KEYWORD_BGTZAL, TokenType::KEYWORD_BLEZ,
             TokenType::KEYWORD_BLEZAL, TokenType::KEYWORD_BLTZ, TokenType::KEYWORD_BLTZAL,
-            TokenType::KEYWORD_BNAN, TokenType::KEYWORD_BNANZ, TokenType::KEYWORD_BREQZ,
-            TokenType::KEYWORD_BRNZ, TokenType::KEYWORD_BRGEZ, TokenType::KEYWORD_BRGTZ,
+            TokenType::KEYWORD_BNAN, TokenType::KEYWORD_BREQZ, TokenType::KEYWORD_BRNEZ,
+            TokenType::KEYWORD_BRGEZ, TokenType::KEYWORD_BRGTZ,
             TokenType::KEYWORD_BRLEZ, TokenType::KEYWORD_BRLTZ, TokenType::KEYWORD_BRNAN
 #endif
             >;
@@ -336,12 +422,14 @@ namespace stationeers {
             AcosInstruction, AsinInstruction, AtanInstruction, CeilInstruction, CosInstruction,
             ExpInstruction, FloorInstruction, LogInstruction, RoundInstruction, SinInstruction,
             SqrtInstruction, TanInstruction, TruncInstruction, NotInstruction, MoveInstruction,
+            SgnInstruction, SeqzInstruction, SnezInstruction, SgezInstruction, SgtzInstruction,
+            SlezInstruction, SltzInstruction, SnanInstruction, SnanzInstruction,
             BeqzInstruction, BeqzalInstruction, BnezInstruction, BnezalInstruction, BgezInstruction,
             BgezalInstruction, BgtzInstruction, BgtzalInstruction, BlezInstruction,
             BlezalInstruction, BltzInstruction, BltzalInstruction, BnanInstruction,
-            BnanzInstruction, BdnsalInstruction, BdseInstruction, BdsealInstruction,
-            BreqzInstruction, BrnzInstruction, BrgezInstruction, BrgtzInstruction, BrlezInstruction,
-            BrltzInstruction, BrnanInstruction, BrdnsInstruction, BrdseInstruction, SubInstruction,
+            BdnsalInstruction, BdseInstruction, BdsealInstruction,
+            BreqzInstruction, BrnezInstruction, BrgezInstruction, BrgtzInstruction, BrlezInstruction,
+            BrltzInstruction, BrnanInstruction, BrdnsInstruction, BrdseInstruction,
             SdseInstruction
 #endif
             >;
@@ -356,12 +444,15 @@ namespace stationeers {
             TokenType::KEYWORD_FLOOR, TokenType::KEYWORD_LOG, TokenType::KEYWORD_ROUND,
             TokenType::KEYWORD_SIN, TokenType::KEYWORD_SQRT, TokenType::KEYWORD_TAN,
             TokenType::KEYWORD_TRUNC, TokenType::KEYWORD_NOT, TokenType::KEYWORD_MOVE,
+            TokenType::KEYWORD_SGN, TokenType::KEYWORD_SEQZ, TokenType::KEYWORD_SNEZ,
+            TokenType::KEYWORD_SGEZ, TokenType::KEYWORD_SGTZ, TokenType::KEYWORD_SLEZ,
+            TokenType::KEYWORD_SLTZ, TokenType::KEYWORD_SNAN, TokenType::KEYWORD_SNANZ,
             TokenType::KEYWORD_BEQZ, TokenType::KEYWORD_BEQZAL, TokenType::KEYWORD_BNEZ,
             TokenType::KEYWORD_BNEZAL, TokenType::KEYWORD_BGEZ, TokenType::KEYWORD_BGEZAL,
             TokenType::KEYWORD_BGTZ, TokenType::KEYWORD_BGTZAL, TokenType::KEYWORD_BLEZ,
             TokenType::KEYWORD_BLEZAL, TokenType::KEYWORD_BLTZ, TokenType::KEYWORD_BLTZAL,
-            TokenType::KEYWORD_BNAN, TokenType::KEYWORD_BNANZ, TokenType::KEYWORD_BREQZ,
-            TokenType::KEYWORD_BRNZ, TokenType::KEYWORD_BRGEZ, TokenType::KEYWORD_BRGTZ,
+            TokenType::KEYWORD_BNAN, TokenType::KEYWORD_BREQZ, TokenType::KEYWORD_BRNEZ,
+            TokenType::KEYWORD_BRGEZ, TokenType::KEYWORD_BRGTZ,
             TokenType::KEYWORD_BRLEZ, TokenType::KEYWORD_BRLTZ, TokenType::KEYWORD_BRNAN,
             TokenType::KEYWORD_BDNSAL, TokenType::KEYWORD_BDSE, TokenType::KEYWORD_BDSEAL,
             TokenType::KEYWORD_BRDNS, TokenType::KEYWORD_BRDSE, TokenType::KEYWORD_SDSE
