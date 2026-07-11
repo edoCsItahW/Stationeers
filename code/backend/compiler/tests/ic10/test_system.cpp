@@ -269,8 +269,8 @@ TEST_F(SystemTestFixture, GasFilterProgram) {
 
 TEST_F(SystemTestFixture, AllInstructionArities) {
     // 程序包含0-6元指令
-    // NOTE: sub在语法中是二元指令(registerOrIdentifier operand)，且未注册到BinaryInstructionMap
-    // NOTE: lbn/lbns的最后操作数需为identifier|number(logicType/batchMode)，不能用register
+    // NOTE: lbn/lbns的deviceHash/nameHash需为registerOrNumber(r?|num)，不能用device
+    //       logicType/batchMode需为identifier|number，不能用register
     std::string source =
         "# 零元\n"
         "hcf\n"
@@ -286,16 +286,17 @@ TEST_F(SystemTestFixture, AllInstructionArities) {
         "\n"
         "# 三元\n"
         "add r0 r1 r2\n"
+        "sub r0 r1 r2\n"
         "mul r0 r1 r2\n"
         "\n"
         "# 四元\n"
         "lerp r0 r1 r2 r3\n"
         "\n"
-        "# 五元: lbn registerOrIdentifier operand operand logicType batchMode\n"
-        "lbn r0 d0 1 2 Average\n"
+        "# 五元: lbn registerRef registerOrNumber registerOrNumber logicType batchMode\n"
+        "lbn r0 100 200 2 Average\n"
         "\n"
-        "# 六元: lbns registerOrIdentifier operand operand slotIndex logicSlotType batchMode\n"
-        "lbns r0 d0 1 2 Quantity Average\n"
+        "# 六元: lbns registerRef registerOrNumber registerOrNumber slotIndex logicSlotType batchMode\n"
+        "lbns r0 100 200 3 Quantity Average\n"
         "\n"
         "main:\n"
         "hcf\n";
@@ -349,7 +350,7 @@ TEST_F(SystemTestFixture, ConstantsUsedInInstructions) {
         "move r2 nan\n"
         "move r3 pinf\n"
         "move r4 ninf\n"
-        "move r5 gas_constant\n"
+        "move r5 rgas\n"
         "hcf\n";
 
     auto result = compile(source);

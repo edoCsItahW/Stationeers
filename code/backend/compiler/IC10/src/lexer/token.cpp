@@ -66,6 +66,7 @@ namespace stationeers::ic10 {
         {TokenType::KEYWORD_ROUND,        "round"  },
         {TokenType::KEYWORD_SIN,          "sin"    },
         {TokenType::KEYWORD_SQRT,         "sqrt"   },
+        {TokenType::KEYWORD_SGN,          "sgn"    },
         {TokenType::KEYWORD_SUB,          "sub"    },
         {TokenType::KEYWORD_TAN,          "tan"    },
         {TokenType::KEYWORD_TRUNC,        "trunc"  },
@@ -85,18 +86,17 @@ namespace stationeers::ic10 {
         {TokenType::KEYWORD_BLTZ,         "bltz"   },
         {TokenType::KEYWORD_BLTZAL,       "bltzal" },
         {TokenType::KEYWORD_BNAN,         "bnan"   },
-        {TokenType::KEYWORD_BNANZ,        "bnanz"  },
         {TokenType::KEYWORD_BDNS,         "bdns"   },
         {TokenType::KEYWORD_BDNSAL,       "bdnsal" },
         {TokenType::KEYWORD_BDSE,         "bdse"   },
         {TokenType::KEYWORD_BDSEAL,       "bdseal" },
         {TokenType::KEYWORD_BREQZ,        "breqz"  },
-        {TokenType::KEYWORD_BRNZ,         "brnz"   },
         {TokenType::KEYWORD_BRGEZ,        "brgez"  },
         {TokenType::KEYWORD_BRGTZ,        "brgtz"  },
         {TokenType::KEYWORD_BRLEZ,        "brlez"  },
         {TokenType::KEYWORD_BRLTZ,        "brltz"  },
         {TokenType::KEYWORD_BRNAN,        "brnan"  },
+        {TokenType::KEYWORD_BRNEZ,        "brnez"  },
         {TokenType::KEYWORD_BRDNS,        "brdns"  },
         {TokenType::KEYWORD_BRDSE,        "brdse"  },
         {TokenType::KEYWORD_SEQZ,         "seqz"   },
@@ -126,6 +126,8 @@ namespace stationeers::ic10 {
         {TokenType::KEYWORD_LR,           "lr"     },
         {TokenType::KEYWORD_S,            "s"      },
         {TokenType::KEYWORD_SB,           "sb"     },
+        {TokenType::KEYWORD_ROL,          "rol"    },
+        {TokenType::KEYWORD_ROR,          "ror"    },
         {TokenType::KEYWORD_RMAP,         "rmap"   },
         {TokenType::KEYWORD_BEQ,          "beq"    },
         {TokenType::KEYWORD_BEQAL,        "beqal"  },
@@ -164,6 +166,7 @@ namespace stationeers::ic10 {
 
         // 四元指令
         {TokenType::KEYWORD_LERP,         "lerp"   },
+        {TokenType::KEYWORD_CLAMP,        "clamp"  },
         {TokenType::KEYWORD_EXT,          "ext"    },
         {TokenType::KEYWORD_INS,          "ins"    },
         {TokenType::KEYWORD_SS,           "ss"     },
@@ -196,7 +199,7 @@ namespace stationeers::ic10 {
         {TokenType::KEYWORD_DEG2RAD,      "deg2rad"},
         {TokenType::KEYWORD_RAD2DEG,      "rad2deg"},
         {TokenType::KEYWORD_EPSILON,      "epsilon"},
-        {TokenType::KEYWORD_GAS_CONSTANT, "19as"   }
+        {TokenType::KEYWORD_RGAS,          "rgas"   }
     };
 
     const BiMap<TokenType, std::string> SYMBOL_MAP = {

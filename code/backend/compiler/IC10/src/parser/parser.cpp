@@ -240,11 +240,17 @@ namespace stationeers::ic10 {
             );
 
         INSTRUCTION_CASE(
-            UnaryInstructionMap_DR, UnaryInstruction, c->type, c->pos, parseDeviceReference(layer)
+            UnaryInstructionMap_DAR, UnaryInstruction, c->type, c->pos,
+            parseDeviceAliasRef(layer)
         )
 
         INSTRUCTION_CASE(
-            UnaryInstructionMap_O, UnaryInstruction, c->type, c->pos, parseOperand(layer)
+            UnaryInstructionMap_RON, UnaryInstruction, c->type, c->pos,
+            parseRegisterOrNumber(layer)
+        )
+
+        INSTRUCTION_CASE(
+            UnaryInstructionMap_JT, UnaryInstruction, c->type, c->pos, parseJumpTarget(layer)
         )
 
         reporter_.errorWith<MsgId::IMP4_1>(
@@ -264,13 +270,13 @@ namespace stationeers::ic10 {
         consume();
 
         INSTRUCTION_CASE(
-            BinaryInstructionMap_RI_O, BinaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseOperand(layer)
+            BinaryInstructionMap_RI_RON, BinaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
-            BinaryInstructionMap_DR_O, BinaryInstruction, c->type, c->pos,
-            parseDeviceReference(layer), parseOperand(layer)
+            BinaryInstructionMap_DR_RON, BinaryInstruction, c->type, c->pos,
+            parseDeviceReference(layer), parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
@@ -279,8 +285,8 @@ namespace stationeers::ic10 {
         )
 
         INSTRUCTION_CASE(
-            BinaryInstructionMap_O_O, BinaryInstruction, c->type, c->pos, parseOperand(layer),
-            parseOperand(layer)
+            BinaryInstructionMap_RON_RON, BinaryInstruction, c->type, c->pos,
+            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
         )
 
         reporter_.errorWith<MsgId::IMP5_1>(
@@ -300,18 +306,27 @@ namespace stationeers::ic10 {
         consume();
 
         INSTRUCTION_CASE(
-            TernaryInstructionMap_RI_O_O, TernaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseOperand(layer), parseOperand(layer)
+            TernaryInstructionMap_RI_RON_RON, TernaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer),
+            parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
-            TernaryInstructionMap_RI_DR_O, TernaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseDeviceReference(layer), parseOperand(layer)
+            TernaryInstructionMap_RI_DR_RON, TernaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseDeviceReference(layer),
+            parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
-            TernaryInstructionMap_DR_O_O, TernaryInstruction, c->type, c->pos,
-            parseDeviceReference(layer), parseOperand(layer), parseOperand(layer)
+            TernaryInstructionMap_RI_DAR_RON, TernaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseDeviceAliasRef(layer),
+            parseRegisterOrNumber(layer)
+        )
+
+        INSTRUCTION_CASE(
+            TernaryInstructionMap_DR_RON_RON, TernaryInstruction, c->type, c->pos,
+            parseDeviceReference(layer), parseRegisterOrNumber(layer),
+            parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
@@ -320,28 +335,23 @@ namespace stationeers::ic10 {
         )
 
         INSTRUCTION_CASE(
-            TernaryInstructionMap_RI_DR_RM, TernaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseDeviceReference(layer), parseReagentMode(layer)
-        )
-
-        INSTRUCTION_CASE(
             TernaryInstructionMap_DR_LT_RI, TernaryInstruction, c->type, c->pos,
             parseDeviceReference(layer), parseLogicType(layer), parseRegisterOrIdentifier(layer)
         )
 
         INSTRUCTION_CASE(
-            TernaryInstructionMap_O_LT_RI, TernaryInstruction, c->type, c->pos, parseOperand(layer),
-            parseLogicType(layer), parseRegisterOrIdentifier(layer)
+            TernaryInstructionMap_RON_LT_RI, TernaryInstruction, c->type, c->pos,
+            parseRegisterOrNumber(layer), parseLogicType(layer), parseRegisterOrIdentifier(layer)
         )
 
         INSTRUCTION_CASE(
-            TernaryInstructionMap_DR_LT_O, TernaryInstruction, c->type, c->pos,
-            parseDeviceReference(layer), parseLogicType(layer), parseOperand(layer)
+            TernaryInstructionMap_DR_LT_RON, TernaryInstruction, c->type, c->pos,
+            parseDeviceReference(layer), parseLogicType(layer), parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
-            TernaryInstructionMap_O_O_O, TernaryInstruction, c->type, c->pos, parseOperand(layer),
-            parseOperand(layer), parseOperand(layer)
+            TernaryInstructionMap_RON_RON_RON, TernaryInstruction, c->type, c->pos,
+            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
         )
 
         reporter_.errorWith<MsgId::IMP6_1>(
@@ -361,9 +371,9 @@ namespace stationeers::ic10 {
         consume();
 
         INSTRUCTION_CASE(
-            QuaternaryInstructionMap_RI_O_O_O, QuaternaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseOperand(layer), parseOperand(layer),
-            parseOperand(layer)
+            QuaternaryInstructionMap_RI_RON_RON_RON, QuaternaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer),
+            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
@@ -373,26 +383,39 @@ namespace stationeers::ic10 {
         )
 
         INSTRUCTION_CASE(
-            QuaternaryInstructionMap_RI_O_LT_BM, QuaternaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseOperand(layer), parseLogicType(layer),
+            QuaternaryInstructionMap_RI_RON_LT_BM, QuaternaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer), parseLogicType(layer),
             parseBatchMode(layer)
         )
 
         INSTRUCTION_CASE(
-            QuaternaryInstructionMap_O_O_LT_RI, QuaternaryInstruction, c->type, c->pos,
-            parseOperand(layer), parseOperand(layer), parseLogicSlotType(layer),
+            QuaternaryInstructionMap_RON_RON_LT_RI, QuaternaryInstruction, c->type, c->pos,
+            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer), parseLogicSlotType(layer),
             parseRegisterOrIdentifier(layer)
         )
 
         INSTRUCTION_CASE(
-            QuaternaryInstructionMap_O_O_O_O, QuaternaryInstruction, c->type, c->pos,
-            parseOperand(layer), parseOperand(layer), parseOperand(layer), parseOperand(layer)
+            QuaternaryInstructionMap_RON_SI_LS_RI, QuaternaryInstruction, c->type, c->pos,
+            parseRegisterOrNumber(layer), parseSlotIndex(layer), parseLogicSlotType(layer),
+            parseRegisterOrIdentifier(layer)
+        )
+
+        INSTRUCTION_CASE(
+            QuaternaryInstructionMap_RON_RON_RON_RON, QuaternaryInstruction, c->type, c->pos,
+            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer),
+            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
             QuaternaryInstructionMap_RI_DR_SI_LS, QuaternaryInstruction, c->type, c->pos,
             parseRegisterOrIdentifier(layer), parseDeviceReference(layer), parseSlotIndex(layer),
             parseLogicSlotType(layer)
+        )
+
+        INSTRUCTION_CASE(
+            QuaternaryInstructionMap_RI_DR_RM_JT, QuaternaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseDeviceReference(layer), parseReagentMode(layer),
+            parseJumpTarget(layer)
         )
 
         reporter_.errorWith<MsgId::IMP7_1>(
@@ -412,14 +435,14 @@ namespace stationeers::ic10 {
         consume();
 
         INSTRUCTION_CASE(
-            QuinaryInstructionMap_RI_O_O_LT_BM, QuinaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseOperand(layer), parseOperand(layer),
-            parseLogicType(layer), parseBatchMode(layer)
+            QuinaryInstructionMap_RI_RON_RON_LT_BM, QuinaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer),
+            parseRegisterOrNumber(layer), parseLogicType(layer), parseBatchMode(layer)
         )
 
         INSTRUCTION_CASE(
-            QuinaryInstructionMap_RI_O_SI_LS_BM, QuinaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseOperand(layer), parseSlotIndex(layer),
+            QuinaryInstructionMap_RI_RON_SI_LS_BM, QuinaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer), parseSlotIndex(layer),
             parseLogicSlotType(layer), parseBatchMode(layer)
         )
 
@@ -440,9 +463,10 @@ namespace stationeers::ic10 {
         consume();
 
         INSTRUCTION_CASE(
-            SenaryInstructionMap_RI_O_O_SI_LS_BM, SenaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseOperand(layer), parseOperand(layer),
-            parseSlotIndex(layer), parseLogicSlotType(layer), parseBatchMode(layer)
+            SenaryInstructionMap_RI_RON_RON_SI_LS_BM, SenaryInstruction, c->type, c->pos,
+            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer),
+            parseRegisterOrNumber(layer), parseSlotIndex(layer), parseLogicSlotType(layer),
+            parseBatchMode(layer)
         )
 
         reporter_.errorWith<MsgId::IMP9_1>(
@@ -470,7 +494,7 @@ namespace stationeers::ic10 {
 
         defineDirective.identifier = parseIdentifier(layer);
 
-        defineDirective.operand = parseOperand(layer);
+        defineDirective.operand = parseNumberValue(layer);
 
         return defineDirective;
     }
@@ -507,7 +531,7 @@ namespace stationeers::ic10 {
                 case KEYWORD_DEG2RAD:
                 case KEYWORD_RAD2DEG:
                 case KEYWORD_EPSILON:
-                case KEYWORD_GAS_CONSTANT: return wide_cast<Operand>(parseConstant(layer));
+                case KEYWORD_RGAS: return wide_cast<Operand>(parseConstant(layer));
                 default: {
                     // 理论上不会到这里，isStartToken 已过滤
                     reporter_.errorWith<MsgId::IMP10_1>(
@@ -639,10 +663,6 @@ namespace stationeers::ic10 {
                 case DEVICE: return wide_cast<DeviceReference>(parseDevice(layer));
                 case IDENTIFIER:
                 case REGISTER: return wide_cast<DeviceReference>(parseRegisterOrIdentifier(layer));
-                case INTEGER:
-                case FLOAT:
-                case HEX_NUMBER:
-                case BINARY_NUMBER: return wide_cast<DeviceReference>(parseNumber(layer));
                 default: {
                     reporter_.errorWith<MsgId::IMP13_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
@@ -672,6 +692,186 @@ namespace stationeers::ic10 {
         consume();
 
         return parseDeviceReference(layer);
+    }
+
+    RegisterOrNumber Parser::parseRegisterOrNumber(int layer) {
+        if (debug_) Console::log(std::string(layer * 4, ' ') + "RegisterOrNumber");
+
+        ++layer;
+
+        if (!current()) {
+            reporter_.error<MsgId::IMP1>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        }
+
+        // 情况1：是合法起始 → 正常解析
+        if (isStartToken<RegisterOrNumber>(current()->type)) {
+            switch (current()->type) {
+                using enum TokenType;
+                case REGISTER:
+                case IDENTIFIER: return wide_cast<RegisterOrNumber>(parseRegisterOrIdentifier(layer));
+                case INTEGER:
+                case FLOAT:
+                case HEX_NUMBER:
+                case BINARY_NUMBER: return wide_cast<RegisterOrNumber>(parseNumber(layer));
+                case KEYWORD_HASH:
+                case KEYWORD_STR: return wide_cast<RegisterOrNumber>(parseMacroCall(layer));
+                case KEYWORD_NAN:
+                case KEYWORD_PINF:
+                case KEYWORD_NINF:
+                case KEYWORD_PI:
+                case KEYWORD_TAU:
+                case KEYWORD_DEG2RAD:
+                case KEYWORD_RAD2DEG:
+                case KEYWORD_EPSILON:
+                case KEYWORD_RGAS: return wide_cast<RegisterOrNumber>(parseConstant(layer));
+                default: {
+                    reporter_.errorWith<MsgId::IMP10_1>(
+                        current()->pos, endPos(*current()), enumToStr(current()->type)
+                    );
+
+                    return ErrorNode{
+                        *current(), Loc::msgFormat<MsgId::IMP10_1>(enumToStr(current()->type))
+                    };
+                }
+            }
+        }
+
+        // 情况2：停止点 → 不消耗
+        if (current()->type == TokenType::NEWLINE ||
+            current()->type == TokenType::END ||
+            isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IMP17>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP17>()};
+        }
+
+        // 情况3：坏 token → 消耗，继续尝试
+        reporter_.errorWith<MsgId::IMP10_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
+
+        consume();
+
+        return parseRegisterOrNumber(layer);
+    }
+
+    NumberValue Parser::parseNumberValue(int layer) {
+        if (debug_) Console::log(std::string(layer * 4, ' ') + "NumberValue");
+
+        ++layer;
+
+        if (!current()) {
+            reporter_.error<MsgId::IMP1>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        }
+
+        // 情况1：是合法起始 → 正常解析
+        if (isStartToken<NumberValue>(current()->type)) {
+            switch (current()->type) {
+                using enum TokenType;
+                case INTEGER:
+                case FLOAT:
+                case HEX_NUMBER:
+                case BINARY_NUMBER: return wide_cast<NumberValue>(parseNumber(layer));
+                case IDENTIFIER: return wide_cast<NumberValue>(parseIdentifier(layer));
+                case KEYWORD_HASH:
+                case KEYWORD_STR: return wide_cast<NumberValue>(parseMacroCall(layer));
+                case KEYWORD_NAN:
+                case KEYWORD_PINF:
+                case KEYWORD_NINF:
+                case KEYWORD_PI:
+                case KEYWORD_TAU:
+                case KEYWORD_DEG2RAD:
+                case KEYWORD_RAD2DEG:
+                case KEYWORD_EPSILON:
+                case KEYWORD_RGAS: return wide_cast<NumberValue>(parseConstant(layer));
+                default: {
+                    reporter_.errorWith<MsgId::IMP15_1>(
+                        current()->pos, endPos(*current()), enumToStr(current()->type)
+                    );
+
+                    return ErrorNode{
+                        *current(), Loc::msgFormat<MsgId::IMP15_1>(enumToStr(current()->type))
+                    };
+                }
+            }
+        }
+
+        // 情况2：停止点 → 不消耗
+        if (current()->type == TokenType::NEWLINE ||
+            current()->type == TokenType::END ||
+            isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IMP22>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP22>()};
+        }
+
+        // 情况3：坏 token → 消耗，继续尝试
+        reporter_.errorWith<MsgId::IMP15_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
+
+        consume();
+
+        return parseNumberValue(layer);
+    }
+
+    JumpTarget Parser::parseJumpTarget(int layer) {
+        if (debug_) Console::log(std::string(layer * 4, ' ') + "JumpTarget");
+
+        // JumpTarget 与 NumberValue 相同
+        return parseNumberValue(++layer);
+    }
+
+    DeviceAliasRef Parser::parseDeviceAliasRef(int layer) {
+        if (debug_) Console::log(std::string(layer * 4, ' ') + "DeviceAliasRef");
+
+        ++layer;
+
+        if (!current()) {
+            reporter_.error<MsgId::IMP1>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP1>()};
+        }
+
+        // 情况1：是合法起始 → 正常解析
+        if (isStartToken<DeviceAliasRef>(current()->type)) {
+            switch (current()->type) {
+                using enum TokenType;
+                case DEVICE: return wide_cast<DeviceAliasRef>(parseDevice(layer));
+                case IDENTIFIER: return wide_cast<DeviceAliasRef>(parseIdentifier(layer));
+                default: {
+                    reporter_.errorWith<MsgId::IMP13_1>(
+                        current()->pos, endPos(*current()), enumToStr(current()->type)
+                    );
+
+                    return ErrorNode{
+                        *current(), Loc::msgFormat<MsgId::IMP13_1>(enumToStr(current()->type))
+                    };
+                }
+            }
+        }
+
+        // 情况2：停止点 → 不消耗
+        if (current()->type == TokenType::NEWLINE ||
+            current()->type == TokenType::END ||
+            isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IMP20>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP20>()};
+        }
+
+        // 情况3：坏 token → 消耗，继续尝试
+        reporter_.errorWith<MsgId::IMP13_1>(
+            current()->pos, endPos(*current()), enumToStr(current()->type)
+        );
+
+        consume();
+
+        return parseDeviceAliasRef(layer);
     }
 
     MacroCall Parser::parseMacroCall(int layer) {
