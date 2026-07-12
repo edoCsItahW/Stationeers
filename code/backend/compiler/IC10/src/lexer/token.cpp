@@ -39,6 +39,7 @@ namespace stationeers::ic10 {
         {TokenType::KEYWORD_POP,          "pop"    },
         {TokenType::KEYWORD_PUSH,         "push"   },
         {TokenType::KEYWORD_CLR,          "clr"    },
+        {TokenType::KEYWORD_CLRD,         "clrd"   },
         {TokenType::KEYWORD_J,            "j"      },
         {TokenType::KEYWORD_JAL,          "jal"    },
         {TokenType::KEYWORD_JR,           "jr"     },
