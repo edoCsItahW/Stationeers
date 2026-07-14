@@ -1,0 +1,132 @@
+Charge:
+    desc: ./locals/logicSlotType.Charge.desc
+    type: LogicSlotType
+    value: 10
+ChargeRatio:
+    desc: ./locals/logicSlotType.ChargeRatio.desc
+    type: LogicSlotType
+    value: 11
+Class:
+    desc: ./locals/logicSlotType.Class.desc
+    type: LogicSlotType
+    value: 12
+Damage:
+    desc: ./locals/logicSlotType.Damage.desc
+    type: LogicSlotType
+    value: 4
+Efficiency:
+    desc: ./locals/logicSlotType.Efficiency.desc
+    type: LogicSlotType
+    value: 5
+FilterType:
+    desc: ./locals/logicSlotType.FilterType.desc
+    type: LogicSlotType
+    value: 25
+FreeSlots:
+    desc: ./locals/logicSlotType.FreeSlots.desc
+    type: LogicSlotType
+    value: 31
+Growth:
+    desc: ./locals/logicSlotType.Growth.desc
+    type: LogicSlotType
+    value: 7
+HarvestedHash:
+    desc: ./locals/logicSlotType.HarvestedHash.desc
+    type: LogicSlotType
+    value: 27
+Health:
+    desc: ./locals/logicSlotType.Health.desc
+    type: LogicSlotType
+    value: 6
+LineNumber:
+    desc: ./locals/logicSlotType.LineNumber.desc
+    type: LogicSlotType
+    value: 19
+Lock:
+    desc: ./locals/logicSlotType.Lock.desc
+    type: LogicSlotType
+    value: 23
+Mature:
+    desc: ./locals/logicSlotType.Mature.desc
+    type: LogicSlotType
+    value: 16
+MaturityRatio:
+    desc: ./locals/logicSlotType.MaturityRatio.desc
+    type: LogicSlotType
+    value: 29
+MaxQuantity:
+    desc: ./locals/logicSlotType.MaxQuantity.desc
+    type: LogicSlotType
+    value: 15
+Mode:
+    desc: ./locals/logicSlotType.Mode.desc
+    type: LogicSlotType
+    value: 28
+None:
+    desc: ./locals/logicSlotType.None.desc
+    type: LogicSlotType
+    value: 0
+OccupantHash:
+    desc: ./locals/logicSlotType.OccupantHash.desc
+    type: LogicSlotType
+    value: 2
+Occupied:
+    desc: ./locals/logicSlotType.Occupied.desc
+    type: LogicSlotType
+    value: 1
+true:
+    desc: ./locals/logicSlotType.True.desc
+    type: LogicSlotType
+    value: 22
+Open:
+    desc: ./locals/logicSlotType.Open.desc
+    type: LogicSlotType
+    value: 21
+PrefabHash:
+    desc: ./locals/logicSlotType.PrefabHash.desc
+    type: LogicSlotType
+    value: 17
+Pressure:
+    desc: ./locals/logicSlotType.Pressure.desc
+    type: LogicSlotType
+    value: 8
+PressureAir:
+    desc: ./locals/logicSlotType.PressureAir.desc
+    type: LogicSlotType
+    value: 14
+PressureWaste:
+    desc: ./locals/logicSlotType.PressureWaste.desc
+    type: LogicSlotType
+    value: 13
+Quantity:
+    desc: ./locals/logicSlotType.Quantity.desc
+    type: LogicSlotType
+    value: 3
+ReferenceId:
+    desc: ./locals/logicSlotType.ReferenceId.desc
+    type: LogicSlotType
+    value: 26
+Seeding:
+    desc: ./locals/logicSlotType.Seeding.desc
+    type: LogicSlotType
+    value: 18
+SeedingRatio:
+    desc: ./locals/logicSlotType.SeedingRatio.desc
+    type: LogicSlotType
+    value: 30
+SortingClass:
+    desc: ./locals/logicSlotType.SortingClass.desc
+    type: LogicSlotType
+    value: 24
+Temperature:
+    desc: ./locals/logicSlotType.Temperature.desc
+    type: LogicSlotType
+    value: 9
+TotalSlots:
+    desc: ./locals/logicSlotType.TotalSlots.desc
+    type: LogicSlotType
+    value: 32
+Volume:
+    desc: ./locals/logicSlotType.Volume.desc
+    type: LogicSlotType
+    value: 20

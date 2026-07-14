@@ -1,0 +1,22 @@
+{
+    "Average": {
+        "type": "LogicBatchMethod",
+        "value": 0
+    },
+    "Count": {
+        "type": "LogicBatchMethod",
+        "value": 4
+    },
+    "Maximum": {
+        "type": "LogicBatchMethod",
+        "value": 3
+    },
+    "Minimum": {
+        "type": "LogicBatchMethod",
+        "value": 2
+    },
+    "Sum": {
+        "type": "LogicBatchMethod",
+        "value": 1
+    }
+}
