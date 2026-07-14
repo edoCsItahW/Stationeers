@@ -1,0 +1,1492 @@
+Acceleration:
+    desc:
+        en: Acceleration value. Decelerating rockets during landing will show negative
+            values
+        zh: 加速度值, 着陆时减速的火箭将显示为负值
+Activate:
+    desc:
+        en: 1 if the device is activated (usually running), 0 otherwise
+        zh: 如果设备已激活(通常表示正在运行), 则为1, 否则为0
+AirRelease:
+    desc:
+        en: Current state of the air release system, e.g. AirRelease=1 means the spacesuit
+            air system is set to On
+        zh: 空气释放系统的当前状态, 例如AirRelease=1表示太空服的空气系统设置为On(启用)
+AlignmentError:
+    desc:
+        en: Angular deviation between the telescope's current pointing direction and
+            the target. Returns NaN when there is no target
+        zh: 望远镜当前指向方位与目标之间的角度偏差值, 表示望远镜的"偏离目标"程度, 无目标时返回NaN
+Altitude:
+    desc:
+        en: Height of the rocket above the planet surface. -1 means the rocket is
+            in space
+        zh: 火箭距离行星表面的高度. -1表示火箭位于太空
+Apex:
+    desc:
+        en: The lowest altitude the rocket will reach before ascending again
+        zh: 火箭在再次上升前将达到的最低高度
+AutoLand:
+    desc:
+        en: Activates the auto-landing algorithm. The rocket will automatically adjust
+            throttle and start/stop engines for a smooth landing
+        zh: 启动自动着陆算法. 火箭将自动调节节流阀, 自动启动和关闭引擎, 以实现平稳着陆
+AutoShutOff:
+    desc:
+        en: Whether to automatically shut down all devices on the rocket when reaching
+            the destination
+        zh: 是否在到达目的地时自动关闭火箭上的所有设备
+BestContactFilter:
+    desc:
+        en: Filters the satellite's automatic target selection to a single reference
+            ID
+        zh: 将卫星的自动目标选择过滤为单一参考ID
+Bpm:
+    desc:
+        en: Beats per minute
+        zh: 节拍
+BurnTimeRemaining:
+    desc:
+        en: Estimated time until rocket fuel is exhausted, in seconds. Calculated
+            based on current fuel consumption rate
+        zh: 火箭燃料耗尽的预计时间, 单位为秒. 基于当前燃料消耗速度计算
+CelestialHash:
+    desc:
+        en: Hash value of the current target celestial body
+        zh: 当前目标天体的哈希值
+CelestialParentHash:
+    desc:
+        en: Hash value of the parent body name the celestial body orbits. 0 if there
+            is no parent body
+        zh: 天体所绕行的母天体的名称的哈希值, 若无母天体则为0
+Channel0:
+    desc:
+        en: The channel is volatile on the cable network
+        zh: 频道在电缆网络上是易失性的
+Channel1:
+    desc:
+        en: The channel is volatile on the cable network
+        zh: 频道在电缆网络上是易失性的
+Channel2:
+    desc:
+        en: The channel is volatile on the cable network
+        zh: 频道在电缆网络上是易失性的
+Channel3:
+    desc:
+        en: The channel is volatile on the cable network
+        zh: 频道在电缆网络上是易失性的
+Channel4:
+    desc:
+        en: The channel is volatile on the cable network
+        zh: 频道在电缆网络上是易失性的
+Channel5:
+    desc:
+        en: The channel is volatile on the cable network
+        zh: 频道在电缆网络上是易失性的
+Channel6:
+    desc:
+        en: The channel is volatile on the cable network
+        zh: 频道在电缆网络上是易失性的
+Channel7:
+    desc:
+        en: The channel is volatile on the cable network
+        zh: 频道在电缆网络上是易失性的
+Charge:
+    desc:
+        en: Current charge of the device
+        zh: 设备当前的电量
+Chart:
+    desc:
+        en: State of the rocket mapping a space map location, returns a quantified
+            value. Returns -1 if not in mapping state
+        zh: 火箭对太空地图地点进行测绘时的状态, 返回一个范围内的量化值. 若未处于测绘状态, 返回-1
+ChartedNavPoints:
+    desc:
+        en: Number of mapped navigation points at the rocket's current target space
+            map location
+        zh: 火箭当前目标太空地图地点已测绘的导航点数量
+ClearMemory:
+    desc:
+        en: When set to 1, resets device counter memory (e.g. ExportCount). Returns
+            0 after reset completes
+        zh: 设置为1时, 将重置设备计数器内存(比如ExportCount). 此值自身将在重置完成后返回0
+CollectableGoods:
+    desc:
+        en: Gets the fuel cost for the rocket to return to the player's location
+        zh: 获取火箭返回玩家所在地的燃料花费
+Color:
+    desc:
+        en: Device color as integer. 0:Blue 1:Gray 2:Green 3:Orange 4:Red 5:Yellow
+            6:White 7:Black 8:Brown 9:Tan 10:Pink 11:Purple; values >11 are purple,
+            values <0 are blue
+        zh: 设备的颜色设置，以整型表示。0:蓝色 1:灰色 2:绿色 3:橙色 4:红色 5:黄色 6:白色 7:黑色 8:棕色 9:土黄色 10:粉红色
+            11:紫色；大于11为紫色，小于0为蓝色
+Combustion:
+    desc:
+        en: Detects if the air environment is burning. Returns 1 if true, 0 if false
+        zh: 检测空气环境是否正在燃烧. 是则返回1, 否则返回0
+CombustionInput:
+    desc:
+        en: Detects if the pipe network at the device input is burning. Returns 1
+            if true, 0 if false
+        zh: 检测设备输入口的管道网是否正在燃烧. 是则返回1, 否则返回0
+CombustionInput2:
+    desc:
+        en: Detects if the pipe network at device input 2 is burning. Returns 1 if
+            true, 0 if false
+        zh: 检测设备输入口2的管道网是否正在燃烧. 是则返回1, 否则返回0
+CombustionLimiter:
+    desc:
+        en: 'Limits machine internal combustion speed (range: 0~100). 0 = slowest,
+            100 = fastest'
+        zh: 延缓机器的内部燃烧速度(范围:0~100), 0代表燃烧速度最慢, 100代表燃烧速度最快
+CombustionOutput:
+    desc:
+        en: Detects if the pipe network at the device output is burning. Returns 1
+            if true, 0 if false
+        zh: 检测设备输出口的管道网是否正在燃烧. 是则返回1, 否则返回0
+CombustionOutput2:
+    desc:
+        en: Detects if the pipe network at device output 2 is burning. Returns 1 if
+            true, 0 if false
+        zh: 检测设备输出口2的管道网是否正在燃烧. 是则返回1, 否则返回0
+CompletionRatio:
+    desc:
+        en: Current manufacturing progress of the device, value between 0 and 1
+        zh: 设备当前的制造进度, 取值介于0和1
+ContactSlotIndex:
+    desc:
+        en: Index of the trader's generation slot. Defines trader category (utility,
+            small, medium, etc.)
+        zh: '贸易商生成槽位的索引值. 该索引定义了贸易商的类别, 例如: 实用型, 小型, 中型等.'
+ContactTypeId:
+    desc:
+        en: Type ID of the contact signal
+        zh: 联络信号的类型ID
+CurrentCode:
+    desc:
+        en: Address code of the rocket's current space map location
+        zh: 火箭当前太空地图地点的地址码
+CurrentNodeType:
+    desc:
+        en: Returns the NodeType as an integer for the current location for a Rocket
+        zh: 返回火箭当前位置的节点类型整数
+CurrentResearchPodType:
+    desc: null
+Density:
+    desc:
+        en: Density of mineable deposits at the rocket's target space map location
+        zh: 火箭目标太空地图地点可开采矿床的密度
+DerivativeGain:
+    desc:
+        en: Derivative gain of the PID controller. Determines how the controller responds
+            to the rate of error change. Higher values help suppress oscillation and
+            improve stability, but may also amplify noise.
+        zh: PID控制器的微分增益. 此值决定了控制器对误差变化率的响应程度. 较高的值有助于抑制振荡并提高稳定性, 但也可能导致噪声放大.
+DestinationCode:
+    desc:
+        en: Address code of the rocket's target space map location
+        zh: 火箭目标太空地图地点的地址码
+Discover:
+    desc:
+        en: Scanning state of the rocket for a space map location, returns a quantified
+            value. Returns -1 if not in scanning state
+        zh: 火箭对太空地图地点进行扫描时的状态, 返回一个范围内的量化值. 若未处于扫描状态, 返回-1
+Dispense:
+    desc:
+        en: The device will dispense once, used in logic mode for export devices.
+        zh: 设备将分发一次，用于导出设备的逻辑模式
+DispenseSlot:
+    desc:
+        en: Set to the index of a stored item to dispense that specific item once.
+            The device dispenses it then resets this back to -1. A value of -1 means
+            idle.
+        zh: 设置为已存储物品的索引以单次分发该特定物品。设备分发后会将此值重置为-1。值为-1表示空闲。
+DistanceAu:
+    desc:
+        en: Current distance to the celestial body, in astronomical units
+        zh: 当前与天体的距离（以天文单位计）
+DistanceKm:
+    desc:
+        en: Current distance to the celestial body, in kilometers
+        zh: 当前与天体的距离（以千米计）
+DrillCondition:
+    desc:
+        en: Condition of the drill bit in the device's drill slot, expressed as 0
+            to 1
+        zh: 当前设备钻头槽位中钻头的状况（以0到1表示）
+DryMass:
+    desc:
+        en: Dry mass of the rocket excluding fuel, in kilograms. Heavier rockets consume
+            more fuel to travel to new locations in space.
+        zh: 火箭不包括燃料在内的干质量, 以千克为单位. 火箭质量越大, 移动到太空中的新地点所消耗的燃料越多
+Eccentricity:
+    desc:
+        en: Measure of orbital eccentricity. Ranges from 0 (perfect circle) to 1 (parabolic
+            trajectory)
+        zh: 轨道椭圆度（偏心率）的度量值. 范围从0（完美圆形）到1（抛物线轨迹）
+ElevatorLevel:
+    desc:
+        en: Current floor of the elevator
+        zh: 电梯当前的楼层
+ElevatorSpeed:
+    desc:
+        en: Speed of the elevator
+        zh: 电梯的速度
+EnergyConvected:
+    desc:
+        en: The energy convected with the surroundings on the last atmospheric tick,
+            in Joules. Positive values remove heat from the internal atmosphere (cooling);
+            negative values add heat.
+        zh: 上一次大气刷新时与环境对流交换的能量，单位为焦耳。正值表示从内部大气带走热量（冷却）；负值表示增加热量。
+EnergyRadiated:
+    desc:
+        en: The energy radiated to the surroundings on the last atmospheric tick,
+            in Joules, net of solar heating. Positive values remove heat from the
+            internal atmosphere (cooling); negative values add heat.
+        zh: 上一次大气刷新时向环境辐射的能量，单位为焦耳，已扣除太阳加热净值。正值表示从内部大气带走热量（冷却）；负值表示增加热量。
+EntityState:
+    desc:
+        en: Current entity state (e.g. dead/unconscious/alive), expressed as an integer
+        zh: 当前实体状态（如死亡/无意识/存活等），以整数表示
+EnvironmentEfficiency:
+    desc:
+        en: Environmental impact on work efficiency reported by the device, a float
+            between 0 and 1
+        zh: 设备反馈的环境对于工作效率的影响, 是取值范围介于0和1的浮点数
+Error:
+    desc:
+        en: 1 if the device is in an error state, 0 otherwise
+        zh: 如果设备处于错误状态, 则为1, 否则为0
+ExhaustVelocity:
+    desc:
+        en: Velocity of exhaust gas, in m/s
+        zh: 排出气体的速度, 单位为m/s
+ExportCount:
+    desc:
+        en: Total number of items exported since the last ClearMemory operation on
+            the device
+        zh: 自设备上次进行ClearMemory操作时至今输出的物品总数
+Extended:
+    desc:
+        en: Extended
+        zh: 已展开
+Filtration:
+    desc:
+        en: Current state of the filtration system, e.g. Filtration=1 means spacesuit
+            filtration is set to On
+        zh: 过滤系统的当前状态, 例如Filtration=1表示太空服的过滤设置为On(启用)
+FlightControlRule:
+    desc:
+        en: 'Rocket flight control rule. None=0: no autopilot. Normal=1: within 60m
+            of target. Alternate=2: too fast, full thrust. Alternate2=3: too slow,
+            accelerate to proper speed. FinalApproach=4: controlled deceleration to
+            landing pad'
+        zh: 火箭飞行控制规则. None=0:无自动驾驶. Normal=1, 接近目标60米内. Alternate=2, 速度太快, 推力全开. Alternate2=3,
+            速度太慢, 加速到合适速度. FinalApproach=4, 正受控减速直至火箭降落平台
+Flush:
+    desc:
+        en: Setting this value to 1 activates the device's built-in purge function
+        zh: 将该值设置为1可以激活设备自带的排空功能
+ForceWrite:
+    desc:
+        en: Forces logic write to refresh the device write
+        zh: 强制逻辑写入设备重新写入
+ForwardX:
+    desc:
+        en: Normalized vector representation of the entity's forward X direction
+        zh: 实体朝向的规范化矢量表示
+ForwardY:
+    desc:
+        en: Normalized vector representation of the entity's forward Y direction
+        zh: 实体朝向的规范化矢量表示
+ForwardZ:
+    desc:
+        en: Normalized vector representation of the entity's forward Z direction
+        zh: 实体朝向的规范化矢量表示
+Fuel:
+    desc:
+        en: Gets the fuel cost for the rocket to return to the player's location
+        zh: 获取火箭返回玩家所在地的燃料花费
+Gravity:
+    desc:
+        en: The gravitational acceleration acting on the rocket, in m/s²
+        zh: 作用在火箭上的重力加速度，单位为m/s²
+Harvest:
+    desc:
+        en: Executes harvest operation on all plant-based devices
+        zh: 对所有基于植物工作的设备执行收获操作
+HealthDamage:
+    desc:
+        en: The total amount of health damage on the entity
+        zh: 实体受到的总生命值伤害量
+Horizontal:
+    desc:
+        en: Horizontal angle setting of the device
+        zh: 设备的水平角度设置
+HorizontalRatio:
+    desc:
+        en: Horizontal angle percentage setting of the device
+        zh: 设备的水平角度百分比设置
+Idle:
+    desc:
+        en: 1 if the device is currently idle, 0 otherwise
+        zh: 如果设备当前处于闲置状态, 则为1, 否则为0
+ImportCount:
+    desc:
+        en: Total number of items imported since the last ClearMemory operation on
+            the device
+        zh: 自设备上次进行ClearMemory操作时至今输入的物品总数
+Inclination:
+    desc:
+        en: Inclination angle of the orbital plane relative to the equatorial plane,
+            in degrees. Defines the angle of the orbital plane
+        zh: 轨道平面相对于赤道平面的倾斜角度（以度为单位）. 定义轨道平面的角度
+Index:
+    desc:
+        en: Current index value of the device
+        zh: 设备的当前索引值
+IntegralGain:
+    desc:
+        en: Integral gain of the PID controller. Determines how the controller responds
+            to accumulated error over time. Higher values help eliminate steady-state
+            error, but may cause oscillation or instability.
+        zh: PID控制器的积分增益. 此值决定了控制器对随时间累积误差的响应程度. 较高的值有助于消除稳态误差, 但也可能导致振荡或不稳定.
+InterrogationProgress:
+    desc:
+        en: Signal communication progress of the satellite antenna to its current
+            target, expressed as a ratio from 0 to 1
+        zh: 该卫星天线对其当前目标的信号通信进度, 以0~1的比率表示
+LineNumber:
+    desc:
+        en: Current line number being executed by the IC chip code running on this
+            device. This value supports writing, but use with caution.
+        zh: 在此设备上运行的IC芯片代码当前执行的行号. 虽然该值支持写入, 但请谨慎使用
+Lock:
+    desc:
+        en: 1 if the device is locked, 0 otherwise. Can be set on most devices. Locked
+            devices still operate but cannot be manually controlled.
+        zh: 设备如果锁定则为1, 否则为0. 可在大多数设备中设置, 锁定时设备依然可以运转, 但无法人工操作
+ManualResearchRequiredPod:
+    desc:
+        en: Sets the pod type to search for a specific pod when decomposing pods
+        zh: 设置pod类型, 以便在分解pod时搜索一个特定的pod
+Mass:
+    desc:
+        en: Total mass of the rocket including fuel and cargo, in kilograms. Heavier
+            rockets consume more fuel to travel to new locations in space.
+        zh: 火箭包括燃料和货物在内的总质量, 以千克为单位. 火箭质量越大, 移动到太空中的新地点所消耗的燃料越多
+Maximum:
+    desc:
+        en: Maximum Setting value of the device
+        zh: 设备的最大Setting(设置)值
+MineablesInQueue:
+    desc:
+        en: Returns the amount of minerals waiting to be mined in the AIMEe queue
+        zh: 返回AIMEe队列中等待开采的矿物含量
+MineablesInVicinity:
+    desc:
+        en: Returns the amount of potential mineable minerals in the extended area
+            around AIMEe
+        zh: 返回AIMEe周围扩展区域内的潜在可开采矿物含量
+MinedQuantity:
+    desc:
+        en: Total amount of mined resources at the rocket's target space map location
+        zh: 火箭目标太空地图地点已开采资源总量
+Minimum:
+    desc:
+        en: The minimum value of the provided logic device.
+        zh: 所提供逻辑设备的最小值。
+MinimumWattsToContact:
+    desc:
+        en: Minimum power required for a satellite antenna to detect an interstellar
+            trade ship. Only antennas exceeding this power can communicate with it.
+        zh: 卫星天线检测到星际贸易飞船所需的最小功率, 只有超过该功率的天线才能与星际贸易飞船进行通信
+Mode:
+    desc:
+        en: Device Mode state expressed as an integer. The effect of Mode values varies
+            across different devices.
+        zh: 以整数形式表示的设备Mode(模式)状态, 不同设备的Mode值对设备工作造成的影响也不尽相同
+NameHash:
+    desc:
+        en: A 32-bit integer hash value used to distinguish objects
+        zh: 用一个32位长度的整型值作为哈希值来区分对象
+NavPoints:
+    desc:
+        en: Number of navigation points at the rocket's current target space map location
+        zh: 火箭当前目标太空地图地点的导航点数量
+NetworkFault:
+    desc:
+        en: A fault exists in the connected network, such as a pipe rupture or other
+            failure.
+        zh: 连接的网络出现故障, 例如管道破裂或其他故障.
+NextWeatherEventTime:
+    desc:
+        en: Returns the countdown to the next weather event, in seconds
+        zh: 返回下一个天气事件倒计时, 单位为秒
+NextWeatherHash:
+    desc:
+        en: Provides the hash value of the next weather event name as a 32-bit integer.
+        zh: 以一个32位整数形式提供下一个天气事件名称的哈希值.
+true:
+    desc:
+        en: Power state of the device. 0 for off, 1 for on.
+        zh: 设备的启动状态, 0为关闭, 1为开启
+Open:
+    desc:
+        en: 1 if the device is activated, 0 otherwise
+        zh: 如果设备已启动, 则为1, 否则为0
+OperationalTemperatureEfficiency:
+    desc:
+        en: Efficiency coefficient representing the impact of pipe network temperature
+            at the input on machine work efficiency
+        zh: 输入口连接的管道网的温度对机器工作效率造成的影响的效率系数
+OrbitPeriod:
+    desc:
+        en: Time for one celestial body to complete a full orbit around another, in
+            days. Represents the orbital period duration.
+        zh: 一个天体绕另一天体完整绕行一周所需的时间（以天为单位）. 表示轨道周期时长
+Orientation:
+    desc:
+        en: Horizontal angle difference between the entity's current facing and true
+            north
+        zh: 实体当前朝向与正北方向的水平角度差值
+Output:
+    desc:
+        en: Used by sorting devices in Logic mode (e.g. stackers or sorters) to output
+            items. When set to a value >0, the device performs one output operation,
+            then returns to -1 and waits for the next command.
+        zh: 用于工作在逻辑(Logic)模式的分拣设备(如堆垛机或分拣机)进行输出物品, 当设置值大于0时, 该设备将执行一次输出操作, 然后返回到-1并等待下一步操作
+PassedMoles:
+    desc:
+        en: Moles of substance that passed through the device in the last tick
+        zh: 上个tick内通过该设备的物质的摩尔数
+Plant:
+    desc:
+        en: Executes planting operation on all plant-based devices
+        zh: 对所有基于植物工作的设备执行种植操作
+PositionX:
+    desc:
+        en: X-axis value of the current position in world coordinates
+        zh: 当前位置在世界坐标X轴上的值
+PositionY:
+    desc:
+        en: Y-axis value of the current position in world coordinates
+        zh: 当前位置在世界坐标Y轴上的值
+PositionZ:
+    desc:
+        en: Z-axis value of the current position in world coordinates
+        zh: 当前位置在世界坐标Z轴上的值
+Power:
+    desc:
+        en: Read to check if the device is properly powered. Returns 1 if powered,
+            0 otherwise.
+        zh: 可以读取该值来得知设备是否获得正常供电, 是则返回1;否则返回0
+PowerActual:
+    desc:
+        en: Electrical power consumed by the device or network
+        zh: 设备或网络消耗的电功率
+PowerGeneration:
+    desc:
+        en: Returns the generated electrical power
+        zh: 返回产生的电功率
+PowerPotential:
+    desc:
+        en: Electrical power generated by the device or network
+        zh: 设备或网络产生的电功率
+PowerRequired:
+    desc:
+        en: Electrical power requested by the device from other devices and/or the
+            power grid
+        zh: 设备从其他设备和/或电网请求的电功率
+PrefabHash:
+    desc:
+        en: Hash value of this object
+        zh: 该对象的哈希值
+Pressure:
+    desc:
+        en: Pressure reading inside the device
+        zh: 设备内部的压强读数
+PressureEfficiency:
+    desc:
+        en: Efficiency coefficient representing the impact of pressure difference
+            between input and waste pipe networks on machine work efficiency
+        zh: 输入口与废物口连接的管道网的压强差值对机器工作效率造成的影响的效率系数
+PressureExternal:
+    desc:
+        en: Preset external pressure safety value of the device, in kPa. The device
+            gradually stops working when external pressure approaches this value.
+        zh: 设备的预设外部压强安全值, 单位为kPa. 设备在外部压强接近该值时会逐渐停止工作
+PressureInput:
+    desc:
+        en: Pressure reading of the pipe network connected to the device input
+        zh: 设备输入口连接的管道网的压强读数
+PressureInput2:
+    desc:
+        en: Pressure reading of the pipe network connected to the device's output
+            port 2
+        zh: 设备输出口2连接的管道网的压强读数
+PressureInternal:
+    desc:
+        en: Preset internal pressure safety value of the device, in kPa. The device
+            gradually stops working when internal pressure approaches this value.
+        zh: 设备的预设内部压强安全值, 单位为kPa. 设备在内部压强接近该值时会逐渐停止工作
+PressureOutput:
+    desc:
+        en: Pressure reading of the pipe network connected to the device's output
+            port
+        zh: 设备输出口连接的管道网的压强读数
+PressureOutput2:
+    desc:
+        en: Pressure reading of the pipe network connected to the device's output
+            port 2
+        zh: 设备输出口2连接的管道网的压强读数
+PressureSetting:
+    desc:
+        en: Sets the target pressure inside the object (e.g. spacesuit air pressure
+            setting), in kPa
+        zh: 设置对象内部的目标压强(例如, 太空服的气压设置), 单位为kPa
+Progress:
+    desc:
+        en: Progress of the rocket to the next waypoint on the map, expressed as a
+            number between 0 and 1
+        zh: 火箭到达地图上下一个路径点的进度, 以0到1之间的数字表示
+ProportionalGain:
+    desc:
+        en: Proportional gain of the PID controller. Determines how strongly the controller
+            responds to the error between setpoint and process variable. Higher values
+            lead to faster response but may cause overshoot or instability.
+        zh: PID控制器的比例增益. 此值决定了控制器对设定点与过程变量之间误差的响应强度. 较高的值会导致更快的响应, 但可能导致超调或不稳定.
+Quantity:
+    desc:
+        en: Total number of items inside the device
+        zh: 设备内的物品总数量
+Ratio:
+    desc:
+        en: Specific effect depends on the device's ratio value, range 0~1
+        zh: 具体作用取决于设备的比例值, 取值区间为0~1
+RatioCarbonDioxide:
+    desc:
+        en: Ratio of carbon dioxide inside the device
+        zh: 设备内部二氧化碳的比例
+RatioCarbonDioxideInput:
+    desc:
+        en: Ratio of carbon dioxide in the pipe network connected to the device's
+            input port
+        zh: 设备输入口连接的管道网二氧化碳的比例
+RatioCarbonDioxideInput2:
+    desc:
+        en: Ratio of carbon dioxide in the pipe network connected to the device's
+            input port 2
+        zh: 设备输入口2连接的管道网二氧化碳的比例
+RatioCarbonDioxideOutput:
+    desc:
+        en: Ratio of carbon dioxide in the pipe network connected to the device's
+            output port
+        zh: 设备输出口连接的管道网二氧化碳的比例
+RatioCarbonDioxideOutput2:
+    desc:
+        en: Ratio of carbon dioxide in the pipe network connected to the device's
+            output port 2
+        zh: 设备输出口2连接的管道网二氧化碳的比例
+RatioHelium:
+    desc:
+        en: Ratio of helium in the device's internal space
+        zh: 设备内部空间中氦所占的比例
+RatioHeliumInput:
+    desc:
+        en: The ratio of helium in device's Input Atmosphere
+        zh: 设备输入大气中氦的比例
+RatioHeliumInput2:
+    desc:
+        en: The ratio of helium in device's Input2 Atmosphere
+        zh: 设备第二输入大气中氦的比例
+RatioHeliumOutput:
+    desc:
+        en: The ratio of helium in device's Output Atmosphere
+        zh: 设备输出大气中氦的比例
+RatioHeliumOutput2:
+    desc:
+        en: The ratio of helium in device's Output2 Atmosphere
+        zh: 设备第二输出大气中氦的比例
+RatioHydrazine:
+    desc:
+        en: Ratio of hydrazine in the device's internal space
+        zh: 设备内部空间中肼所占的比例
+RatioHydrazineInput:
+    desc:
+        en: The ratio of hydrazine in device's Input Atmosphere
+        zh: 设备输入大气中肼的比例
+RatioHydrazineInput2:
+    desc:
+        en: The ratio of hydrazine in device's Input2 Atmosphere
+        zh: 设备第二输入大气中肼的比例
+RatioHydrazineOutput:
+    desc:
+        en: The ratio of hydrazine in device's Output Atmosphere
+        zh: 设备输出大气中肼的比例
+RatioHydrazineOutput2:
+    desc:
+        en: The ratio of hydrazine in device's Output2 Atmosphere
+        zh: 设备第二输出大气中肼的比例
+RatioHydrochloricAcid:
+    desc:
+        en: Ratio of hydrochloric acid in the device's internal space
+        zh: 设备内部空间中氢氯酸所占的比例
+RatioHydrochloricAcidInput:
+    desc:
+        en: The ratio of hydrochloric acid in device's Input Atmosphere
+        zh: 设备输入大气中氢氯酸的比例
+RatioHydrochloricAcidInput2:
+    desc:
+        en: The ratio of hydrochloric acid in device's Input2 Atmosphere
+        zh: 设备第二输入大气中氢氯酸的比例
+RatioHydrochloricAcidOutput:
+    desc:
+        en: The ratio of hydrochloric acid in device's Output Atmosphere
+        zh: 设备输出大气中氢氯酸的比例
+RatioHydrochloricAcidOutput2:
+    desc:
+        en: The ratio of hydrochloric acid in device's Output2 Atmosphere
+        zh: 设备第二输出大气中氢氯酸的比例
+RatioHydrogen:
+    desc:
+        en: Ratio of hydrogen in the device's internal space
+        zh: 设备内部空间中氢气的比例
+RatioHydrogenInput:
+    desc:
+        en: The ratio of hydrogen in device's Input Atmosphere
+        zh: 设备输入大气中氢气的比例
+RatioHydrogenInput2:
+    desc:
+        en: The ratio of hydrogen in device's Input2 Atmosphere
+        zh: 设备第二输入大气中氢气的比例
+RatioHydrogenOutput:
+    desc:
+        en: The ratio of hydrogen in device's Output Atmosphere
+        zh: 设备输出大气中氢气的比例
+RatioHydrogenOutput2:
+    desc:
+        en: The ratio of hydrogen in device's Output2 Atmosphere
+        zh: 设备第二输出大气中氢气的比例
+RatioLiquidAlcohol:
+    desc:
+        en: Ratio of liquid alcohol (ethanol) in the device's internal space
+        zh: 设备内部空间中乙醇所占的比例
+RatioLiquidAlcoholInput:
+    desc:
+        en: The ratio of ethanol in device's Input Atmosphere
+        zh: 设备输入大气中乙醇的比例
+RatioLiquidAlcoholInput2:
+    desc:
+        en: The ratio of ethanol in device's Input2 Atmosphere
+        zh: 设备第二输入大气中乙醇的比例
+RatioLiquidAlcoholOutput:
+    desc:
+        en: The ratio of ethanol in device's Output Atmosphere
+        zh: 设备输出大气中乙醇的比例
+RatioLiquidAlcoholOutput2:
+    desc:
+        en: The ratio of ethanol in device's Output2 Atmosphere
+        zh: 设备第二输出大气中乙醇的比例
+RatioLiquidCarbonDioxide:
+    desc:
+        en: Ratio of liquid carbon dioxide in the device's internal space
+        zh: 设备内部空间中液态二氧化碳的比例
+RatioLiquidCarbonDioxideInput:
+    desc:
+        en: Ratio of liquid carbon dioxide in the pipe network connected to the device's
+            input port
+        zh: 设备输入口连接的管道网中液态二氧化碳的比例
+RatioLiquidCarbonDioxideInput2:
+    desc:
+        en: Ratio of liquid carbon dioxide in the pipe network connected to the device's
+            input port 2
+        zh: 设备输入口2连接的管道网中液态二氧化碳的比例
+RatioLiquidCarbonDioxideOutput:
+    desc:
+        en: Ratio of liquid carbon dioxide in the pipe network connected to the device's
+            output port
+        zh: 设备输出口连接的管道网中液态二氧化碳的比例
+RatioLiquidCarbonDioxideOutput2:
+    desc:
+        en: Ratio of liquid carbon dioxide in the pipe network connected to the device's
+            output port 2
+        zh: 设备输出口2连接的管道网中液态二氧化碳的比例
+RatioLiquidHydrazine:
+    desc:
+        en: Ratio of liquid hydrazine in the device's internal space
+        zh: 设备内部空间中液态肼所占的比例
+RatioLiquidHydrazineInput:
+    desc:
+        en: The ratio of liquid hydrazine in device's Input Atmosphere
+        zh: 设备输入大气中液态肼的比例
+RatioLiquidHydrazineInput2:
+    desc:
+        en: The ratio of liquid hydrazine in device's Input2 Atmosphere
+        zh: 设备第二输入大气中液态肼的比例
+RatioLiquidHydrazineOutput:
+    desc:
+        en: The ratio of liquid hydrazine in device's Output Atmosphere
+        zh: 设备输出大气中液态肼的比例
+RatioLiquidHydrazineOutput2:
+    desc:
+        en: The ratio of liquid hydrazine in device's Output2 Atmosphere
+        zh: 设备第二输出大气中液态肼的比例
+RatioLiquidHydrochloricAcid:
+    desc:
+        en: Ratio of liquid hydrochloric acid in the device's internal space
+        zh: 设备内部空间中液态氢氯酸所占的比例
+RatioLiquidHydrochloricAcidInput:
+    desc:
+        en: The ratio of liquid hydrochloric acid in device's Input Atmosphere
+        zh: 设备输入大气中液态氢氯酸的比例
+RatioLiquidHydrochloricAcidInput2:
+    desc:
+        en: The ratio of liquid hydrochloric acid in device's Input2 Atmosphere
+        zh: 设备第二输入大气中液态氢氯酸的比例
+RatioLiquidHydrochloricAcidOutput:
+    desc:
+        en: The ratio of liquid hydrochloric acid in device's Output Atmosphere
+        zh: 设备输出大气中液态氢氯酸的比例
+RatioLiquidHydrochloricAcidOutput2:
+    desc:
+        en: The ratio of liquid hydrochloric acid in device's Output2 Atmosphere
+        zh: 设备第二输出大气中液态氢氯酸的比例
+RatioLiquidHydrogen:
+    desc:
+        en: Ratio of liquid hydrogen in the device's internal space
+        zh: 设备内部空间中液氢的比例
+RatioLiquidHydrogenInput:
+    desc:
+        en: The ratio of liquid hydrogen in device's Input Atmosphere
+        zh: 设备输入大气中液氢的比例
+RatioLiquidHydrogenInput2:
+    desc:
+        en: The ratio of liquid hydrogen in device's Input2 Atmosphere
+        zh: 设备第二输入大气中液氢的比例
+RatioLiquidHydrogenOutput:
+    desc:
+        en: The ratio of liquid hydrogen in device's Output Atmosphere
+        zh: 设备输出大气中液氢的比例
+RatioLiquidHydrogenOutput2:
+    desc:
+        en: The ratio of liquid hydrogen in device's Output2 Atmosphere
+        zh: 设备第二输出大气中液氢的比例
+RatioLiquidMethane:
+    desc:
+        en: Ratio of liquid methane in the device's internal space
+        zh: 设备内部空间中液态甲烷的比例
+RatioLiquidMethaneInput:
+    desc:
+        en: Ratio of liquid methane in the pipe network connected to the device's
+            input port
+        zh: 设备输入口连接的管道网中液态甲烷的比例
+RatioLiquidMethaneInput2:
+    desc:
+        en: Ratio of liquid methane in the pipe network connected to the device's
+            input port 2
+        zh: 设备输入口2连接的管道网中液态甲烷的比例
+RatioLiquidMethaneOutput:
+    desc:
+        en: Ratio of liquid methane in the pipe network connected to the device's
+            output port
+        zh: 设备输出口连接的管道网中液态甲烷的比例
+RatioLiquidMethaneOutput2:
+    desc:
+        en: Ratio of liquid methane in the pipe network connected to the device's
+            output port 2
+        zh: 设备输出口2连接的管道网中液态甲烷的比例
+RatioLiquidNitrogen:
+    desc:
+        en: Ratio of liquid nitrogen
+        zh: 液氮的比例
+RatioLiquidNitrogenInput:
+    desc:
+        en: Ratio of liquid nitrogen in the pipe network connected to the device's
+            input port
+        zh: 设备输入口连接的管道网液氮的比例
+RatioLiquidNitrogenInput2:
+    desc:
+        en: Ratio of liquid nitrogen in the pipe network connected to the device's
+            input port 2
+        zh: 设备输入口2连接的管道网液氮的比例
+RatioLiquidNitrogenOutput:
+    desc:
+        en: Ratio of liquid nitrogen in the pipe network connected to the device's
+            output port
+        zh: 设备输出口连接的管道网液氮的比例
+RatioLiquidNitrogenOutput2:
+    desc:
+        en: Ratio of liquid nitrogen in the pipe network connected to the device's
+            output port 2
+        zh: 设备输出口2连接的管道网液氮的比例
+RatioLiquidNitrousOxide:
+    desc:
+        en: Ratio of liquid nitrous oxide in the device's internal space
+        zh: 设备内部空间中液态一氧化二氮的比例
+RatioLiquidNitrousOxideInput:
+    desc:
+        en: Ratio of liquid nitrous oxide in the pipe network connected to the device's
+            input port
+        zh: 设备输入口连接的管道网中液态一氧化二氮的比例
+RatioLiquidNitrousOxideInput2:
+    desc:
+        en: Ratio of liquid nitrous oxide in the pipe network connected to the device's
+            input port 2
+        zh: 设备输入口2连接的管道网中液态一氧化二氮的比例
+RatioLiquidNitrousOxideOutput:
+    desc:
+        en: Ratio of liquid nitrous oxide in the pipe network connected to the device's
+            output port
+        zh: 设备输出口连接的管道网中液态一氧化二氮的比例
+RatioLiquidNitrousOxideOutput2:
+    desc:
+        en: Ratio of liquid nitrous oxide in the pipe network connected to the device's
+            output port 2
+        zh: 设备输出口2连接的管道网中液态一氧化二氮的比例
+RatioLiquidOxygen:
+    desc:
+        en: Ratio of liquid oxygen in the device's internal space
+        zh: 设备内部空间中液氧的比例
+RatioLiquidOxygenInput:
+    desc:
+        en: Ratio of liquid oxygen in the pipe network connected to the device's input
+            port
+        zh: 设备输入口连接的管道网中液氧的比例
+RatioLiquidOxygenInput2:
+    desc:
+        en: Ratio of liquid oxygen in the pipe network connected to the device's input
+            port 2
+        zh: 设备输入口2连接的管道网中液氧的比例
+RatioLiquidOxygenOutput:
+    desc:
+        en: Ratio of liquid oxygen in the pipe network connected to the device's output
+            port
+        zh: 设备输出口连接的管道网中液氧的比例
+RatioLiquidOxygenOutput2:
+    desc:
+        en: Ratio of liquid oxygen in the pipe network connected to the device's output
+            port 2
+        zh: 设备输出口2连接的管道网中液氧的比例
+RatioLiquidOzone:
+    desc:
+        en: Ratio of liquid ozone in the device's internal space
+        zh: 设备内部空间中液态臭氧所占的比例
+RatioLiquidOzoneInput:
+    desc:
+        en: The ratio of liquid ozone in device's Input Atmosphere
+        zh: 设备输入大气中液态臭氧的比例
+RatioLiquidOzoneInput2:
+    desc:
+        en: The ratio of liquid ozone in device's Input2 Atmosphere
+        zh: 设备第二输入大气中液态臭氧的比例
+RatioLiquidOzoneOutput:
+    desc:
+        en: The ratio of liquid ozone in device's Output Atmosphere
+        zh: 设备输出大气中液态臭氧的比例
+RatioLiquidOzoneOutput2:
+    desc:
+        en: The ratio of liquid ozone in device's Output2 Atmosphere
+        zh: 设备第二输出大气中液态臭氧的比例
+RatioLiquidPollutant:
+    desc:
+        en: Ratio of liquid pollutants in the device's internal space
+        zh: 设备内部空间中液态污染物的比例
+RatioLiquidPollutantInput:
+    desc:
+        en: Ratio of liquid pollutants in the pipe network connected to the device's
+            input port
+        zh: 设备输入口连接的管道网中液态污染物的比例
+RatioLiquidPollutantInput2:
+    desc:
+        en: Ratio of liquid pollutants in the pipe network connected to the device's
+            input port 2
+        zh: 设备输入口2连接的管道网中液态污染物的比例
+RatioLiquidPollutantOutput:
+    desc:
+        en: Ratio of liquid pollutants in the pipe network connected to the device's
+            output port
+        zh: 设备输出口连接的管道网中液态污染物的比例
+RatioLiquidPollutantOutput2:
+    desc:
+        en: Ratio of liquid pollutants in the pipe network connected to the device's
+            output port 2
+        zh: 设备输出口2连接的管道网中液态污染物的比例
+RatioLiquidSilanol:
+    desc:
+        en: Ratio of liquid silanol in the device's internal space
+        zh: 设备内部空间中液态硅烷醇所占的比例
+RatioLiquidSilanolInput:
+    desc:
+        en: The ratio of liquid silanol in device's Input Atmosphere
+        zh: 设备输入大气中液态硅烷醇的比例
+RatioLiquidSilanolInput2:
+    desc:
+        en: The ratio of liquid silanol in device's Input2 Atmosphere
+        zh: 设备第二输入大气中液态硅烷醇的比例
+RatioLiquidSilanolOutput:
+    desc:
+        en: The ratio of liquid silanol in device's Output Atmosphere
+        zh: 设备输出大气中液态硅烷醇的比例
+RatioLiquidSilanolOutput2:
+    desc:
+        en: The ratio of liquid silanol in device's Output2 Atmosphere
+        zh: 设备第二输出大气中液态硅烷醇的比例
+RatioLiquidSodiumChloride:
+    desc:
+        en: Ratio of molten sodium chloride in the device's internal space
+        zh: 设备内部空间中氯化钠熔盐所占的比例
+RatioLiquidSodiumChlorideInput:
+    desc:
+        en: The ratio of molten sodium chloride in device's Input Atmosphere
+        zh: 设备输入大气中氯化钠熔盐的比例
+RatioLiquidSodiumChlorideInput2:
+    desc:
+        en: The ratio of molten sodium chloride in device's Input2 Atmosphere
+        zh: 设备第二输入大气中氯化钠熔盐的比例
+RatioLiquidSodiumChlorideOutput:
+    desc:
+        en: The ratio of molten sodium chloride in device's Output Atmosphere
+        zh: 设备输出大气中氯化钠熔盐的比例
+RatioLiquidSodiumChlorideOutput2:
+    desc:
+        en: The ratio of molten sodium chloride in device's Output2 Atmosphere
+        zh: 设备第二输出大气中氯化钠熔盐的比例
+RatioMethane:
+    desc:
+        en: Ratio of methane inside the device
+        zh: 设备内部甲烷的比例
+RatioMethaneInput:
+    desc:
+        en: Ratio of methane in the pipe network connected to the device's input port
+        zh: 设备输入口连接的管道网甲烷的比例
+RatioMethaneInput2:
+    desc:
+        en: Ratio of methane in the pipe network connected to the device's input port
+            2
+        zh: 设备输入口2连接的管道网甲烷的比例
+RatioMethaneOutput:
+    desc:
+        en: Ratio of methane in the pipe network connected to the device's output
+            port
+        zh: 设备输出口连接的管道网甲烷的比例
+RatioMethaneOutput2:
+    desc:
+        en: Ratio of methane in the pipe network connected to the device's output
+            port 2
+        zh: 设备输出口2连接的管道网甲烷的比例
+RatioNitrogen:
+    desc:
+        en: Ratio of nitrogen inside the device
+        zh: 设备内部氮的比例
+RatioNitrogenInput:
+    desc:
+        en: Ratio of nitrogen in the pipe network connected to the device's input
+            port
+        zh: 设备输入口连接的管道网氮的比例
+RatioNitrogenInput2:
+    desc:
+        en: Ratio of nitrogen in the pipe network connected to the device's input
+            port 2
+        zh: 设备输入口2连接的管道网氮的比例
+RatioNitrogenOutput:
+    desc:
+        en: Ratio of nitrogen in the pipe network connected to the device's output
+            port
+        zh: 设备输出口连接的管道网氮的比例
+RatioNitrogenOutput2:
+    desc:
+        en: Ratio of nitrogen in the pipe network connected to the device's output
+            port 2
+        zh: 设备输出口2连接的管道网氮的比例
+RatioNitrousOxide:
+    desc:
+        en: Ratio of nitrous oxide
+        zh: 一氧化二氮的比例
+RatioNitrousOxideInput:
+    desc:
+        en: Ratio of nitrous oxide in the pipe network connected to the device's input
+            port
+        zh: 设备输入口连接的管道网一氧化二氮的比例
+RatioNitrousOxideInput2:
+    desc:
+        en: Ratio of nitrous oxide in the pipe network connected to the device's input
+            port 2
+        zh: 设备输入口2连接的管道网一氧化二氮的比例
+RatioNitrousOxideOutput:
+    desc:
+        en: Ratio of nitrous oxide in the pipe network connected to the device's output
+            port
+        zh: 设备输出口连接的管道网一氧化二氮的比例
+RatioNitrousOxideOutput2:
+    desc:
+        en: Ratio of nitrous oxide in the pipe network connected to the device's output
+            port 2
+        zh: 设备输出口2连接的管道网一氧化二氮的比例
+RatioOxygen:
+    desc:
+        en: Ratio of oxygen inside the device
+        zh: 设备内部氧的比例
+RatioOxygenInput:
+    desc:
+        en: Ratio of oxygen in the pipe network connected to the device's input port
+        zh: 设备输入口连接的管道网氧的比例
+RatioOxygenInput2:
+    desc:
+        en: Ratio of oxygen in the pipe network connected to the device's input port
+            2
+        zh: 设备输入口2连接的管道网氧的比例
+RatioOxygenOutput:
+    desc:
+        en: Ratio of oxygen in the pipe network connected to the device's output port
+        zh: 设备输出口连接的管道网氧的比例
+RatioOxygenOutput2:
+    desc:
+        en: Ratio of oxygen in the pipe network connected to the device's output port
+            2
+        zh: 设备输出口2连接的管道网氧的比例
+RatioOzone:
+    desc:
+        en: Ratio of ozone in the device's internal space
+        zh: 设备内部空间中臭氧所占的比例
+RatioOzoneInput:
+    desc:
+        en: The ratio of ozone in device's Input Atmosphere
+        zh: 设备输入大气中臭氧的比例
+RatioOzoneInput2:
+    desc:
+        en: The ratio of ozone in device's Input2 Atmosphere
+        zh: 设备第二输入大气中臭氧的比例
+RatioOzoneOutput:
+    desc:
+        en: The ratio of ozone in device's Output Atmosphere
+        zh: 设备输出大气中臭氧的比例
+RatioOzoneOutput2:
+    desc:
+        en: The ratio of ozone in device's Output2 Atmosphere
+        zh: 设备第二输出大气中臭氧的比例
+RatioPollutant:
+    desc:
+        en: Ratio of pollutants inside the device
+        zh: 设备内部污染物的比例
+RatioPollutantInput:
+    desc:
+        en: Ratio of pollutants in the pipe network connected to the device's input
+            port
+        zh: 设备输入口连接的管道网污染物的比例
+RatioPollutantInput2:
+    desc:
+        en: Ratio of pollutants in the pipe network connected to the device's input
+            port 2
+        zh: 设备输入口2连接的管道网污染物的比例
+RatioPollutantOutput:
+    desc:
+        en: Ratio of pollutants in the pipe network connected to the device's output
+            port
+        zh: 设备输出口连接的管道网污染物的比例
+RatioPollutantOutput2:
+    desc:
+        en: Ratio of pollutants in the pipe network connected to the device's output
+            port 2
+        zh: 设备输出口2连接的管道网污染物的比例
+RatioPollutedWater:
+    desc:
+        en: Ratio of polluted water inside the device
+        zh: 设备内部污染水的比例
+RatioPollutedWaterInput:
+    desc:
+        en: The ratio of polluted water in device's Input Atmosphere
+        zh: 设备输入大气中污水的比例
+RatioPollutedWaterInput2:
+    desc:
+        en: The ratio of polluted water in device's Input2 Atmosphere
+        zh: 设备第二输入大气中污水的比例
+RatioPollutedWaterOutput:
+    desc:
+        en: The ratio of polluted water in device's Output Atmosphere
+        zh: 设备输出大气中污水的比例
+RatioPollutedWaterOutput2:
+    desc:
+        en: The ratio of polluted water in device's Output2 Atmosphere
+        zh: 设备第二输出大气中污水的比例
+RatioSilanol:
+    desc:
+        en: Ratio of silanol in the device's internal space
+        zh: 设备内部空间中硅烷醇所占的比例
+RatioSilanolInput:
+    desc:
+        en: The ratio of silanol in device's Input Atmosphere
+        zh: 设备输入大气中硅烷醇的比例
+RatioSilanolInput2:
+    desc:
+        en: The ratio of silanol in device's Input2 Atmosphere
+        zh: 设备第二输入大气中硅烷醇的比例
+RatioSilanolOutput:
+    desc:
+        en: The ratio of silanol in device's Output Atmosphere
+        zh: 设备输出大气中硅烷醇的比例
+RatioSilanolOutput2:
+    desc:
+        en: The ratio of silanol in device's Output2 Atmosphere
+        zh: 设备第二输出大气中硅烷醇的比例
+RatioSteam:
+    desc:
+        en: Ratio of steam in the device's internal space
+        zh: 设备内部空间中水蒸汽的比例
+RatioSteamInput:
+    desc:
+        en: Ratio of steam in the pipe network connected to the device's input port
+        zh: 设备输入口连接的管道网中水蒸汽的比例
+RatioSteamInput2:
+    desc:
+        en: Ratio of steam in the pipe network connected to the device's input port
+            2
+        zh: 设备输入口2连接的管道网中水蒸汽的比例
+RatioSteamOutput:
+    desc:
+        en: Ratio of steam in the pipe network connected to the device's output port
+        zh: 设备输出口连接的管道网中水蒸汽的比例
+RatioSteamOutput2:
+    desc:
+        en: Ratio of steam in the pipe network connected to the device's output port
+            2
+        zh: 设备输出口2连接的管道网中水蒸汽的比例
+RatioWater:
+    desc:
+        en: Ratio of water inside the device
+        zh: 设备内部水的比例
+RatioWaterInput:
+    desc:
+        en: Ratio of water in the pipe network connected to the device's input port
+        zh: 设备输入口连接的管道网水的比例
+RatioWaterInput2:
+    desc:
+        en: Ratio of water in the pipe network connected to the device's input port
+            2
+        zh: 设备输入口2连接的管道网水的比例
+RatioWaterOutput:
+    desc:
+        en: Ratio of water in the pipe network connected to the device's output port
+        zh: 设备输出口连接的管道网水的比例
+RatioWaterOutput2:
+    desc:
+        en: Ratio of water in the pipe network connected to the device's output port
+            2
+        zh: 设备输出口2连接的管道网水的比例
+Reagents:
+    desc:
+        en: Total number of reagents inside the device
+        zh: 设备内部的原料总数
+RecipeHash:
+    desc:
+        en: Hash value of the recipe item the device is currently producing
+        zh: 设备当前生产的配方物品的哈希值
+ReEntryAltitude:
+    desc:
+        en: Altitude at which the rocket begins deceleration during landing, must
+            be between 25km and 120km
+        zh: 火箭着陆时开始减速的高度, 范围必须位于25km至120km之间
+ReferenceId:
+    desc:
+        en: Unique reference identifier of this object
+        zh: 本对象的唯一参考标识符
+RequestHash:
+    desc:
+        en: When set to an item's unique identifier (prefab hash), immediately requests
+            the corresponding item from this device
+        zh: 该值设置为物品的唯一标识符(物品预设哈希值)时, 将立刻从该设备请求对应物品
+RequiredPower:
+    desc:
+        en: Electrical power of the device when idle, not necessarily equal to actual
+            power consumption
+        zh: 设备闲置时的电功率, 不一定等于实际消耗的电功率
+Reset:
+    desc:
+        en: Resets the internal state of the PID controller, clears all accumulated
+            error and resets output to zero. Useful for restarting or recovering from
+            instability.
+        zh: 重置PID控制器的内部状态, 清除所有累积误差并将输出归零. 这对于重新开始或从不稳定状态恢复非常有用.
+ReturnFuelCost:
+    desc:
+        en: Gets the remaining fuel in the rocket's fuel tank
+        zh: 获取火箭燃料箱中的剩余燃料
+Richness:
+    desc:
+        en: Abundance of mineable deposits at the rocket's target space map location
+        zh: 火箭目标太空地图地点可开采矿床的丰度
+Rpm:
+    desc:
+        en: Rotation speed of the device's rotating component
+        zh: 设备旋转装置的转速
+SemiMajorAxis:
+    desc:
+        en: The longest radius of the elliptical orbit, in astronomical units, measuring
+            half of the major axis. Determines the size of the orbit.
+        zh: 椭圆轨道的最长半径，以天文单位表示，量度主轴的一半。决定了轨道的大小
+Setpoint:
+    desc:
+        en: The target value the PID controller aims to reach for the process variable.
+            The controller adjusts its output to minimize the difference between setpoint
+            and process variable.
+        zh: PID控制器旨在尽可能达到的值。这是过程变量的目标值，控制器将调整其输出以最小化设定点与过程变量之间的差异。
+Setting:
+    desc:
+        en: Readable/writable Setting value. Its specific effect depends on the device
+            and varies across different devices.
+        zh: 可读取或写入的Setting(设置)值，具体作用取决于设备，在不同的设备上起的作用也不同
+SettingInput:
+    desc:
+        en: Input setting of the device
+        zh: 设备的输入设置
+SettingOutput:
+    desc:
+        en: Output setting of the device
+        zh: 设备的输出设置
+SignalID:
+    desc:
+        en: Returns the ID of the strongest signal detected by this device
+        zh: 返回此设备检测到的最强信号的ID
+SignalStrength:
+    desc:
+        en: Returns the angular difference on the celestial sphere between the device's
+            pointing direction and the strongest detectable signal direction.
+        zh: 返回此设备所指向的方向，与此设备能够检测到的信号中最强的信号方向在天球上的角度差值
+Sites:
+    desc:
+        en: Number of discovered locations at the rocket's current target space map
+            site
+        zh: 火箭当前目标太空地图地点已发现的位置数量
+Size:
+    desc:
+        en: Scale of mineable deposits at the rocket's target space map site
+        zh: 火箭目标太空地图地点可开采矿床的规模
+SizeX:
+    desc:
+        en: X (right) axis size of the object in large grid (large grid edge length
+            is 2 meters)
+        zh: 对象在大网格中的X(右)轴尺寸(大网格的边长为2米)
+SizeY:
+    desc:
+        en: Y (up) axis size of the object in large grid (large grid edge length is
+            2 meters)
+        zh: 对象在大网格中的Y(上)轴尺寸(大网格的边长为2米)
+SizeZ:
+    desc:
+        en: Z (forward) axis size of the object in large grid (large grid edge length
+            is 2 meters)
+        zh: 对象在大网格中的Z(前)轴尺寸(大网格的边长为2米)
+SolarAngle:
+    desc:
+        en: Solar angle of the device
+        zh: 设备的太阳角度
+SolarIrradiance:
+    desc:
+        en: Current solar irradiance intensity
+        zh: 当前阳光辐射强度
+SoundAlert:
+    desc:
+        en: Plays an audible alert on the device's speaker
+        zh: 在设备的扬声器上播放声音警报
+StackSize:
+    desc:
+        en: Returns the stack size of the device's internal memory
+        zh: 返回设备内部内存的堆栈大小
+Stress:
+    desc:
+        en: Stress builds up when the machine operates under harsh conditions. The
+            machine will shut down forcibly when stress reaches 100.
+        zh: 机器在恶劣条件下工作的时候会产生压应力。当压应力达到100时，机器将强制停机
+StunDamage:
+    desc:
+        en: The amount of stun damage on the entity
+        zh: 实体受到的眩晕伤害量
+Survey:
+    desc:
+        en: Survey state of the rocket for a space map site, returns a quantified
+            value. Equals 1 when 100% surveyed. Returns -1 if not surveying.
+        zh: 火箭对太空地图地点进行勘探时的状态，返回一个量化后的值，当100%勘探完成时等于1。若未处于勘探状态，返回-1
+TargetNodeType:
+    desc:
+        en: Returns the NodeType as an integer for the target location for a Rocket
+        zh: 返回火箭目标位置的节点类型整数
+TargetPadIndex:
+    desc:
+        en: Index of the landing pad in the device data network. Can be used to guide
+            trade ships to land on the corresponding landing pad.
+        zh: 设备数据网络中着陆场的索引值，使用该值可以引导贸易飞船降落在与该索引值对应的着陆场
+TargetPrefabHash:
+    desc:
+        en: Prefab hash
+        zh: 预设哈希
+TargetSlotIndex:
+    desc:
+        en: Slot index of the target device. The device will interact with the slot
+            at the corresponding index.
+        zh: 目标设备的插槽索引，该设备将与对应索引的槽位进行交互
+TargetX:
+    desc:
+        en: X-axis position of the target in world coordinates
+        zh: 世界坐标下目标在X轴上的位置
+TargetY:
+    desc:
+        en: Y-axis position of the target in world coordinates
+        zh: 世界坐标下目标在Y轴上的位置
+TargetZ:
+    desc:
+        en: Z-axis position of the target in world coordinates
+        zh: 世界坐标下目标在Z轴上的位置
+Temperature:
+    desc:
+        en: Current temperature reading of the device
+        zh: 设备当前的温度读数
+TemperatureDifferentialEfficiency:
+    desc:
+        en: Efficiency coefficient representing the impact of temperature difference
+            between input and waste pipe networks on machine work efficiency
+        zh: 输入口与废物口连接的管道网的温度差值对机器工作效率造成的影响的效率系数
+TemperatureExternal:
+    desc:
+        en: External temperature of the object (e.g. current external environmental
+            temperature of a spacesuit)
+        zh: 对象外部的温度(例如，太空服当前的外部环境温度)
+TemperatureInput:
+    desc:
+        en: Temperature reading of the pipe network connected to the device's input
+            port
+        zh: 设备输入口连接的管道网的温度读数
+TemperatureInput2:
+    desc:
+        en: Temperature reading of the pipe network connected to the device's input
+            port 2
+        zh: 设备输入口2连接的管道网的温度读数
+TemperatureOutput:
+    desc:
+        en: Temperature reading of the pipe network connected to the device's output
+            port
+        zh: 设备输出口连接的管道网的温度读数
+TemperatureOutput2:
+    desc:
+        en: Temperature reading of the pipe network connected to the device's output
+            port 2
+        zh: 设备输出口2连接的管道网的温度读数
+TemperatureSetting:
+    desc:
+        en: Sets the target temperature inside the object (e.g. temperature setting
+            of a spacesuit)
+        zh: 设置对象内部的目标温度(例如，太空服的温度设置)
+Throttle:
+    desc:
+        en: 'Increases machine operating speed (range: 0-100)'
+        zh: 提高机器工作速度(范围:0-100)
+Thrust:
+    desc:
+        en: Total thrust of all rocket engines on the rocket, in Newtons
+        zh: 火箭上所有火箭发动机的总推力，单位为牛顿
+ThrustToWeight:
+    desc:
+        en: Thrust-to-weight ratio of the rocket. Affected by celestial gravity. Rockets
+            with lower TWR consume more fuel during launch and landing.
+        zh: 火箭的推重比。推重比受到天体重力的影响。推重比较低的火箭在发射和着陆过程中会消耗更多燃料
+Time:
+    desc:
+        en: Time axis
+        zh: 时间轴
+TimeToDestination:
+    desc:
+        en: Estimated time for the rocket to reach the destination, in seconds
+        zh: 火箭到达目标地点的预计时间，单位为秒
+TotalMoles:
+    desc:
+        en: Returns the total moles of substance inside the device
+        zh: 返回设备内物质的总摩尔数
+TotalMolesInput:
+    desc:
+        en: Returns the total moles of substance in the pipe network connected to
+            the device's input port
+        zh: 返回设备输入口连接的管道网中物质的总摩尔数
+TotalMolesInput2:
+    desc:
+        en: Returns the total moles of substance in the pipe network connected to
+            the device's input port 2
+        zh: 返回设备输入口2连接的管道网中物质的总摩尔数
+TotalMolesOutput:
+    desc:
+        en: Returns the total moles of substance in the pipe network connected to
+            the device's output port
+        zh: 返回设备输出口连接的管道网中物质的总摩尔数
+TotalMolesOutput2:
+    desc:
+        en: Returns the total moles of substance in the pipe network connected to
+            the device's output port 2
+        zh: 返回设备输出口2连接的管道网中物质的总摩尔数
+TotalQuantity:
+    desc:
+        en: Estimated total mineable resources at the rocket's target space map site
+        zh: 火箭目标太空地图地点预估可开采的资源总量
+TrueAnomaly:
+    desc:
+        en: Angular parameter defining the position of a body in Keplerian orbit.
+            The angle between the periapsis direction and the body's current position
+            as seen from the primary focus.
+        zh: 定义沿开普勒轨道运动天体位置的角度参数。指从椭圆主焦点（天体绕行点）观察，近拱点方向与天体当前位置之间的夹角
+VelocityMagnitude:
+    desc:
+        en: Magnitude of the current velocity vector
+        zh: 当前速度矢量的大小
+VelocityRelativeX:
+    desc:
+        en: X-axis component of the current velocity vector in world coordinates
+        zh: 当前速度矢量在世界坐标X轴上的分量
+VelocityRelativeY:
+    desc:
+        en: Y-axis component of the current velocity vector in world coordinates
+        zh: 当前速度矢量在世界坐标Y轴上的分量
+VelocityRelativeZ:
+    desc:
+        en: Z-axis component of the current velocity vector in world coordinates
+        zh: 当前速度矢量在世界坐标Z轴上的分量
+VelocityX:
+    desc:
+        en: Velocity component of the entity on the world X axis
+        zh: 实体在世界坐标X轴上的速度分量
+VelocityY:
+    desc:
+        en: Velocity component of the entity on the world Y axis
+        zh: 实体在世界坐标Y轴上的速度分量
+VelocityZ:
+    desc:
+        en: Velocity component of the entity on the world Z axis
+        zh: 实体在世界坐标Z轴上的速度分量
+Vertical:
+    desc:
+        en: Vertical angle setting of the device
+        zh: 设备的垂直角度设置
+VerticalRatio:
+    desc:
+        en: Vertical angle percentage setting of the device
+        zh: 设备的垂直角度百分比设置
+Volume:
+    desc:
+        en: Returns the internal volume of the device
+        zh: 返回设备内部容积
+VolumeOfLiquid:
+    desc:
+        en: Total volume of all liquids detectable by the device, in liters
+        zh: 该设备能够检测到的所有液体的总体积，单位为L
+WattsReachingContact:
+    desc:
+        en: Effective power of the satellite antenna when detecting an interstellar
+            trade ship. Affected by transmit power and the alignment of the antenna's
+            pointing vector with the ship's bearing.
+        zh: 卫星天线检测星际贸易飞船时的有效功率。该值受天线的发射功率和天线指向矢量与贸易飞船方位偏离程度影响
+Weight:
+    desc:
+        en: Weight of the rocket (including fuel and cargo), in Newtons. Weight is
+            affected by local celestial gravity.
+        zh: 火箭(包括燃料和货物)的重量，以牛顿为单位。重量受当地天体重力影响
+WorkingGasEfficiency:
+    desc:
+        en: Working efficiency impact of the medium gas reported by the device, a
+            float value between 0 and 1
+        zh: 设备反馈的媒介气体工作效率的影响，是取值范围介于0和1的浮点数

@@ -1,0 +1,3377 @@
+AirCon:
+    desc:
+        zh: 空调模式
+        en: Air Conditioner Mode
+    enums:
+        Cold:
+            desc:
+                zh: 冷
+                en: Cold
+            type: Constant
+            value: 0
+        Hot:
+            desc:
+                zh: 热
+                en: Hot
+            type: Constant
+            value: 1
+
+AirControl:
+    desc:
+        zh: 空气控制
+        en: Air Control
+    enums:
+        Draught:
+            desc:
+                zh: 通风
+                en: Draught
+            type: Constant
+            value: 4
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 0
+        Offline:
+            desc:
+                zh: 离线
+                en: Offline
+            type: Constant
+            value: null
+        Pressure:
+            desc:
+                zh: 压力
+                en: Pressure
+            type: Constant
+            value: 2
+
+Color:
+    desc:
+        zh: 颜色
+        en: Color
+    enums:
+        Black:
+            desc:
+                zh: 黑色
+                en: Black
+            type: Constant
+            value: 7
+        Blue:
+            desc:
+                zh: 蓝色
+                en: Blue
+            type: Constant
+            value: 0
+        Brown:
+            desc:
+                zh: 棕色
+                en: Brown
+            type: Constant
+            value: 8
+        Gray:
+            desc:
+                zh: 灰色
+                en: Gray
+            type: Constant
+            value: null
+        Green:
+            desc:
+                zh: 绿色
+                en: Green
+            type: Constant
+            value: 2
+        Khaki:
+            desc:
+                zh: 卡其色
+                en: Khaki
+            type: Constant
+            value: 9
+        Orange:
+            desc:
+                zh: 橙色
+                en: Orange
+            type: Constant
+            value: 3
+        Pink:
+            desc:
+                zh: 粉色
+                en: Pink
+            type: Constant
+            value: 10
+        Purple:
+            desc:
+                zh: 紫色
+                en: Purple
+            type: Constant
+            value: null
+        Red:
+            desc:
+                zh: 红色
+                en: Red
+            type: Constant
+            value: 4
+        White:
+            desc:
+                zh: 白色
+                en: White
+            type: Constant
+            value: 6
+        Yellow:
+            desc:
+                zh: 黄色
+                en: Yellow
+            type: Constant
+            value: 5
+
+DaylightsensorMode:
+    desc:
+        zh: 日光传感器模式
+        en: Daylight Sensor Mode
+    enums:
+        Default:
+            desc:
+                zh: 默认
+                en: Default
+            type: Constant
+            value: 0
+        Horizontal:
+            desc:
+                zh: 水平
+                en: Horizontal
+            type: Constant
+            value: 1
+        Vertical:
+            desc:
+                zh: 垂直
+                en: Vertical
+            type: Constant
+            value: 2
+
+DisplayMode:
+    desc:
+        zh: 显示模式
+        en: Display Mode
+    enums:
+        Celsius:
+            desc:
+                zh: 摄氏度
+                en: Celsius
+            type: Constant
+            value: 4
+        Credits:
+            desc:
+                zh: 积分
+                en: Credits
+            type: Constant
+            value: 6
+        Days:
+            desc:
+                zh: 天数
+                en: Days
+            type: Constant
+            value: 9
+        Default:
+            desc:
+                zh: 默认
+                en: Default
+            type: Constant
+            value: 0
+        Degrees:
+            desc:
+                zh: 角度
+                en: Degrees
+            type: Constant
+            value: 16
+        Fahrenheit:
+            desc:
+                zh: 华氏度
+                en: Fahrenheit
+            type: Constant
+            value: 11
+        Kelvin:
+            desc:
+                zh: 开尔文
+                en: Kelvin
+            type: Constant
+            value: null
+        Litres:
+            desc:
+                zh: 升
+                en: Litres
+            type: Constant
+            value: null
+        Meters:
+            desc:
+                zh: 米
+                en: Meters
+            type: Constant
+            value: null
+        Minutes:
+            desc:
+                zh: 分钟
+                en: Minutes
+            type: Constant
+            value: null
+        Mol:
+            desc:
+                zh: 摩尔
+                en: Mol
+            type: Constant
+            value: 13
+        Newtons:
+            desc:
+                zh: 牛顿
+                en: Newtons
+            type: Constant
+            value: 15
+        Pa:
+            desc:
+                zh: 帕斯卡
+                en: Pa
+            type: Constant
+            value: 14
+        Percent:
+            desc:
+                zh: 百分比
+                en: Percent
+            type: Constant
+            value: 1
+        Power:
+            desc:
+                zh: 功率
+                en: Power
+            type: Constant
+            value: null
+        Seconds:
+            desc:
+                zh: 秒
+                en: Seconds
+            type: Constant
+            value: null
+        String:
+            desc:
+                zh: 字符串
+                en: String
+            type: Constant
+            value: null
+
+ElevatorMode:
+    desc:
+        zh: 电梯模式
+        en: Elevator Mode
+    enums:
+        Downward:
+            desc:
+                zh: 向下
+                en: Downward
+            type: Constant
+            value: null
+        Stationary:
+            desc:
+                zh: 静止
+                en: Stationary
+            type: Constant
+            value: 0
+        Upward:
+            desc:
+                zh: 向上
+                en: Upward
+            type: Constant
+            value: 1
+
+EntityState:
+    desc:
+        zh: 实体状态
+        en: Entity State
+    enums:
+        Alive:
+            desc:
+                zh: 存活
+                en: Alive
+            type: Constant
+            value: 0
+        Dead:
+            desc:
+                zh: 死亡
+                en: Dead
+            type: Constant
+            value: 1
+        Decay:
+            desc:
+                zh: 腐烂
+                en: Decay
+            type: Constant
+            value: 3
+        Unconscious:
+            desc:
+                zh: 昏迷
+                en: Unconscious
+            type: Constant
+            value: 2
+
+GasType:
+    desc:
+        zh: 气体类型
+        en: Gas Type
+    enums:
+        Air:
+            desc:
+                zh: 空气
+                en: Air
+            type: Constant
+            value: 3
+        CarbonDioxide:
+            desc:
+                zh: 二氧化碳
+                en: Carbon Dioxide
+            type: Constant
+            value: 4
+        Fuel:
+            desc:
+                zh: 燃料
+                en: Fuel
+            type: Constant
+            value: 9
+        Hydrogen:
+            desc:
+                zh: 氢气
+                en: Hydrogen
+            type: Constant
+            value: 16384
+        LiquidCarbonDioxide:
+            desc:
+                zh: 液态二氧化碳
+                en: Liquid Carbon Dioxide
+            type: Constant
+            value: 2048
+        LiquidHydrogen:
+            desc:
+                zh: 液态氢气
+                en: Liquid Hydrogen
+            type: Constant
+            value: 32768
+        LiquidNitrogen:
+            desc:
+                zh: 液态氮气
+                en: Liquid Nitrogen
+            type: Constant
+            value: 128
+        LiquidNitrousOxide:
+            desc:
+                zh: 液态氧化亚氮
+                en: Liquid Nitrous Oxide
+            type: Constant
+            value: 8192
+        LiquidOxygen:
+            desc:
+                zh: 液态氧气
+                en: Liquid Oxygen
+            type: Constant
+            value: 256
+        LiquidPollutant:
+            desc:
+                zh: 液态污染物
+                en: Liquid Pollutant
+            type: Constant
+            value: 4096
+        LiquidVolatiles:
+            desc:
+                zh: 液态挥发物
+                en: Liquid Volatiles
+            type: Constant
+            value: 512
+        Nitrogen:
+            desc:
+                zh: 氮气
+                en: Nitrogen
+            type: Constant
+            value: 2
+        NitrousOxide:
+            desc:
+                zh: 氧化亚氮
+                en: Nitrous Oxide
+            type: Constant
+            value: 64
+        Oxygen:
+            desc:
+                zh: 氧气
+                en: Oxygen
+            type: Constant
+            value: 1
+        Pollutant:
+            desc:
+                zh: 污染物
+                en: Pollutant
+            type: Constant
+            value: 16
+        PollutedWater:
+            desc:
+                zh: 污染水
+                en: Polluted Water
+            type: Constant
+            value: 65536
+        Steam:
+            desc:
+                zh: 蒸汽
+                en: Steam
+            type: Constant
+            value: 1024
+        Undefined:
+            desc:
+                zh: 未定义
+                en: Undefined
+            type: Constant
+            value: 0
+        Volatiles:
+            desc:
+                zh: 挥发物
+                en: Volatiles
+            type: Constant
+            value: 8
+        Water:
+            desc:
+                zh: 水
+                en: Water
+            type: Constant
+            value: 32
+
+CompareOperator:
+    desc:
+        zh: 比较运算符
+        en: Comparison Operator
+    enums:
+        Equals:
+            desc:
+                zh: 等于
+                en: Equals
+            type: Constant
+            value: 0
+        Greater:
+            desc:
+                zh: 大于
+                en: Greater
+            type: Constant
+            value: 1
+        Less:
+            desc:
+                zh: 小于
+                en: Less
+            type: Constant
+            value: 2
+        NotEquals:
+            desc:
+                zh: 不等于
+                en: Not Equals
+            type: Constant
+            value: 3
+
+HashType:
+    desc:
+        zh: 哈希类型
+        en: Hash Type
+    enums:
+        GasLiquid:
+            desc:
+                zh: 气液
+                en: Gas Liquid
+            type: Constant
+            value: 1
+        Prefab:
+            desc:
+                zh: 预制体
+                en: Prefab
+            type: Constant
+            value: 0
+
+LogicSlotType:
+    desc:
+        zh: 逻辑槽类型
+        en: Logic Slot Type
+    enums:
+        Charge:
+            desc:
+                zh: 电荷
+                en: Charge
+            type: Constant
+            value: 10
+        ChargeRatio:
+            desc:
+                zh: 电荷比
+                en: Charge Ratio
+            type: Constant
+            value: 11
+        Class:
+            desc:
+                zh: 类别
+                en: Class
+            type: Constant
+            value: 12
+        Damage:
+            desc:
+                zh: 损伤
+                en: Damage
+            type: Constant
+            value: 4
+        Efficiency:
+            desc:
+                zh: 效率
+                en: Efficiency
+            type: Constant
+            value: 5
+        FilterType:
+            desc:
+                zh: 过滤器类型
+                en: Filter Type
+            type: Constant
+            value: 26
+        FreeSlots:
+            desc:
+                zh: 空闲槽位
+                en: Free Slots
+            type: Constant
+            value: 31
+        Growth:
+            desc:
+                zh: 生长
+                en: Growth
+            type: Constant
+            value: 7
+        HarvestedHash:
+            desc:
+                zh: 收获哈希
+                en: Harvested Hash
+            type: Constant
+            value: 27
+        Health:
+            desc:
+                zh: 健康
+                en: Health
+            type: Constant
+            value: 6
+        LineNumber:
+            desc:
+                zh: 行号
+                en: Line Number
+            type: Constant
+            value: 19
+        Lock:
+            desc:
+                zh: 锁定
+                en: Lock
+            type: Constant
+            value: 23
+        Mature:
+            desc:
+                zh: 成熟
+                en: Mature
+            type: Constant
+            value: 16
+        MaturityRatio:
+            desc:
+                zh: 成熟比
+                en: Maturity Ratio
+            type: Constant
+            value: null
+        MaxQuantity:
+            desc:
+                zh: 最大数量
+                en: Max Quantity
+            type: Constant
+            value: null
+        Mode:
+            desc:
+                zh: 模式
+                en: Mode
+            type: Constant
+            value: null
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: null
+        OccupantHash:
+            desc:
+                zh: 占用者哈希
+                en: Occupant Hash
+            type: Constant
+            value: 2
+        Occupled:
+            desc:
+                zh: 已占用
+                en: Occupied
+            type: Constant
+            value: 1
+        On:
+            desc:
+                zh: 开启
+                en: On
+            type: Constant
+            value: 22
+        Open:
+            desc:
+                zh: 打开
+                en: Open
+            type: Constant
+            value: 21
+        PrefabHash:
+            desc:
+                zh: 预制体哈希
+                en: Prefab Hash
+            type: Constant
+            value: 17
+        Pressure:
+            desc:
+                zh: 压力
+                en: Pressure
+            type: Constant
+            value: 8
+        PressureAir:
+            desc:
+                zh: 空气压力
+                en: Air Pressure
+            type: Constant
+            value: 14
+        PressureWaste:
+            desc:
+                zh: 废气压力
+                en: Waste Pressure
+            type: Constant
+            value: 13
+        Quantity:
+            desc:
+                zh: 数量
+                en: Quantity
+            type: Constant
+            value: 3
+        Referenced:
+            desc:
+                zh: 已引用
+                en: Referenced
+            type: Constant
+            value: 26
+        Seeding:
+            desc:
+                zh: 播种
+                en: Seeding
+            type: Constant
+            value: 18
+        SeedingRatio:
+            desc:
+                zh: 播种比
+                en: Seeding Ratio
+            type: Constant
+            value: 30
+        SortingClass:
+            desc:
+                zh: 分类类别
+                en: Sorting Class
+            type: Constant
+            value: 24
+        Temperature:
+            desc:
+                zh: 温度
+                en: Temperature
+            type: Constant
+            value: 9
+        TotalSlots:
+            desc:
+                zh: 总槽位
+                en: Total Slots
+            type: Constant
+            value: 32
+        Volume:
+            desc:
+                zh: 体积
+                en: Volume
+            type: Constant
+            value: 20
+
+LogicType:
+    desc:
+        zh: 逻辑类型
+        en: Logic Type
+    enums:
+        Acceleration:
+            desc:
+                zh: 加速度
+                en: Acceleration
+            type: Constant
+            value: 216
+        Activate:
+            desc:
+                zh: 激活
+                en: Activate
+            type: Constant
+            value: 9
+        AirRelease:
+            desc:
+                zh: 空气释放
+                en: Air Release
+            type: Constant
+            value: 75
+        AlignmentError:
+            desc:
+                zh: 对齐误差
+                en: Alignment Error
+            type: Constant
+            value: 243
+        Altitude:
+            desc:
+                zh: 高度
+                en: Altitude
+            type: Constant
+            value: 269
+        Apex:
+            desc:
+                zh: 顶点
+                en: Apex
+            type: Constant
+            value: 238
+        AutoLand:
+            desc:
+                zh: 自动着陆
+                en: Auto Land
+            type: Constant
+            value: 226
+        AutoShutOff:
+            desc:
+                zh: 自动关闭
+                en: Auto Shut Off
+            type: Constant
+            value: 218
+        BestContactFilter:
+            desc:
+                zh: 最佳接触过滤器
+                en: Best Contact Filter
+            type: Constant
+            value: 267
+        Bpm:
+            desc:
+                zh: 每分钟心跳
+                en: BPM
+            type: Constant
+            value: 103
+        BurnTimeRemaining:
+            desc:
+                zh: 剩余燃烧时间
+                en: Burn Time Remaining
+            type: Constant
+            value: 225
+        CelestialHash:
+            desc:
+                zh: 天体哈希
+                en: Celestial Hash
+            type: Constant
+            value: 242
+        CelestialParentHash:
+            desc:
+                zh: 父天体哈希
+                en: Celestial Parent Hash
+            type: Constant
+            value: 250
+        Channel0:
+            desc:
+                zh: 通道0
+                en: Channel 0
+            type: Constant
+            value: 165
+        Channel1:
+            desc:
+                zh: 通道1
+                en: Channel 1
+            type: Constant
+            value: 166
+        Channel2:
+            desc:
+                zh: 通道2
+                en: Channel 2
+            type: Constant
+            value: 167
+        Channel3:
+            desc:
+                zh: 通道3
+                en: Channel 3
+            type: Constant
+            value: 168
+        Channel4:
+            desc:
+                zh: 通道4
+                en: Channel 4
+            type: Constant
+            value: 169
+        Channel5:
+            desc:
+                zh: 通道5
+                en: Channel 5
+            type: Constant
+            value: 170
+        Channel6:
+            desc:
+                zh: 通道6
+                en: Channel 6
+            type: Constant
+            value: 171
+        Channel7:
+            desc:
+                zh: 通道7
+                en: Channel 7
+            type: Constant
+            value: 172
+        Charge:
+            desc:
+                zh: 电荷
+                en: Charge
+            type: Constant
+            value: 11
+        Chart:
+            desc:
+                zh: 图表
+                en: Chart
+            type: Constant
+            value: 256
+        ChartedNavPoints:
+            desc:
+                zh: 已标记导航点
+                en: Charted Nav Points
+            type: Constant
+            value: 259
+        ClearMemory:
+            desc:
+                zh: 清除内存
+                en: Clear Memory
+            type: Constant
+            value: null
+        CollectableGoods:
+            desc:
+                zh: 可收集物品
+                en: Collectable Goods
+            type: Constant
+            value: null
+        Color:
+            desc:
+                zh: 颜色
+                en: Color
+            type: Constant
+            value: null
+        Combustion:
+            desc:
+                zh: 燃烧
+                en: Combustion
+            type: Constant
+            value: null
+        CombustionInput:
+            desc:
+                zh: 燃烧输入
+                en: Combustion Input
+            type: Constant
+            value: 146
+        CombustionInput2:
+            desc:
+                zh: 燃烧输入2
+                en: Combustion Input 2
+            type: Constant
+            value: 147
+        CombustionLimiter:
+            desc:
+                zh: 燃烧限制器
+                en: Combustion Limiter
+            type: Constant
+            value: 153
+        CombustionOutput:
+            desc:
+                zh: 燃烧输出
+                en: Combustion Output
+            type: Constant
+            value: 148
+        CombustionOutput2:
+            desc:
+                zh: 燃烧输出2
+                en: Combustion Output 2
+            type: Constant
+            value: 149
+        CompletionRatio:
+            desc:
+                zh: 完成比率
+                en: Completion Ratio
+            type: Constant
+            value: 61
+        ContactTypeId:
+            desc:
+                zh: 接触类型ID
+                en: Contact Type ID
+            type: Constant
+            value: 198
+        CurrentCode:
+            desc:
+                zh: 当前代码
+                en: Current Code
+            type: Constant
+            value: 261
+        CurrentResearchPodType:
+            desc:
+                zh: 当前研究舱类型
+                en: Current Research Pod Type
+            type: Constant
+            value: 93
+        Density:
+            desc:
+                zh: 密度
+                en: Density
+            type: Constant
+            value: 262
+        DerivativeGain:
+            desc:
+                zh: 微分增益
+                en: Derivative Gain
+            type: Constant
+            value: 276
+        DestinationCode:
+            desc:
+                zh: 目标代码
+                en: Destination Code
+            type: Constant
+            value: 215
+        Discover:
+            desc:
+                zh: 发现
+                en: Discover
+            type: Constant
+            value: 255
+        DistanceAu:
+            desc:
+                zh: 天文单位距离
+                en: Distance AU
+            type: Constant
+            value: 244
+        DistanceKm:
+            desc:
+                zh: 千米距离
+                en: Distance Km
+            type: Constant
+            value: 249
+        DrillCondition:
+            desc:
+                zh: 钻探条件
+                en: Drill Condition
+            type: Constant
+            value: 240
+        DryMass:
+            desc:
+                zh: 干质量
+                en: Dry Mass
+            type: Constant
+            value: 220
+        Eccentricity:
+            desc:
+                zh: 偏心率
+                en: Eccentricity
+            type: Constant
+            value: 247
+        ElevatorLevel:
+            desc:
+                zh: 电梯层级
+                en: Elevator Level
+            type: Constant
+            value: 40
+        ElevatorSpeed:
+            desc:
+                zh: 电梯速度
+                en: Elevator Speed
+            type: Constant
+            value: 39
+        EntityState:
+            desc:
+                zh: 实体状态
+                en: Entity State
+            type: Constant
+            value: 239
+        EnvironmentEfficiency:
+            desc:
+                zh: 环境效率
+                en: Environment Efficiency
+            type: Constant
+            value: 104
+        Error:
+            desc:
+                zh: 错误
+                en: Error
+            type: Constant
+            value: 4
+        ExhaustVelocity:
+            desc:
+                zh: 排气速度
+                en: Exhaust Velocity
+            type: Constant
+            value: 235
+        ExportCount:
+            desc:
+                zh: 导出数量
+                en: Export Count
+            type: Constant
+            value: 63
+        Extended:
+            desc:
+                zh: 扩展
+                en: Extended
+            type: Constant
+            value: 272
+        Filtration:
+            desc:
+                zh: 过滤
+                en: Filtration
+            type: Constant
+            value: 74
+        FlightControlRule:
+            desc:
+                zh: 飞行控制规则
+                en: Flight Control Rule
+            type: Constant
+            value: 236
+        Flush:
+            desc:
+                zh: 冲洗
+                en: Flush
+            type: Constant
+            value: 174
+        ForceWrite:
+            desc:
+                zh: 强制写入
+                en: Force Write
+            type: Constant
+            value: 85
+        ForwardX:
+            desc:
+                zh: 前向X
+                en: Forward X
+            type: Constant
+            value: 227
+        ForwardY:
+            desc:
+                zh: 前向Y
+                en: Forward Y
+            type: Constant
+            value: 228
+        ForwardZ:
+            desc:
+                zh: 前向Z
+                en: Forward Z
+            type: Constant
+            value: 229
+        Fuel:
+            desc:
+                zh: 燃料
+                en: Fuel
+            type: Constant
+            value: 99
+        Harvest:
+            desc:
+                zh: 收获
+                en: Harvest
+            type: Constant
+            value: 69
+        Horizontal:
+            desc:
+                zh: 水平
+                en: Horizontal
+            type: Constant
+            value: 20
+        HorizontalRatio:
+            desc:
+                zh: 水平比率
+                en: Horizontal Ratio
+            type: Constant
+            value: 34
+        Idle:
+            desc:
+                zh: 空闲
+                en: Idle
+            type: Constant
+            value: 37
+        ImportCount:
+            desc:
+                zh: 导入数量
+                en: Import Count
+            type: Constant
+            value: 64
+        Inclination:
+            desc:
+                zh: 倾角
+                en: Inclination
+            type: Constant
+            value: 246
+        Index:
+            desc:
+                zh: 索引
+                en: Index
+            type: Constant
+            value: 241
+        IntegralGain:
+            desc:
+                zh: 积分增益
+                en: Integral Gain
+            type: Constant
+            value: 275
+        InterrogationProgress:
+            desc:
+                zh: 审讯进度
+                en: Interrogation Progress
+            type: Constant
+            value: 157
+        LineNumber:
+            desc:
+                zh: 行号
+                en: Line Number
+            type: Constant
+            value: 173
+        Lock:
+            desc:
+                zh: 锁定
+                en: Lock
+            type: Constant
+            value: 10
+        ManualResearchRequiredPod:
+            desc:
+                zh: 手动研究所需舱
+                en: Manual Research Required Pod
+            type: Constant
+            value: 94
+        Mass:
+            desc:
+                zh: 质量
+                en: Mass
+            type: Constant
+            value: 219
+        Maximum:
+            desc:
+                zh: 最大值
+                en: Maximum
+            type: Constant
+            value: 23
+        MineablesInQueue:
+            desc:
+                zh: 队列中可采矿
+                en: Mineables In Queue
+            type: Constant
+            value: 96
+        MineablesInVicinity:
+            desc:
+                zh: 附近可采矿
+                en: Mineables In Vicinity
+            type: Constant
+            value: 95
+        MinedQuantity:
+            desc:
+                zh: 已采矿数量
+                en: Mined Quantity
+            type: Constant
+            value: 266
+        Minimum:
+            desc:
+                zh: 最小值
+                en: Minimum
+            type: Constant
+            value: 277
+        MinimumWattsToContact:
+            desc:
+                zh: 最小接触功率
+                en: Minimum Watts To Contact
+            type: Constant
+            value: 163
+        Mode:
+            desc:
+                zh: 模式
+                en: Mode
+            type: Constant
+            value: 3
+        NameHash:
+            desc:
+                zh: 名称哈希
+                en: Name Hash
+            type: Constant
+            value: 268
+        NavPoints:
+            desc:
+                zh: 导航点
+                en: Nav Points
+            type: Constant
+            value: 258
+        NetworkFault:
+            desc:
+                zh: 网络故障
+                en: Network Fault
+            type: Constant
+            value: 273
+        NextWeatherEventTime:
+            desc:
+                zh: 下次天气事件时间
+                en: Next Weather Event Time
+            type: Constant
+            value: 97
+        NextWeatherHash:
+            desc:
+                zh: 下次天气哈希
+                en: Next Weather Hash
+            type: Constant
+            value: 281
+        On:
+            desc:
+                zh: 开启
+                en: On
+            type: Constant
+            value: 28
+        Open:
+            desc:
+                zh: 打开
+                en: Open
+            type: Constant
+            value: null
+        OperationalTemperatureEfficiency:
+            desc:
+                zh: 操作温度效率
+                en: Operational Temperature Efficiency
+            type: Constant
+            value: 150
+        OrbitPeriod:
+            desc:
+                zh: 轨道周期
+                en: Orbit Period
+            type: Constant
+            value: 245
+        Orientation:
+            desc:
+                zh: 方向
+                en: Orientation
+            type: Constant
+            value: 230
+        Output:
+            desc:
+                zh: 输出
+                en: Output
+            type: Constant
+            value: 70
+        PassedMoles:
+            desc:
+                zh: 通过摩尔数
+                en: Passed Moles
+            type: Constant
+            value: 234
+        Plant:
+            desc:
+                zh: 植物
+                en: Plant
+            type: Constant
+            value: 68
+        PositionX:
+            desc:
+                zh: 位置X
+                en: Position X
+            type: Constant
+            value: 76
+        PositionY:
+            desc:
+                zh: 位置Y
+                en: Position Y
+            type: Constant
+            value: 77
+        PositionZ:
+            desc:
+                zh: 位置Z
+                en: Position Z
+            type: Constant
+            value: 78
+        Power:
+            desc:
+                zh: 功率
+                en: Power
+            type: Constant
+            value: 1
+        PowerActual:
+            desc:
+                zh: 实际功率
+                en: Actual Power
+            type: Constant
+            value: 26
+        PowerGeneration:
+            desc:
+                zh: 发电功率
+                en: Power Generation
+            type: Constant
+            value: 65
+        PowerPotential:
+            desc:
+                zh: 潜在功率
+                en: Potential Power
+            type: Constant
+            value: 25
+        PowerRequired:
+            desc:
+                zh: 所需功率
+                en: Required Power
+            type: Constant
+            value: 36
+        PrefabHash:
+            desc:
+                zh: 预制体哈希
+                en: Prefab Hash
+            type: Constant
+            value: 84
+        Pressure:
+            desc:
+                zh: 压力
+                en: Pressure
+            type: Constant
+            value: 5
+        PressureEfficiency:
+            desc:
+                zh: 压力效率
+                en: Pressure Efficiency
+            type: Constant
+            value: 152
+        PressureExternal:
+            desc:
+                zh: 外部压力
+                en: External Pressure
+            type: Constant
+            value: 7
+        PressureInput:
+            desc:
+                zh: 压力输入
+                en: Pressure Input
+            type: Constant
+            value: 106
+        PressureInput2:
+            desc:
+                zh: 压力输入2
+                en: Pressure Input 2
+            type: Constant
+            value: 116
+        PressureInternal:
+            desc:
+                zh: 内部压力
+                en: Internal Pressure
+            type: Constant
+            value: 8
+        PressureOutput:
+            desc:
+                zh: 压力输出
+                en: Pressure Output
+            type: Constant
+            value: 126
+        PressureOutput2:
+            desc:
+                zh: 压力输出2
+                en: Pressure Output 2
+            type: Constant
+            value: 136
+        PressureSetting:
+            desc:
+                zh: 压力设置
+                en: Pressure Setting
+            type: Constant
+            value: 71
+        Progress:
+            desc:
+                zh: 进度
+                en: Progress
+            type: Constant
+            value: 214
+        ProportionalGain:
+            desc:
+                zh: 比例增益
+                en: Proportional Gain
+            type: Constant
+            value: 274
+        Quantity:
+            desc:
+                zh: 数量
+                en: Quantity
+            type: Constant
+            value: 27
+        Ratio:
+            desc:
+                zh: 比率
+                en: Ratio
+            type: Constant
+            value: null
+        RatioCarbonDioxide:
+            desc:
+                zh: 二氧化碳比率
+                en: Carbon Dioxide Ratio
+            type: Constant
+            value: null
+        RatioCarbonDioxideInput:
+            desc:
+                zh: 二氧化碳输入比率
+                en: Carbon Dioxide Input Ratio
+            type: Constant
+            value: null
+        RatioCarbonDioxideInput2:
+            desc:
+                zh: 二氧化碳输入比率2
+                en: Carbon Dioxide Input Ratio 2
+            type: Constant
+            value: null
+        RatioCarbonDioxideOutput:
+            desc:
+                zh: 二氧化碳输出比率
+                en: Carbon Dioxide Output Ratio
+            type: Constant
+            value: 129
+        RatioCarbonDioxideOutput2:
+            desc:
+                zh: 二氧化碳输出比率2
+                en: Carbon Dioxide Output Ratio 2
+            type: Constant
+            value: 139
+        RatioHydrogen:
+            desc:
+                zh: 氢气比率
+                en: Hydrogen Ratio
+            type: Constant
+            value: 252
+        RatioLiquidCarbonDioxide:
+            desc:
+                zh: 液态二氧化碳比率
+                en: Liquid Carbon Dioxide Ratio
+            type: Constant
+            value: 199
+        Ratiol.iquidCarbonDioxideInput:
+            desc:
+                zh: 液态二氧化碳输入比率
+                en: Liquid Carbon Dioxide Input Ratio
+            type: Constant
+            value: 200
+        Ratiol.iquidCarbonDioxideInput2:
+            desc:
+                zh: 液态二氧化碳输入比率2
+                en: Liquid Carbon Dioxide Input Ratio 2
+            type: Constant
+            value: 201
+        Ratiol.iquidCarbonDioxideOutput:
+            desc:
+                zh: 液态二氧化碳输出比率
+                en: Liquid Carbon Dioxide Output Ratio
+            type: Constant
+            value: 202
+        Ratiol.iquidCarbonDioxideOutput2:
+            desc:
+                zh: 液态二氧化碳输出比率2
+                en: Liquid Carbon Dioxide Output Ratio 2
+            type: Constant
+            value: 203
+        Ratiol.iquidNitrogen:
+            desc:
+                zh: 液态氮气比率
+                en: Liquid Nitrogen Ratio
+            type: Constant
+            value: 253
+        # 注意：原文档有两个 Ratiol.iquidNitrogen，第二个值为177，这里合并为一个，但原文档有重复，我们保留第一个253，第二个忽略或合并？文档中第二个是“Ratiol.iquidNitrogen（液态氮气比率） - Constant - 177”出现在后面，可能是重复，我们保留一个，但为了准确，我们保留第一个（253）和第二个（177）？实际上它们名称相同，但值不同，可能是错误。根据文档，第一个在RatioHydrogen后面，值为253；第二个在Ratiol.iquidNitrogen（177）处。我们这里只取一个，但为了不丢失，可以取第一个253，但第二个可能是不同的枚举项？名称完全相同，不可能。可能是笔误，我们只保留一个，值取253。或者我们可以添加注释，但YAML不能注释。我们选择保留253，忽略177。但为了完整，我们可以将第二个视为不同名称？但名称一样，所以只能取一个。我将保留253。
+        # 但为了不遗漏，我决定将第二个视为“Ratiol.iquidNitrogen2”？但文档没有。还是按原样，只列一个。
+        # 我将重新检查文档：有“Ratiol.iquidNitrogen（液态氮气比率） - Constant - 253”和后面“Ratiol.iquidNitrogen（液态氮气比率） - Constant - 177”，明显重复，可能是排版错误。我们只取253。
+        # 后续还有类似问题，但我会尽量处理。
+        Ratiol.iquidNitrogenInput:
+            desc:
+                zh: 液态氮气输入比率
+                en: Liquid Nitrogen Input Ratio
+            type: Constant
+            value: 178
+        Ratiol.iquidNitrogenInput2:
+            desc:
+                zh: 液态氮气输入比率2
+                en: Liquid Nitrogen Input Ratio 2
+            type: Constant
+            value: 179
+        Ratiol.IquidNitrogenOutput:
+            desc:
+                zh: 液态氮气输出比率
+                en: Liquid Nitrogen Output Ratio
+            type: Constant
+            value: 180
+        Ratiol.IquidNitrogenOutput2:
+            desc:
+                zh: 液态氮气输出比率2
+                en: Liquid Nitrogen Output Ratio 2
+            type: Constant
+            value: 181
+        Ratiol.IquidNitrousOxide:
+            desc:
+                zh: 液态氧化亚氮比率
+                en: Liquid Nitrous Oxide Ratio
+            type: Constant
+            value: 209
+        Ratiol.IquidNitrousOxideInput:
+            desc:
+                zh: 液态氧化亚氮输入比率
+                en: Liquid Nitrous Oxide Input Ratio
+            type: Constant
+            value: 210
+        Ratiol.IquidNitrousOxideInput2:
+            desc:
+                zh: 液态氧化亚氮输入比率2
+                en: Liquid Nitrous Oxide Input Ratio 2
+            type: Constant
+            value: 211
+        Ratiol.IquidNitrousOxideOutput:
+            desc:
+                zh: 液态氧化亚氮输出比率
+                en: Liquid Nitrous Oxide Output Ratio
+            type: Constant
+            value: 212
+        Ratiol.IquidNitrousOxideOutput2:
+            desc:
+                zh: 液态氧化亚氮输出比率2
+                en: Liquid Nitrous Oxide Output Ratio 2
+            type: Constant
+            value: 213
+        Ratiol.IquidOxygen:
+            desc:
+                zh: 液态氧气比率
+                en: Liquid Oxygen Ratio
+            type: Constant
+            value: 183
+        RatioLiquidOxygenInput:
+            desc:
+                zh: 液态氧气输入比率
+                en: Liquid Oxygen Input Ratio
+            type: Constant
+            value: 184
+        RatioLiquidOxygenInput2:
+            desc:
+                zh: 液态氧气输入比率2
+                en: Liquid Oxygen Input Ratio 2
+            type: Constant
+            value: 185
+        RatioLiquidOxygenOutput:
+            desc:
+                zh: 液态氧气输出比率
+                en: Liquid Oxygen Output Ratio
+            type: Constant
+            value: 186
+        RatioLiquidOxygenOutput2:
+            desc:
+                zh: 液态氧气输出比率2
+                en: Liquid Oxygen Output Ratio 2
+            type: Constant
+            value: 187
+        RatioLiquidPollutant:
+            desc:
+                zh: 液态污染物比率
+                en: Liquid Pollutant Ratio
+            type: Constant
+            value: 204
+        RatioLiquidPollutantInput:
+            desc:
+                zh: 液态污染物输入比率
+                en: Liquid Pollutant Input Ratio
+            type: Constant
+            value: 205
+        RatioLiquidPollutantInput2:
+            desc:
+                zh: 液态污染物输入比率2
+                en: Liquid Pollutant Input Ratio 2
+            type: Constant
+            value: 206
+        RatioLiquidPollutantOutput:
+            desc:
+                zh: 液态污染物输出比率
+                en: Liquid Pollutant Output Ratio
+            type: Constant
+            value: 207
+        RatioLiquidPollutantOutput2:
+            desc:
+                zh: 液态污染物输出比率2
+                en: Liquid Pollutant Output Ratio 2
+            type: Constant
+            value: 208
+        RatioLiquidVolatiles:
+            desc:
+                zh: 液态挥发物比率
+                en: Liquid Volatiles Ratio
+            type: Constant
+            value: 188
+        RatioLiquidVolatilesInput:
+            desc:
+                zh: 液态挥发物输入比率
+                en: Liquid Volatiles Input Ratio
+            type: Constant
+            value: 189
+        RatioLiquidVolatilesInput2:
+            desc:
+                zh: 液态挥发物输入比率2
+                en: Liquid Volatiles Input Ratio 2
+            type: Constant
+            value: 190
+        RatioLiquidVolatilesOutput:
+            desc:
+                zh: 液态挥发物输出比率
+                en: Liquid Volatiles Output Ratio
+            type: Constant
+            value: 191
+        RatioLiquidVolatilesOutput2:
+            desc:
+                zh: 液态挥发物输出比率2
+                en: Liquid Volatiles Output Ratio 2
+            type: Constant
+            value: 192
+        RatioNitrogen:
+            desc:
+                zh: 氮气比率
+                en: Nitrogen Ratio
+            type: Constant
+            value: 16
+        RatioNitrogenInput:
+            desc:
+                zh: 氮气输入比率
+                en: Nitrogen Input Ratio
+            type: Constant
+            value: 110
+        RatioNitrogenInput2:
+            desc:
+                zh: 氮气输入比率2
+                en: Nitrogen Input Ratio 2
+            type: Constant
+            value: 120
+        RatioNitrogenOutput:
+            desc:
+                zh: 氮气输出比率
+                en: Nitrogen Output Ratio
+            type: Constant
+            value: 130
+        RatioNitrogenOutput2:
+            desc:
+                zh: 氮气输出比率2
+                en: Nitrogen Output Ratio 2
+            type: Constant
+            value: 140
+        RatioNitrousOxide:
+            desc:
+                zh: 氧化亚氮比率
+                en: Nitrous Oxide Ratio
+            type: Constant
+            value: 83
+        RatioNitrousOxideInput:
+            desc:
+                zh: 氧化亚氮输入比率
+                en: Nitrous Oxide Input Ratio
+            type: Constant
+            value: 114
+        RatioNitrousOxideInput2:
+            desc:
+                zh: 氧化亚氮输入比率2
+                en: Nitrous Oxide Input Ratio 2
+            type: Constant
+            value: 124
+        RatioNitrousOxideOutput:
+            desc:
+                zh: 氧化亚氮输出比率
+                en: Nitrous Oxide Output Ratio
+            type: Constant
+            value: 134
+        RatioNitrousOxideOutput2:
+            desc:
+                zh: 氧化亚氮输出比率2
+                en: Nitrous Oxide Output Ratio 2
+            type: Constant
+            value: 144
+        RatioOxygen:
+            desc:
+                zh: 氧气比率
+                en: Oxygen Ratio
+            type: Constant
+            value: 14
+        RatioOxygenInput:
+            desc:
+                zh: 氧气输入比率
+                en: Oxygen Input Ratio
+            type: Constant
+            value: 108
+        RatioOxygenInput2:
+            desc:
+                zh: 氧气输入比率2
+                en: Oxygen Input Ratio 2
+            type: Constant
+            value: 118
+        RatioOxygenOutput:
+            desc:
+                zh: 氧气输出比率
+                en: Oxygen Output Ratio
+            type: Constant
+            value: 128
+        RatioOxygenOutput2:
+            desc:
+                zh: 氧气输出比率2
+                en: Oxygen Output Ratio 2
+            type: Constant
+            value: 138
+        RatioPollutant:
+            desc:
+                zh: 污染物比率
+                en: Pollutant Ratio
+            type: Constant
+            value: 17
+        RatioPollutantInput:
+            desc:
+                zh: 污染物输入比率
+                en: Pollutant Input Ratio
+            type: Constant
+            value: 111
+        RatioPollutantInput2:
+            desc:
+                zh: 污染物输入比率2
+                en: Pollutant Input Ratio 2
+            type: Constant
+            value: 121
+        RatioPollutantOutput:
+            desc:
+                zh: 污染物输出比率
+                en: Pollutant Output Ratio
+            type: Constant
+            value: 131
+        RatioPollutantOutput2:
+            desc:
+                zh: 污染物输出比率2
+                en: Pollutant Output Ratio 2
+            type: Constant
+            value: 141
+        RatioPollutedWater:
+            desc:
+                zh: 污染水比率
+                en: Polluted Water Ratio
+            type: Constant
+            value: 254
+        RatioSteam:
+            desc:
+                zh: 蒸汽比率
+                en: Steam Ratio
+            type: Constant
+            value: 193
+        RatioSteamInput:
+            desc:
+                zh: 蒸汽输入比率
+                en: Steam Input Ratio
+            type: Constant
+            value: 194
+        RatioSteamInput2:
+            desc:
+                zh: 蒸汽输入比率2
+                en: Steam Input Ratio 2
+            type: Constant
+            value: 195
+        RatioSteamOutput:
+            desc:
+                zh: 蒸汽输出比率
+                en: Steam Output Ratio
+            type: Constant
+            value: 196
+        RatioSteamOutput2:
+            desc:
+                zh: 蒸汽输出比率2
+                en: Steam Output Ratio 2
+            type: Constant
+            value: 197
+        RatioVolatiles:
+            desc:
+                zh: 挥发物比率
+                en: Volatiles Ratio
+            type: Constant
+            value: 18
+        RatioVolatilesInput:
+            desc:
+                zh: 挥发物输入比率
+                en: Volatiles Input Ratio
+            type: Constant
+            value: 112
+        RatioVolatilesInput2:
+            desc:
+                zh: 挥发物输入比率2
+                en: Volatiles Input Ratio 2
+            type: Constant
+            value: null
+        RatioVolatilesOutput:
+            desc:
+                zh: 挥发物输出比率
+                en: Volatiles Output Ratio
+            type: Constant
+            value: null
+        RatioVolatilesOutput2:
+            desc:
+                zh: 挥发物输出比率2
+                en: Volatiles Output Ratio 2
+            type: Constant
+            value: null
+        RatioWater:
+            desc:
+                zh: 水比率
+                en: Water Ratio
+            type: Constant
+            value: null
+        RatioWaterInput:
+            desc:
+                zh: 水输入比率
+                en: Water Input Ratio
+            type: Constant
+            value: 113
+        RatioWaterInput2:
+            desc:
+                zh: 水输入比率2
+                en: Water Input Ratio 2
+            type: Constant
+            value: 123
+        RatioWaterOutput:
+            desc:
+                zh: 水输出比率
+                en: Water Output Ratio
+            type: Constant
+            value: 133
+        RatioWaterOutput2:
+            desc:
+                zh: 水输出比率2
+                en: Water Output Ratio 2
+            type: Constant
+            value: 143
+        Reagents:
+            desc:
+                zh: 试剂
+                en: Reagents
+            type: Constant
+            value: 13
+        RecipeHash:
+            desc:
+                zh: 配方哈希
+                en: Recipe Hash
+            type: Constant
+            value: 41
+        ReEntryAltitude:
+            desc:
+                zh: 再入高度
+                en: Re-entry Altitude
+            type: Constant
+            value: 237
+        ReferenceId:
+            desc:
+                zh: 参考ID
+                en: Reference ID
+            type: Constant
+            value: 217
+        RequestHash:
+            desc:
+                zh: 请求哈希
+                en: Request Hash
+            type: Constant
+            value: 60
+        RequiredPower:
+            desc:
+                zh: 所需功率
+                en: Required Power
+            type: Constant
+            value: 33
+        Reset:
+            desc:
+                zh: 重置
+                en: Reset
+            type: Constant
+            value: 279
+        ReturnFuelCost:
+            desc:
+                zh: 返回燃料成本
+                en: Return Fuel Cost
+            type: Constant
+            value: 100
+        Richness:
+            desc:
+                zh: 丰富度
+                en: Richness
+            type: Constant
+            value: 263
+        Rpm:
+            desc:
+                zh: 每分钟转速
+                en: RPM
+            type: Constant
+            value: 155
+        SemMajorAxis:
+            desc:
+                zh: 半长轴
+                en: Semi-major Axis
+            type: Constant
+            value: 248
+        Setpoint:
+            desc:
+                zh: 设定点
+                en: Setpoint
+            type: Constant
+            value: 278
+        Setting:
+            desc:
+                zh: 设置
+                en: Setting
+            type: Constant
+            value: 12
+        SettingInput:
+            desc:
+                zh: 设置输入
+                en: Setting Input
+            type: Constant
+            value: 91
+        SettingOutput:
+            desc:
+                zh: 设置输出
+                en: Setting Output
+            type: Constant
+            value: 92
+        SignalID:
+            desc:
+                zh: 信号ID
+                en: Signal ID
+            type: Constant
+            value: 87
+        SignalStrength:
+            desc:
+                zh: 信号强度
+                en: Signal Strength
+            type: Constant
+            value: 86
+        Sites:
+            desc:
+                zh: 站点
+                en: Sites
+            type: Constant
+            value: 260
+        Size:
+            desc:
+                zh: 尺寸
+                en: Size
+            type: Constant
+            value: 264
+        SizeX:
+            desc:
+                zh: 尺寸X
+                en: Size X
+            type: Constant
+            value: 160
+        SizeY:
+            desc:
+                zh: 尺寸Y
+                en: Size Y
+            type: Constant
+            value: 161
+        SizeZ:
+            desc:
+                zh: 尺寸Z
+                en: Size Z
+            type: Constant
+            value: 162
+        SolarAngle:
+            desc:
+                zh: 太阳角度
+                en: Solar Angle
+            type: Constant
+            value: 22
+        SolarIrradiance:
+            desc:
+                zh: 太阳辐照度
+                en: Solar Irradiance
+            type: Constant
+            value: 176
+        SoundAlert:
+            desc:
+                zh: 声音警报
+                en: Sound Alert
+            type: Constant
+            value: 175
+        StackTrace:
+            desc:
+                zh: 堆栈跟踪
+                en: Stack Trace
+            type: Constant
+            value: 280
+        Stress:
+            desc:
+                zh: 应力
+                en: Stress
+            type: Constant
+            value: 156
+        Survey:
+            desc:
+                zh: 调查
+                en: Survey
+            type: Constant
+            value: 257
+        TargetPadIndex:
+            desc:
+                zh: 目标平台索引
+                en: Target Pad Index
+            type: Constant
+            value: 158
+        TargetPrefabHash:
+            desc:
+                zh: 目标预制体哈希
+                en: Target Prefab Hash
+            type: Constant
+            value: 271
+        TargetSlotIndex:
+            desc:
+                zh: 目标槽位索引
+                en: Target Slot Index
+            type: Constant
+            value: 270
+        TargetX:
+            desc:
+                zh: 目标X
+                en: Target X
+            type: Constant
+            value: 88
+        TargetY:
+            desc:
+                zh: 目标Y
+                en: Target Y
+            type: Constant
+            value: 89
+        TargetZ:
+            desc:
+                zh: 目标Z
+                en: Target Z
+            type: Constant
+            value: 90
+        Temperature:
+            desc:
+                zh: 温度
+                en: Temperature
+            type: Constant
+            value: 6
+        TemperatureDifferentialEfficiency:
+            desc:
+                zh: 温差效率
+                en: Temperature Differential Efficiency
+            type: Constant
+            value: 151
+        TemperatureExternal:
+            desc:
+                zh: 外部温度
+                en: External Temperature
+            type: Constant
+            value: 73
+        TemperatureInput:
+            desc:
+                zh: 温度输入
+                en: Temperature Input
+            type: Constant
+            value: 107
+        TemperatureInput2:
+            desc:
+                zh: 温度输入2
+                en: Temperature Input 2
+            type: Constant
+            value: 117
+        TemperatureOutput:
+            desc:
+                zh: 温度输出
+                en: Temperature Output
+            type: Constant
+            value: 127
+        TemperatureOutput2:
+            desc:
+                zh: 温度输出2
+                en: Temperature Output 2
+            type: Constant
+            value: 137
+        TemperatureSetting:
+            desc:
+                zh: 温度设置
+                en: Temperature Setting
+            type: Constant
+            value: 72
+        Throttle:
+            desc:
+                zh: 节流阀
+                en: Throttle
+            type: Constant
+            value: 154
+        Thrust:
+            desc:
+                zh: 推力
+                en: Thrust
+            type: Constant
+            value: 221
+        ThrustToWeight:
+            desc:
+                zh: 推重比
+                en: Thrust-to-Weight
+            type: Constant
+            value: 223
+        Time:
+            desc:
+                zh: 时间
+                en: Time
+            type: Constant
+            value: 102
+        TimeToDestination:
+            desc:
+                zh: 到达目的地时间
+                en: Time to Destination
+            type: Constant
+            value: 224
+        TotalMoles:
+            desc:
+                zh: 总摩尔数
+                en: Total Moles
+            type: Constant
+            value: 66
+        TotalMolesInput:
+            desc:
+                zh: 总摩尔数输入
+                en: Total Moles Input
+            type: Constant
+            value: 115
+        TotalMolesInput2:
+            desc:
+                zh: 总摩尔数输入2
+                en: Total Moles Input 2
+            type: Constant
+            value: 125
+        TotalMolesOutput:
+            desc:
+                zh: 总摩尔数输出
+                en: Total Moles Output
+            type: Constant
+            value: 135
+        TotalMolesOutput2:
+            desc:
+                zh: 总摩尔数输出2
+                en: Total Moles Output 2
+            type: Constant
+            value: 145
+        TotalQuantity:
+            desc:
+                zh: 总数量
+                en: Total Quantity
+            type: Constant
+            value: 265
+        TrueAnomaly:
+            desc:
+                zh: 真近点角
+                en: True Anomaly
+            type: Constant
+            value: 251
+        VelocityMagnitude:
+            desc:
+                zh: 速度大小
+                en: Velocity Magnitude
+            type: Constant
+            value: 79
+        VelocityRelativeX:
+            desc:
+                zh: 相对速度X
+                en: Relative Velocity X
+            type: Constant
+            value: 80
+        VelocityRelativeY:
+            desc:
+                zh: 相对速度Y
+                en: Relative Velocity Y
+            type: Constant
+            value: 81
+        VelocityRelativeZ:
+            desc:
+                zh: 相对速度Z
+                en: Relative Velocity Z
+            type: Constant
+            value: 82
+        VelocityX:
+            desc:
+                zh: 速度X
+                en: Velocity X
+            type: Constant
+            value: 231
+        VelocityY:
+            desc:
+                zh: 速度Y
+                en: Velocity Y
+            type: Constant
+            value: 232
+        VelocityZ:
+            desc:
+                zh: 速度Z
+                en: Velocity Z
+            type: Constant
+            value: 233
+        Vertical:
+            desc:
+                zh: 垂直
+                en: Vertical
+            type: Constant
+            value: 21
+        VerticalRatio:
+            desc:
+                zh: 垂直比率
+                en: Vertical Ratio
+            type: Constant
+            value: 35
+        Volume:
+            desc:
+                zh: 体积
+                en: Volume
+            type: Constant
+            value: 67
+        VolumeOfLiquid:
+            desc:
+                zh: 液体体积
+                en: Volume of Liquid
+            type: Constant
+            value: 182
+        WattsReachingContact:
+            desc:
+                zh: 到达接触点功率
+                en: Watts Reaching Contact
+            type: Constant
+            value: 164
+        Weight:
+            desc:
+                zh: 重量
+                en: Weight
+            type: Constant
+            value: 222
+        WorkingGasEfficiency:
+            desc:
+                zh: 工作气体效率
+                en: Working Gas Efficiency
+            type: Constant
+            value: 105
+
+PowerMode:
+    desc:
+        zh: 电源模式
+        en: Power Mode
+    enums:
+        Charged:
+            desc:
+                zh: 已充电
+                en: Charged
+            type: Constant
+            value: 4
+        Charging:
+            desc:
+                zh: 充电中
+                en: Charging
+            type: Constant
+            value: 3
+        Discharged:
+            desc:
+                zh: 已放电
+                en: Discharged
+            type: Constant
+            value: 1
+        Discharging:
+            desc:
+                zh: 放电中
+                en: Discharging
+            type: Constant
+            value: 2
+        Idle:
+            desc:
+                zh: 空闲
+                en: Idle
+            type: Constant
+            value: 0
+
+PrinterInstruction:
+    desc:
+        zh: 打印机指令
+        en: Printer Instruction
+    enums:
+        DeviceSetLock:
+            desc:
+                zh: 设备设置锁定
+                en: Device Set Lock
+            type: Constant
+            value: 6
+        EjectAllReagents:
+            desc:
+                zh: 弹出所有试剂
+                en: Eject All Reagents
+            type: Constant
+            value: 8
+        EjectReagent:
+            desc:
+                zh: 弹出试剂
+                en: Eject Reagent
+            type: Constant
+            value: 7
+        ExecuteRecipe:
+            desc:
+                zh: 执行配方
+                en: Execute Recipe
+            type: Constant
+            value: 2
+        JumpIfNextInvalid:
+            desc:
+                zh: 如果下一条无效则跳转
+                en: Jump If Next Invalid
+            type: Constant
+            value: 4
+        JumpToAddress:
+            desc:
+                zh: 跳转到地址
+                en: Jump To Address
+            type: Constant
+            value: 5
+        MissingRecipeReagent:
+            desc:
+                zh: 缺少配方试剂
+                en: Missing Recipe Reagent
+            type: Constant
+            value: 9
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 0
+        StackPointer:
+            desc:
+                zh: 堆栈指针
+                en: Stack Pointer
+            type: Constant
+            value: 1
+        WaitUntilNextValid:
+            desc:
+                zh: 等待直到下一条有效
+                en: Wait Until Next Valid
+            type: Constant
+            value: 3
+
+ReEntryProfile:
+    desc:
+        zh: 再入剖面
+        en: Re-entry Profile
+    enums:
+        High:
+            desc:
+                zh: 高
+                en: High
+            type: Constant
+            value: 3
+        Low:
+            desc:
+                zh: 低
+                en: Low
+            type: Constant
+            value: 1
+        Max:
+            desc:
+                zh: 最大
+                en: Max
+            type: Constant
+            value: 4
+        Medium:
+            desc:
+                zh: 中
+                en: Medium
+            type: Constant
+            value: 2
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 0
+
+RobotMode:
+    desc:
+        zh: 机器人模式
+        en: Robot Mode
+    enums:
+        Follow:
+            desc:
+                zh: 跟随
+                en: Follow
+            type: Constant
+            value: 1
+        MoveToTarget:
+            desc:
+                zh: 移动到目标
+                en: Move To Target
+            type: Constant
+            value: 2
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 0
+        PathToTarget:
+            desc:
+                zh: 路径到目标
+                en: Path To Target
+            type: Constant
+            value: 5
+        Roam:
+            desc:
+                zh: 漫游
+                en: Roam
+            type: Constant
+            value: 3
+        StorageFull:
+            desc:
+                zh: 存储已满
+                en: Storage Full
+            type: Constant
+            value: 6
+        Unload:
+            desc:
+                zh: 卸载
+                en: Unload
+            type: Constant
+            value: 4
+
+RocketMode:
+    desc:
+        zh: 火箭模式
+        en: Rocket Mode
+    enums:
+        Chart:
+            desc:
+                zh: 制图
+                en: Chart
+            type: Constant
+            value: 5
+        Deploy:
+            desc:
+                zh: 部署
+                en: Deploy
+            type: Constant
+            value: 6
+        Discover:
+            desc:
+                zh: 发现
+                en: Discover
+            type: Constant
+            value: 4
+        Invalid:
+            desc:
+                zh: 无效
+                en: Invalid
+            type: Constant
+            value: 0
+        Mine:
+            desc:
+                zh: 采矿
+                en: Mine
+            type: Constant
+            value: 2
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 1
+        Survey:
+            desc:
+                zh: 调查
+                en: Survey
+            type: Constant
+            value: 3
+
+SettingDisplayMode:
+    desc:
+        zh: 设置显示模式
+        en: Setting Display Mode
+    enums:
+        Number:
+            desc:
+                zh: 数字
+                en: Number
+            type: Constant
+            value: 0
+        String:
+            desc:
+                zh: 字符串
+                en: String
+            type: Constant
+            value: 1
+
+ShuttleType:
+    desc:
+        zh: 航天飞机类型
+        en: Shuttle Type
+    enums:
+        # 合并两部分，去重，按原顺序先出现Large等，但第二部分有Small等，我们按文档第一部分先列Large, LargeGas, LargePlane，然后第二部分列Small, SmallGas, Medium, MediumGas, MediumPlane, None，最后又重复了Large等，我们只保留第一次出现的Large等，但为了完整，我们把所有不重复的列出来，顺序可调整。
+        # 我按字母顺序或者按出现的逻辑顺序，但为简单，我按照：Large, LargeGas, LargePlane, Small, SmallGas, Medium, MediumGas, MediumPlane, None
+        Large:
+            desc:
+                zh: 大型
+                en: Large
+            type: Constant
+            value: 5
+        LargeGas:
+            desc:
+                zh: 大型气体
+                en: Large Gas
+            type: Constant
+            value: 6
+        LargePlane:
+            desc:
+                zh: 大型飞机
+                en: Large Plane
+            type: Constant
+            value: 8
+        Small:
+            desc:
+                zh: 小型
+                en: Small
+            type: Constant
+            value: 1
+        SmallGas:
+            desc:
+                zh: 小型气体
+                en: Small Gas
+            type: Constant
+            value: 2
+        Medium:
+            desc:
+                zh: 中型
+                en: Medium
+            type: Constant
+            value: 3
+        MediumGas:
+            desc:
+                zh: 中型气体
+                en: Medium Gas
+            type: Constant
+            value: 4
+        MediumPlane:
+            desc:
+                zh: 中型飞机
+                en: Medium Plane
+            type: Constant
+            value: 7
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 0
+
+SlotClass:
+    desc:
+        zh: 槽位类别
+        en: Slot Class
+    enums:
+        Back:
+            desc:
+                zh: 背部
+                en: Back
+            type: Constant
+            value: 3
+        Battery:
+            desc:
+                zh: 电池
+                en: Battery
+            type: Constant
+            value: 14
+        Belt:
+            desc:
+                zh: 腰带
+                en: Belt
+            type: Constant
+            value: 16
+        Blocked:
+            desc:
+                zh: 已阻挡
+                en: Blocked
+            type: Constant
+            value: 39
+        AccessCard:
+            desc:
+                zh: 门禁卡
+                en: Access Card
+            type: Constant
+            value: 22
+        Appliance:
+            desc:
+                zh: 设备
+                en: Appliance
+            type: Constant
+            value: 18
+        Bottle:
+            desc:
+                zh: 瓶子
+                en: Bottle
+            type: Constant
+            value: 25
+        Cartridge:
+            desc:
+                zh: 磁带/卡带
+                en: Cartridge
+            type: Constant
+            value: 21
+        Circuit:
+            desc:
+                zh: 电路
+                en: Circuit
+            type: Constant
+            value: 24
+        Circuitboard:
+            desc:
+                zh: 电路板
+                en: Circuitboard
+            type: Constant
+            value: 7
+        Crate:
+            desc:
+                zh: 板条箱
+                en: Crate
+            type: Constant
+            value: 40
+        CreditCard:
+            desc:
+                zh: 信用卡
+                en: Credit Card
+            type: Constant
+            value: 28
+        DataDisk:
+            desc:
+                zh: 数据磁盘
+                en: Data Disk
+            type: Constant
+            value: 8
+        DirtCanister:
+            desc:
+                zh: 土壤罐
+                en: Dirt Canister
+            type: Constant
+            value: 29
+        DrillHead:
+            desc:
+                zh: 钻头
+                en: Drill Head
+            type: Constant
+            value: 35
+        Egg:
+            desc:
+                zh: 蛋
+                en: Egg
+            type: Constant
+            value: 15
+        Entity:
+            desc:
+                zh: 实体
+                en: Entity
+            type: Constant
+            value: 13
+        Flare:
+            desc:
+                zh: 信号弹
+                en: Flare
+            type: Constant
+            value: 37
+        GasCanister:
+            desc:
+                zh: 气体罐
+                en: Gas Canister
+            type: Constant
+            value: 5
+        GasFilter:
+            desc:
+                zh: 气体过滤器
+                en: Gas Filter
+            type: Constant
+            value: 4
+        Glasses:
+            desc:
+                zh: 眼镜
+                en: Glasses
+            type: Constant
+            value: 27
+        Helmet:
+            desc:
+                zh: 头盔
+                en: Helmet
+            type: Constant
+            value: 1
+        Input:
+            desc:
+                zh: 输入
+                en: Input
+            type: Constant
+            value: 19
+        LiquidBottle:
+            desc:
+                zh: 液体瓶
+                en: Liquid Bottle
+            type: Constant
+            value: 32
+        LiquidCanister:
+            desc:
+                zh: 液体罐
+                en: Liquid Canister
+            type: Constant
+            value: 31
+        Magazine:
+            desc:
+                zh: 弹匣
+                en: Magazine
+            type: Constant
+            value: 23
+        Motherboard:
+            desc:
+                zh: 主板
+                en: Motherboard
+            type: Constant
+            value: 6
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 0
+        One:
+            desc:
+                zh: 一
+                en: One
+            type: Constant
+            value: 10
+        Organ:
+            desc:
+                zh: 器官
+                en: Organ
+            type: Constant
+            value: 9
+        Plant:
+            desc:
+                zh: 植物
+                en: Plant
+            type: Constant
+            value: 11
+        Portables:
+            desc:
+                zh: 便携设备
+                en: Portables
+            type: Constant
+            value: 41
+        ProgrammableChip:
+            desc:
+                zh: 可编程芯片
+                en: Programmable Chip
+            type: Constant
+            value: 26
+        RocketPayload:
+            desc:
+                zh: 火箭有效载荷
+                en: Rocket Payload
+            type: Constant
+            value: 42
+        ScanningHead:
+            desc:
+                zh: 扫描头
+                en: Scanning Head
+            type: Constant
+            value: 36
+        SensorProcessingUnit:
+            desc:
+                zh: 传感器处理单元
+                en: Sensor Processing Unit
+            type: Constant
+            value: 30
+        SoundCartridge:
+            desc:
+                zh: 声音卡带
+                en: Sound Cartridge
+            type: Constant
+            value: 34
+        Suit:
+            desc:
+                zh: 太空服
+                en: Suit
+            type: Constant
+            value: 2
+        SuitMod:
+            desc:
+                zh: 太空服模块
+                en: Suit Mod
+            type: Constant
+            value: 39
+        Tool:
+            desc:
+                zh: 工具
+                en: Tool
+            type: Constant
+            value: 17
+        Torpedo:
+            desc:
+                zh: 鱼雷
+                en: Torpedo
+            type: Constant
+            value: 20
+        Uniform:
+            desc:
+                zh: 制服
+                en: Uniform
+            type: Constant
+            value: 12
+        Wreckage:
+            desc:
+                zh: 残骸
+                en: Wreckage
+            type: Constant
+            value: 33
+
+SorterInstruction:
+    desc:
+        zh: 分拣器指令
+        en: Sorter Instruction
+    enums:
+        FilterPrefabHashEquals:
+            desc:
+                zh: 过滤预制体哈希等于
+                en: Filter Prefab Hash Equals
+            type: Constant
+            value: 1
+        FilterPrefabHashNotEquals:
+            desc:
+                zh: 过滤预制体哈希不等于
+                en: Filter Prefab Hash Not Equals
+            type: Constant
+            value: 2
+        FilterQuantityCompare:
+            desc:
+                zh: 过滤数量比较
+                en: Filter Quantity Compare
+            type: Constant
+            value: 5
+        FilterSlotTypeCompare:
+            desc:
+                zh: 过滤槽位类型比较
+                en: Filter Slot Type Compare
+            type: Constant
+            value: 4
+        FilterSortingClassCompare:
+            desc:
+                zh: 过滤分类类别比较
+                en: Filter Sorting Class Compare
+            type: Constant
+            value: 3
+        LimitNextExecutionByCount:
+            desc:
+                zh: 按计数限制下次执行
+                en: Limit Next Execution By Count
+            type: Constant
+            value: 6
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 0
+
+SortingClass:
+    desc:
+        zh: 分类类别
+        en: Sorting Class
+    enums:
+        Appliances:
+            desc:
+                zh: 设备
+                en: Appliances
+            type: Constant
+            value: 6
+        Atmospherics:
+            desc:
+                zh: 大气
+                en: Atmospherics
+            type: Constant
+            value: 7
+        Clothing:
+            desc:
+                zh: 服装
+                en: Clothing
+            type: Constant
+            value: 5
+        Default:
+            desc:
+                zh: 默认
+                en: Default
+            type: Constant
+            value: 0
+        Food:
+            desc:
+                zh: 食物
+                en: Food
+            type: Constant
+            value: 4
+        Ices:
+            desc:
+                zh: 冰
+                en: Ices
+            type: Constant
+            value: 10
+        Kits:
+            desc:
+                zh: 工具包
+                en: Kits
+            type: Constant
+            value: 1
+        Ores:
+            desc:
+                zh: 矿石
+                en: Ores
+            type: Constant
+            value: 9
+        Resources:
+            desc:
+                zh: 资源
+                en: Resources
+            type: Constant
+            value: 3
+        Storage:
+            desc:
+                zh: 存储
+                en: Storage
+            type: Constant
+            value: 8
+        Tools:
+            desc:
+                zh: 工具
+                en: Tools
+            type: Constant
+            value: 2
+
+Sound:
+    desc:
+        zh: 声音
+        en: Sound
+    enums:
+        AirlockCycling:
+            desc:
+                zh: 气闸循环
+                en: Airlock Cycling
+            type: Constant
+            value: 22
+        Alarm1:
+            desc:
+                zh: 警报1
+                en: Alarm 1
+            type: Constant
+            value: 45
+        Alarm10:
+            desc:
+                zh: 警报10
+                en: Alarm 10
+            type: Constant
+            value: 12
+        Alarm11:
+            desc:
+                zh: 警报11
+                en: Alarm 11
+            type: Constant
+            value: 13
+        Alarm12:
+            desc:
+                zh: 警报12
+                en: Alarm 12
+            type: Constant
+            value: 14
+        Alarm2:
+            desc:
+                zh: 警报2
+                en: Alarm 2
+            type: Constant
+            value: 1
+        Alarm3:
+            desc:
+                zh: 警报3
+                en: Alarm 3
+            type: Constant
+            value: 2
+        Alarm4:
+            desc:
+                zh: 警报4
+                en: Alarm 4
+            type: Constant
+            value: 3
+        Alarm5:
+            desc:
+                zh: 警报5
+                en: Alarm 5
+            type: Constant
+            value: 4
+        Alarm6:
+            desc:
+                zh: 警报6
+                en: Alarm 6
+            type: Constant
+            value: 5
+        Alarm7:
+            desc:
+                zh: 警报7
+                en: Alarm 7
+            type: Constant
+            value: 6
+        Alarm8:
+            desc:
+                zh: 警报8
+                en: Alarm 8
+            type: Constant
+            value: 10
+        Alarm9:
+            desc:
+                zh: 警报9
+                en: Alarm 9
+            type: Constant
+            value: 11
+        Alert:
+            desc:
+                zh: 警报
+                en: Alert
+            type: Constant
+            value: 17
+        Danger:
+            desc:
+                zh: 危险
+                en: Danger
+            type: Constant
+            value: null
+        Depressurising:
+            desc:
+                zh: 减压中
+                en: Depressurising
+            type: Constant
+            value: null
+        FireFireFire:
+            desc:
+                zh: 火警
+                en: Fire Fire Fire
+            type: Constant
+            value: null
+        Five:
+            desc:
+                zh: 五
+                en: Five
+            type: Constant
+            value: 33
+        Floor:
+            desc:
+                zh: 地面
+                en: Floor
+            type: Constant
+            value: 34
+        Four:
+            desc:
+                zh: 四
+                en: Four
+            type: Constant
+            value: 32
+        HallWhoGoesThere:
+            desc:
+                zh: 大厅来人警报
+                en: Hall Who Goes There
+            type: Constant
+            value: 27
+        HighCarbonDioxide:
+            desc:
+                zh: 高二氧化碳
+                en: High Carbon Dioxide
+            type: Constant
+            value: 44
+        IntruderAlert:
+            desc:
+                zh: 入侵者警报
+                en: Intruder Alert
+            type: Constant
+            value: 19
+        LiftOff:
+            desc:
+                zh: 起飞
+                en: Lift Off
+            type: Constant
+            value: 36
+        MalfunctionDetected:
+            desc:
+                zh: 检测到故障
+                en: Malfunction Detected
+            type: Constant
+            value: 26
+        Music1:
+            desc:
+                zh: 音乐1
+                en: Music 1
+            type: Constant
+            value: 7
+        Music2:
+            desc:
+                zh: 音乐2
+                en: Music 2
+            type: Constant
+            value: 8
+        Music3:
+            desc:
+                zh: 音乐3
+                en: Music 3
+            type: Constant
+            value: 9
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 0
+        One:
+            desc:
+                zh: 一
+                en: One
+            type: Constant
+            value: 29
+        PollutantsDetected:
+            desc:
+                zh: 检测到污染物
+                en: Pollutants Detected
+            type: Constant
+            value: 43
+        PowerLow:
+            desc:
+                zh: 低电量
+                en: Power Low
+            type: Constant
+            value: 23
+        PressureHigh:
+            desc:
+                zh: 高压
+                en: Pressure High
+            type: Constant
+            value: 39
+        PressureLow:
+            desc:
+                zh: 低压
+                en: Pressure Low
+            type: Constant
+            value: 40
+        Pressurising:
+            desc:
+                zh: 加压中
+                en: Pressurising
+            type: Constant
+            value: 21
+        RocketLaunching:
+            desc:
+                zh: 火箭发射
+                en: Rocket Launching
+            type: Constant
+            value: 35
+        StormIncoming:
+            desc:
+                zh: 风暴来袭
+                en: Storm Incoming
+            type: Constant
+            value: 18
+        SystemFailure:
+            desc:
+                zh: 系统故障
+                en: System Failure
+            type: Constant
+            value: 24
+        TemperatureHigh:
+            desc:
+                zh: 高温
+                en: Temperature High
+            type: Constant
+            value: 41
+        TemperatureLow:
+            desc:
+                zh: 低温
+                en: Temperature Low
+            type: Constant
+            value: 42
+        Three:
+            desc:
+                zh: 三
+                en: Three
+            type: Constant
+            value: 31
+        TraderIncoming:
+            desc:
+                zh: 交易员到达
+                en: Trader Incoming
+            type: Constant
+            value: 37
+        TraderLanded:
+            desc:
+                zh: 交易员已着陆
+                en: Trader Landed
+            type: Constant
+            value: 30
+        Two:
+            desc:
+                zh: 二
+                en: Two
+            type: Constant
+            value: 30  # 注意与TraderLanded重复，但保持原样
+        Warning:
+            desc:
+                zh: 警告
+                en: Warning
+            type: Constant
+            value: 16
+        Welcome:
+            desc:
+                zh: 欢迎
+                en: Welcome
+            type: Constant
+            value: 25
+
+TraderInstruction:
+    desc:
+        zh: 交易员指令
+        en: Trader Instruction
+    enums:
+        FilterGasContains:
+            desc:
+                zh: 过滤气体包含
+                en: Filter Gas Contains
+            type: Constant
+            value: 17
+        FilterGasNotContains:
+            desc:
+                zh: 过滤气体不包含
+                en: Filter Gas Not Contains
+            type: Constant
+            value: 18
+        FilterPrefabHashEquals:
+            desc:
+                zh: 过滤预制体哈希等于
+                en: Filter Prefab Hash Equals
+            type: Constant
+            value: 13
+        FilterPrefabHashNotEquals:
+            desc:
+                zh: 过滤预制体哈希不等于
+                en: Filter Prefab Hash Not Equals
+            type: Constant
+            value: 14
+        FilterQuantityCompare:
+            desc:
+                zh: 过滤数量比较
+                en: Filter Quantity Compare
+            type: Constant
+            value: 16
+        FilterSortingClassCompare:
+            desc:
+                zh: 过滤分类类别比较
+                en: Filter Sorting Class Compare
+            type: Constant
+            value: 15
+        None:
+            desc:
+                zh: 无
+                en: None
+            type: Constant
+            value: 0
+        StrongestContactIdHash:
+            desc:
+                zh: 最强联系人ID哈希
+                en: Strongest Contact ID Hash
+            type: Constant
+            value: 2
+        StrongestContactMetaData:
+            desc:
+                zh: 最强联系人元数据
+                en: Strongest Contact Meta Data
+            type: Constant
+            value: 3
+        StrongestContactSignalData:
+            desc:
+                zh: 最强联系人信号数据
+                en: Strongest Contact Signal Data
+            type: Constant
+            value: 4
+        TraderBuyGasData:
+            desc:
+                zh: 交易员购买气体数据
+                en: Trader Buy Gas Data
+            type: Constant
+            value: 9
+        TraderBuyThingChildData:
+            desc:
+                zh: 交易员购买物品子数据
+                en: Trader Buy Thing Child Data
+            type: Constant
+            value: 8
+        TraderBuyThingData:
+            desc:
+                zh: 交易员购买物品数据
+                en: Trader Buy Thing Data
+            type: Constant
+            value: 7
+        TraderSellGasData:
+            desc:
+                zh: 交易员出售气体数据
+                en: Trader Sell Gas Data
+            type: Constant
+            value: 11
+        TraderSellThingChildData:
+            desc:
+                zh: 交易员出售物品子数据
+                en: Trader Sell Thing Child Data
+            type: Constant
+            value: 12
+        TraderSellThingData:
+            desc:
+                zh: 交易员出售物品数据
+                en: Trader Sell Thing Data
+            type: Constant
+            value: 10
+        WriteTraderBuyData:
+            desc:
+                zh: 写入交易员购买数据
+                en: Write Trader Buy Data
+            type: Constant
+            value: 5
+        WriteTraderData:
+            desc:
+                zh: 写入交易员数据
+                en: Write Trader Data
+            type: Constant
+            value: 1
+        WriteTraderSellData:
+            desc:
+                zh: 写入交易员出售数据
+                en: Write Trader Sell Data
+            type: Constant
+            value: 6
+
+TransmitterMode:
+    desc:
+        zh: 发射器模式
+        en: Transmitter Mode
+    enums:
+        Active:
+            desc:
+                zh: 主动
+                en: Active
+            type: Constant
+            value: 1
+        Passive:
+            desc:
+                zh: 被动
+                en: Passive
+            type: Constant
+            value: 0
+
+Vent:
+    desc:
+        zh: 通风口
+        en: Vent
+    enums:
+        Inward:
+            desc:
+                zh: 向内
+                en: Inward
+            type: Constant
+            value: 1
+        Outward:
+            desc:
+                zh: 向外
+                en: Outward
+            type: Constant
+            value: 0

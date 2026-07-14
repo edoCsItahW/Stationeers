@@ -1,0 +1,206 @@
+Charge:
+    type: LogicSlotType
+    value: 10
+    desc:
+        zh: 返回该槽位中的物品的电量
+        en: Returns the charge of the item in this slot
+
+ChargeRatio:
+    type: LogicSlotType
+    value: 11
+    desc:
+        zh: 返回该槽位中的物品的当前电量与其最大电量的比值(0至1)
+        en: Returns the ratio of the current charge to the maximum charge of the item in this slot (0 to 1)
+
+Class:
+    type: LogicSlotType
+    value: 12
+    desc:
+        zh: 返回该槽位中的物品的分类(Class)值
+        en: Returns the Class value of the item in this slot
+
+Damage:
+    type: LogicSlotType
+    value: 4
+    desc:
+        zh: 返回该槽位中的物品的损坏状态
+        en: Returns the damage state of the item in this slot
+
+Efficiency:
+    type: LogicSlotType
+    value: 5
+    desc:
+        zh: 返回该槽位中的植物的生长率系数
+        en: Returns the growth rate coefficient of the plant in this slot
+
+FilterType:
+    type: LogicSlotType
+    value: 25
+
+FreeSlots:
+    type: LogicSlotType
+    value: 31
+    desc:
+        zh: 此物体中的空闲槽位数量
+        en: The number of free slots in this object
+
+Growth:
+    type: LogicSlotType
+    value: 7
+    desc:
+        zh: 返回该槽位中的植物的当前生长阶段
+        en: Returns the current growth stage of the plant in this slot
+
+HarvestedHash:
+    type: LogicSlotType
+    value: 27
+
+Health:
+    type: LogicSlotType
+    value: 6
+    desc:
+        zh: 返回该槽位中的植物的健康状况
+        en: Returns the health status of the plant in this slot
+
+LineNumber:
+    type: LogicSlotType
+    value: 19
+    desc:
+        zh: 在此设备上运行的IC芯片代码当前执行的行号. 虽然该值支持写入, 但请谨慎使用
+        en: The current line number being executed by the IC chip code running on this device. This value supports writing, but please use it with caution
+
+Lock:
+    type: LogicSlotType
+    value: 23
+
+Mature:
+    type: LogicSlotType
+    value: 16
+    desc:
+        zh: 返回该槽位中的植物的生长状态, 0为未生长, 1为生长
+        en: Returns the growth state of the plant in this slot, 0 for not growing, 1 for growing
+
+MaturityRatio:
+    type: LogicSlotType
+    value: 29
+    desc:
+        zh: 植物成熟的进度, 以0到1之间的分数表示, 1表示成熟并准备收获。
+        en: The maturity progress of the plant, expressed as a fraction between 0 and 1, 1 means mature and ready for harvest
+
+MaxQuantity:
+    type: LogicSlotType
+    value: 15
+    desc:
+        zh: 返回该槽位中的物品在堆叠时能达到的最大数量
+        en: Returns the maximum stackable quantity of the item in this slot
+
+Mode:
+    type: LogicSlotType
+    value: 28
+
+None:
+    type: LogicSlotType
+    value: 0
+    desc:
+        zh: 无说明
+        en: No description
+
+OccupantHash:
+    type: LogicSlotType
+    value: 2
+    desc:
+        zh: 返回该槽位中物品的哈希值
+        en: Returns the hash value of the item in this slot
+
+Occupied:
+    type: LogicSlotType
+    value: 1
+    desc:
+        zh: 当槽位未被占用返回0, 被占用时返回1
+        en: Returns 0 if the slot is unoccupied, 1 if occupied
+
+On:
+    type: LogicSlotType
+    value: 22
+
+Open:
+    type: LogicSlotType
+    value: 21
+
+PrefabHash:
+    type: LogicSlotType
+    value: 17
+    desc:
+        zh: 返回该槽位结构的哈希值
+        en: Returns the hash value of this slot structure
+
+Pressure:
+    type: LogicSlotType
+    value: 8
+    desc:
+        zh: 返回该槽位中的物品内部的压强
+        en: Returns the internal pressure of the item in this slot
+
+PressureAir:
+    type: LogicSlotType
+    value: 14
+    desc:
+        zh: 返回该槽位中的太空服氧气罐的压强值
+        en: Returns the pressure value of the spacesuit oxygen tank in this slot
+
+PressureWaste:
+    type: LogicSlotType
+    value: 13
+    desc:
+        zh: 返回该槽位中的太空服废气罐的压强值
+        en: Returns the pressure value of the spacesuit waste gas tank in this slot
+
+Quantity:
+    type: LogicSlotType
+    value: 3
+    desc:
+        zh: 返回该槽位中的物品的数量, 比如堆叠数量
+        en: Returns the quantity of the item in this slot, such as stack quantity
+
+ReferenceId:
+    type: LogicSlotType
+    value: 26
+    desc:
+        zh: 本对象的唯一参考标识符
+        en: The unique reference identifier of this object
+
+Seeding:
+    type: LogicSlotType
+    value: 18
+    desc:
+        zh: 植物是否已经结出种子. 1为已结种, 0为未结种
+        en: Whether the plant has produced seeds. 1 for seeded, 0 for not seeded
+
+SeedingRatio:
+    type: LogicSlotType
+    value: 30
+    desc:
+        zh: 植物朝向结籽的进度, 以0到1之间的分数表示, 1表示已经结种并在收获时提供种子.
+        en: The progress of the plant towards seeding, expressed as a fraction between 0 and 1, 1 means seeded and will provide seeds when harvested
+
+SortingClass:
+    type: LogicSlotType
+    value: 24
+
+Temperature:
+    type: LogicSlotType
+    value: 9
+    desc:
+        zh: 返回该槽位中的物品内部的的温度
+        en: Returns the internal temperature of the item in this slot
+
+TotalSlots:
+    type: LogicSlotType
+    value: 32
+    desc:
+        zh: 此物体中的槽位总数
+        en: The total number of slots in this object
+
+Volume:
+    type: LogicSlotType
+    value: 20

@@ -1,0 +1,15 @@
+Contents:
+    type: LogicReagentMode
+    value: 0
+
+Recipe:
+    type: LogicReagentMode
+    value: 2
+
+Required:
+    type: LogicReagentMode
+    value: 1
+
+TotalContents:
+    type: LogicReagentMode
+    value: 3
