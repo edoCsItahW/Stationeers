@@ -45,12 +45,12 @@ namespace stationeers::ic10 {
                     InstanceAccessor("type", &TokenAdapter::getType, &TokenAdapter::setType),
                     InstanceAccessor("pos", &TokenAdapter::getPos, &TokenAdapter::setPos),
                     InstanceAccessor("lexeme", &TokenAdapter::getLexeme, &TokenAdapter::setLexeme),
-                    InstanceAccessor("categ", &TokenAdapter::getCategory, &TokenAdapter::setCategory),
+                    InstanceAccessor("category", &TokenAdapter::getCategory, &TokenAdapter::setCategory),
 #else
                     InstanceAccessor<&TokenAdapter::getType, &TokenAdapter::setType>("type"),
                     InstanceAccessor<&TokenAdapter::getPos, &TokenAdapter::setPos>("pos"),
                     InstanceAccessor<&TokenAdapter::getLexeme, &TokenAdapter::setLexeme>("lexeme"),
-                    InstanceAccessor<&TokenAdapter::getCategory, &TokenAdapter::setCategory>("categ"),
+                    InstanceAccessor<&TokenAdapter::getCategory, &TokenAdapter::setCategory>("category"),
 #endif
                     InstanceMethod("toString", &TokenAdapter::toString),
                     InstanceMethod("toJSON", &TokenAdapter::toJSON)

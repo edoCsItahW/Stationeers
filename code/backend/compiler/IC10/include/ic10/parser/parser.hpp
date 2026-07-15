@@ -124,6 +124,8 @@
 #include "ic10/parser/ast/ast.hpp"
 #include "common/exception/diagnostic.hpp"
 #include <memory>
+#include <optional>
+#include <vector>
 
 namespace stationeers::ic10 {
 
@@ -336,6 +338,42 @@ namespace stationeers::ic10 {
         /**
          * @if zh
          *
+         * @struct TypeHintResult
+         * @brief 类型提示解析结果
+         * @details 存储 @type 和 @desc 标签的解析结果
+         *
+         * @elseif en
+         *
+         * @struct TypeHintResult
+         * @brief Type hint parse result
+         * @details Stores parsed @type and @desc tag values
+         *
+         * @endif
+         */
+        struct TypeHintResult {
+            std::optional<std::string> type;  ///< @type 指定的类型名
+            std::optional<std::string> desc;  ///< @desc 指定的描述（与 type 值互斥）
+        };
+
+        /**
+         * @if zh
+         *
+         * @brief 解析类型提示标签
+         * @param lexeme token 的 lexeme（包含 "#:" 前缀）
+         * @return 解析结果，包含 type 和 desc 字段
+         *
+         * @elseif en
+         *
+         * @brief Parse type hint tags
+         * @param lexeme Token lexeme (includes "#:" prefix)
+         * @return Parse result with type and desc fields
+         *
+         * @endif
+         */
+        TypeHintResult parseTypeHintTags(const std::string& lexeme);
+
+        /**
+         * @if zh
          * @brief 解析标签定义
          * @param layer 递归层级,用于调试输出
          * @return 解析后的LabelDef

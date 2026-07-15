@@ -67,69 +67,23 @@ namespace stationeers {
          *
          * @endif
          */
-        template<FString K, typename O1>
+        template<FString K, OperandType V1>
         struct UnaryInstructionBase : NullaryInstructionBase<K> {
-            /**
-             * @if zh
-             * @brief 节点名称
-             * @elseif en
-             * @brief Node name
-             * @endif
-             */
             static constexpr auto nodeName = fstr_concat_v<K, "Instruction">;
 
-            /**
-             * @if zh
-             * @brief 第一个操作数
-             * @elseif en
-             * @brief First operand
-             * @endif
-             */
+            static constexpr auto type1 = V1;
+
+            using O1 = operand_type_t<V1>;
+
             O1 operand1;
 
-            /**
-             * @if zh
-             * @brief 参数类型元组
-             * @elseif en
-             * @brief Argument types tuple
-             * @endif
-             */
-            using Args = std::tuple<O1>;
+            using Args = operand_type_list<V1>;
 
-            /**
-             * @if zh
-             * @brief 参数元组
-             * @elseif en
-             * @brief Argument tuple
-             * @endif
-             */
             Args args;
 
-            /**
-             * @if zh
-             * @brief 默认构造函数
-             * @elseif en
-             * @brief Default constructor
-             * @endif
-             */
             UnaryInstructionBase() = default;
 
-            /**
-             * @if zh
-             *
-             * @brief 构造函数
-             * @param pos 位置信息
-             * @param op1 第一个操作数
-             *
-             * @elseif en
-             *
-             * @brief Constructor
-             * @param pos Position information
-             * @param op1 First operand
-             *
-             * @endif
-             */
-            UnaryInstructionBase(Pos pos, O1 op1);
+            UnaryInstructionBase(Pos pos, O1 o1);
 
             [[nodiscard]] Pos end() const override;
 
@@ -137,23 +91,6 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
-            /**
-             * @if zh
-             *
-             * @brief JSON基类辅助函数
-             * @tparam ...Ts 字段类型包
-             * @param ... fields 字段名和值的对
-             * @return JSON格式字符串
-             *
-             * @elseif en
-             *
-             * @brief JSON base helper function
-             * @tparam ...Ts Field type pack
-             * @param ... fields Pairs of field names and values
-             * @return JSON format string
-             *
-             * @endif
-             */
             template<typename... Ts>
             [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
         };
@@ -188,11 +125,11 @@ namespace stationeers {
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_UNARY_INSTRUCTION(peek, Peek, PEEK, ic10::RegisterOrIdentifier)
+    DEFINE_UNARY_INSTRUCTION(peek, Peek, PEEK, ic10::OperandType::REG_IDENT)
 
-    DEFINE_UNARY_INSTRUCTION(rand, Rand, RAND, ic10::RegisterOrIdentifier)
+    DEFINE_UNARY_INSTRUCTION(rand, Rand, RAND, ic10::OperandType::REG_IDENT)
 
-    DEFINE_UNARY_INSTRUCTION(pop, Pop, POP, ic10::RegisterOrIdentifier)
+    DEFINE_UNARY_INSTRUCTION(pop, Pop, POP, ic10::OperandType::REG_IDENT)
 
 #endif
 
@@ -218,7 +155,7 @@ namespace stationeers {
     }  // namespace ic10
 
 
-    DEFINE_UNARY_INSTRUCTION(clr, Clr, CLR, ic10::DeviceAliasRef)
+    DEFINE_UNARY_INSTRUCTION(clr, Clr, CLR, ic10::OperandType::DEV_ALIAS)
 
     namespace ic10 {
 
@@ -235,19 +172,19 @@ namespace stationeers {
 
     }
 
-    DEFINE_UNARY_INSTRUCTION(sleep, Sleep, SLEEP, ic10::RegisterOrNumber)
+    DEFINE_UNARY_INSTRUCTION(sleep, Sleep, SLEEP, ic10::OperandType::REG_NUM)
 
-    DEFINE_UNARY_INSTRUCTION(clrd, Clrd, CLRD, ic10::RegisterOrNumber)
+    DEFINE_UNARY_INSTRUCTION(clrd, Clrd, CLRD, ic10::OperandType::REG_NUM)
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_UNARY_INSTRUCTION(push, Push, PUSH, ic10::RegisterOrNumber)
+    DEFINE_UNARY_INSTRUCTION(push, Push, PUSH, ic10::OperandType::REG_NUM)
 
-    DEFINE_UNARY_INSTRUCTION(jal, Jal, JAL, ic10::JumpTarget)
+    DEFINE_UNARY_INSTRUCTION(jal, Jal, JAL, ic10::OperandType::JUMP_TARGET)
 
-    DEFINE_UNARY_INSTRUCTION(jr, Jr, JR, ic10::JumpTarget)
+    DEFINE_UNARY_INSTRUCTION(jr, Jr, JR, ic10::OperandType::JUMP_TARGET)
 
-    DEFINE_UNARY_INSTRUCTION(j, J, J, ic10::JumpTarget)
+    DEFINE_UNARY_INSTRUCTION(j, J, J, ic10::OperandType::JUMP_TARGET)
 
 #endif
 

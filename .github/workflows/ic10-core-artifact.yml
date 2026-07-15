@@ -95,7 +95,12 @@ jobs:
                     if [[ "${{ inputs.build-compiler }}" == "true" ]]; then
                       BUILD_TARGETS="$BUILD_TARGETS IC10_Compiler"
                     fi
-                    cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target $BUILD_TARGETS
+                    if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
+                      PARALLEL=2
+                    else
+                      PARALLEL=4
+                    fi
+                    cmake --build build --config ${{ inputs.build-type }} --parallel $PARALLEL --target $BUILD_TARGETS
 
             -   name: (Linux) Show ccache/sccache stats | 显示缓存统计
                 if: inputs.os == 'ubuntu-latest'

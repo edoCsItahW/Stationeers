@@ -397,3 +397,77 @@ describe('Symbol table construction', () => {
         expect(symStr).toContain('end');
     });
 });
+
+// ============================================================
+// 文档注释与类型提示集成测试
+// ============================================================
+
+describe('Doc comments and type hints integration', () => {
+    it('should pass doc comment tokens from Lexer to Parser', async () => {
+        const source = '#> @device\n#> @name Furnace\n#> @end-device\n';
+        const result = await compile(source);
+
+        // Lexer 应生成 DOC_COMMENT tokens
+        const docCommentTokens = result.tokens.filter(t => t.type === TokenType.DOC_COMMENT);
+        expect(docCommentTokens.length).toBeGreaterThan(0);
+
+        // Parser 应解析出 DeviceDocComment 语句
+        expect(result.program.statements).toHaveLength(1);
+    });
+
+    it('should pass type hint tokens from Lexer to Parser', async () => {
+        const source = 'alias myFurnace d0 #: @type Furnace\n';
+        const result = await compile(source);
+
+        // Lexer 应生成 TYPE_HINT token
+        const typeHintTokens = result.tokens.filter(t => t.type === TokenType.TYPE_HINT);
+        expect(typeHintTokens.length).toBe(1);
+
+        // Parser 应解析出带类型提示的 AliasDirective
+        expect(result.program.statements).toHaveLength(1);
+    });
+
+    it('should serialize doc comments in AST correctly', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Furnace',
+            '#> @desc 炉窑',
+            '#> @end-device',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+        const json = JSON.parse(result.program.toJSON());
+
+        expect(json.statements).toHaveLength(1);
+        expect(json.statements[0].type).toBe('DeviceDocComment');
+        expect(json.statements[0].name).toBe('Furnace');
+    });
+
+    it('should serialize alias with type hint in AST correctly', async () => {
+        const source = 'alias myFurnace d0 #: @type Furnace\n';
+        const result = await compile(source);
+        const json = JSON.parse(result.program.toJSON());
+
+        expect(json.statements).toHaveLength(1);
+        expect(json.statements[0].type).toBe('AliasDirective');
+        expect(json.statements[0].typeName).toBe('Furnace');
+    });
+
+    it('should handle mixed doc comments and code in pipeline', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Pump',
+            '#> @end-device',
+            'alias pump d0 #: @type Pump',
+            'main:',
+            'l r0 pump Pressure',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.program.statements).toHaveLength(5);
+        expect(result.analyser).toBeDefined();
+    });
+});

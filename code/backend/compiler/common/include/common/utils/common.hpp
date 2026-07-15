@@ -29,7 +29,9 @@
 #define COMPILER_COMMON_HPP
 #pragma once
 
+#include <optional>
 #include <variant>
+#include <string>
 
 
 namespace stationeers {
@@ -232,6 +234,18 @@ namespace stationeers {
      */
     template<typename T>
     concept IsVariant = is_variant_v<T>;
+
+    template<typename>
+    struct is_optional : std::false_type {};
+
+    template<typename T>
+    struct is_optional<std::optional<T>> : std::true_type {};
+
+    template<typename T>
+    inline constexpr auto is_optional_v = is_optional<std::remove_cvref_t<T>>::value;
+
+    template<typename T>
+    concept IsOptional = is_optional_v<T>;
 
     /**
      * @if zh
