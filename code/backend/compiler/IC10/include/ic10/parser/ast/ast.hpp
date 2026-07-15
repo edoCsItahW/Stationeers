@@ -49,7 +49,7 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    using Statement = Errorable<ExecutableInstruction, LabelDef, PreprocessorDirective>;
+    using Statement = Errorable<ExecutableInstruction, LabelDef, PreprocessorDirective, DocComment>;
 
     // Program（实现于ast.cpp）
 

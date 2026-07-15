@@ -85,7 +85,7 @@ namespace stationeers::ic10 {
         if (std::holds_alternative<Identifier>(labelDef.identifier)) {
             const auto identifier = std::get<Identifier>(labelDef.identifier);
 
-            defineSymbol(identifier, {Type::INTEGER, identifier.value});
+            defineSymbol(identifier, {BasicType::INTEGER, identifier.value, TypeCategory::LABEL});
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
@@ -100,41 +100,57 @@ namespace stationeers::ic10 {
 
     // alias 指令：为寄存器或设备定义别名
     Task<> Analyser::operator()(const AliasDirective& aliasDirective) {
-        // 若 registerOrDevice 为 Identifier，需先解析（检查是否已定义）
-        // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
-        if (std::holds_alternative<Identifier>(aliasDirective.identifier)
-            && std::holds_alternative<Identifier>(aliasDirective.registerOrDevice)) {
-            const auto& refId = std::get<Identifier>(aliasDirective.registerOrDevice);
-            (void)co_await resolveSymbol(refId.value, refId.position);
-        }
-
         // Identifier: 按寄存器/设备类型定义别名
         if (std::holds_alternative<Identifier>(aliasDirective.identifier)) {
+            // 若 registerOrDevice 为 Identifier，需先解析（检查是否已定义）
+            // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
+            if (std::holds_alternative<Identifier>(aliasDirective.registerOrDevice)) {
+                const auto& refId = std::get<Identifier>(aliasDirective.registerOrDevice);
+
+                (void)co_await resolveSymbol(refId.value, refId.position);
+            }
+
             const auto identifier = std::get<Identifier>(aliasDirective.identifier);
 
-            defineSymbol(
-                identifier, {std::visit(
-                                 [&]<typename U>(U&&) -> Type {
-                                     using V = std::decay_t<U>;
+            std::visit(
+                [&]<typename U>(U&& ins) {
+                    using V = std::decay_t<U>;
 
-                                     // 不允许为别名定义别名
-                                     if constexpr (std::is_same_v<V, Identifier>) {
-                                         reporter_.error<MsgId::IEA4>(
-                                             aliasDirective.start(), aliasDirective.end()
-                                         );
-                                         return Type::UNKNOWN;
-                                     }
+                    Symbol symbol;
+                    symbol.name = identifier.value;
 
-                                     // ErrorNode: Parser 已报错，此处跳过
-                                     else if constexpr (std::is_same_v<V, ErrorNode>)
-                                         return Type::UNKNOWN;
+                    // 不允许为别名定义别名
+                    if constexpr (std::is_same_v<V, Identifier>) {
+                        reporter_.error<MsgId::IEA4>(aliasDirective.start(), aliasDirective.end());
+                        symbol.type = BasicType::UNKNOWN;
+                    }
 
-                                     else
-                                         return type_of<V>;
-                                 },
-                                 aliasDirective.registerOrDevice
-                             ),
-                             identifier.value}
+                    // ErrorNode: Parser 已报错，此处跳过
+                    else if constexpr (std::is_same_v<V, ErrorNode>)
+                        symbol.type = BasicType::UNKNOWN;
+
+                    else if constexpr (std::is_same_v<V, Register>)
+                        symbol.type = BasicType::REGISTER;
+
+                    else if constexpr (std::is_same_v<V, Device>) {
+                        symbol.type = BasicType::DEVICE;
+
+                        symbol.value = ins.value;
+                    }
+
+                    else {
+                        symbol.type     = type_of<V>;
+                        symbol.category = category_of<V>;
+                    }
+
+                    if (aliasDirective.type.has_value())
+                        symbol.typeName = aliasDirective.type.value();
+
+                    if (aliasDirective.desc.has_value()) symbol.desc = aliasDirective.desc.value();
+
+                    defineSymbol(identifier, std::move(symbol));
+                },
+                aliasDirective.registerOrDevice
             );
         }
 
@@ -150,43 +166,101 @@ namespace stationeers::ic10 {
 
     // define 指令：定义常量符号，其值由 operand 决定
     Task<> Analyser::operator()(const DefineDirective& defineDirective) {
-        // 若 operand 为 Identifier，需先解析（检查是否已定义）
-        // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
-        if (std::holds_alternative<Identifier>(defineDirective.identifier)
-            && std::holds_alternative<Identifier>(defineDirective.operand)) {
-            const auto& opId = std::get<Identifier>(defineDirective.operand);
-            (void)co_await resolveSymbol(opId.value, opId.position);
+        if (std::holds_alternative<Identifier>(defineDirective.identifier)) {
+            // 若 operand 为 Identifier，需先解析（检查是否已定义）
+            // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
+            if (std::holds_alternative<Identifier>(defineDirective.operand)) {
+                const auto& opId = std::get<Identifier>(defineDirective.operand);
+
+                (void)co_await resolveSymbol(opId.value, opId.position);
+            }
+
+            const auto identifier = std::get<Identifier>(defineDirective.identifier);
+
+            std::visit(
+                [&]<typename U>(U&& ins) {
+                    using V = std::decay_t<U>;
+
+                    Symbol symbol;
+                    symbol.name = identifier.value;
+
+                    if constexpr (std::is_same_v<V, Identifier>) {
+                        reporter_.errorWith<MsgId::IEA5_1>(
+                            defineDirective.start(), defineDirective.end(), ins.value
+                        );
+
+                        symbol.type = BasicType::UNKNOWN;
+                    }
+
+                    // ErrorNode: Parser 已报错，此处跳过
+                    else if constexpr (std::is_same_v<V, ErrorNode>)
+                        symbol.type = BasicType::UNKNOWN;
+
+                    else if constexpr (std::is_same_v<V, Constant>) {
+                        symbol.type     = type_of<V>;
+                        symbol.category = category_of<V>;
+                    }
+
+                    else if constexpr (std::is_same_v<V, HashCall> || std::is_same_v<V, StrCall>) {
+                        symbol.type     = type_of<V>;
+                        symbol.category = category_of<V>;
+
+                        if (std::holds_alternative<String>(ins.value)) {
+                            symbol.value = ins.toString();
+                            std::ranges::replace(*symbol.value, '"', '\'');
+                        }
+                    }
+
+                    else {
+                        symbol.type     = type_of<V>;
+                        symbol.category = category_of<V>;
+
+                        symbol.value = ins.value;
+                    }
+
+                    if (defineDirective.type) symbol.typeName = defineDirective.type.value();
+
+                    if (defineDirective.desc) symbol.desc = defineDirective.desc.value();
+
+                    defineSymbol(identifier, std::move(symbol));
+                },
+                defineDirective.operand
+            );
         }
 
-        std::visit(
-            [&]<typename T>(const T& arg) {
-                // Identifier: 按 operand 类型定义常量
-                if constexpr (std::is_same_v<T, Identifier>)
-                    defineSymbol(
-                        arg, {std::visit(
-                                  []<typename U>(U&&) -> Type {
-                                      using V = std::decay_t<U>;
+        // ErrorNode: identifier 解析失败，上报类型不匹配
+        else
+            reporter_.errorWith<MsgId::IEA1_2>(
+                defineDirective.start(), defineDirective.end(), Identifier::nodeName.value.data(),
+                std::get<ErrorNode>(defineDirective.identifier).nodeName.value.data()
+            );
 
-                                      // ErrorNode: Parser 已报错，此处跳过
-                                      if constexpr (std::is_same_v<V, ErrorNode>)
-                                          return Type::UNKNOWN;
+        co_return;
+    }
 
-                                      else
-                                          return type_of<V>;
-                                  },
-                                  defineDirective.operand
-                              ),
-                              arg.value}
-                    );
+    Task<> Analyser::operator()(const DeviceDocComment& deviceDocComment) {
+        typeSystem_.registerType(
+            DeviceType{
+                .name       = deviceDocComment.name,
+                .desc       = deviceDocComment.desc,
+                .slots      = deviceDocComment.slots,
+                .logics     = deviceDocComment.logics,
+                .modes      = deviceDocComment.modes,
+                .logicSlots = deviceDocComment.logicSlots,
+                .connects   = deviceDocComment.connects
+            }
+        );
 
-                // ErrorNode: identifier 解析失败，上报类型不匹配
-                else
-                    reporter_.errorWith<MsgId::IEA1_2>(
-                        defineDirective.start(), defineDirective.end(),
-                        Identifier::nodeName.value.data(), arg.nodeName.value.data()
-                    );
-            },
-            defineDirective.identifier
+        co_return;
+    }
+
+    Task<> Analyser::operator()(const EnumDocComment& enumDocComment) {
+        typeSystem_.registerType(
+            EnumType{
+                .name   = enumDocComment.name,
+                .desc   = enumDocComment.desc,
+                .values = enumDocComment.values
+            }
         );
 
         co_return;

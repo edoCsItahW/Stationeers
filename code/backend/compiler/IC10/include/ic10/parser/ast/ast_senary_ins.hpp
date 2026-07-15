@@ -76,79 +76,33 @@ namespace stationeers {
          * @endif
          */
         template<
-            FString K, typename O1, typename O2, typename O3, typename O4, typename O5, typename O6>
-        struct SenaryInstructionBase : QuinaryInstructionBase<K, O1, O2, O3, O4, O5> {
-            /**
-             * @if zh
-             * @brief 节点名称
-             * @elseif en
-             * @brief Node name
-             * @endif
-             */
+            FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+        struct SenaryInstructionBase : QuinaryInstructionBase<K, V1, V2, V3, V4, V5> {
             static constexpr auto nodeName = fstr_concat_v<K, "Instruction">;
 
-            /**
-             * @if zh
-             * @brief 第六个操作数
-             * @elseif en
-             * @brief Sixth operand
-             * @endif
-             */
+            static constexpr auto type6 = V6;
+
+            using O1 = operand_type_t<V1>;
+
+            using O2 = operand_type_t<V2>;
+
+            using O3 = operand_type_t<V3>;
+
+            using O4 = operand_type_t<V4>;
+
+            using O5 = operand_type_t<V5>;
+
+            using O6 = operand_type_t<V6>;
+
             O6 operand6;
 
-            /**
-             * @if zh
-             * @brief 参数类型元组
-             * @elseif en
-             * @brief Argument types tuple
-             * @endif
-             */
-            using Args = std::tuple<O1, O2, O3, O4, O5, O6>;
+            using Args = operand_type_list<V1, V2, V3, V4, V5, V6>;
 
-            /**
-             * @if zh
-             * @brief 参数元组
-             * @elseif en
-             * @brief Argument tuple
-             * @endif
-             */
             Args args;
 
-            /**
-             * @if zh
-             * @brief 默认构造函数
-             * @elseif en
-             * @brief Default constructor
-             * @endif
-             */
             SenaryInstructionBase() = default;
 
-            /**
-             * @if zh
-             *
-             * @brief 构造函数
-             * @param pos 位置信息
-             * @param op1 第一个操作数
-             * @param op2 第二个操作数
-             * @param op3 第三个操作数
-             * @param op4 第四个操作数
-             * @param op5 第五个操作数
-             * @param op6 第六个操作数
-             *
-             * @elseif en
-             *
-             * @brief Constructor
-             * @param pos Position information
-             * @param op1 First operand
-             * @param op2 Second operand
-             * @param op3 Third operand
-             * @param op4 Fourth operand
-             * @param op5 Fifth operand
-             * @param op6 Sixth operand
-             *
-             * @endif
-             */
-            SenaryInstructionBase(Pos pos, O1 op1, O2 op2, O3 op3, O4 op4, O5 op5, O6 op6);
+            SenaryInstructionBase(Pos pos, O1 o1, O2 o2, O3 o3, O4 o4, O5 o5, O6 o6);
 
             [[nodiscard]] Pos end() const override;
 
@@ -156,23 +110,6 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
-            /**
-             * @if zh
-             *
-             * @brief JSON基类辅助函数
-             * @tparam ...Ts 字段类型包
-             * @param ... fields 字段名和值的对
-             * @return JSON格式字符串
-             *
-             * @elseif en
-             *
-             * @brief JSON base helper function
-             * @tparam ...Ts Field type pack
-             * @param ... fields Pairs of field names and values
-             * @return JSON format string
-             *
-             * @endif
-             */
             template<typename... Ts>
             [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
         };
@@ -207,8 +144,8 @@ namespace stationeers {
     // 六元指令 - 操作数类型 RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, SlotIndex,
     // LogicSlotType, BatchMode
     DEFINE_SENARY_INSTRUCTION(
-        lbns, Lbns, LBNS, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber,
-        ic10::RegisterOrNumber, ic10::SlotIndex, ic10::LogicSlotType, ic10::BatchMode
+        lbns, Lbns, LBNS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::SLOT_IDX, ic10::OperandType::LOGIC_SLOT, ic10::OperandType::BATCH_MODE
     )
 
     namespace ic10 {

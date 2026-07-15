@@ -376,3 +376,85 @@ class TestDeviceInteraction:
 
         assert len(parser.diagnostics) == 0
         assert len(program.statements) >= 5
+
+
+# ============================================================
+# 文档注释与类型提示测试
+# ============================================================
+
+class TestDocCommentsAndTypeHints:
+    """Doc comment and type hint tests in system context."""
+
+    def test_program_with_device_doc_comment(self):
+        """包含设备文档注释的程序"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Furnace",
+            "#> @desc 炉窑设备",
+            "#> @end-device",
+            "alias furnace d0 #: @type Furnace",
+            "main:",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 4
+
+    def test_program_with_enum_doc_comment(self):
+        """包含枚举文档注释的程序"""
+        source = "\n".join([
+            "#> @enum",
+            "#> @name GasType",
+            "#> @value Oxygen 1 氧气",
+            "#> @value Nitrogen 2 氮气",
+            "#> @end-enum",
+            "main:",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 3
+
+    def test_program_with_mixed_doc_comments(self):
+        """混合文档注释和代码的程序"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Pump",
+            "#> @desc 液体泵",
+            "#> @end-device",
+            "",
+            "#> @device",
+            "#> @name Sensor",
+            "#> @desc 压力传感器",
+            "#> @end-device",
+            "",
+            "alias pump d0 #: @type Pump",
+            "alias sensor d1 #: @type Sensor",
+            "main:",
+            "l r0 sensor Pressure",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 7
+
+    def test_alias_with_type_hint(self):
+        """带类型提示的别名定义"""
+        source = "\n".join([
+            "alias myDevice d0 #: @type Furnace",
+            "alias myReg r0",
+            "main:",
+            "l r0 myDevice Pressure",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 5

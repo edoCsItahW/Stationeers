@@ -138,7 +138,10 @@ runs:
             if: inputs.os == 'ubuntu-latest'
             shell: bash
             run: |
-                ccache --set-config=max_size=500M
+                # ic10_lib 的 parser.obj/ast.obj 等单文件超过 200MB,
+                # 原 500M 限制无法缓存这些大对象文件,导致 ccache 命中率低、CI 重编译仍 OOM。
+                # 提升至 2G 以容纳大对象文件缓存。
+                ccache --set-config=max_size=2G
                 ccache --set-config=compression=true
                 ccache --zero-stats
                 ccache --show-stats
@@ -156,7 +159,8 @@ runs:
             if: inputs.os == 'windows-latest' && steps.cache-config.outputs.cache-tool == 'ccache'
             shell: pwsh
             run: |
-                ccache --set-config=max_size=500M
+                # 与 Linux 保持一致,容纳 ic10_lib 大对象文件(详见 Linux 配置注释)
+                ccache --set-config=max_size=2G
                 ccache --set-config=compression=true
                 ccache --zero-stats
                 ccache --show-stats

@@ -17,6 +17,7 @@
 #include "common/exception/debug.hpp"
 #include "common/utils/common.hpp"
 #include "ic10/locals/local.hpp"
+#include <unordered_set>
 
 namespace stationeers::ic10 {
 
@@ -68,7 +69,7 @@ namespace stationeers::ic10 {
 
         if (*c == '"') return extractString();
 
-        if (*c == '#') return extractHexComment();
+        if (*c == '#') return extractHashComment();
 
         if (*c == '/' && peek().value_or(' ') == '/') return extractSlashComment();
 
@@ -264,7 +265,7 @@ namespace stationeers::ic10 {
         return {TokenType::STRING, start, std::move(value), TokenCategory::LITERAL};
     }
 
-    Token Lexer::extractHexComment() const {
+    Token Lexer::extractHashComment() const {
         std::string value = "#";
         pos_.next();
 
@@ -275,6 +276,59 @@ namespace stationeers::ic10 {
             pos_.next();
         }
 
+        // 尝试型解析：区分 #>(文档注释)、#:(类型提示) 和 #普通注释
+        if (value.size() >= 2) {
+            if (const char second = value[1]; second == '>' || second == ':') {
+                // 提取第二个字符后的内容
+                auto content = value.substr(2);
+
+                // 去除前导空白
+                if (auto firstNonSpace = content.find_first_not_of(" \t"); firstNonSpace != std::string::npos && content[firstNonSpace] == '@') {
+                    // 提取标签名
+                    auto tagStart = firstNonSpace + 1;
+                    auto tagEnd   = content.find_first_of(" \t", tagStart);
+
+                    if (tagEnd == std::string::npos) tagEnd = content.size();
+
+                    auto tagName = content.substr(tagStart, tagEnd - tagStart);
+
+                    // 去除标签名尾部可能残留的空白（如 '\r'，Windows 换行符）
+                    while (!tagName.empty() && std::isspace(static_cast<unsigned char>(tagName.back())))
+                        tagName.pop_back();
+
+                    if (second == '>') {
+                        // 验证文档标签
+                        static const std::unordered_set<std::string> DOC_TAGS = {
+                            "device", "end-device", "enum",  "end-enum", "name",      "desc",
+                            "value",  "slot",       "logic", "mode",     "logicSlot", "connect"
+                        };
+
+                        if (DOC_TAGS.contains(tagName))
+                            return {
+                                .type     = TokenType::DOC_COMMENT,
+                                .pos      = start,
+                                .lexeme   = std::move(value),
+                                .category = TokenCategory::ANNOTATION
+                            };
+                    } else {
+                        // second == ':'，验证类型提示标签 @type 和 @desc
+                        static const std::unordered_set<std::string> TYPE_HINT_TAGS = {
+                            "type", "desc"
+                        };
+
+                        if (TYPE_HINT_TAGS.contains(tagName))
+                            return {
+                                .type     = TokenType::TYPE_HINT,
+                                .pos      = start,
+                                .lexeme   = std::move(value),
+                                .category = TokenCategory::ANNOTATION
+                            };
+                    }
+                }
+            }
+        }
+
+        // 降级为普通注释
         return {TokenType::HEX_COMMENT, start, std::move(value), TokenCategory::COMMENT};
     }
 

@@ -29,10 +29,11 @@
 #define COMPILER_AST_NODE_HPP
 #pragma once
 
-#include "common/utils/position.hpp"
 #include "common/utils/common.hpp"
+#include "common/utils/position.hpp"
 #include "ic10/lexer/token.hpp"
 #include "pch/utils.hpp"
+#include <vector>
 #include <string>
 #include <utility>
 #include <variant>
@@ -164,6 +165,18 @@ namespace stationeers::ic10 {
          */
         [[nodiscard]] virtual Pos end() const = 0;
 
+        template<typename T>
+        static std::string process(T&& arg);
+
+        template<typename T, typename F>
+        static std::string seqJSON(const std::vector<T>& datas, F func);
+
+        template<typename... Ts>
+        std::string fieldsJSON(std::pair<std::string, Ts>... fields) const;
+
+        template<typename... Ts>
+        std::string fieldsJSON(std::optional<std::pair<std::string, Ts>>... fields) const;
+
         /**
          * @if zh
          *
@@ -183,6 +196,9 @@ namespace stationeers::ic10 {
          */
         template<typename... Ts>
         [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
+
+        template<typename... Ts>
+        [[nodiscard]] std::string jsonBase(std::optional<std::pair<std::string, Ts>>... fields) const;
     };
 
     // ErrorNode（实现于ast.cpp）
@@ -852,6 +868,243 @@ namespace stationeers::ic10 {
      */
     using Operand = Errorable<Register, Device, Number, Identifier, Constant, MacroCall>;
 
+    // DescValue
+
+    /**
+     * @if zh
+     * @brief 描述值：文本或链接（互斥）
+     * @elseif en
+     * @brief Description value: text or link (mutually exclusive)
+     * @endif
+     */
+    struct DescValue {
+        enum class Kind { TEXT, LINK };
+        Kind kind;
+        std::string value;
+
+        [[nodiscard]] std::string toJSON() const;
+    };
+
+    // EnumValueEntry
+
+    /**
+     * @if zh
+     * @brief 枚举值条目
+     * @elseif en
+     * @brief Enum value entry
+     * @endif
+     */
+    struct EnumValueEntry {
+        std::string name;
+        std::string value;
+        std::optional<DescValue> desc;
+    };
+
+    /**
+     * @if zh
+     *
+     * @enum SlotDirection
+     * @brief 插槽方向
+     * @details 表示设备插槽的数据传输方向
+     *
+     * @elseif en
+     *
+     * @enum SlotDirection
+     * @brief Slot direction
+     * @details Indicates data transfer direction of a device slot
+     *
+     * @endif
+     */
+    enum class SlotDirection {
+        INPUT,   ///< @if zh 输入输出 @elseif en Input/output @endif
+        OUTPUT,  ///< @if zh 仅输出 @elseif en Output only @endif
+    };
+
+    /**
+     * @if zh
+     *
+     * @struct DeviceSlot
+     * @brief 设备插槽条目
+     * @details 对应 #> @slot 标签
+     *
+     * @elseif en
+     *
+     * @struct DeviceSlot
+     * @brief Device slot entry
+     * @details Corresponds to #> @slot tag
+     *
+     * @endif
+     */
+    struct DeviceSlot {
+        std::string index;           ///< 插槽编号
+        SlotDirection direction;      ///< 插槽方向
+        std::optional<DescValue> desc;///< 描述（文本或链接，互斥）
+    };
+
+    /**
+     * @if zh
+     *
+     * @enum LogicAccess
+     * @brief 逻辑访问权限
+     * @details 表示逻辑网络的读写权限
+     *
+     * @elseif en
+     *
+     * @enum LogicAccess
+     * @brief Logic access mode
+     * @details Indicates read/write access of a logic network
+     *
+     * @endif
+     */
+    enum class LogicAccess {
+        R,   ///< @if zh 只读 @elseif en Read only @endif
+        W,   ///< @if zh 只写 @elseif en Write only @endif
+        RW,  ///< @if zh 读写 @elseif en Read/write @endif
+    };
+
+    /**
+     * @if zh
+     *
+     * @struct DeviceLogic
+     * @brief 设备逻辑条目
+     * @details 对应 #> @logic 标签
+     *
+     * @elseif en
+     *
+     * @struct DeviceLogic
+     * @brief Device logic entry
+     * @details Corresponds to #> @logic tag
+     *
+     * @endif
+     */
+    struct DeviceLogic {
+        std::string name;      ///< 逻辑名称
+        LogicAccess access;    ///< 访问权限
+    };
+
+    /**
+     * @if zh
+     *
+     * @struct DeviceMode
+     * @brief 设备模式条目
+     * @details 对应 #> @mode 标签
+     *
+     * @elseif en
+     *
+     * @struct DeviceMode
+     * @brief Device mode entry
+     * @details Corresponds to #> @mode tag
+     *
+     * @endif
+     */
+    struct DeviceMode {
+        std::string index;           ///< 模式编号
+        std::optional<DescValue> desc;///< 描述（文本或链接，互斥）
+    };
+
+    /**
+     * @if zh
+     *
+     * @struct DeviceLogicSlot
+     * @brief 设备逻辑插槽条目
+     * @details 对应 #> @logicSlot 标签
+     *
+     * @elseif en
+     *
+     * @struct DeviceLogicSlot
+     * @brief Device logic slot entry
+     * @details Corresponds to #> @logicSlot tag
+     *
+     * @endif
+     */
+    struct DeviceLogicSlot {
+        std::string name;  ///< 逻辑插槽名称
+    };
+
+    /**
+     * @if zh
+     *
+     * @struct DeviceConnect
+     * @brief 设备连接条目
+     * @details 对应 #> @connect 标签
+     *
+     * @elseif en
+     *
+     * @struct DeviceConnect
+     * @brief Device connect entry
+     * @details Corresponds to #> @connect tag
+     *
+     * @endif
+     */
+    struct DeviceConnect {
+        std::string index;           ///< 连接编号
+        std::optional<DescValue> desc;///< 描述（文本或链接，互斥）
+    };
+
+    // DeviceDocComment（实现于ast.cpp）
+
+    /**
+     * @if zh
+     *
+     * @class DeviceDocComment
+     * @brief 设备类型文档注释节点
+     * @details 对应 #> @device ... #> @end-device 块
+     *
+     * @elseif en
+     *
+     * @class DeviceDocComment
+     * @brief Device type doc comment node
+     * @details Corresponds to #> @device ... #> @end-device block
+     *
+     * @endif
+     */
+    struct DeviceDocComment : AST<DeviceDocComment> {
+        static constexpr auto nodeName = "DeviceDocComment"_fs;
+        std::string name;
+        std::optional<DescValue> desc;
+        std::vector<DeviceSlot> slots;
+        std::vector<DeviceLogic> logics;
+        std::vector<DeviceMode> modes;
+        std::vector<DeviceLogicSlot> logicSlots;
+        std::vector<DeviceConnect> connects;
+        DeviceDocComment() = default;
+        using AST::AST;
+        [[nodiscard]] Pos end() const override;
+        [[nodiscard]] std::string toString() const override;
+        [[nodiscard]] std::string toJSON() const override;
+    };
+
+    // EnumDocComment（实现于ast.cpp）
+
+    /**
+     * @if zh
+     *
+     * @class EnumDocComment
+     * @brief 枚举类型文档注释节点
+     * @details 对应 #> @enum ... #> @end-enum 块
+     *
+     * @elseif en
+     *
+     * @class EnumDocComment
+     * @brief Enum type doc comment node
+     * @details Corresponds to #> @enum ... #> @end-enum block
+     *
+     * @endif
+     */
+    struct EnumDocComment : AST<EnumDocComment> {
+        static constexpr auto nodeName = "EnumDocComment"_fs;
+        std::string name;
+        std::optional<DescValue> desc;
+        std::vector<EnumValueEntry> values;
+        EnumDocComment() = default;
+        using AST::AST;
+        [[nodiscard]] Pos end() const override;
+        [[nodiscard]] std::string toString() const override;
+        [[nodiscard]] std::string toJSON() const override;
+    };
+
+    using DocComment = ShallowErrorable<EnumDocComment, DeviceDocComment>;
+
     // AliasDirective（实现于ast.cpp）
 
     /**
@@ -875,6 +1128,8 @@ namespace stationeers::ic10 {
         static constexpr auto keyword  = "alias"_fs;
         ShallowErrorable<Identifier> identifier;
         RegisterOrDevice registerOrDevice;
+        std::optional<std::string> type;  ///< @type 指定的设备类型名
+        std::optional<std::string> desc;  ///< @desc 指定的描述（与 type 值互斥）
         AliasDirective() = default;
         using AST::AST;
         AliasDirective(Pos pos, Identifier id, RegisterOrDevice regOrDev);
@@ -912,6 +1167,8 @@ namespace stationeers::ic10 {
         static constexpr auto keyword  = "define"_fs;
         ShallowErrorable<Identifier> identifier;
         NumberValue operand;
+        std::optional<std::string> type;  ///< @type 指定的类型名（可选）
+        std::optional<std::string> desc;  ///< @desc 指定的描述（与 type 值互斥）
         DefineDirective() = default;
         using AST::AST;
         DefineDirective(Pos pos, Identifier id, NumberValue op);

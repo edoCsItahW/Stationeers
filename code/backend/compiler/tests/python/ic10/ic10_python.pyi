@@ -71,6 +71,9 @@ class TokenType(enum.IntEnum):
     # 注释
     HEX_COMMENT
     SLASH_COMMENT
+    # 注解
+    DOC_COMMENT
+    TYPE_HINT
     # 换行
     NEWLINE
     # 关键字 - 宏与函数
@@ -257,6 +260,7 @@ class TokenCategory(enum.IntEnum):
     LITERAL = 0
     SYMBOL
     COMMENT
+    ANNOTATION
     WHITESPACE
     END
     INVALID
