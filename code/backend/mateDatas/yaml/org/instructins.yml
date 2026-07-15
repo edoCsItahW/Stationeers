@@ -1,0 +1,977 @@
+-   name: "hash_number"
+    type: "Macro"
+    desc:
+        zh: "此后的任意有效十六进制字符将被共同解析为一个十六进制数值。可以使用下划线提升可读性，但下划线无实际功能作用。例如，$F 会被解析为 15。"
+        en: "any valid hex characters after this will be parsed together as a hex value. You can use underscores to help with readability, but they have no functional use. As an example, $F will parse as 15."
+
+-   name: "binary_number"
+    type: "Macro"
+    desc:
+        zh: "任意有效二进制数字（0 或 1）将被共同解析为一个二进制数值。可以使用下划线提升可读性，但下划线无实际功能作用。例如，%1111 或 %11_11 会被解析为 15。"
+        en: "any valid binary numbers (0 or 1) will be parsed together as a binary value. You can use underscores to help with readability, but they have no functional use. As an example, %1111 or %11_11 will parse as 15."
+
+-   name: "HASH(\"...\")"
+    type: "Macro"
+    desc:
+        zh: "括号内的任意文本会在处理开始前被哈希为一个整数。可用于在需要哈希值的场景生成整数值。"
+        en: "any text inside will be hashed to an integer before processing takes place. Use this to generate integer values for use wherever hashes are required."
+
+-   name: "STR(\"...\")"
+    type: "Macro"
+    desc:
+        zh: "括号内的任意文本会被打包进64位底层数值的53个可用比特中，可用于绘制文本。该限制使其最多支持6个字符。"
+        en: "any text inside will be packed into 53 usable bits of the 64 bit backing number that can be used for drawing text. This limits its use to 6 characters."
+
+-   name: "nan"
+    type: "Constant"
+    desc:
+        zh: "表示“非数值”的常量。该常量在技术上是一个“安静型”NaN，部分指令产生的信号型NaN会触发异常并终止执行。"
+        en: "A constant representing 'not a number'. This constant technically provides a 'quiet' NaN, a signal NaN from some instructions will result in an exception and halt execution"
+
+-   name: "pinf"
+    type: "Constant"
+    desc:
+        zh: "表示正无穷大值的常量"
+        en: "A constant representing a positive infinite value"
+
+-   name: "ninf"
+    type: "Constant"
+    desc:
+        zh: "表示负无穷大值的常量"
+        en: "A constant representing a negative infinite value"
+
+-   name: "pi"
+    type: "Constant"
+    desc:
+        zh: "表示圆的周长与直径比值的常量，以双精度浮点数提供，取值为 3.14159265358979"
+        en: "A constant representing ratio of the circumference of a circle to its diameter, provided in double precision. Value: 3.14159265358979"
+
+-   name: "tau"
+    type: "Constant"
+    desc:
+        zh: "表示圆的周长与半径比值的常量，以双精度浮点数提供，取值为 6.28318530717959"
+        en: "A constant representing the ratio of the circumference of a circle to its radius, provided in double precision. Value: 6.28318530717959"
+
+-   name: "deg2rad"
+    type: "Constant"
+    desc:
+        zh: "角度转弧度的换算常量，取值为 0.0174532923847437"
+        en: "Degrees to radians conversion constant. Value: 0.0174532923847437"
+
+-   name: "rad2deg"
+    type: "Constant"
+    desc:
+        zh: "弧度转角度的换算常量，取值为 57.2957801818848"
+        en: "Radians to degrees conversion constant. Value: 57.2957801818848"
+
+-   name: "epsilon"
+    type: "Constant"
+    desc:
+        zh: "表示大于 0 的最小正次正规数的常量"
+        en: "A constant representing the smallest positive subnormal > 0"
+
+-   name: "rgas"
+    type: "Constant"
+    desc:
+        zh: "通用气体常数，单位为焦耳每摩尔开尔文（J/(mol*K)），取值为 8.31446261815324"
+        en: "Universal gas constant (J/(mol*K)). Value: 8.31446261815324"
+
+-   name: "# str"
+    type: "Instruction"
+    desc:
+        zh: "此行中该符号之后的所有字符都会被忽略"
+        en: "any characters on line after this ignored"
+
+-   name: "abs r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "比较a的绝对值，并保存在寄存器(r?)中"
+        en: "Compares the absolute value of a, and stores it in register (r?)"
+
+-   name: "acos r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算弧长为a的余弦值，并保存在寄存器(r?)中"
+        en: "Calculates the cosine value of the arc length a, and stores it in register (r?)"
+
+-   name: "add r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a+b的结果并保存在寄存器(r?)中"
+        en: "Calculates the result of a + b and stores it in register (r?)"
+
+-   name: "alias str r?|d?"
+    type: "Instruction"
+    desc:
+        zh: "使用别名(alias)为寄存器(r?)或设备(d?)指定一个标签(str)，设备别名也会影响IC封装引脚上显示的内容"
+        en: "Assigns a label (str) as an alias for a register (r?) or device (d?). Device aliases will also affect the content displayed on IC package pins."
+
+-   name: "and r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对两个数值的二进制表示形式执行按位AND(与)运算。结果中的每个位都是通过计算输入值的相应二进制位来确定的。如果输入值中的两个位均为1，则结果位为1；否则，结果位为0"
+        en: "Performs a bitwise AND operation on the binary representations of two values. Each bit in the result is determined by the corresponding bits of the input values: if both input bits are 1, the result bit is 1; otherwise, the result bit is 0."
+
+-   name: "asin r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "反正弦函数，计算正弦值为a的弧长值，并保存在寄存器(r?)中"
+        en: "Arcsine function: calculates the radian value of the angle whose sine is a, and stores the result in register (r?)"
+
+-   name: "atan r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "反正切函数，计算正切值为a的弧长值，并保存在寄存器(r?)中"
+        en: "Arctangent function: calculates the radian value of the angle whose tangent is a, and stores the result in register (r?)"
+
+-   name: "atan2 r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "高级反正切函数atan2，计算两个参数a(y)和b(x)所代表的正切值的弧长，并保存在寄存器(r?)中"
+        en: "Advanced arctangent function atan2: calculates the radian value of the angle represented by parameters a (y) and b (x), and stores the result in register (r?)"
+
+-   name: "bap a(r?|num) b(r?|num) c(r?|num) d(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a-b)<=max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号d"
+        en: "Jumps to line number d when abs(a-b) <= max(c * max(abs(a), abs(b)), float.epsilon * 8)"
+
+-   name: "bapal a(r?|num) b(r?|num) c(r?|num) d(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a!=b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number c if a != b, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bapz a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a)<=float.epsilon*8，则跳转到代码行号c"
+        en: "Jumps to line number c when abs(a) <= float.epsilon * 8"
+
+-   name: "bapzal a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a)<=float.epsilon*8，则跳转到代码行号c"
+        en: "Jumps to line number c when abs(a) <= float.epsilon * 8"
+
+-   name: "bdns device(d?|r?|id) a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果设备(d)无效，则跳转到代码行号a"
+        en: "Jumps to line number a if the device (d) is invalid"
+
+-   name: "bdnsal device(d?|r?|id) a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果设备(d)无效，则跳转到代码行号a，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number a if the device (d) is invalid, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bdnvl device(d?|r?|id) logicType a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果所提供的设备对于所提供逻辑类型的读取指令无效，则跳转到行a"
+        en: "Jumps to line a if the specified device is invalid for read instructions of the specified logic type"
+
+-   name: "bdnvs device(d?|r?|id) logicType a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果所提供的设备对于所提供逻辑类型的写入指令无效，则跳转到行a"
+        en: "Jumps to line a if the specified device is invalid for write instructions of the specified logic type"
+
+-   name: "bdse device(d?|r?|id) a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果设备(d)有效，则跳转到代码行号a"
+        en: "Jumps to line number a if the device (d) is valid"
+
+-   name: "bdseal device(d?|r?|id) a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果设备(d)有效，则跳转到代码行号a，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number a if the device (d) is valid, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "beq a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a==b，则跳转到代码行号c"
+        en: "Jumps to line number c if a == b"
+
+-   name: "beqal a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a==b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number c if a == b, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "beqz a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a==0，则跳转到代码行号b"
+        en: "Jumps to line number b if a == 0"
+
+-   name: "beqzal a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a==0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number b if a == 0, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bge a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>=b，则跳转到代码行号c"
+        en: "Jumps to line number c if a >= b"
+
+-   name: "bgeal a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>=b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number c if a >= b, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bgez a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>=0，则跳转到代码行号b"
+        en: "Jumps to line number b if a >= 0"
+
+-   name: "bgezal a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>=0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number b if a >= 0, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bgt a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>b，则跳转到代码行号c"
+        en: "Jumps to line number c if a > b"
+
+-   name: "bgtal a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number c if a > b, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bgtz a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>0，则跳转到代码行号b"
+        en: "Jumps to line number b if a > 0"
+
+-   name: "bgtzal a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number b if a > 0, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "ble a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<=b，则跳转到代码行号c"
+        en: "Jumps to line number c if a <= b"
+
+-   name: "bleal a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<=b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number c if a <= b, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "blez a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<=0，则跳转到代码行号b"
+        en: "Jumps to line number b if a <= 0"
+
+-   name: "blezal a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<=0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number b if a <= 0, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "blt a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<b，则跳转到代码行号c"
+        en: "Jumps to line number c if a < b"
+
+-   name: "bltal a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number c if a < b, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bltz a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<0，则跳转到代码行号b"
+        en: "Jumps to line number b if a < 0"
+
+-   name: "bltzal a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number b if a < 0, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bna a(r?|num) b(r?|num) c(r?|num) d(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a-b)>max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号d"
+        en: "Jumps to line number d when abs(a-b) > max(c * max(abs(a), abs(b)), float.epsilon * 8)"
+
+-   name: "bnaal a(r?|num) b(r?|num) c(r?|num) d(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a-b)>max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号d行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number d when abs(a-b) > max(c * max(abs(a), abs(b)), float.epsilon * 8), and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bnan a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a==NaN，则跳转到代码行号b"
+        en: "Jumps to line number b if a == NaN"
+
+-   name: "bnaz a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a)>float.epsilon*8，则跳转到代码行号c"
+        en: "Jumps to line number c when abs(a) > float.epsilon * 8"
+
+-   name: "bnazal a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a)>float.epsilon*8，则跳转到代码行号c"
+        en: "Jumps to line number c when abs(a) > float.epsilon * 8"
+
+-   name: "bne a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a!=b，则跳转到代码行号c"
+        en: "Jumps to line number c if a != b"
+
+-   name: "bneal a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a!=b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number c if a != b, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "bnez a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a!=0，则跳转到代码行号b"
+        en: "Jumps to line number b if a != 0"
+
+-   name: "bnezal a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a!=0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        en: "Jumps to line number b if a != 0, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "brap a(r?|num) b(r?|num) c(r?|num) d(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a-b)<=max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号(当前行号+d)行"
+        en: "Jumps to line (current line + d) when abs(a-b) <= max(c * max(abs(a), abs(b)), float.epsilon * 8)"
+
+-   name: "brapz a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a)<=float.epsilon*8，则跳转到代码行号(当前行号+c)行"
+        en: "Jumps to line (current line + c) when abs(a) <= float.epsilon * 8"
+
+-   name: "brdns device(d?|r?|id) a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果设备(d)无效，则跳转到代码行号(当前行号+a)行"
+        en: "Jumps to line (current line + a) if the device (d) is invalid"
+
+-   name: "brdse device(d?|r?|id) a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果设备(d)有效，则跳转到代码行号(当前行号+a)行"
+        en: "Jumps to line (current line + a) if the device (d) is valid"
+
+-   name: "breq a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a==b，则跳转到代码行号(当前行号+c)行"
+        en: "Jumps to line (current line + c) if a == b"
+
+-   name: "breqz a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a==0，则跳转到代码行号(当前行号+b)行"
+        en: "Jumps to line (current line + b) if a == 0"
+
+-   name: "brge a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>=b，则跳转到代码行号(当前行号+c)行"
+        en: "Jumps to line (current line + c) if a >= b"
+
+-   name: "brgez a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>=0，则跳转到代码行号(当前行号+b)行"
+        en: "Jumps to line (current line + b) if a >= 0"
+
+-   name: "brgt a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>b，则跳转到代码行号(当前行号+c)行"
+        en: "Jumps to line (current line + c) if a > b"
+
+-   name: "brgtz a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a>0，则跳转到代码行号(当前行号+b)行"
+        en: "Jumps to line (current line + b) if a > 0"
+
+-   name: "brle a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<=b，则跳转到代码行号(当前行号+c)行"
+        en: "Jumps to line (current line + c) if a <= b"
+
+-   name: "brlez a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<=0，则跳转到代码行号(当前行号+b)行"
+        en: "Jumps to line (current line + b) if a <= 0"
+
+-   name: "brlt a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<b，则跳转到代码行号(当前行号+c)行"
+        en: "Jumps to line (current line + c) if a < b"
+
+-   name: "brltz a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a<0，则跳转到代码行号(当前行号+b)行"
+        en: "Jumps to line (current line + b) if a < 0"
+
+-   name: "brna a(r?|num) b(r?|num) c(r?|num) d(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a-b)>max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号(当前行号+d)行"
+        en: "Jumps to line (current line + d) when abs(a-b) > max(c * max(abs(a), abs(b)), float.epsilon * 8)"
+
+-   name: "brnan a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a==NaN，则跳转到代码行号(当前行号+b)行"
+        en: "Jumps to line (current line + b) if a == NaN"
+
+-   name: "brnaz a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a)>float.epsilon*8，则跳转到代码行号(当前行号+c)行"
+        en: "Jumps to line (current line + c) when abs(a) > float.epsilon * 8"
+
+-   name: "brne a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a!=b，则跳转到代码行号(当前行号+c)行"
+        en: "Jumps to line (current line + c) if a != b"
+
+-   name: "brnez a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a!=0，则跳转到代码行号(当前行号+b)行"
+        en: "Jumps to line (current line + b) if a != 0"
+
+-   name: "ceil r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算大于a的最小整数，并保存在寄存器(r?)中"
+        en: "Calculates the smallest integer greater than a, and stores it in register (r?)"
+
+-   name: "clamp r? a(r?|num) min(r?|num) max(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "将a限制在闭区间[min, max]范围内，并将结果存入指定寄存器"
+        en: "Stores a clamped to the inclusive range [min, max] in the register provided."
+
+-   name: "clr d?"
+    type: "Instruction"
+    desc:
+        zh: "清除指定设备的堆栈内存"
+        en: "Clears the stack memory of the specified device"
+
+-   name: "clrd id(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "通过设备ID定位设备并清除其堆栈内存"
+        en: "Locates a device by its ID and clears its stack memory"
+
+-   name: "cos r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算弧长为a的余弦值，并保存在寄存器(r?)中"
+        en: "Calculates the cosine value of the arc length a, and stores it in register (r?)"
+
+-   name: "define str num"
+    type: "Instruction"
+    desc:
+        zh: "为指定的值(num)定义一个标签(str)，程序中所有出现的同名标签都将被替换为该值"
+        en: "Defines a label (str) for the specified value (num). All occurrences of the same label in the program will be replaced with this value"
+
+-   name: "div r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a/b的结果并保存在寄存器(r?)中"
+        en: "Calculates the result of a / b and stores it in register (r?)"
+
+-   name: "exp r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a以自然常数为底的指数exp(a)，并保存在寄存器(r?)中"
+        en: "Calculates the natural exponential exp(a) of a, and stores it in register (r?)"
+
+-   name: "ext r? a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "从a中提取一段比特值，起始位置为b，长度为c，并放入指定寄存器。最大有效载荷长度不得超过53位"
+        en: "Extracts a segment of bits from a, starting at position b with length c, and places it into the provided register. The maximum valid payload length must not exceed 53 bits"
+
+-   name: "floor r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算小于a的最大整数，并保存在寄存器(r?)中"
+        en: "Calculates the largest integer less than a, and stores it in register (r?)"
+
+-   name: "get r? device(d?|r?|id) address(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "使用指定设备尝试读取指定地址的堆栈值，并存入寄存器(r?)"
+        en: "Attempts to read the stack value at the specified address using the specified device, and stores it in register (r?)"
+
+-   name: "hcf"
+    type: "Instruction"
+    desc:
+        zh: "Halt and catch fire，早期计算机的机器指令，作用是让CPU执行循环寻址操作，持续循环读取大量数据；若寻址到不存在的内存地址（Catchfire状态），将锁定计算机即挂起(Halt)"
+        en: "Halt and catch fire. An early computer machine instruction that causes the CPU to perform cyclic addressing, continuously looping to read large amounts of data. If it addresses a non-existent memory address (catchfire state), it will lock up the computer (halt)"
+
+-   name: "ins r? a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "将a的值按比特位插入到指定寄存器中，起始位置为b，长度为c。最大有效载荷长度不得超过53位"
+        en: "Inserts the bits of value a into the specified register, starting at position b with length c. The maximum valid payload length must not exceed 53 bits"
+
+-   name: "j int"
+    type: "Instruction"
+    desc:
+        zh: "跳转到代码行号a"
+        en: "Jumps to code line number a"
+
+-   name: "jal int"
+    type: "Instruction"
+    desc:
+        zh: "跳转到代码行号a，并将跳转前的行号+1储存在寄存器ra中"
+        en: "Jumps to code line number a, and stores the line number before jumping plus 1 into register ra"
+
+-   name: "jr int"
+    type: "Instruction"
+    desc:
+        zh: "跳转到代码行号(当前行号+a)行"
+        en: "Jumps to code line (current line number + a)"
+
+-   name: "l r? device(d?|r?|id) logicType"
+    type: "Instruction"
+    desc:
+        zh: "将逻辑引脚(d?)对应设备的逻辑属性值(LogicType)加载到寄存器(r?)中"
+        en: "Loads the logic property value (LogicType) of the device corresponding to logic pin (d?) into register (r?)"
+
+-   name: "lb r? deviceHash logicType batchMode"
+    type: "Instruction"
+    desc:
+        zh: "通过给定的设备类型哈希值(deviceHash)，将网络内所有同类设备的逻辑属性值(LogicType)以指定统计方式加载到寄存器。可用统计方式：Average(0)平均、Sum(1)求和、Minimum(2)最小、Maximum(3)最大，支持单词或数字"
+        en: "Loads logic property values (LogicType) of all devices of the same type in the network into the register using the specified aggregation method, based on the given device type hash. Available modes: Average(0), Sum(1), Minimum(2), Maximum(3); supports both word and number"
+
+-   name: "lbn r? deviceHash nameHash logicType batchMode"
+    type: "Instruction"
+    desc:
+        zh: "通过给定的设备类型哈希值与设备名称哈希值，将网络内所有符合条件设备的逻辑属性值以指定统计方式加载到寄存器。可用统计方式：Average(0)平均、Sum(1)求和、Minimum(2)最小、Maximum(3)最大，支持单词或数字"
+        en: "Loads logic property values of all matching devices in the network into the register using the specified aggregation method, based on the given device type hash and device name hash. Available modes: Average(0), Sum(1), Minimum(2), Maximum(3); supports both word and number"
+
+-   name: "lbns r? deviceHash nameHash slotIndex logicSlotType batchMode"
+    type: "Instruction"
+    desc:
+        zh: "通过给定的设备类型哈希值、槽位索引值、设备名称哈希值，将网络内所有符合条件设备的特定槽位逻辑属性值以指定统计方式加载到寄存器。可用统计方式：Average(0)平均、Sum(1)求和、Minimum(2)最小、Maximum(3)最大，支持单词或数字"
+        en: "Loads logic property values of specific slots from all matching devices in the network into the register using the specified aggregation method, based on device type hash, slot index and device name hash. Available modes: Average(0), Sum(1), Minimum(2), Maximum(3); supports both word and number"
+
+-   name: "lbs r? deviceHash slotIndex logicSlotType batchMode"
+    type: "Instruction"
+    desc:
+        zh: "通过给定的设备类型哈希值与槽位索引值，将网络内所有符合条件设备中特定槽位的逻辑属性值以指定统计方式加载到寄存器。可用统计方式：Average(0)平均、Sum(1)求和、Minimum(2)最小、Maximum(3)最大，支持单词或数字"
+        en: "Loads logic property values of specific slots from all matching devices in the network into the register using the specified aggregation method, based on device type hash and slot index. Available modes: Average(0), Sum(1), Minimum(2), Maximum(3); supports both word and number"
+
+-   name: "lerp r? a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "以比率c在a和b之间进行线性插值，并将结果放入指定寄存器。比率c会被限制在0到1之间"
+        en: "Performs linear interpolation between a and b with ratio c, and places the result into the provided register. The ratio c will be clamped between 0 and 1"
+
+-   name: "log r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a以自然常数为底的对数log(a)，并保存在寄存器(r?)中"
+        en: "Calculates the natural logarithm log(a) of a, and stores it in register (r?)"
+
+-   name: "lr r? device(d?|r?|id) reagentMode int"
+    type: "Instruction"
+    desc:
+        zh: "对逻辑引脚(d?)对应的设备，通过指定的原料模式(ReagentMode)将原料的哈希值加载到寄存器。可用模式：Contents(0)内含、Required(1)需求、Recipe(2)配方，支持单词或数字"
+        en: "Loads the reagent hash value from the device corresponding to logic pin (d?) into the register using the specified reagent mode. Available modes: Contents(0), Required(1), Recipe(2); supports both word and number"
+
+-   name: "ls r? device(d?|r?|id) slotIndex logicSlotType"
+    type: "Instruction"
+    desc:
+        zh: "将逻辑引脚(d?)对应设备的指定槽位索引中物品的逻辑槽位属性值(LogicSlotType)加载到寄存器(r?)中"
+        en: "Loads the logic slot property value (LogicSlotType) of the item in the slot at the specified index of the device corresponding to logic pin (d?) into register (r?)"
+
+-   name: "max r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "比较a和b，并将较大值保存在寄存器(r?)中"
+        en: "Compares a and b, and stores the larger value in register (r?)"
+
+-   name: "min r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "比较a和b，并将较小值保存在寄存器(r?)中"
+        en: "Compares a and b, and stores the smaller value in register (r?)"
+
+-   name: "mod r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a模以b的结果并保存在寄存器(r?)中，注意：并非取余运算符a%b"
+        en: "Calculates the result of a modulo b and stores it in register (r?). Note: this is not equivalent to the a % b remainder operator"
+
+-   name: "move r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "将指定的值（寄存器或常量）赋值给寄存器(r?)"
+        en: "Assigns the specified value (register or constant) to register (r?)"
+
+-   name: "mul r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a*b的结果并保存在寄存器(r?)中"
+        en: "Calculates the result of a * b and stores it in register (r?)"
+
+-   name: "nor r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对两个数值的二进制表示执行按位NOR(或非)运算。结果每一位由输入对应位决定：两位都为0时结果位为1，任意一位为1则结果位为0"
+        en: "Performs a bitwise NOR operation on the binary representations of two values. Each result bit is determined by the corresponding input bits: 1 if both bits are 0, 0 if either bit is 1"
+
+-   name: "not r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对数值的二进制表示执行按位NOT(非)运算，将所有二进制位取反，1变0、0变1"
+        en: "Performs a bitwise NOT operation on the binary representation of a value, inverting every bit: 1 becomes 0 and 0 becomes 1"
+
+-   name: "or r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对两个数值的二进制表示执行按位OR(或)运算。结果每一位由输入对应位决定：任意一位为1则结果位为1，都为0时结果位为0"
+        en: "Performs a bitwise OR operation on the binary representations of two values. Each result bit is 1 if either input bit is 1, and 0 only if both bits are 0"
+
+-   name: "peek r?"
+    type: "Instruction"
+    desc:
+        zh: "获取堆栈顶的值，并保存在寄存器(r?)中"
+        en: "Gets the value at the top of the stack and stores it in register (r?)"
+
+-   name: "poke address(r?|num) value(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "将指定值存储到堆栈的指定索引位置"
+        en: "Stores the specified value at the given index in the stack"
+
+-   name: "pop r?"
+    type: "Instruction"
+    desc:
+        zh: "将堆栈顶的值保存在寄存器(r?)中，并将堆栈指针寄存器sp的值+1"
+        en: "Stores the value at the top of the stack in register (r?), and increments the stack pointer register sp by 1"
+
+-   name: "pow r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a的b次幂并将结果存入寄存器，遵循IEEE-754浮点算术标准"
+        en: "Calculates a raised to the power of b and stores the result in the register. Follows the IEEE-754 floating-point arithmetic standard"
+
+-   name: "push a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "将a值压入堆栈，并将堆栈指针寄存器sp的值+1"
+        en: "Pushes value a onto the stack, and increments the stack pointer register sp by 1"
+
+-   name: "put device(d?|r?|id) address(r?|num) value(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "尝试将指定的值写入指定设备堆栈的指定地址"
+        en: "Attempts to write the specified value to the specified address in the stack of the target device"
+
+-   name: "rand r?"
+    type: "Instruction"
+    desc:
+        zh: "生成范围为0<=x<1的随机数，并保存在寄存器(r?)中"
+        en: "Generates a random number in the range 0 <= x < 1, and stores it in register (r?)"
+
+-   name: "rmap r? d? reagentHash(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "根据给定的材料哈希值，返回设备配方所需的对应材料数量（例如查询自动车床中铁的哈希值，返回对应铁锭的哈希值）"
+        en: "Returns the quantity of the corresponding material required by the device's recipe, based on the given material hash (e.g. querying iron hash for an automatic lathe returns iron ingot hash)"
+
+-   name: "rol r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对a的二进制表示执行按位左循环移位b位，将从最高位移出的比特回绕到最低位"
+        en: "Performs a bitwise left rotation on the binary representation of a by b places, wrapping bits shifted out of the most significant position back into the least significant position"
+
+-   name: "ror r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对a的二进制表示执行按位右循环移位b位，将从最低位移出的比特回绕到最高位"
+        en: "Performs a bitwise right rotation on the binary representation of a by b places, wrapping bits shifted out of the least significant position back into the most significant position"
+
+-   name: "round r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a四舍五入后的整数结果，并保存在寄存器(r?)中"
+        en: "Calculates the integer result of a rounded to the nearest whole number, and stores it in register (r?)"
+
+-   name: "s device(d?|r?|id) logicType r?"
+    type: "Instruction"
+    desc:
+        zh: "将寄存器(r?)的值写入指定逻辑引脚(d?)所对应设备的逻辑属性值(LogicType)"
+        en: "Writes the value of register (r?) to the logic property (LogicType) of the device corresponding to the specified logic pin (d?)"
+
+-   name: "sap r? a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a-b)<=max(c*max(abs(a), abs(b)), float.epsilon*8)时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if abs(a-b) <= max(c * max(abs(a), abs(b)), float.epsilon * 8), otherwise 0"
+
+-   name: "sapz r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合|a|<=float.epsilon*8时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if |a| <= float.epsilon * 8, otherwise 0"
+
+-   name: "sb deviceHash logicType r?"
+    type: "Instruction"
+    desc:
+        zh: "通过给定的设备类型哈希值(deviceHash)，将寄存器(r?)的值写入到网络内所有符合条件的设备的逻辑属性值(LogicType)"
+        en: "Writes the value of register (r?) to the logic property (LogicType) of all matching devices in the network, based on the given device type hash"
+
+-   name: "sbn deviceHash nameHash logicType r?"
+    type: "Instruction"
+    desc:
+        zh: "通过给定的设备类型哈希值与设备名称哈希值，将寄存器(r?)的值写入到网络内所有符合条件的设备的逻辑属性值(LogicType)"
+        en: "Writes the value of register (r?) to the logic property (LogicType) of all matching devices in the network, based on the given device type hash and device name hash"
+
+-   name: "sbs deviceHash slotIndex logicSlotType r?"
+    type: "Instruction"
+    desc:
+        zh: "通过给定的设备类型哈希值与槽位索引值，将寄存器(r?)的值写入到网络内所有符合条件设备中特定槽位的逻辑槽位属性值(LogicSlotType)"
+        en: "Writes the value of register (r?) to the logic slot property (LogicSlotType) of specific slots in all matching devices in the network, based on device type hash and slot index"
+
+-   name: "sdns r? device(d?|r?|id)"
+    type: "Instruction"
+    desc:
+        zh: "如果设备(d?)对应的引脚指向一个无效的设备，则寄存器(r?)的值为0，否则为1"
+        en: "Sets register (r?) to 0 if the pin corresponding to device (d?) points to an invalid device, otherwise 1"
+
+-   name: "sdse r? device(d?|r?|id)"
+    type: "Instruction"
+    desc:
+        zh: "如果设备(d?)对应的引脚指向一个有效的设备，则寄存器(r?)的值为1，否则为0"
+        en: "Sets register (r?) to 1 if the pin corresponding to device (d?) points to a valid device, otherwise 0"
+
+-   name: "select r? a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "如果a不为0，则寄存器(r?)的值为b，否则为c"
+        en: "Sets register (r?) to b if a is not zero, otherwise c"
+
+-   name: "seq r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a==b时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a == b, otherwise 0"
+
+-   name: "seqz r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a==0时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a == 0, otherwise 0"
+
+-   name: "sge r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a>=b时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a >= b, otherwise 0"
+
+-   name: "sgez r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a>=0时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a >= 0, otherwise 0"
+
+-   name: "sgn r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "将a的符号存入寄存器：负数为-1，正数为1，零或非数值为0"
+        en: "Stores the sign of a in the register: -1 if a is negative, 1 if positive, and 0 if a is zero or not a number"
+
+-   name: "sgt r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a>b时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a > b, otherwise 0"
+
+-   name: "sgtz r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a>0时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a > 0, otherwise 0"
+
+-   name: "sin r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算弧长为a的正弦值，并保存在寄存器(r?)中"
+        en: "Calculates the sine value of the arc length a, and stores it in register (r?)"
+
+-   name: "sla r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对数值的二进制表示执行算术左移位，将所有二进制位向左移动，并用符号位填充右侧空出的部分"
+        en: "Performs an arithmetic left shift on the binary representation of a value, shifting all bits left and filling the right side with the sign bit"
+
+-   name: "sle r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a<=b时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a <= b, otherwise 0"
+
+-   name: "sleep a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "暂停代码运行a秒"
+        en: "Pauses code execution for a seconds"
+
+-   name: "slez r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a<=0时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a <= 0, otherwise 0"
+
+-   name: "sll r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对数值的二进制表示执行逻辑左移位，将所有二进制位向左移动，并用0填充右侧空出的部分"
+        en: "Performs a logical left shift on the binary representation of a value, shifting all bits left and filling the right side with 0"
+
+-   name: "slt r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a<b时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a < b, otherwise 0"
+
+-   name: "sltz r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a<0时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a < 0, otherwise 0"
+
+-   name: "sna r? a(r?|num) b(r?|num) c(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合abs(a-b)>max(c*max(abs(a), abs(b)), float.epsilon*8)时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if abs(a-b) > max(c * max(abs(a), abs(b)), float.epsilon * 8), otherwise 0"
+
+-   name: "snan r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a==NaN时，寄存器(r?)为1，否则为0。NaN是特殊常量，当计算结果无意义（如除以0）时，存储结果的寄存器值为NaN"
+        en: "Sets register (r?) to 1 if a == NaN, otherwise 0. NaN is a special constant used when a calculation result is meaningless, such as division by zero"
+
+-   name: "snanz r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a==NaN时，寄存器(r?)为0，否则为1。NaN是特殊值，当计算结果无意义（如除以0）时，存储结果的寄存器值为NaN"
+        en: "Sets register (r?) to 0 if a == NaN, otherwise 1. NaN is a special value used when a calculation result is meaningless, such as division by zero"
+
+-   name: "snaz r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "当符合|a|>float.epsilon时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if |a| > float.epsilon, otherwise 0"
+
+-   name: "sne r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a!=b时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a != b, otherwise 0"
+
+-   name: "snez r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "a!=0时，寄存器(r?)为1，否则为0"
+        en: "Sets register (r?) to 1 if a != 0, otherwise 0"
+
+-   name: "sqrt r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a的平方根并将结果保存在寄存器(r?)中"
+        en: "Calculates the square root of a and stores the result in register (r?)"
+
+-   name: "sra r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对数值的二进制表示执行算术右移位，将所有二进制位向右移动，并用符号位填充左侧空出的部分"
+        en: "Performs an arithmetic right shift on the binary representation of a value, shifting all bits right and filling the left side with the sign bit"
+
+-   name: "srl r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对数值的二进制表示执行逻辑右移位，将所有二进制位向右移动，并用0填充左侧空出的部分"
+        en: "Performs a logical right shift on the binary representation of a value, shifting all bits right and filling the left side with 0"
+
+-   name: "ss device(d?|r?|id) slotIndex logicSlotType r?"
+    type: "Instruction"
+    desc:
+        zh: "通过逻辑引脚(d?)和槽位索引定位到设备槽位中的设备，将寄存器(r?)的值写入该设备的逻辑槽位属性值(LogicSlotType)"
+        en: "Locates the device in the device slot via logic pin (d?) and slot index, then writes the value of register (r?) to its logic slot property (LogicSlotType)"
+
+-   name: "sub r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a-b的结果并保存在寄存器(r?)中"
+        en: "Calculates the result of a - b and stores it in register (r?)"
+
+-   name: "tan r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算弧长为a的正切值，并保存在寄存器(r?)中"
+        en: "Calculates the tangent value of the arc length a, and stores it in register (r?)"
+
+-   name: "trunc r? a(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "计算a舍去小数部分后的结果，并保存在寄存器(r?)中"
+        en: "Calculates the result of a with the fractional part truncated, and stores it in register (r?)"
+
+-   name: "xor r? a(r?|num) b(r?|num)"
+    type: "Instruction"
+    desc:
+        zh: "对两个数值的二进制表示执行按位XOR(异或)运算。两个对应位不同时结果位为1，相同时结果位为0"
+        en: "Performs a bitwise XOR operation on the binary representations of two values. Each result bit is 1 if the corresponding input bits differ, 0 if they are the same"
+
+-   name: "yield"
+    type: "Instruction"
+    desc:
+        zh: "暂停代码运行直到当前tick结束"
+        en: "Pauses code execution until the end of the current tick"
