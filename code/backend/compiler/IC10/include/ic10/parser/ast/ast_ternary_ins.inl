@@ -21,43 +21,45 @@ namespace stationeers::ic10 {
 
     // TernaryInstructionBase
 
-    template<FString K, typename O1, typename O2, typename O3>
-    TernaryInstructionBase<K, O1, O2, O3>::TernaryInstructionBase(Pos pos, O1 op1, O2 op2, O3 op3)
-        : BinaryInstructionBase<K, O1, O2>{pos, op1, op2}
-        , operand3(op3)
-        , args{op1, op2, op3} {}
+    template<FString K, OperandType V1, OperandType V2, OperandType V3>
+    TernaryInstructionBase<K, V1, V2, V3>::TernaryInstructionBase(Pos pos, O1 o1, O2 o2, O3 o3)
+        : BinaryInstructionBase<K, V1, V2>{pos, o1, o2}
+        , operand3(o3)
+        , args(o1, o2, o3) {}
 
-    template<FString K, typename O1, typename O2, typename O3>
-    Pos TernaryInstructionBase<K, O1, O2, O3>::end() const {
+    template<FString K, OperandType V1, OperandType V2, OperandType V3>
+    Pos TernaryInstructionBase<K, V1, V2, V3>::end() const {
         return call(operand3, [](auto&& o) { return o.end(); });
     }
 
-    template<FString K, typename O1, typename O2, typename O3>
-    std::string TernaryInstructionBase<K, O1, O2, O3>::toString() const {
+    template<FString K, OperandType V1, OperandType V2, OperandType V3>
+    std::string TernaryInstructionBase<K, V1, V2, V3>::toString() const {
         if constexpr (IsVariant<O3>)
             return std::format(
-                "{} {}", BinaryInstructionBase<K, O1, O2>::toString(),
+                "{} {}", BinaryInstructionBase<K, V1, V2>::toString(),
                 call(operand3, [](auto&& o) { return o.toString(); })
             );
 
         else
             return std::format(
-                "{} {}", BinaryInstructionBase<K, O1, O2>::operand2.toString(), operand3.toString()
+                "{} {}", BinaryInstructionBase<K, V1, V2>::operand2.toString(), operand3.toString()
             );
     }
 
-    template<FString K, typename O1, typename O2, typename O3>
-    std::string TernaryInstructionBase<K, O1, O2, O3>::toJSON() const {
+    template<FString K, OperandType V1, OperandType V2, OperandType V3>
+    std::string TernaryInstructionBase<K, V1, V2, V3>::toJSON() const {
         return jsonBase();
     }
 
-    template<FString K, typename O1, typename O2, typename O3>
+    template<FString K, OperandType V1, OperandType V2, OperandType V3>
     template<typename... Ts>
-    std::string TernaryInstructionBase<K, O1, O2, O3>::jsonBase(
+    std::string TernaryInstructionBase<K, V1, V2, V3>::jsonBase(
         std::pair<std::string, Ts>... fields
     ) const {
-        return this->BinaryInstructionBase<K, O1, O2>::template jsonBase<std::string, Ts...>(
-            {"operand3", call(operand3, [](auto&& o) { return o.toJSON(); })}, fields...
+        return this->BinaryInstructionBase<K, V1, V2>::template jsonBase<
+            std::string, std::string_view, Ts...>(
+            {"operand3", call(operand3, [](auto&& o) { return o.toJSON(); })},
+            {"type3", enumToStr(type3)}, fields...
         );
     }
 

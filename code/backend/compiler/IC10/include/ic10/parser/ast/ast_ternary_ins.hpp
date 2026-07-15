@@ -81,73 +81,27 @@ namespace stationeers {
          *
          * @endif
          */
-        template<FString K, typename O1, typename O2, typename O3>
-        struct TernaryInstructionBase : BinaryInstructionBase<K, O1, O2> {
-            /**
-             * @if zh
-             * @brief 节点名称
-             * @elseif en
-             * @brief Node name
-             * @endif
-             */
+        template<FString K, OperandType V1, OperandType V2, OperandType V3>
+        struct TernaryInstructionBase : BinaryInstructionBase<K, V1, V2> {
             static constexpr auto nodeName = fstr_concat_v<K, "Instruction">;
 
-            /**
-             * @if zh
-             * @brief 第三个操作数
-             * @elseif en
-             * @brief Third operand
-             * @endif
-             */
+            static constexpr auto type3 = V3;
+
+            using O1 = operand_type_t<V1>;
+
+            using O2 = operand_type_t<V2>;
+
+            using O3 = operand_type_t<V3>;
+
             O3 operand3;
 
-            /**
-             * @if zh
-             * @brief 参数类型元组
-             * @elseif en
-             * @brief Argument types tuple
-             * @endif
-             */
-            using Args = std::tuple<O1, O2, O3>;
+            using Args = operand_type_list<V1, V2, V3>;
 
-            /**
-             * @if zh
-             * @brief 参数元组
-             * @elseif en
-             * @brief Argument tuple
-             * @endif
-             */
             Args args;
 
-            /**
-             * @if zh
-             * @brief 默认构造函数
-             * @elseif en
-             * @brief Default constructor
-             * @endif
-             */
             TernaryInstructionBase() = default;
 
-            /**
-             * @if zh
-             *
-             * @brief 构造函数
-             * @param pos 位置信息
-             * @param op1 第一个操作数
-             * @param op2 第二个操作数
-             * @param op3 第三个操作数
-             *
-             * @elseif en
-             *
-             * @brief Constructor
-             * @param pos Position information
-             * @param op1 First operand
-             * @param op2 Second operand
-             * @param op3 Third operand
-             *
-             * @endif
-             */
-            TernaryInstructionBase(Pos pos, O1 op1, O2 op2, O3 op3);
+            TernaryInstructionBase(Pos pos, O1 o1, O2 o2, O3 o3);
 
             [[nodiscard]] Pos end() const override;
 
@@ -155,23 +109,6 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
-            /**
-             * @if zh
-             *
-             * @brief JSON基类辅助函数
-             * @tparam ...Ts 字段类型包
-             * @param ... fields 字段名和值的对
-             * @return JSON格式字符串
-             *
-             * @elseif en
-             *
-             * @brief JSON base helper function
-             * @tparam ...Ts Field type pack
-             * @param ... fields Pairs of field names and values
-             * @return JSON format string
-             *
-             * @endif
-             */
             template<typename... Ts>
             [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
         };
@@ -205,78 +142,78 @@ namespace stationeers {
 
     // 三元指令别名
     DEFINE_TERNARY_INSTRUCTION(
-        add, Add, ADD, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        add, Add, ADD, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
 
 #ifndef IC10_SIMPLE_MODE
 
     DEFINE_TERNARY_INSTRUCTION(
-        atan2, Atan2, ATAN2, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        atan2, Atan2, ATAN2, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        div, Div, DIV, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        div, Div, DIV, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        max, Max, MAX, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        max, Max, MAX, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        min, Min, MIN, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        min, Min, MIN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        mod, Mod, MOD, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        mod, Mod, MOD, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        mul, Mul, MUL, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        mul, Mul, MUL, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        pow, Pow, POW, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        pow, Pow, POW, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
-    DEFINE_TERNARY_INSTRUCTION(sub, Sub, SUB, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(rol, Rol, ROL, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(ror, Ror, ROR, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(and, And, AND, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(sub, Sub, SUB, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(rol, Rol, ROL, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(ror, Ror, ROR, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(and, And, AND, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
     DEFINE_TERNARY_INSTRUCTION(
-        nor, Nor, NOR, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        nor, Nor, NOR, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
-    DEFINE_TERNARY_INSTRUCTION(or, Or, OR, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(or, Or, OR, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
     DEFINE_TERNARY_INSTRUCTION(
-        sla, Sla, SLA, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
-    )
-    DEFINE_TERNARY_INSTRUCTION(
-        sll, Sll, SLL, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        sla, Sla, SLA, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sra, Sra, SRA, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        sll, Sll, SLL, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        srl, Srl, SRL, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        sra, Sra, SRA, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        xor, Xor, XOR, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        srl, Srl, SRL, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sapz, Sapz, SAPZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        xor, Xor, XOR, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        snaz, Snaz, SNAZ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        sapz, Sapz, SAPZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        seq, Seq, SEQ, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        snaz, Snaz, SNAZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sne, Sne, SNE, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        seq, Seq, SEQ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sge, Sge, SGE, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        sne, Sne, SNE, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sgt, Sgt, SGT, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        sge, Sge, SGE, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        sle, Sle, SLE, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        sgt, Sgt, SGT, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_TERNARY_INSTRUCTION(
-        slt, Slt, SLT, ic10::RegisterOrIdentifier, ic10::RegisterOrNumber, ic10::RegisterOrNumber
+        sle, Sle, SLE, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_TERNARY_INSTRUCTION(
+        slt, Slt, SLT, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
 
 #endif
@@ -314,7 +251,7 @@ namespace stationeers {
 
     // 三元指令 - 操作数类型 ic10::RegisterOrIdentifier, ic10::DeviceReference, ic10::RegisterOrNumber
     DEFINE_TERNARY_INSTRUCTION(
-        get, Get, GET, ic10::RegisterOrIdentifier, ic10::DeviceReference, ic10::RegisterOrNumber
+        get, Get, GET, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM
     )
 
     namespace ic10 {
@@ -338,7 +275,7 @@ namespace stationeers {
 
     // 三元指令 - 操作数类型 ic10::RegisterOrIdentifier, ic10::DeviceAliasRef, ic10::RegisterOrNumber
     DEFINE_TERNARY_INSTRUCTION(
-        rmap, Rmap, RMAP, ic10::RegisterOrIdentifier, ic10::DeviceAliasRef, ic10::RegisterOrNumber
+        rmap, Rmap, RMAP, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_ALIAS, ic10::OperandType::REG_NUM
     )
 
     namespace ic10 {
@@ -361,7 +298,7 @@ namespace stationeers {
 #endif
 
     // 三元指令 - 操作数类型 ic10::DeviceReference, ic10::RegisterOrNumber, ic10::RegisterOrNumber
-    DEFINE_TERNARY_INSTRUCTION(put, Put, PUT, ic10::DeviceReference, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(put, Put, PUT, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
 
     namespace ic10 {
 
@@ -382,7 +319,7 @@ namespace stationeers {
 
     // 三元指令 - 操作数类型 ic10::RegisterOrIdentifier, ic10::DeviceReference, LogicType
     DEFINE_TERNARY_INSTRUCTION(
-        l, L, L, ic10::RegisterOrIdentifier, ic10::DeviceReference, ic10::LogicType
+        l, L, L, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF, ic10::OperandType::LOGIC_TYPE
     )
 
     namespace ic10 {
@@ -404,7 +341,7 @@ namespace stationeers {
 
     // 三元指令 - 操作数类型 ic10::DeviceReference, LogicType, ic10::RegisterOrIdentifier
     DEFINE_TERNARY_INSTRUCTION(
-        s, S, S, ic10::DeviceReference, ic10::LogicType, ic10::RegisterOrIdentifier
+        s, S, S, ic10::OperandType::DEV_REF, ic10::OperandType::LOGIC_TYPE, ic10::OperandType::REG_IDENT
     )
 
     namespace ic10 {
@@ -426,7 +363,7 @@ namespace stationeers {
 
     // 三元指令 - 操作数类型 ic10::RegisterOrNumber, LogicType, ic10::RegisterOrIdentifier
     DEFINE_TERNARY_INSTRUCTION(
-        sb, Sb, SB, ic10::RegisterOrNumber, ic10::LogicType, ic10::RegisterOrIdentifier
+        sb, Sb, SB, ic10::OperandType::REG_NUM, ic10::OperandType::LOGIC_TYPE, ic10::OperandType::REG_IDENT
     )
 
     namespace ic10 {
@@ -448,13 +385,13 @@ namespace stationeers {
 
     // 三元指令 - 操作数类型 ic10::DeviceReference, LogicType, ic10::RegisterOrNumber
     DEFINE_TERNARY_INSTRUCTION(
-        bdnvl, Bdnvl, BDNVL, ic10::DeviceReference, ic10::LogicType, ic10::RegisterOrNumber
+        bdnvl, Bdnvl, BDNVL, ic10::OperandType::DEV_REF, ic10::OperandType::LOGIC_TYPE, ic10::OperandType::REG_NUM
     )
 
 #ifndef IC10_SIMPLE_MODE
 
     DEFINE_TERNARY_INSTRUCTION(
-        bdnvs, Bdnvs, BDNVS, ic10::DeviceReference, ic10::LogicType, ic10::RegisterOrNumber
+        bdnvs, Bdnvs, BDNVS, ic10::OperandType::DEV_REF, ic10::OperandType::LOGIC_TYPE, ic10::OperandType::REG_NUM
     )
 
 #endif
@@ -483,33 +420,33 @@ namespace stationeers {
     }  // namespace ic10
 
     // 三元指令 - 操作数类型 ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber
-    DEFINE_TERNARY_INSTRUCTION(beq, Beq, BEQ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(beq, Beq, BEQ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_TERNARY_INSTRUCTION(beqal, Beqal, BEQAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bne, Bne, BNE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bneal, Bneal, BNEAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bge, Bge, BGE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bgeal, Bgeal, BGEAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bgt, Bgt, BGT, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bgtal, Bgtal, BGTAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(ble, Ble, BLE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bleal, Bleal, BLEAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(blt, Blt, BLT, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bltal, Bltal, BLTAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bapz, Bapz, BAPZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bapzal, Bapzal, BAPZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bnaz, Bnaz, BNAZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(bnazal, Bnazal, BNAZAL, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(breq, Breq, BREQ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(brne, Brne, BRNE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(brge, Brge, BRGE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(brgt, Brgt, BRGT, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(brle, Brle, BRLE, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(brlt, Brlt, BRLT, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(brapz, Brapz, BRAPZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
-    DEFINE_TERNARY_INSTRUCTION(brnaz, Brnaz, BRNAZ, ic10::RegisterOrNumber, ic10::RegisterOrNumber, ic10::RegisterOrNumber)
+    DEFINE_TERNARY_INSTRUCTION(beqal, Beqal, BEQAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bne, Bne, BNE, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bneal, Bneal, BNEAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bge, Bge, BGE, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bgeal, Bgeal, BGEAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bgt, Bgt, BGT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bgtal, Bgtal, BGTAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(ble, Ble, BLE, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bleal, Bleal, BLEAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(blt, Blt, BLT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bltal, Bltal, BLTAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bapz, Bapz, BAPZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bapzal, Bapzal, BAPZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bnaz, Bnaz, BNAZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(bnazal, Bnazal, BNAZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(breq, Breq, BREQ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(brne, Brne, BRNE, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(brge, Brge, BRGE, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(brgt, Brgt, BRGT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(brle, Brle, BRLE, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(brlt, Brlt, BRLT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(brapz, Brapz, BRAPZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_TERNARY_INSTRUCTION(brnaz, Brnaz, BRNAZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
 
 #endif
 

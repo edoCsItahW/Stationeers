@@ -31,7 +31,9 @@
 
 #include "common/exception/error.hpp"
 #include "common/exception/diagnostic.hpp"
+#include "common/async/task.hpp"
 #include "ic10/locals/local.hpp"
+#include "ic10/parser/ast/ast.hpp"
 #include "semantic.hpp"
 
 namespace stationeers::ic10 {
@@ -142,6 +144,8 @@ namespace stationeers::ic10 {
          */
         SymbolTable symbolTable_{};
 
+        TypeTable typeSystem_{};
+
         DiagnosticReporter<IC10MsgPack> reporter_;
 
         /**
@@ -231,6 +235,10 @@ namespace stationeers::ic10 {
          */
         Task<> operator()(const DefineDirective& defineDirective);
 
+        Task<> operator()(const DeviceDocComment& deviceDocComment);
+
+        Task<> operator()(const EnumDocComment& enumDocComment);
+
         /**
          * @if zh
          *
@@ -252,8 +260,8 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        template<template<auto, typename...> class Ins, FString V, typename... Args>
-        Task<> operator()(const Ins<V, Args...>& ins);
+        template<template<auto, auto...> class Ins, FString V, OperandType... Vs>
+        Task<> operator()(const Ins<V, Vs...>& ins);
 
         /**
          * @if zh

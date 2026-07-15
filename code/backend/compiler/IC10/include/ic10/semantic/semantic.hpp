@@ -115,29 +115,13 @@
 #define COMPILER_SEMANTIC_HPP
 #pragma once
 
-#include "ic10/pch/ast.hpp"
-#include "pch/async.hpp"
-#include <expected>
 #include <unordered_map>
+#include <expected>
+
+#include "common/async/task.hpp"
+#include "types.hpp"
 
 namespace stationeers::ic10 {
-
-    /**
-     * @if zh
-     *
-     * @enum Type
-     * @brief IC10类型枚举
-     * @details 表示IC10中各种值的类型分类
-     *
-     * @elseif en
-     *
-     * @enum Type
-     * @brief IC10 type enumeration
-     * @details Represents the type classification of various values in IC10
-     *
-     * @endif
-     */
-    enum class Type { UNKNOWN, INTEGER, FLOAT, STRING, REGISTER, DEVICE, OTHER };
 
     /**
      * @if zh
@@ -162,7 +146,7 @@ namespace stationeers::ic10 {
          * @brief Symbol type
          * @endif
          */
-        Type type;
+        BasicType type;
 
         /**
          * @if zh
@@ -172,6 +156,14 @@ namespace stationeers::ic10 {
          * @endif
          */
         std::string name;
+
+        TypeCategory category = TypeCategory::BASIC;
+
+        std::optional<std::string> typeName = std::nullopt;
+
+        std::optional<std::string> value = std::nullopt;
+
+        std::optional<std::string> desc = std::nullopt;
 
         /**
          * @if zh
@@ -188,85 +180,6 @@ namespace stationeers::ic10 {
          */
         [[nodiscard]] std::string toJSON() const;
     };
-
-    /**
-     * @if zh
-     *
-     * @struct type_of_node
-     * @brief 节点类型萃取模板
-     * @details 从AST节点类型萃取对应的Type枚举值
-     *
-     * @tparam T AST节点类型
-     *
-     * @elseif en
-     *
-     * @struct type_of_node
-     * @brief Node type extraction template
-     * @details Extracts corresponding Type enum value from AST node type
-     *
-     * @tparam T AST node type
-     *
-     * @endif
-     */
-    template<typename>
-    struct type_of_node {
-        /**
-         * @if zh
-         * @brief 默认类型值
-         * @elseif en
-         * @brief Default type value
-         * @endif
-         */
-        static constexpr auto value = Type::OTHER;
-    };
-
-    template<>
-    struct type_of_node<Integer> {
-        static constexpr auto value = Type::INTEGER;
-    };
-
-    template<>
-    struct type_of_node<Float> {
-        static constexpr auto value = Type::FLOAT;
-    };
-
-    template<>
-    struct type_of_node<String> {
-        static constexpr auto value = Type::STRING;
-    };
-
-    template<>
-    struct type_of_node<StrCall> {
-        static constexpr auto value = Type::INTEGER;
-    };
-
-    template<>
-    struct type_of_node<HashCall> {
-        static constexpr auto value = Type::INTEGER;
-    };
-
-    template<>
-    struct type_of_node<Register> {
-        static constexpr auto value = Type::REGISTER;
-    };
-
-    template<>
-    struct type_of_node<Device> {
-        static constexpr auto value = Type::DEVICE;
-    };
-
-    template<>
-    struct type_of_node<LabelDef> {
-        static constexpr auto value = Type::INTEGER;
-    };
-
-    template<>
-    struct type_of_node<ErrorNode> {
-        static constexpr auto value = Type::UNKNOWN;
-    };
-
-    template<typename T>
-    inline constexpr auto type_of = type_of_node<T>::value;
 
     /**
      * @if zh

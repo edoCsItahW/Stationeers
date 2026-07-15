@@ -287,6 +287,60 @@ class TestLexerScan:
 
         assert len(lexer.diagnostics) == 0
 
+    def test_doc_comment(self):
+        tokens = Lexer.tokenize("#> @device\n#> @name Furnace\n#> @end-device\n")
+        meaningful = meaningful_tokens(tokens)
+
+        assert len(meaningful) == 3
+        assert meaningful[0].type == TokenType.DOC_COMMENT
+        assert meaningful[0].lexeme == "#> @device"
+        assert meaningful[0].category == TokenCategory.ANNOTATION
+        assert meaningful[1].type == TokenType.DOC_COMMENT
+        assert meaningful[2].type == TokenType.DOC_COMMENT
+
+    def test_type_hint(self):
+        tokens = Lexer.tokenize("#: @type Furnace\n")
+        meaningful = meaningful_tokens(tokens)
+
+        assert len(meaningful) == 1
+        assert meaningful[0].type == TokenType.TYPE_HINT
+        assert meaningful[0].lexeme == "#: @type Furnace"
+        assert meaningful[0].category == TokenCategory.ANNOTATION
+
+    def test_type_hint_desc(self):
+        tokens = Lexer.tokenize("#: @desc 炉窑设备\n")
+        meaningful = meaningful_tokens(tokens)
+
+        assert len(meaningful) == 1
+        assert meaningful[0].type == TokenType.TYPE_HINT
+        assert meaningful[0].lexeme == "#: @desc 炉窑设备"
+        assert meaningful[0].category == TokenCategory.ANNOTATION
+
+    def test_type_hint_multiple_tags(self):
+        tokens = Lexer.tokenize("#: @type Furnace @desc 炉窑\n")
+        meaningful = meaningful_tokens(tokens)
+
+        assert len(meaningful) == 1
+        assert meaningful[0].type == TokenType.TYPE_HINT
+        assert meaningful[0].lexeme == "#: @type Furnace @desc 炉窑"
+        assert meaningful[0].category == TokenCategory.ANNOTATION
+
+    def test_invalid_doc_comment_fallback(self):
+        tokens = Lexer.tokenize("#> not a tag\n")
+        meaningful = meaningful_tokens(tokens)
+
+        assert len(meaningful) == 1
+        assert meaningful[0].type == TokenType.HEX_COMMENT
+        assert meaningful[0].category == TokenCategory.COMMENT
+
+    def test_invalid_type_hint_fallback(self):
+        tokens = Lexer.tokenize("#: not type\n")
+        meaningful = meaningful_tokens(tokens)
+
+        assert len(meaningful) == 1
+        assert meaningful[0].type == TokenType.HEX_COMMENT
+        assert meaningful[0].category == TokenCategory.COMMENT
+
 
 # ============================================================
 # 位置信息测试

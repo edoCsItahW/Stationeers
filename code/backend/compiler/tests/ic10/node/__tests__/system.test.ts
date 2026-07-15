@@ -636,3 +636,83 @@ describe('Comments in programs', () => {
         expect(result.program.statements).toHaveLength(6);
     });
 });
+
+// ============================================================
+// 文档注释与类型提示测试
+// ============================================================
+
+describe('Doc comments and type hints', () => {
+    it('should compile program with device doc comment', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Furnace',
+            '#> @desc 炉窑设备',
+            '#> @end-device',
+            'alias furnace d0 #: @type Furnace',
+            'main:',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.program.statements).toHaveLength(4);
+    });
+
+    it('should compile program with enum doc comment', async () => {
+        const source = [
+            '#> @enum',
+            '#> @name GasType',
+            '#> @value Oxygen 1 氧气',
+            '#> @value Nitrogen 2 氮气',
+            '#> @end-enum',
+            'main:',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.program.statements).toHaveLength(3);
+    });
+
+    it('should compile program with mixed doc comments and code', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Pump',
+            '#> @desc 液体泵',
+            '#> @end-device',
+            '',
+            '#> @device',
+            '#> @name Sensor',
+            '#> @desc 压力传感器',
+            '#> @end-device',
+            '',
+            'alias pump d0 #: @type Pump',
+            'alias sensor d1 #: @type Sensor',
+            'main:',
+            'l r0 sensor Pressure',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.program.statements).toHaveLength(7);
+    });
+
+    it('should compile alias with type hint', async () => {
+        const source = [
+            'alias myDevice d0 #: @type Furnace',
+            'alias myReg r0',
+            'main:',
+            'l r0 myDevice Pressure',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.program.statements).toHaveLength(5);
+    });
+});

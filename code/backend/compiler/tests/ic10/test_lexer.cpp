@@ -507,6 +507,128 @@ TEST(LexerTest, CommentAfterCode) {
 }
 
 // ============================================================
+// 文档注释与类型提示测试
+// ============================================================
+
+TEST(LexerTest, DocCommentDevice) {
+    initLocale();
+    auto tokens = tokenize("#> @device");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+    EXPECT_EQ(toks[0]->lexeme, "#> @device");
+    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+}
+
+TEST(LexerTest, DocCommentEnum) {
+    initLocale();
+    auto tokens = tokenize("#> @enum");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+    EXPECT_EQ(toks[0]->lexeme, "#> @enum");
+    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+}
+
+TEST(LexerTest, DocCommentName) {
+    initLocale();
+    auto tokens = tokenize("#> @name Furnace");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+    EXPECT_EQ(toks[0]->lexeme, "#> @name Furnace");
+}
+
+TEST(LexerTest, DocCommentDesc) {
+    initLocale();
+    auto tokens = tokenize("#> @desc 炉窑设备");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+}
+
+TEST(LexerTest, DocCommentValue) {
+    initLocale();
+    auto tokens = tokenize("#> @value Oxygen 1");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+}
+
+TEST(LexerTest, DocCommentEndDevice) {
+    initLocale();
+    auto tokens = tokenize("#> @end-device");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+}
+
+TEST(LexerTest, DocCommentEndEnum) {
+    initLocale();
+    auto tokens = tokenize("#> @end-enum");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+}
+
+TEST(LexerTest, TypeHint) {
+    initLocale();
+    auto tokens = tokenize("#: @type Furnace");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT);
+    EXPECT_EQ(toks[0]->lexeme, "#: @type Furnace");
+    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+}
+
+TEST(LexerTest, TypeHintDesc) {
+    initLocale();
+    auto tokens = tokenize("#: @desc 炉窑设备");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT);
+    EXPECT_EQ(toks[0]->lexeme, "#: @desc 炉窑设备");
+    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+}
+
+TEST(LexerTest, TypeHintMultipleTags) {
+    initLocale();
+    auto tokens = tokenize("#: @type Furnace @desc 炉窑");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT);
+    EXPECT_EQ(toks[0]->lexeme, "#: @type Furnace @desc 炉窑");
+    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+}
+
+TEST(LexerTest, InvalidDocCommentFallback) {
+    initLocale();
+    auto tokens = tokenize("#> not a tag");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::HEX_COMMENT);
+    EXPECT_EQ(toks[0]->category, TokenCategory::COMMENT);
+}
+
+TEST(LexerTest, InvalidTypeHintFallback) {
+    initLocale();
+    auto tokens = tokenize("#: not type");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::HEX_COMMENT);
+    EXPECT_EQ(toks[0]->category, TokenCategory::COMMENT);
+}
+
+TEST(LexerTest, HashWithoutAnnotation) {
+    initLocale();
+    auto tokens = tokenize("# normal comment");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::HEX_COMMENT);
+    EXPECT_EQ(toks[0]->category, TokenCategory::COMMENT);
+}
+
+// ============================================================
 // 关键字测试
 // ============================================================
 

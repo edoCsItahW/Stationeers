@@ -22,51 +22,52 @@ namespace stationeers::ic10 {
     // SenaryInstructionBase
 
     template<
-        FString K, typename O1, typename O2, typename O3, typename O4, typename O5, typename O6>
-    SenaryInstructionBase<K, O1, O2, O3, O4, O5, O6>::SenaryInstructionBase(
-        Pos pos, O1 op1, O2 op2, O3 op3, O4 op4, O5 op5, O6 op6
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+    SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::SenaryInstructionBase(
+        Pos pos, O1 o1, O2 o2, O3 o3, O4 o4, O5 o5, O6 o6
     )
-        : QuinaryInstructionBase<K, O1, O2, O3, O4, O5>{pos, op1, op2, op3, op4, op5}
-        , operand6(op6)
-        , args{op1, op2, op3, op4, op5, op6} {}
+        : QuinaryInstructionBase<K, V1, V2, V3, V4, V5>{pos, o1, o2, o3, o4, o5}
+        , operand6(o6)
+        , args(o1, o2, o3, o4, o5, o6) {}
 
     template<
-        FString K, typename O1, typename O2, typename O3, typename O4, typename O5, typename O6>
-    Pos SenaryInstructionBase<K, O1, O2, O3, O4, O5, O6>::end() const {
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+    Pos SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::end() const {
         return call(operand6, [](auto&& o) { return o.end(); });
     }
 
     template<
-        FString K, typename O1, typename O2, typename O3, typename O4, typename O5, typename O6>
-    std::string SenaryInstructionBase<K, O1, O2, O3, O4, O5, O6>::toString() const {
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+    std::string SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::toString() const {
         if constexpr (IsVariant<O6>)
             return std::format(
-                "{} {}", QuinaryInstructionBase<K, O1, O2, O3, O4, O5>::toString(),
+                "{} {}", QuinaryInstructionBase<K, V1, V2, V3, V4, V5>::toString(),
                 call(operand6, [](auto&& o) { return o.toString(); })
             );
         else
             return std::format(
-                "{} {}", QuinaryInstructionBase<K, O1, O2, O3, O4, O5>::toString(),
+                "{} {}", QuinaryInstructionBase<K, V1, V2, V3, V4, V5>::toString(),
                 operand6.toString()
             );
     }
 
     template<
-        FString K, typename O1, typename O2, typename O3, typename O4, typename O5, typename O6>
-    std::string SenaryInstructionBase<K, O1, O2, O3, O4, O5, O6>::toJSON() const {
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+    std::string SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::toJSON() const {
         return jsonBase();
     }
 
     template<
-        FString K, typename O1, typename O2, typename O3, typename O4, typename O5, typename O6>
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
     template<typename... Ts>
-    std::string SenaryInstructionBase<K, O1, O2, O3, O4, O5, O6>::jsonBase(
+    std::string SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::jsonBase(
         std::pair<std::string, Ts>... fields
     ) const {
-        return this
-            ->QuinaryInstructionBase<K, O1, O2, O3, O4, O5>::template jsonBase<std::string, Ts...>(
-                {"operand6", call(operand6, [](auto&& o) { return o.toJSON(); })}, fields...
-            );
+        return this->QuinaryInstructionBase<K, V1, V2, V3, V4, V5>::template jsonBase<
+            std::string, std::string_view, Ts...>(
+            {"operand6", call(operand6, [](auto&& o) { return o.toJSON(); })},
+            {"type6", enumToStr(type6)}, fields...
+        );
     }
 
 }  // namespace stationeers::ic10

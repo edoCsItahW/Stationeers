@@ -29,12 +29,9 @@ namespace stationeers::ic10 {
     }
 
     std::string Program::toString() const {
-        std::stringstream ss;
-
-        for (const auto& statement : statements)
-            ss << call(statement, [](auto&& s) { return s.toString(); }) << std::endl;
-
-        return ss.str();
+        return seqJSON(statements, [](auto&& s) {
+            return call(s, [](auto&& x) { return x.toString(); });
+        });
     }
 
     std::string Program::toJSON() const {
@@ -65,9 +62,7 @@ namespace stationeers::ic10 {
     }
 
     std::string LabelDef::toJSON() const {
-        return jsonBase<std::string>({"identifier", call(identifier, [](auto&& id) {
-                                          return id.toJSON();
-                                      })});
+        return jsonBase<decltype(identifier)>({"identifier", identifier});
     }
 
     // DefineDirective
@@ -89,9 +84,13 @@ namespace stationeers::ic10 {
     }
 
     std::string DefineDirective::toJSON() const {
-        return jsonBase<std::string, std::string>(
-            {"identifier", call(identifier, [](auto&& id) { return id.toJSON(); })},
-            {"number", call(operand, [](auto&& num) { return num.toJSON(); })}
+        return jsonBase<decltype(identifier), decltype(operand), std::string, std::string>(
+            {
+                {"identifier", identifier}
+        },
+            {{"number", operand}},
+            type ? std::optional{std::pair{"typeName", *type}} : std::nullopt,
+            desc ? std::optional{std::pair{"desc", *desc}} : std::nullopt
         );
     }
 
@@ -107,17 +106,163 @@ namespace stationeers::ic10 {
     }
 
     std::string AliasDirective::toString() const {
-        return std::format(
+        auto result = std::format(
             "alias {} {}", call(identifier, [](auto&& id) { return id.toString(); }),
             call(registerOrDevice, [](auto&& regOrDev) { return regOrDev.toString(); })
         );
+
+        result += "#:";
+
+        if (type) result += std::format(" @type {} ", *type);
+
+        if (desc) result += std::format(" @desc {}", *desc);
+
+        return result;
     }
 
     std::string AliasDirective::toJSON() const {
-        return jsonBase<std::string, std::string>(
-            {"identifier", call(identifier, [](auto&& id) { return id.toJSON(); })},
-            {"registerOrDevice",
-             call(registerOrDevice, [](auto&& regOrDev) { return regOrDev.toJSON(); })}
+        return jsonBase<decltype(identifier), decltype(registerOrDevice), std::string, std::string>(
+            {
+                {"identifier", identifier}
+        },
+            {{"registerOrDevice", registerOrDevice}},
+            type ? std::optional{std::pair{"typeName", *type}} : std::nullopt,
+            desc ? std::optional{std::pair{"desc", *desc}} : std::nullopt
+        );
+    }
+
+    // DeviceDocComment
+
+    Pos DeviceDocComment::end() const { return position; }
+
+    std::string DeviceDocComment::toString() const {
+        auto result = std::format("#> @device\n#> @name {}", name);
+
+        if (desc) result += std::format("\n#> @desc {}", desc->value);
+
+        for (const auto& s : slots) {
+            result += std::format(
+                "\n#> @slot {} {}", s.index,
+                s.direction == SlotDirection::INPUT ? "inout" : "output"
+            );
+
+            if (s.desc) result += std::format(" {}", s.desc->value);
+        }
+
+        for (const auto& l : logics) {
+            std::string accessStr;
+            if (l.access == LogicAccess::R)
+                accessStr = "r";
+            else if (l.access == LogicAccess::W)
+                accessStr = "w";
+            else
+                accessStr = "rw";
+
+            result += std::format("\n#> @logic {} {}", l.name, accessStr);
+        }
+
+        for (const auto& m : modes) {
+            result += std::format("\n#> @mode {}", m.index);
+
+            if (m.desc) result += std::format(" {}", m.desc->value);
+        }
+
+        for (const auto& ls : logicSlots) result += std::format("\n#> @logicSlot {}", ls.name);
+
+        for (const auto& c : connects) {
+            result += std::format("\n#> @connect {}", c.index);
+
+            if (c.desc) result += std::format(" {}", c.desc->value);
+        }
+
+        result += "\n#> @end-device";
+
+        return result;
+    }
+
+    std::string DeviceDocComment::toJSON() const {
+        return jsonBase<
+            std::string, std::string, std::string, std::string, std::string, std::string,
+            std::string>(
+            {"name", name}, {"desc", desc ? desc->value : "null"},
+            {"slots", seqJSON(
+                          slots,
+                          [this](const DeviceSlot& slot) -> std::string {
+                              return fieldsJSON<std::string, std::string, std::string>(
+                                  {"number", slot.index},
+                                  {"direction",
+                                   slot.direction == SlotDirection::INPUT ? "input" : "output"},
+                                  {"desc", slot.desc ? slot.desc->value : "null"}
+                              );
+                          }
+                      )},
+            {"logics", seqJSON(
+                           logics,
+                           [this](const DeviceLogic& logic) -> std::string {
+                               std::string accessStr;
+                               if (logic.access == LogicAccess::R)
+                                   accessStr = "r";
+                               else if (logic.access == LogicAccess::W)
+                                   accessStr = "w";
+                               else
+                                   accessStr = "rw";
+
+                               return fieldsJSON<std::string, std::string>(
+                                   {"name", logic.name}, {"access", accessStr}
+                               );
+                           }
+                       )},
+            {"modes", seqJSON(
+                          modes,
+                          [this](const DeviceMode& mode) -> std::string {
+                              return fieldsJSON<std::string, std::string>(
+                                  {"number", mode.index},
+                                  {"desc", mode.desc ? mode.desc->value : "null"}
+                              );
+                          }
+                      )},
+            {"logicSlots", seqJSON(
+                               logicSlots,
+                               [](const DeviceLogicSlot& logicSlot) -> std::string {
+                                   return std::format(R"({{ "name": "{}" }})", logicSlot.name);
+                               }
+                           )},
+            {"connects", seqJSON(connects, [this](const DeviceConnect& connect) -> std::string {
+                 return fieldsJSON<std::string, std::string>(
+                     {"number", connect.index},
+                     {"desc", connect.desc ? connect.desc->value : "null"}
+                 );
+             })}
+        );
+    }
+
+    // EnumDocComment
+
+    Pos EnumDocComment::end() const { return position; }
+
+    std::string EnumDocComment::toString() const {
+        auto result = std::format("#> @enum");
+
+        result += std::format("\n#> @name {}", name);
+
+        if (desc) result += std::format("\n#> @desc {}", desc->value);
+
+        for (const auto& v : values) result += std::format("\n#> @value {} {}", v.name, v.value);
+
+        result += "\n#> @end-enum";
+
+        return result;
+    }
+
+    std::string EnumDocComment::toJSON() const {
+        return jsonBase<std::string, std::string, std::string>(
+            {"name", name}, {"desc", desc ? desc->value : "null"},
+            {"values", seqJSON(values, [this](auto&& val) {
+                 return fieldsJSON<std::string, std::string, std::string>(
+                     {"name", val.name}, {"value", val.value},
+                     {"desc", val.desc ? val.desc->value : "null"}
+                 );
+             })}
         );
     }
 
@@ -175,7 +320,9 @@ namespace stationeers::ic10 {
 
     std::string Constant::toString() const { return keyword; }
 
-    std::string Constant::toJSON() const { return jsonBase<std::string>({"keyword", '"' + keyword + '"'}); }
+    std::string Constant::toJSON() const {
+        return jsonBase<std::string>({"keyword", '"' + keyword + '"'});
+    }
 
     // Device
 
@@ -300,6 +447,12 @@ namespace stationeers::ic10 {
         );
     }
 
+    std::string DescValue::toJSON() const {
+        return std::format(
+            R"({{"kind": "{}", "value": "{}"}})", kind == Kind::TEXT ? "text" : "link", value
+        );
+    }
+
     // 显示模板实例化，避免实例膨胀导致编译爆内存
 
 #ifdef _MSC_VER
@@ -318,176 +471,179 @@ namespace stationeers::ic10 {
 
 #define __1IMP__(lowerCase, ...) __IMP__(UnaryInstructionBase, lowerCase, __VA_ARGS__)
 
-    __1IMP__("peek", RegisterOrIdentifier)
-    __1IMP__("rand", RegisterOrIdentifier)
-    __1IMP__("pop", RegisterOrIdentifier)
-    __1IMP__("clr", DeviceAliasRef)
-    __1IMP__("sleep", RegisterOrNumber)
-    __1IMP__("clrd", RegisterOrNumber)
-    __1IMP__("push", RegisterOrNumber)
-    __1IMP__("jal", JumpTarget)
-    __1IMP__("jr", JumpTarget)
-    __1IMP__("j", JumpTarget)
+    __1IMP__("peek", OperandType::REG_IDENT)
+    __1IMP__("rand", OperandType::REG_IDENT)
+    __1IMP__("pop", OperandType::REG_IDENT)
+    __1IMP__("clr", OperandType::DEV_ALIAS)
+    __1IMP__("sleep", OperandType::REG_NUM)
+    __1IMP__("clrd", OperandType::REG_NUM)
+    __1IMP__("push", OperandType::REG_NUM)
+    __1IMP__("jal", OperandType::JUMP_TARGET)
+    __1IMP__("jr", OperandType::JUMP_TARGET)
+    __1IMP__("j", OperandType::JUMP_TARGET)
 
 #undef __1IMP__
 
 #define __2IMP__(lowerCase, ...) __IMP__(BinaryInstructionBase, lowerCase, __VA_ARGS__)
 
-    __2IMP__("abs", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("acos", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("asin", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("atan", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("ceil", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("cos", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("exp", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("floor", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("log", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("round", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("sin", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("sqrt", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("tan", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("trunc", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("not", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("move", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("sgn", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("seqz", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("snez", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("sgez", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("sgtz", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("slez", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("sltz", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("snan", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("snanz", RegisterOrIdentifier, RegisterOrNumber)
-    __2IMP__("bdns", DeviceReference, RegisterOrNumber)
-    __2IMP__("bdnsal", DeviceReference, RegisterOrNumber)
-    __2IMP__("bdse", DeviceReference, RegisterOrNumber)
-    __2IMP__("bdseal", DeviceReference, RegisterOrNumber)
-    __2IMP__("brdns", DeviceReference, RegisterOrNumber)
-    __2IMP__("brdse", DeviceReference, RegisterOrNumber)
-    __2IMP__("sdns", RegisterOrIdentifier, DeviceReference)
-    __2IMP__("sdse", RegisterOrIdentifier, DeviceReference)
-    __2IMP__("poke", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("beqz", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("beqzal", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("bnez", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("bnezal", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("bgez", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("bgezal", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("bgtz", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("bgtzal", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("blez", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("blezal", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("bltz", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("bltzal", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("bnan", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("breqz", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("brnez", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("brgez", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("brgtz", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("brlez", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("brltz", RegisterOrNumber, RegisterOrNumber)
-    __2IMP__("brnan", RegisterOrNumber, RegisterOrNumber)
+    __2IMP__("abs", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("acos", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("asin", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("atan", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("ceil", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("cos", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("exp", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("floor", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("log", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("round", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("sin", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("sqrt", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("tan", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("trunc", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("not", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("move", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("sgn", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("seqz", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("snez", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("sgez", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("sgtz", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("slez", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("sltz", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("snan", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("snanz", OperandType::REG_IDENT, OperandType::REG_NUM)
+    __2IMP__("bdns", OperandType::DEV_REF, OperandType::REG_NUM)
+    __2IMP__("bdnsal", OperandType::DEV_REF, OperandType::REG_NUM)
+    __2IMP__("bdse", OperandType::DEV_REF, OperandType::REG_NUM)
+    __2IMP__("bdseal", OperandType::DEV_REF, OperandType::REG_NUM)
+    __2IMP__("brdns", OperandType::DEV_REF, OperandType::REG_NUM)
+    __2IMP__("brdse", OperandType::DEV_REF, OperandType::REG_NUM)
+    __2IMP__("sdns", OperandType::REG_IDENT, OperandType::DEV_REF)
+    __2IMP__("sdse", OperandType::REG_IDENT, OperandType::DEV_REF)
+    __2IMP__("poke", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("beqz", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("beqzal", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("bnez", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("bnezal", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("bgez", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("bgezal", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("bgtz", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("bgtzal", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("blez", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("blezal", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("bltz", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("bltzal", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("bnan", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("breqz", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("brnez", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("brgez", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("brgtz", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("brlez", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("brltz", OperandType::REG_NUM, OperandType::REG_NUM)
+    __2IMP__("brnan", OperandType::REG_NUM, OperandType::REG_NUM)
 
 #undef __2IMP__
 
 #define __3IMP__(lowerCase, ...) __IMP__(TernaryInstructionBase, lowerCase, __VA_ARGS__)
 
-    __3IMP__("add", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("atan2", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("div", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("max", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("min", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("mod", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("mul", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("pow", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("sub", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("rol", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("ror", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("and", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("nor", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("or", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("sla", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("sll", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("sra", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("srl", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("xor", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("sapz", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("snaz", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("seq", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("sne", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("sge", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("sgt", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("sle", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("slt", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("get", RegisterOrIdentifier, DeviceReference, RegisterOrNumber)
-    __3IMP__("rmap", RegisterOrIdentifier, DeviceAliasRef, RegisterOrNumber)
-    __3IMP__("put", DeviceReference, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("l", RegisterOrIdentifier, DeviceReference, LogicType)
-    __3IMP__("s", DeviceReference, LogicType, RegisterOrIdentifier)
-    __3IMP__("sb", RegisterOrNumber, LogicType, RegisterOrIdentifier)
-    __3IMP__("bdnvl", DeviceReference, LogicType, RegisterOrNumber)
-    __3IMP__("bdnvs", DeviceReference, LogicType, RegisterOrNumber)
-    __3IMP__("beq", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("beqal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bne", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bneal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bge", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bgeal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bgt", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bgtal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("ble", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bleal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("blt", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bltal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bapz", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bapzal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bnaz", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("bnazal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("breq", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("brne", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("brge", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("brgt", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("brle", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("brlt", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("brapz", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __3IMP__("brnaz", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
+    __3IMP__("add", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("atan2", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("div", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("max", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("min", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("mod", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("mul", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("pow", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("sub", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("rol", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("ror", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("and", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("nor", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("or", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("sla", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("sll", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("sra", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("srl", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("xor", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("sapz", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("snaz", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("seq", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("sne", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("sge", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("sgt", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("sle", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("slt", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("get", OperandType::REG_IDENT, OperandType::DEV_REF, OperandType::REG_NUM)
+    __3IMP__("rmap", OperandType::REG_IDENT, OperandType::DEV_ALIAS, OperandType::REG_NUM)
+    __3IMP__("put", OperandType::DEV_REF, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("l", OperandType::REG_IDENT, OperandType::DEV_REF, OperandType::LOGIC_TYPE)
+    __3IMP__("s", OperandType::DEV_REF, OperandType::LOGIC_TYPE, OperandType::REG_IDENT)
+    __3IMP__("sb", OperandType::REG_NUM, OperandType::LOGIC_TYPE, OperandType::REG_IDENT)
+    __3IMP__("bdnvl", OperandType::DEV_REF, OperandType::LOGIC_TYPE, OperandType::REG_NUM)
+    __3IMP__("bdnvs", OperandType::DEV_REF, OperandType::LOGIC_TYPE, OperandType::REG_NUM)
+    __3IMP__("beq", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("beqal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bne", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bneal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bge", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bgeal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bgt", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bgtal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("ble", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bleal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("blt", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bltal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bapz", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bapzal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bnaz", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("bnazal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("breq", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("brne", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("brge", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("brgt", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("brle", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("brlt", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("brapz", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __3IMP__("brnaz", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
 
 #undef __3IMP__
 
 #define __4IMP__(lowerCase, ...) __IMP__(QuaternaryInstructionBase, lowerCase, __VA_ARGS__)
 
-    __4IMP__("clamp", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("lerp", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("ext", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("ins", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("sap", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("sna", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("select", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("ss", DeviceReference, SlotIndex, LogicSlotType, RegisterOrIdentifier)
-    __4IMP__("lb", RegisterOrIdentifier, RegisterOrNumber, LogicType, BatchMode)
-    __4IMP__("sbn", RegisterOrNumber, RegisterOrNumber, LogicType, RegisterOrIdentifier)
-    __4IMP__("sbs", RegisterOrNumber, SlotIndex, LogicSlotType, RegisterOrIdentifier)
-    __4IMP__("bap", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("bapal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("bna", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("bnaal", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("brap", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("brna", RegisterOrNumber, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)
-    __4IMP__("ls", RegisterOrIdentifier, DeviceReference, SlotIndex, LogicSlotType)
-    __4IMP__("lr", RegisterOrIdentifier, DeviceReference, ReagentMode, JumpTarget)
+    __4IMP__("clamp", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("lerp", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("ext", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("ins", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("sap", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("sna", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("select", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("ss", OperandType::DEV_REF, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT, OperandType::REG_IDENT)
+    __4IMP__("lb", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::LOGIC_TYPE, OperandType::BATCH_MODE)
+    __4IMP__("sbn", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::LOGIC_TYPE, OperandType::REG_IDENT)
+    __4IMP__("sbs", OperandType::REG_NUM, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT, OperandType::REG_IDENT)
+    __4IMP__("bap", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("bapal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("bna", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("bnaal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("brap", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("brna", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
+    __4IMP__("ls", OperandType::REG_IDENT, OperandType::DEV_REF, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT)
+    __4IMP__("lr", OperandType::REG_IDENT, OperandType::DEV_REF, OperandType::REAGENT_MODE, OperandType::JUMP_TARGET)
 
 #undef __4IMP__
 
 #define __5IMP__(lowerCase, ...) __IMP__(QuinaryInstructionBase, lowerCase, __VA_ARGS__)
 
-    __5IMP__("lbn", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, LogicType, BatchMode)
-    __5IMP__("lbs", RegisterOrIdentifier, RegisterOrNumber, SlotIndex, LogicSlotType, BatchMode)
+    __5IMP__("lbn", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::LOGIC_TYPE, OperandType::BATCH_MODE)
+    __5IMP__("lbs", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT, OperandType::BATCH_MODE)
 
 #undef __5IMP__
 
 #define __6IMP__(lowerCase, ...) __IMP__(SenaryInstructionBase, lowerCase, __VA_ARGS__)
 
-    __6IMP__("lbns", RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, SlotIndex, LogicSlotType, BatchMode)
+    __6IMP__(
+        "lbns", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT,
+        OperandType::BATCH_MODE
+    )
 
 #undef __6IMP__
 

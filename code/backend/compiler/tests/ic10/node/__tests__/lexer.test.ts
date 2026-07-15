@@ -318,6 +318,66 @@ describe('Lexer.scan', () => {
 
         expect(lexer.diagnostics).toHaveLength(0);
     });
+
+    it('should tokenize doc comment #>', () => {
+        const tokens = Lexer.tokenize('#> @device\n#> @name Furnace\n#> @end-device\n');
+        const meaningful = meaningfulTokens(tokens);
+
+        expect(meaningful).toHaveLength(3);
+        expect(meaningful[0].type).toBe(TokenType.DOC_COMMENT);
+        expect(meaningful[0].lexeme).toBe('#> @device');
+        expect(meaningful[0].category).toBe(TokenCategory.ANNOTATION);
+        expect(meaningful[1].type).toBe(TokenType.DOC_COMMENT);
+        expect(meaningful[2].type).toBe(TokenType.DOC_COMMENT);
+    });
+
+    it('should tokenize type hint #:', () => {
+        const tokens = Lexer.tokenize('#: @type Furnace\n');
+        const meaningful = meaningfulTokens(tokens);
+
+        expect(meaningful).toHaveLength(1);
+        expect(meaningful[0].type).toBe(TokenType.TYPE_HINT);
+        expect(meaningful[0].lexeme).toBe('#: @type Furnace');
+        expect(meaningful[0].category).toBe(TokenCategory.ANNOTATION);
+    });
+
+    it('should tokenize type hint with @desc', () => {
+        const tokens = Lexer.tokenize('#: @desc 炉窑设备\n');
+        const meaningful = meaningfulTokens(tokens);
+
+        expect(meaningful).toHaveLength(1);
+        expect(meaningful[0].type).toBe(TokenType.TYPE_HINT);
+        expect(meaningful[0].lexeme).toBe('#: @desc 炉窑设备');
+        expect(meaningful[0].category).toBe(TokenCategory.ANNOTATION);
+    });
+
+    it('should tokenize type hint with multiple tags', () => {
+        const tokens = Lexer.tokenize('#: @type Furnace @desc 炉窑\n');
+        const meaningful = meaningfulTokens(tokens);
+
+        expect(meaningful).toHaveLength(1);
+        expect(meaningful[0].type).toBe(TokenType.TYPE_HINT);
+        expect(meaningful[0].lexeme).toBe('#: @type Furnace @desc 炉窑');
+        expect(meaningful[0].category).toBe(TokenCategory.ANNOTATION);
+    });
+
+    it('should fallback invalid #> to HEX_COMMENT', () => {
+        const tokens = Lexer.tokenize('#> not a tag\n');
+        const meaningful = meaningfulTokens(tokens);
+
+        expect(meaningful).toHaveLength(1);
+        expect(meaningful[0].type).toBe(TokenType.HEX_COMMENT);
+        expect(meaningful[0].category).toBe(TokenCategory.COMMENT);
+    });
+
+    it('should fallback invalid #: to HEX_COMMENT', () => {
+        const tokens = Lexer.tokenize('#: not type\n');
+        const meaningful = meaningfulTokens(tokens);
+
+        expect(meaningful).toHaveLength(1);
+        expect(meaningful[0].type).toBe(TokenType.HEX_COMMENT);
+        expect(meaningful[0].category).toBe(TokenCategory.COMMENT);
+    });
 });
 
 // ============================================================
