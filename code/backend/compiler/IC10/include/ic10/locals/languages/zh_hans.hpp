@@ -131,21 +131,57 @@ namespace stationeers::ic10 {
 
     // Warnning
 
-    LOCAL_MSG_ZH_HANS(IWA1_1, "'{}'不是一个标签类型")
+    LOCAL_MSG_ZH_HANS(IWA1_1, "'{}'不是一个寄存器类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA2_1, "'{}'不是一个设备类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA3_1, "'{}'不是一个寄存器或数值类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA4_1, "'{}'不是一个设备或寄存器类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA5_1, "'{}'不是一个逻辑槽（LogicSlot）类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA6_1, "'{}'不是一个试剂模式（ReagentMode）类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA7_1, "'{}'不是一个标签类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA8_1, "'{}'不是一个逻辑（Logic）类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA9_1, "'{}'不是一个槽索引（SlotIndex）类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA10_1, "'{}'不是一个批模式（BatchMode）类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA11_2, "'{}'不在设备'{}'的LogicSlot之内 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA12_1, "'{}'不是已知的LogicSlot - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA13_1, "'{}'不是已知的ReagentMode - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA14_2, "'{}'不在设备'{}'的Logic之内 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA15_1, "'{}'不是已知的Logic - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA16_2, "'{}'不在设备'{}'的Slot之内 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IWA17_1, "'{}'不是已知的BatchMode - 语义分析。")
 
     // Error
 
-    LOCAL_MSG_ZH_HANS(IEA1_2, "期望'{}'，结果找到'{}' - 语义分析器。")
+    LOCAL_MSG_ZH_HANS(IEA1_2, "期望'{}'，结果找到'{}' - 语义分析。")
 
-    LOCAL_MSG_ZH_HANS(IEA2_1, "符号'{}'被重新定义了 - 语义分析器。")
+    LOCAL_MSG_ZH_HANS(IEA2_1, "符号'{}'被重新定义了 - 语义分析。")
 
-    LOCAL_MSG_ZH_HANS(IEA3_1, "未找到符号'{}' - 语义分析器。")
+    LOCAL_MSG_ZH_HANS(IEA3_1, "未找到符号'{}' - 语义分析。")
 
-    LOCAL_MSG_ZH_HANS(IEA4, "不能对别名定义别名 - 语义分析器。")
+    LOCAL_MSG_ZH_HANS(IEA4, "不能对别名定义别名 - 语义分析。")
 
-    LOCAL_MSG_ZH_HANS(IEA5_1, "常量'{}'被重新定义 - 语义分析器。")
+    LOCAL_MSG_ZH_HANS(IEA5_1, "常量'{}'被重新定义 - 语义分析。")
 
-    LOCAL_MSG_ZH_HANS(IEA6, "未知语法类型'{}' - 语义分析器。")
+    LOCAL_MSG_ZH_HANS(IEA6, "未知语法类型'{}' - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IEA7_1, "设备'{}'不应被注释为Enum类型 - 语义分析。")
+
+    LOCAL_MSG_ZH_HANS(IEA8_1, "缺失的标准库类型'{}' - 语义分析。")
 
 }  // namespace stationeers::ic10
 

@@ -49,8 +49,14 @@ namespace stationeers::ic10 {
 
     using CustomType = std::variant<DeviceType, EnumType>;
 
-    enum class TypeCategory {
-        LABEL, STR_CALL, HASH_CALL, CONSTANT, BASIC
+    enum class TypeCategory { LABEL, STR_CALL, HASH_CALL, CONSTANT, NUMBER, BASIC };
+
+    struct Type {
+        BasicType kind = BasicType::UNKNOWN;
+
+        TypeCategory category = TypeCategory::BASIC;
+
+        std::optional<std::string> typeName = std::nullopt;
     };
 
     /**
@@ -81,103 +87,77 @@ namespace stationeers::ic10 {
          * @brief Default type value
          * @endif
          */
-        static constexpr auto value = BasicType::UNKNOWN;
+        static constexpr Type value{BasicType::UNKNOWN, TypeCategory::BASIC};
     };
 
     template<>
     struct type_of_node<Integer> {
-        static constexpr auto value = BasicType::INTEGER;
-
-        static constexpr auto category = TypeCategory::BASIC;
-
+        static constexpr Type value{BasicType::INTEGER, TypeCategory::NUMBER};
     };
 
     template<>
     struct type_of_node<Float> {
-        static constexpr auto value = BasicType::FLOAT;
-
-        static constexpr auto category = TypeCategory::BASIC;
+        static constexpr Type value{BasicType::FLOAT, TypeCategory::NUMBER};
     };
 
     template<>
     struct type_of_node<String> {
-        static constexpr auto value = BasicType::STRING;
-
-        static constexpr auto category = TypeCategory::BASIC;
+        static constexpr Type value{BasicType::STRING, TypeCategory::BASIC};
     };
 
     template<>
     struct type_of_node<StrCall> {
-        static constexpr auto value = BasicType::INTEGER;
-
-        static constexpr auto category = TypeCategory::STR_CALL;
+        static constexpr Type value{BasicType::INTEGER, TypeCategory::STR_CALL};
     };
 
     template<>
     struct type_of_node<HashCall> {
-        static constexpr auto value = BasicType::INTEGER;
-
-        static constexpr auto category = TypeCategory::HASH_CALL;
+        static constexpr Type value{BasicType::INTEGER, TypeCategory::HASH_CALL};
     };
 
     template<>
     struct type_of_node<Register> {
-        static constexpr auto value = BasicType::REGISTER;
-
-        static constexpr auto category = TypeCategory::BASIC;
+        static constexpr Type value{BasicType::REGISTER, TypeCategory::BASIC};
     };
 
     template<>
     struct type_of_node<Device> {
-        static constexpr auto value = BasicType::DEVICE;
-
-        static constexpr auto category = TypeCategory::BASIC;
+        static constexpr Type value{BasicType::DEVICE, TypeCategory::BASIC};
     };
 
     template<>
     struct type_of_node<LabelDef> {
-        static constexpr auto value = BasicType::INTEGER;
-
-        static constexpr auto category = TypeCategory::LABEL;
+        static constexpr Type value{BasicType::INTEGER, TypeCategory::LABEL};
     };
 
     template<>
     struct type_of_node<ErrorNode> {
-        static constexpr auto value = BasicType::UNKNOWN;
-
-        static constexpr auto category = TypeCategory::BASIC;
+        static constexpr Type value{BasicType::UNKNOWN, TypeCategory::BASIC};
     };
 
     template<>
     struct type_of_node<Constant> {
-        static constexpr auto value = BasicType::UNKNOWN;
-
-        static constexpr auto category = TypeCategory::CONSTANT;
+        static constexpr Type value{BasicType::UNKNOWN, TypeCategory::CONSTANT};
     };
 
     template<>
     struct type_of_node<BinaryNumber> {
-        static constexpr auto value = BasicType::INTEGER;
-
-        static constexpr auto category = TypeCategory::BASIC;
+        static constexpr Type value{BasicType::INTEGER, TypeCategory::NUMBER};
     };
 
     template<>
     struct type_of_node<HexNumber> {
-        static constexpr auto value = BasicType::INTEGER;
-
-        static constexpr auto category = TypeCategory::BASIC;
+        static constexpr Type value{BasicType::INTEGER, TypeCategory::NUMBER};
     };
 
     template<typename T>
     inline constexpr auto type_of = type_of_node<T>::value;
 
-    template<typename T>
-    inline constexpr auto category_of = type_of_node<T>::category;
-
     class TypeTable {
     public:
         void registerType(CustomType type);
+
+        [[nodiscard]] const CustomType* find(const std::string& name) const;
 
     private:
         std::unordered_map<std::string, CustomType> types_;

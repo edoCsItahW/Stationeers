@@ -36,16 +36,16 @@ namespace stationeers {
     namespace ic10 {
 
         enum class OperandType {
-            REG_IDENT,   // REGISTER_OR_IDENTIFIER
-            DEV_ALIAS,   // DEVICE_ALIAS_REFERENCE
-            REG_NUM,     // REGISTER_OR_NUMBER
-            DEV_REF,     // DEVICE_REFERENCE
-            LOGIC_SLOT,  // LOGIC_SLOT_TYPE
-            REAGENT_MODE,
-            JUMP_TARGET,
-            LOGIC_TYPE,
-            SLOT_IDX,  // SLOT_INDEX
-            BATCH_MODE
+            REG_IDENT,     // REGISTER_OR_IDENTIFIER - Register, Identifier
+            DEV_ALIAS,     // DEVICE_ALIAS_REFERENCE - Device, Identifier
+            REG_NUM,       // REGISTER_OR_NUMBER - Register, Identifier, Integer, Float, HexNumber, BinaryNumber, Constant, HashCall, StrCall
+            DEV_REF,       // DEVICE_REFERENCE - Device, Register, Identifier
+            LOGIC_SLOT,    // LOGIC_SLOT_TYPE - Identifier, Integer, Float, HexNumber, BinaryNumber
+            REAGENT_MODE,  // Identifier, Integer, Float, HexNumber, BinaryNumber
+            JUMP_TARGET,   // Integer, Float, HexNumber, BinaryNumber, Constant, HashCall, StrCall, Identifier
+            LOGIC_TYPE,    // Identifier, Integer, Float, HexNumber, BinaryNumber
+            SLOT_IDX,      // SLOT_INDEX - Integer, Float, HexNumber, BinaryNumber
+            BATCH_MODE     // Identifier, Integer, Float, HexNumber, BinaryNumber
         };
 
         template<OperandType>

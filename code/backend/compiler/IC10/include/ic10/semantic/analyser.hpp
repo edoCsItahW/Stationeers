@@ -29,14 +29,42 @@
 #define COMPILER_ANALYSER_HPP
 #pragma once
 
-#include "common/exception/error.hpp"
-#include "common/exception/diagnostic.hpp"
 #include "common/async/task.hpp"
+#include "common/exception/diagnostic.hpp"
+#include "common/exception/error.hpp"
 #include "ic10/locals/local.hpp"
 #include "ic10/parser/ast/ast.hpp"
 #include "semantic.hpp"
 
 namespace stationeers::ic10 {
+
+    template<OperandType>
+    struct operand_type_name {
+        static constexpr auto value = "~"_fs;
+    };
+
+    template<>
+    struct operand_type_name<OperandType::LOGIC_SLOT> {
+        static constexpr auto value = "LogicSlotType"_fs;
+    };
+
+    template<>
+    struct operand_type_name<OperandType::LOGIC_TYPE> {
+        static constexpr auto value = "LogicType"_fs;
+    };
+
+    template<>
+    struct operand_type_name<OperandType::BATCH_MODE> {
+        static constexpr auto value = "BatchMode"_fs;
+    };
+
+    template<>
+    struct operand_type_name<OperandType::REAGENT_MODE> {
+        static constexpr auto value = "ReagentMode"_fs;
+    };
+
+    template<OperandType V>
+    inline constexpr auto operand_type_name_v = operand_type_name<V>::value;
 
     /**
      * @if zh
@@ -144,9 +172,19 @@ namespace stationeers::ic10 {
          */
         SymbolTable symbolTable_{};
 
-        TypeTable typeSystem_{};
+        TypeTable typeTable_{};
 
-        DiagnosticReporter<IC10MsgPack> reporter_;
+        struct DeviceSymbol {
+            std::shared_ptr<Symbol> symbol;
+
+            Pos start;
+
+            Pos end;
+        };
+
+        std::optional<DeviceSymbol> pendingDeviceSymbol_;
+
+        mutable DiagnosticReporter<IC10MsgPack> reporter_;
 
         /**
          * @if zh
@@ -166,6 +204,10 @@ namespace stationeers::ic10 {
          * @endif
          */
         Task<std::shared_ptr<Symbol>> resolveSymbol(const std::string& name, const Pos& pos);
+
+        void rethrow(
+            const std::exception_ptr& exception, const std::string& name, const Pos& pos
+        ) const;
 
         /**
          * @if zh
@@ -486,7 +528,81 @@ namespace stationeers::ic10 {
          */
         template<typename T>
         Task<> operator()(T&& node);
+
+        template<OperandType Type>
+        Task<> process(const auto& variant);
+
+        template<OperandType>
+        struct IdentifierChecker {
+            static bool check(
+                const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
+            );
+        };
+
+        template<typename T, T V, MsgId I>
+        bool checkOperandType(const std::shared_ptr<Symbol>& symbol, auto&& arg) const;
+
+        template<OperandType Type>
+        bool checkWithDeviceContext(
+            const Symbol& currentSym, const Symbol& devSym, const Pos& start, const Pos& end
+        ) const;
+
+        template<OperandType Type>
+        bool checkGlobalEnum(const std::string& name, const Pos& start, const Pos& end) const;
+
+        bool checkSlotIndexWithDevice(const auto& number, const std::shared_ptr<Symbol>& devSym);
     };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::REG_IDENT> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::DEV_ALIAS> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::REG_NUM> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::DEV_REF> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::LOGIC_SLOT> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::REAGENT_MODE> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::JUMP_TARGET> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::LOGIC_TYPE> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::SLOT_IDX> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
+    template<>
+    struct Analyser::IdentifierChecker<OperandType::BATCH_MODE> {
+        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
+    };
+
 
 }  // namespace stationeers::ic10
 
