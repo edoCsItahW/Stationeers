@@ -19,7 +19,8 @@
  * @elseif en
  * @brief IC10 nullary instruction AST definitions
  * @details Defines nullary instructions (no-operand instructions) in IC10, such as HCF, YIELD, etc.
- *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
+ *        Uses template metaprogramming to automatically generate instruction types and TypeMap
+ * mappings.
  * @note Implementation in ast_nullary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -33,6 +34,78 @@
 namespace stationeers {
 
     namespace ic10 {
+
+        enum class OperandType {
+            REG_IDENT,     // REGISTER_OR_IDENTIFIER - Register, Identifier
+            DEV_ALIAS,     // DEVICE_ALIAS_REFERENCE - Device, Identifier
+            REG_NUM,       // REGISTER_OR_NUMBER - Register, Identifier, Integer, Float, HexNumber, BinaryNumber, Constant, HashCall, StrCall
+            DEV_REF,       // DEVICE_REFERENCE - Device, Register, Identifier
+            LOGIC_SLOT,    // LOGIC_SLOT_TYPE - Identifier, Integer, Float, HexNumber, BinaryNumber
+            REAGENT_MODE,  // Identifier, Integer, Float, HexNumber, BinaryNumber
+            JUMP_TARGET,   // Integer, Float, HexNumber, BinaryNumber, Constant, HashCall, StrCall, Identifier
+            LOGIC_TYPE,    // Identifier, Integer, Float, HexNumber, BinaryNumber
+            SLOT_IDX,      // SLOT_INDEX - Integer, Float, HexNumber, BinaryNumber
+            BATCH_MODE     // Identifier, Integer, Float, HexNumber, BinaryNumber
+        };
+
+        template<OperandType>
+        struct operand_type;
+
+        template<>
+        struct operand_type<OperandType::REG_IDENT> {
+            using type = RegisterOrIdentifier;
+        };
+
+        template<>
+        struct operand_type<OperandType::DEV_ALIAS> {
+            using type = DeviceAliasRef;
+        };
+
+        template<>
+        struct operand_type<OperandType::REG_NUM> {
+            using type = RegisterOrNumber;
+        };
+
+        template<>
+        struct operand_type<OperandType::DEV_REF> {
+            using type = DeviceReference;
+        };
+
+        template<>
+        struct operand_type<OperandType::LOGIC_SLOT> {
+            using type = LogicSlotType;
+        };
+
+        template<>
+        struct operand_type<OperandType::REAGENT_MODE> {
+            using type = ReagentMode;
+        };
+
+        template<>
+        struct operand_type<OperandType::JUMP_TARGET> {
+            using type = JumpTarget;
+        };
+
+        template<>
+        struct operand_type<OperandType::LOGIC_TYPE> {
+            using type = LogicType;
+        };
+
+        template<>
+        struct operand_type<OperandType::SLOT_IDX> {
+            using type = SlotIndex;
+        };
+
+        template<>
+        struct operand_type<OperandType::BATCH_MODE> {
+            using type = BatchMode;
+        };
+
+        template<OperandType V>
+        using operand_type_t = operand_type<V>::type;
+
+        template<OperandType... Vs>
+        using operand_type_list = std::tuple<operand_type_t<Vs>...>;
 
         // NullaryInstructionBase（实现于ast.cpp）
 
@@ -166,7 +239,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Define instruction type (MSVC version)
-     * @details Defines an instruction type alias and registers it in TypeMap (MSVC compiler version)
+     * @details Defines an instruction type alias and registers it in TypeMap (MSVC compiler
+     * version)
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name
@@ -233,7 +307,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Define nullary instruction
-     * @details Defines a nullary instruction type using NullaryInstructionBase and registers it in TypeMap
+     * @details Defines a nullary instruction type using NullaryInstructionBase and registers it in
+     * TypeMap
      * @param upperCase Instruction uppercase underscore name
      * @param pascalCase Instruction PascalCase name
      * @param lowerCase Instruction lowercase name

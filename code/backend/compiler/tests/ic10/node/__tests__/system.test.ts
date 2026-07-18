@@ -636,3 +636,222 @@ describe('Comments in programs', () => {
         expect(result.program.statements).toHaveLength(6);
     });
 });
+
+// ============================================================
+// 文档注释与类型提示测试
+// ============================================================
+
+describe('Doc comments and type hints', () => {
+    it('should compile program with device doc comment', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Furnace',
+            '#> @desc 炉窑设备',
+            '#> @end-device',
+            'alias furnace d0 #: @type Furnace',
+            'main:',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.program.statements).toHaveLength(4);
+    });
+
+    it('should compile program with enum doc comment', async () => {
+        const source = [
+            '#> @enum',
+            '#> @name GasType',
+            '#> @value Oxygen 1 氧气',
+            '#> @value Nitrogen 2 氮气',
+            '#> @end-enum',
+            'main:',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.program.statements).toHaveLength(3);
+    });
+
+    it('should compile program with mixed doc comments and code', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Pump',
+            '#> @desc 液体泵',
+            '#> @end-device',
+            '',
+            '#> @device',
+            '#> @name Sensor',
+            '#> @desc 压力传感器',
+            '#> @end-device',
+            '',
+            'alias pump d0 #: @type Pump',
+            'alias sensor d1 #: @type Sensor',
+            'main:',
+            'l r0 sensor Pressure',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.program.statements).toHaveLength(7);
+    });
+
+    it('should compile alias with type hint', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Furnace',
+            '#> @logic Pressure r',
+            '#> @end-device',
+            'alias myDevice d0 #: @type Furnace',
+            'alias myReg r0',
+            'main:',
+            'l r0 myDevice Pressure',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.program.statements).toHaveLength(6);
+    });
+});
+
+// ============================================================
+// 类型推导与语义分析系统测试
+// ============================================================
+
+describe('Type inference and semantic analysis', () => {
+    it('should perform full type checking with device doc comments', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Furnace',
+            '#> @desc 炉窑设备',
+            '#> @logic Temperature r',
+            '#> @logic Active rw',
+            '#> @slot 0 fuel',
+            '#> @slot 1 ore',
+            '#> @logicSlot Occupied',
+            '#> @end-device',
+            '',
+            'alias furnace d0 #: @type Furnace',
+            '',
+            'main:',
+            '  l r0 furnace Temperature',
+            '  s furnace Active r0',
+            '  ls r1 furnace 0 Occupied',
+            '  hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.analyser.diagnostics).toHaveLength(0);
+
+        const symbols = JSON.parse(result.analyser.symbolTable.toJSON());
+        const furnaceSym = symbols.find((s: any) => s.name === 'furnace');
+        expect(furnaceSym).toBeDefined();
+        expect(furnaceSym.type).toBe('DEVICE');
+        expect(furnaceSym.typeName).toBe('Furnace');
+    });
+
+    it('should detect invalid logic names on typed devices', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Sensor',
+            '#> @logic Pressure rw',
+            '#> @end-device',
+            'alias sensor d0 #: @type Sensor',
+            'l r0 sensor InvalidLogic',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.analyser.diagnostics.length).toBeGreaterThan(0);
+
+        const logicErrors = result.analyser.diagnostics.filter(
+            (d: any) => d.id === 'IWA14_2'
+        );
+        expect(logicErrors.length).toBeGreaterThan(0);
+    });
+
+    it('should handle batch mode with enum doc comment', async () => {
+        const source = [
+            '#> @enum',
+            '#> @name BatchMode',
+            '#> @value Greater 0',
+            '#> @value Less 1',
+            '#> @end-enum',
+            'lbn r0 0 0 Pressure Greater',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+    });
+
+    it('should pass device context within single instruction only', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Sensor',
+            '#> @logic Pressure r',
+            '#> @end-device',
+            '#> @device',
+            '#> @name Furnace',
+            '#> @logic Temperature r',
+            '#> @end-device',
+            'alias sensor d0 #: @type Sensor',
+            'alias furnace d1 #: @type Furnace',
+            'l r0 sensor Pressure',
+            'l r1 furnace Temperature',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.analyser.diagnostics).toHaveLength(0);
+    });
+
+    it('should work with device references (d0) directly without alias', async () => {
+        const source = [
+            '#> @device',
+            '#> @name Sensor',
+            '#> @logic Pressure rw',
+            '#> @end-device',
+            'l r0 d0 Pressure',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+    });
+
+    it('should report reagent mode errors correctly', async () => {
+        const source = [
+            '#> @enum',
+            '#> @name ReagentMode',
+            '#> @value Contents 0',
+            '#> @end-enum',
+            '#> @device',
+            '#> @name Filter',
+            '#> @end-device',
+            'alias filter d0 #: @type Filter',
+            'lr r0 filter BadMode Oxygen',
+            'hcf',
+        ].join('\n') + '\n';
+
+        const result = await compile(source);
+
+        expect(result.parser.diagnostics).toHaveLength(0);
+        expect(result.analyser.diagnostics.length).toBeGreaterThan(0);
+    });
+});

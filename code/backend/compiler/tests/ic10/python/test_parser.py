@@ -162,6 +162,262 @@ class TestPreprocessorDirectives:
 
 
 # ============================================================
+# 文档注释与类型提示解析测试
+# ============================================================
+
+class TestDocCommentsAndTypeHints:
+    """Doc comment and type hint parsing tests."""
+
+    def test_device_doc_comment(self):
+        source = "\n".join([
+            "#> @device",
+            "#> @name Furnace",
+            "#> @desc 炉窑",
+            "#> @end-device",
+        ]) + "\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "DeviceDocComment"
+        assert data["statements"][0]["name"] == "Furnace"
+        assert data["statements"][0]["desc"] == "炉窑"
+
+    def test_device_doc_comment_with_slots(self):
+        source = "\n".join([
+            "#> @device",
+            "#> @name Furnace",
+            "#> @slot 0 input 输入槽",
+            "#> @slot 1 output 输出槽",
+            "#> @end-device",
+        ]) + "\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "DeviceDocComment"
+        assert len(data["statements"][0]["slots"]) == 2
+        assert data["statements"][0]["slots"][0]["number"] == "0"
+        assert data["statements"][0]["slots"][0]["direction"] in ("input", "input")
+        assert data["statements"][0]["slots"][0]["desc"] == "输入槽"
+        assert data["statements"][0]["slots"][1]["number"] == "1"
+        assert data["statements"][0]["slots"][1]["direction"] == "output"
+        assert data["statements"][0]["slots"][1]["desc"] == "输出槽"
+
+    def test_device_doc_comment_with_logics(self):
+        source = "\n".join([
+            "#> @device",
+            "#> @name Sensor",
+            "#> @logic Pressure rw",
+            "#> @logic Temperature r",
+            "#> @end-device",
+        ]) + "\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "DeviceDocComment"
+        assert len(data["statements"][0]["logics"]) == 2
+        assert data["statements"][0]["logics"][0]["name"] == "Pressure"
+        assert data["statements"][0]["logics"][0]["access"] == "rw"
+        assert data["statements"][0]["logics"][1]["name"] == "Temperature"
+        assert data["statements"][0]["logics"][1]["access"] == "r"
+
+    def test_device_doc_comment_with_modes(self):
+        source = "\n".join([
+            "#> @device",
+            "#> @name Pump",
+            "#> @mode 0 待机模式",
+            "#> @mode 1 运行模式",
+            "#> @end-device",
+        ]) + "\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "DeviceDocComment"
+        assert len(data["statements"][0]["modes"]) == 2
+        assert data["statements"][0]["modes"][0]["number"] == "0"
+        assert data["statements"][0]["modes"][0]["desc"] == "待机模式"
+        assert data["statements"][0]["modes"][1]["number"] == "1"
+        assert data["statements"][0]["modes"][1]["desc"] == "运行模式"
+
+    def test_device_doc_comment_with_logic_slots(self):
+        source = "\n".join([
+            "#> @device",
+            "#> @name IC10",
+            "#> @logicSlot db",
+            "#> @logicSlot r0",
+            "#> @end-device",
+        ]) + "\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "DeviceDocComment"
+        assert len(data["statements"][0]["logicSlots"]) == 2
+        assert data["statements"][0]["logicSlots"][0]["name"] == "db"
+        assert data["statements"][0]["logicSlots"][1]["name"] == "r0"
+
+    def test_device_doc_comment_with_connects(self):
+        source = "\n".join([
+            "#> @device",
+            "#> @name Pipe",
+            "#> @connect 0 入口",
+            "#> @connect 1 出口",
+            "#> @end-device",
+        ]) + "\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "DeviceDocComment"
+        assert len(data["statements"][0]["connects"]) == 2
+        assert data["statements"][0]["connects"][0]["number"] == "0"
+        assert data["statements"][0]["connects"][0]["desc"] == "入口"
+        assert data["statements"][0]["connects"][1]["number"] == "1"
+        assert data["statements"][0]["connects"][1]["desc"] == "出口"
+
+    def test_enum_doc_comment(self):
+        source = "\n".join([
+            "#> @enum",
+            "#> @name GasType",
+            "#> @value Oxygen 1 氧气",
+            "#> @value Nitrogen 2 氮气",
+            "#> @end-enum",
+        ]) + "\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "EnumDocComment"
+        assert data["statements"][0]["name"] == "GasType"
+        assert len(data["statements"][0]["values"]) == 2
+
+    def test_alias_with_type_hint(self):
+        source = "alias myFurnace d0 #: @type Furnace\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "AliasDirective"
+        assert data["statements"][0]["typeName"] == "Furnace"
+
+    def test_alias_without_type_hint(self):
+        source = "alias myFurnace d0\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "AliasDirective"
+        assert "typeName" not in data["statements"][0]
+        assert "desc" not in data["statements"][0]
+
+    def test_alias_with_desc_type_hint(self):
+        source = "alias myFurnace d0 #: @desc 炉窑设备\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "AliasDirective"
+        assert "typeName" not in data["statements"][0]
+        assert data["statements"][0]["desc"] == "炉窑设备"
+
+    def test_alias_with_type_and_desc(self):
+        source = "alias myFurnace d0 #: @type Furnace @desc 炉窑\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "AliasDirective"
+        assert data["statements"][0]["typeName"] == "Furnace"
+        assert data["statements"][0]["desc"] == "炉窑"
+
+    def test_define_with_desc_type_hint(self):
+        source = "define MAX 100 #: @desc 最大值\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "DefineDirective"
+        assert "typeName" not in data["statements"][0]
+        assert data["statements"][0]["desc"] == "最大值"
+
+    def test_define_with_type_and_desc(self):
+        source = "define PRESSURE 101325 #: @type Pressure @desc 标准大气压\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "DefineDirective"
+        assert data["statements"][0]["typeName"] == "Pressure"
+        assert data["statements"][0]["desc"] == "标准大气压"
+
+    def test_standalone_type_hint_error(self):
+        source = "#: @type Furnace\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) > 0
+        assert len(program.statements) == 1
+
+        data = json.loads(program.toJSON())
+        assert data["statements"][0]["type"] == "Error"
+
+    def test_mixed_doc_comment_and_code(self):
+        source = "\n".join([
+            "#> @device",
+            "#> @name Furnace",
+            "#> @end-device",
+            "alias f d0",
+        ]) + "\n"
+
+        program, parser = parse_with_diags(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 2
+
+
+# ============================================================
 # 标签定义解析测试
 # ============================================================
 

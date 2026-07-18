@@ -160,6 +160,8 @@ declare module "ic10-node-api" {
         /* 注释 */
         HEX_COMMENT,
         SLASH_COMMENT,
+        DOC_COMMENT,
+        TYPE_HINT,
 
         /* 换行 */
         NEWLINE,
@@ -367,6 +369,8 @@ declare module "ic10-node-api" {
         SYMBOL,
         /** 注释 */
         COMMENT,
+        /** 注解（文档注释、类型提示） */
+        ANNOTATION,
         /** 空白符 */
         WHITESPACE,
         /** 文件结束 */

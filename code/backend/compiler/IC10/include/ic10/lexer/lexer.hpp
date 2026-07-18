@@ -452,17 +452,19 @@ namespace stationeers::ic10 {
         /**
          * @if zh
          *
-         * @brief 提取HEX注释
-         * @return HEX注释Token
+         * @brief 提取#号注释/注解
+         * @details 区分 #>(文档注释)、#:(类型提示) 和 #普通注释
+         * @return 注释或注解Token
          *
          * @elseif en
          *
-         * @brief Extract HEX comment
-         * @return HEX comment Token
+         * @brief Extract hash comment/annotation
+         * @details Distinguishes #> (doc comment), #:(type hint), and # (normal comment)
+         * @return Comment or annotation Token
          *
          * @endif
          */
-        Token extractHexComment() const;
+        Token extractHashComment() const;
 
         /**
          * @if zh

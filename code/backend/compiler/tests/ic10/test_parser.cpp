@@ -83,6 +83,261 @@ TEST_F(ParserTestFixture, ParseDefineWithInteger) {
 }
 
 // ============================================================
+// 文档注释与类型提示测试
+// ============================================================
+
+TEST_F(ParserTestFixture, ParseDeviceDocComment) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name Furnace\n"
+        "#> @desc 炉窑\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    EXPECT_EQ(doc.name, "Furnace");
+    EXPECT_TRUE(doc.desc.has_value());
+    EXPECT_EQ(doc.desc->kind, DescValue::Kind::TEXT);
+    EXPECT_EQ(doc.desc->value, "炉窑");
+}
+
+TEST_F(ParserTestFixture, ParseEnumDocComment) {
+    auto ast = parse(
+        "#> @enum\n"
+        "#> @name GasType\n"
+        "#> @desc 气体类型\n"
+        "#> @value Oxygen 1 氧气\n"
+        "#> @value Nitrogen 2 氮气\n"
+        "#> @end-enum\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<EnumDocComment>(stmt));
+    auto& doc = std::get<EnumDocComment>(stmt);
+    EXPECT_EQ(doc.name, "GasType");
+    EXPECT_EQ(doc.values.size(), 2u);
+    EXPECT_EQ(doc.values[0].name, "Oxygen");
+    EXPECT_EQ(doc.values[0].value, "1");
+    EXPECT_EQ(doc.values[1].name, "Nitrogen");
+    EXPECT_EQ(doc.values[1].value, "2");
+}
+
+TEST_F(ParserTestFixture, ParseAliasWithTypeHint) {
+    auto ast = parse("alias myFurnace d0 #: @type Furnace\n");
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt));
+    auto& alias = std::get<AliasDirective>(stmt);
+    EXPECT_TRUE(alias.type.has_value());
+    EXPECT_EQ(*alias.type, "Furnace");
+}
+
+TEST_F(ParserTestFixture, ParseAliasWithoutTypeHint) {
+    auto ast = parse("alias myFurnace d0\n");
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt));
+    auto& alias = std::get<AliasDirective>(stmt);
+    EXPECT_FALSE(alias.type.has_value());
+    EXPECT_FALSE(alias.desc.has_value());
+}
+
+TEST_F(ParserTestFixture, ParseAliasWithDescTypeHint) {
+    auto ast = parse("alias myFurnace d0 #: @desc 炉窑设备\n");
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt));
+    auto& alias = std::get<AliasDirective>(stmt);
+    EXPECT_FALSE(alias.type.has_value());
+    EXPECT_TRUE(alias.desc.has_value());
+    EXPECT_EQ(*alias.desc, "炉窑设备");
+}
+
+TEST_F(ParserTestFixture, ParseAliasWithTypeAndDesc) {
+    auto ast = parse("alias myFurnace d0 #: @type Furnace @desc 炉窑\n");
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt));
+    auto& alias = std::get<AliasDirective>(stmt);
+    EXPECT_TRUE(alias.type.has_value());
+    EXPECT_EQ(*alias.type, "Furnace");
+    EXPECT_TRUE(alias.desc.has_value());
+    EXPECT_EQ(*alias.desc, "炉窑");
+}
+
+TEST_F(ParserTestFixture, ParseDefineWithDescTypeHint) {
+    auto ast = parse("define MAX 100 #: @desc 最大值\n");
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DefineDirective>(stmt));
+    auto& def = std::get<DefineDirective>(stmt);
+    EXPECT_FALSE(def.type.has_value());
+    EXPECT_TRUE(def.desc.has_value());
+    EXPECT_EQ(*def.desc, "最大值");
+}
+
+TEST_F(ParserTestFixture, ParseDefineWithTypeAndDesc) {
+    auto ast = parse("define PRESSURE 101325 #: @type Pressure @desc 标准大气压\n");
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DefineDirective>(stmt));
+    auto& def = std::get<DefineDirective>(stmt);
+    EXPECT_TRUE(def.type.has_value());
+    EXPECT_EQ(*def.type, "Pressure");
+    EXPECT_TRUE(def.desc.has_value());
+    EXPECT_EQ(*def.desc, "标准大气压");
+}
+
+TEST_F(ParserTestFixture, DocCommentWithLinkDesc) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name Furnace\n"
+        "#> @desc $./locals/furnace.desc\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    EXPECT_TRUE(doc.desc.has_value());
+    EXPECT_EQ(doc.desc->kind, DescValue::Kind::LINK);
+    EXPECT_EQ(doc.desc->value, "./locals/furnace.desc");
+}
+
+TEST_F(ParserTestFixture, DeviceDocWithSlots) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name Furnace\n"
+        "#> @slot 0 input 输入槽\n"
+        "#> @slot 1 output 输出槽\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    ASSERT_EQ(doc.slots.size(), 2u);
+    EXPECT_EQ(doc.slots[0].index, "0");
+    EXPECT_EQ(doc.slots[0].direction, SlotDirection::INPUT);
+    EXPECT_TRUE(doc.slots[0].desc.has_value());
+    EXPECT_EQ(doc.slots[0].desc->value, "输入槽");
+    EXPECT_EQ(doc.slots[1].index, "1");
+    EXPECT_EQ(doc.slots[1].direction, SlotDirection::OUTPUT);
+    EXPECT_EQ(doc.slots[1].desc->value, "输出槽");
+}
+
+TEST_F(ParserTestFixture, DeviceDocWithLogics) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name Sensor\n"
+        "#> @logic Pressure rw\n"
+        "#> @logic Temperature r\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    ASSERT_EQ(doc.logics.size(), 2u);
+    EXPECT_EQ(doc.logics[0].name, "Pressure");
+    EXPECT_EQ(doc.logics[0].access, LogicAccess::RW);
+    EXPECT_EQ(doc.logics[1].name, "Temperature");
+    EXPECT_EQ(doc.logics[1].access, LogicAccess::R);
+}
+
+TEST_F(ParserTestFixture, DeviceDocWithModes) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name Pump\n"
+        "#> @mode 0 待机模式\n"
+        "#> @mode 1 运行模式\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    ASSERT_EQ(doc.modes.size(), 2u);
+    EXPECT_EQ(doc.modes[0].index, "0");
+    EXPECT_EQ(doc.modes[0].desc->value, "待机模式");
+    EXPECT_EQ(doc.modes[1].index, "1");
+    EXPECT_EQ(doc.modes[1].desc->value, "运行模式");
+}
+
+TEST_F(ParserTestFixture, DeviceDocWithLogicSlots) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name IC10\n"
+        "#> @logicSlot db\n"
+        "#> @logicSlot r0\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    ASSERT_EQ(doc.logicSlots.size(), 2u);
+    EXPECT_EQ(doc.logicSlots[0].name, "db");
+    EXPECT_EQ(doc.logicSlots[1].name, "r0");
+}
+
+TEST_F(ParserTestFixture, DeviceDocWithConnects) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name Pipe\n"
+        "#> @connect 0 入口\n"
+        "#> @connect 1 出口\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    ASSERT_EQ(doc.connects.size(), 2u);
+    EXPECT_EQ(doc.connects[0].index, "0");
+    EXPECT_EQ(doc.connects[0].desc->value, "入口");
+    EXPECT_EQ(doc.connects[1].index, "1");
+    EXPECT_EQ(doc.connects[1].desc->value, "出口");
+}
+
+TEST_F(ParserTestFixture, EnumValueWithLinkDesc) {
+    auto ast = parse(
+        "#> @enum\n"
+        "#> @value Oxygen 1 $./locals/gas.desc\n"
+        "#> @end-enum\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<EnumDocComment>(stmt));
+    auto& doc = std::get<EnumDocComment>(stmt);
+    ASSERT_EQ(doc.values.size(), 1u);
+    EXPECT_TRUE(doc.values[0].desc.has_value());
+    EXPECT_EQ(doc.values[0].desc->kind, DescValue::Kind::LINK);
+    EXPECT_EQ(doc.values[0].desc->value, "./locals/gas.desc");
+}
+
+TEST_F(ParserTestFixture, TypeHintStandaloneError) {
+    auto tokens = Lexer::tokenize("#: @type Furnace\n");
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<ErrorNode>(stmt));
+}
+
+TEST_F(ParserTestFixture, MixedDocCommentAndCode) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name Furnace\n"
+        "#> @end-device\n"
+        "alias f d0\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 2u);
+}
+
+// ============================================================
 // 零元指令测试
 // ============================================================
 

@@ -19,6 +19,7 @@
 
 #include "common/utils/common.hpp"
 #include <algorithm>
+#include <format>
 #include <ranges>
 #include <sstream>
 
@@ -36,27 +37,126 @@ namespace stationeers::ic10 {
     }
 
     template<typename Derived>
-    template<typename... Ts>
-    std::string AST<Derived>::jsonBase(std::pair<std::string, Ts>... fields) const {
+    template<typename T>
+    std::string AST<Derived>::process(T&& arg) {
+        using U = std::remove_cvref_t<T>;
+
+        if constexpr (IsVariant<U>)
+            return call(arg, [](auto&& o) { return process(o); });
+
+        else if constexpr (IsOptional<U>)
+            return arg ? process(*arg) : "null";
+
+        else if constexpr (std::is_arithmetic_v<U>)
+            return std::to_string(arg);
+
+        else if constexpr (std::is_same_v<U, std::string_view>)
+            return process(std::string(arg));
+
+        else if constexpr (std::is_same_v<U, std::string>) {
+            if (arg.size() > 0 && arg[0] != '"' && arg[0] != '\'' && arg[0] != '{' && arg[0] != '[')
+                return '"' + arg + '"';
+
+            return arg;
+        }
+
+        else if constexpr (requires { arg.toJSON(); }) {
+            return arg.toJSON();
+        }
+
+        else if constexpr (std::is_convertible_v<U, std::string>)
+            return process(std::string(arg));
+
+        else
+            return arg;
+    }
+
+    template<typename Derived>
+    template<typename T, typename F>
+    std::string AST<Derived>::seqJSON(const std::vector<T>& datas, F func) {
         std::stringstream ss;
 
-        ss << R"({ "type": ")" << std::string(Derived::nodeName) << R"(", "position": { "line": )"
-           << position.line() << R"(, "column": )" << position.column() << R"( })";
+        ss << "[";
 
-        ((ss << R"(, ")" << fields.first << R"(": )" <<
-          [&] {
-              if constexpr (IsVariant<Ts>)
-                  return call(fields.second, [](auto&& o) { return o.toJSON(); });
+        for (std::size_t i = 0; i < datas.size(); ++i)
+            ss << func(datas[i]) << (i == datas.size() - 1 ? "" : ",");
 
-              else if constexpr (std::is_arithmetic_v<Ts>)
-                  return std::to_string(fields.second);
+        ss << "]";
 
-              else
-                  return fields.second;
-          }()),
+        return ss.str();
+    }
+
+    template<typename Derived>
+    template<typename... Ts>
+    std::string AST<Derived>::fieldsJSON(std::pair<std::string, Ts>... fields) const {
+        std::stringstream ss;
+
+        ss << "{";
+
+        bool first = true;
+
+        ((first ? (ss << "\"" << fields.first << "\": " << process(fields.second), first = false,
+                   void())
+                : (ss << ", \"" << fields.first << "\": " << process(fields.second), void())),
          ...);
 
-        ss << R"( } )";
+        ss << "}";
+
+        return ss.str();
+    }
+
+    template<typename Derived>
+    template<typename... Ts>
+    std::string AST<Derived>::fieldsJSON(
+        std::optional<std::pair<std::string, Ts>>... fields
+    ) const {
+        std::stringstream ss;
+
+        ss << "{";
+
+        bool first = true;
+
+        (( [&]{
+            if (fields.has_value()) {
+                if (!first) ss << ", ";
+                ss << "\"" << fields->first << "\": " << process(fields->second);
+                first = false;
+            }
+        }()), ...);
+
+        ss << "}";
+
+        return ss.str();
+    }
+
+    template<typename Derived>
+    template<typename... Ts>
+    std::string AST<Derived>::jsonBase(std::pair<std::string, Ts>... fields) const {
+        return fieldsJSON<std::string, std::string, Ts...>(
+            {"type", std::string(Derived::nodeName)},
+            {"position",
+             fieldsJSON<int, int>({"line", position.line()}, {"column", position.column()})},
+            std::forward<std::pair<std::string, Ts>>(fields)...
+        );
+    }
+
+    template<typename Derived>
+    template<typename... Ts>
+    std::string AST<Derived>::jsonBase(std::optional<std::pair<std::string, Ts>>... fields) const {
+        std::stringstream ss;
+        ss << "{";
+
+        ss << "\"type\": \"" << std::string(Derived::nodeName) << "\"";
+
+        ss << ", \"position\": "
+           << fieldsJSON<int, int>({"line", position.line()}, {"column", position.column()});
+
+        (( [&]{
+            if (fields.has_value())
+                ss << ", \"" << fields->first << "\": " << process(fields->second);
+        }()), ...);
+
+        ss << "}";
 
         return ss.str();
     }

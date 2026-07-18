@@ -158,6 +158,275 @@ describe('Preprocessor directives', () => {
 });
 
 // ============================================================
+// 文档注释与类型提示解析测试
+// ============================================================
+
+describe('Doc comments and type hints', () => {
+    it('should parse device doc comment block', () => {
+        const source = [
+            '#> @device',
+            '#> @name Furnace',
+            '#> @desc 炉窑',
+            '#> @end-device',
+        ].join('\n') + '\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('DeviceDocComment');
+        expect(json.statements[0].name).toBe('Furnace');
+        expect(json.statements[0].desc).toBe('炉窑');
+    });
+
+    it('should parse device doc comment with slots', () => {
+        const source = [
+            '#> @device',
+            '#> @name Furnace',
+            '#> @slot 0 input 输入槽',
+            '#> @slot 1 output 输出槽',
+            '#> @end-device',
+        ].join('\n') + '\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('DeviceDocComment');
+        expect(json.statements[0].slots).toHaveLength(2);
+        expect(json.statements[0].slots[0].number).toBe('0');
+        expect(json.statements[0].slots[0].direction).toBe('input');
+        expect(json.statements[0].slots[0].desc).toBe('输入槽');
+        expect(json.statements[0].slots[1].number).toBe('1');
+        expect(json.statements[0].slots[1].direction).toBe('output');
+        expect(json.statements[0].slots[1].desc).toBe('输出槽');
+    });
+
+    it('should parse device doc comment with logics', () => {
+        const source = [
+            '#> @device',
+            '#> @name Sensor',
+            '#> @logic Pressure rw',
+            '#> @logic Temperature r',
+            '#> @end-device',
+        ].join('\n') + '\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('DeviceDocComment');
+        expect(json.statements[0].logics).toHaveLength(2);
+        expect(json.statements[0].logics[0].name).toBe('Pressure');
+        expect(json.statements[0].logics[0].access).toBe('rw');
+        expect(json.statements[0].logics[1].name).toBe('Temperature');
+        expect(json.statements[0].logics[1].access).toBe('r');
+    });
+
+    it('should parse device doc comment with modes', () => {
+        const source = [
+            '#> @device',
+            '#> @name Pump',
+            '#> @mode 0 待机模式',
+            '#> @mode 1 运行模式',
+            '#> @end-device',
+        ].join('\n') + '\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('DeviceDocComment');
+        expect(json.statements[0].modes).toHaveLength(2);
+        expect(json.statements[0].modes[0].number).toBe('0');
+        expect(json.statements[0].modes[0].desc).toBe('待机模式');
+        expect(json.statements[0].modes[1].number).toBe('1');
+        expect(json.statements[0].modes[1].desc).toBe('运行模式');
+    });
+
+    it('should parse device doc comment with logicSlots', () => {
+        const source = [
+            '#> @device',
+            '#> @name IC10',
+            '#> @logicSlot db',
+            '#> @logicSlot r0',
+            '#> @end-device',
+        ].join('\n') + '\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('DeviceDocComment');
+        expect(json.statements[0].logicSlots).toHaveLength(2);
+        expect(json.statements[0].logicSlots[0].name).toBe('db');
+        expect(json.statements[0].logicSlots[1].name).toBe('r0');
+    });
+
+    it('should parse device doc comment with connects', () => {
+        const source = [
+            '#> @device',
+            '#> @name Pipe',
+            '#> @connect 0 入口',
+            '#> @connect 1 出口',
+            '#> @end-device',
+        ].join('\n') + '\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('DeviceDocComment');
+        expect(json.statements[0].connects).toHaveLength(2);
+        expect(json.statements[0].connects[0].number).toBe('0');
+        expect(json.statements[0].connects[0].desc).toBe('入口');
+        expect(json.statements[0].connects[1].number).toBe('1');
+        expect(json.statements[0].connects[1].desc).toBe('出口');
+    });
+
+    it('should parse enum doc comment block', () => {
+        const source = [
+            '#> @enum',
+            '#> @name GasType',
+            '#> @value Oxygen 1 氧气',
+            '#> @value Nitrogen 2 氮气',
+            '#> @end-enum',
+        ].join('\n') + '\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('EnumDocComment');
+        expect(json.statements[0].name).toBe('GasType');
+        expect(json.statements[0].values).toHaveLength(2);
+    });
+
+    it('should parse alias with trailing type hint', () => {
+        const source = 'alias myFurnace d0 #: @type Furnace\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('AliasDirective');
+        expect(json.statements[0].typeName).toBe('Furnace');
+    });
+
+    it('should parse alias without type hint', () => {
+        const source = 'alias myFurnace d0\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('AliasDirective');
+        expect(json.statements[0].typeName).toBeUndefined();
+        expect(json.statements[0].desc).toBeUndefined();
+    });
+
+    it('should parse alias with @desc type hint', () => {
+        const source = 'alias myFurnace d0 #: @desc 炉窑设备\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('AliasDirective');
+        expect(json.statements[0].typeName).toBeUndefined();
+        expect(json.statements[0].desc).toBe('炉窑设备');
+    });
+
+    it('should parse alias with @type and @desc', () => {
+        const source = 'alias myFurnace d0 #: @type Furnace @desc 炉窑\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('AliasDirective');
+        expect(json.statements[0].typeName).toBe('Furnace');
+        expect(json.statements[0].desc).toBe('炉窑');
+    });
+
+    it('should parse define with @desc type hint', () => {
+        const source = 'define MAX 100 #: @desc 最大值\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('DefineDirective');
+        expect(json.statements[0].typeName).toBeUndefined();
+        expect(json.statements[0].desc).toBe('最大值');
+    });
+
+    it('should parse define with @type and @desc', () => {
+        const source = 'define PRESSURE 101325 #: @type Pressure @desc 标准大气压\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('DefineDirective');
+        expect(json.statements[0].typeName).toBe('Pressure');
+        expect(json.statements[0].desc).toBe('标准大气压');
+    });
+
+    it('should report error for standalone type hint', () => {
+        const source = '#: @type Furnace\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics.length).toBeGreaterThan(0);
+        expect(program.statements).toHaveLength(1);
+
+        const json = JSON.parse(program.toJSON());
+        expect(json.statements[0].type).toBe('Error');
+    });
+
+    it('should parse mixed doc comment and code', () => {
+        const source = [
+            '#> @device',
+            '#> @name Furnace',
+            '#> @end-device',
+            'alias f d0',
+        ].join('\n') + '\n';
+
+        const {program, parser} = parseWithDiags(source);
+
+        expect(parser.diagnostics).toHaveLength(0);
+        expect(program.statements).toHaveLength(2);
+    });
+});
+
+// ============================================================
 // 标签定义解析测试
 // ============================================================
 
