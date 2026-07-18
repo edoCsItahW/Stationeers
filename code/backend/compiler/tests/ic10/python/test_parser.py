@@ -190,7 +190,7 @@ class TestDocCommentsAndTypeHints:
         source = "\n".join([
             "#> @device",
             "#> @name Furnace",
-            "#> @slot 0 inout 输入槽",
+            "#> @slot 0 input 输入槽",
             "#> @slot 1 output 输出槽",
             "#> @end-device",
         ]) + "\n"
@@ -204,7 +204,7 @@ class TestDocCommentsAndTypeHints:
         assert data["statements"][0]["type"] == "DeviceDocComment"
         assert len(data["statements"][0]["slots"]) == 2
         assert data["statements"][0]["slots"][0]["number"] == "0"
-        assert data["statements"][0]["slots"][0]["direction"] == "inout"
+        assert data["statements"][0]["slots"][0]["direction"] in ("input", "input")
         assert data["statements"][0]["slots"][0]["desc"] == "输入槽"
         assert data["statements"][0]["slots"][1]["number"] == "1"
         assert data["statements"][0]["slots"][1]["direction"] == "output"
@@ -325,7 +325,7 @@ class TestDocCommentsAndTypeHints:
 
         data = json.loads(program.toJSON())
         assert data["statements"][0]["type"] == "AliasDirective"
-        assert data["statements"][0]["aliasType"] == "Furnace"
+        assert data["statements"][0]["typeName"] == "Furnace"
 
     def test_alias_without_type_hint(self):
         source = "alias myFurnace d0\n"
@@ -337,8 +337,8 @@ class TestDocCommentsAndTypeHints:
 
         data = json.loads(program.toJSON())
         assert data["statements"][0]["type"] == "AliasDirective"
-        assert "aliasType" not in data["statements"][0]
-        assert "aliasDesc" not in data["statements"][0]
+        assert "typeName" not in data["statements"][0]
+        assert "desc" not in data["statements"][0]
 
     def test_alias_with_desc_type_hint(self):
         source = "alias myFurnace d0 #: @desc 炉窑设备\n"
@@ -350,8 +350,8 @@ class TestDocCommentsAndTypeHints:
 
         data = json.loads(program.toJSON())
         assert data["statements"][0]["type"] == "AliasDirective"
-        assert "aliasType" not in data["statements"][0]
-        assert data["statements"][0]["aliasDesc"] == "炉窑设备"
+        assert "typeName" not in data["statements"][0]
+        assert data["statements"][0]["desc"] == "炉窑设备"
 
     def test_alias_with_type_and_desc(self):
         source = "alias myFurnace d0 #: @type Furnace @desc 炉窑\n"
@@ -363,8 +363,8 @@ class TestDocCommentsAndTypeHints:
 
         data = json.loads(program.toJSON())
         assert data["statements"][0]["type"] == "AliasDirective"
-        assert data["statements"][0]["aliasType"] == "Furnace"
-        assert data["statements"][0]["aliasDesc"] == "炉窑"
+        assert data["statements"][0]["typeName"] == "Furnace"
+        assert data["statements"][0]["desc"] == "炉窑"
 
     def test_define_with_desc_type_hint(self):
         source = "define MAX 100 #: @desc 最大值\n"
@@ -376,8 +376,8 @@ class TestDocCommentsAndTypeHints:
 
         data = json.loads(program.toJSON())
         assert data["statements"][0]["type"] == "DefineDirective"
-        assert "defineType" not in data["statements"][0]
-        assert data["statements"][0]["defineDesc"] == "最大值"
+        assert "typeName" not in data["statements"][0]
+        assert data["statements"][0]["desc"] == "最大值"
 
     def test_define_with_type_and_desc(self):
         source = "define PRESSURE 101325 #: @type Pressure @desc 标准大气压\n"
@@ -389,8 +389,8 @@ class TestDocCommentsAndTypeHints:
 
         data = json.loads(program.toJSON())
         assert data["statements"][0]["type"] == "DefineDirective"
-        assert data["statements"][0]["defineType"] == "Pressure"
-        assert data["statements"][0]["defineDesc"] == "标准大气压"
+        assert data["statements"][0]["typeName"] == "Pressure"
+        assert data["statements"][0]["desc"] == "标准大气压"
 
     def test_standalone_type_hint_error(self):
         source = "#: @type Furnace\n"
