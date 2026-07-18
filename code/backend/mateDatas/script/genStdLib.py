@@ -31,9 +31,8 @@ type EnumData = Dict[str, EnumValue]
 def genEnum(data: EnumData) -> str:
     return " ".join([f"""
 #> @enum
-#> @name {name}
-#> @desc {value['desc']}
-{'\n'.join([f'#> @value {subName} {subValue["value"]} {subValue["desc"]}' for subName, subValue in value["enums"].items()])}
+#> @name {name}{f'\n#> @desc {value["desc"]}' if "desc" in value else ""}
+{'\n'.join([f'#> @value {subName} {subValue["value"]} {subValue["desc"] if "desc" in subValue else ""}' for subName, subValue in value["enums"].items()])}
 #> @end-enum
 """ for name, value in data.items()])
 

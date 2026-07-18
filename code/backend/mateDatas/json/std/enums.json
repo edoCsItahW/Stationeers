@@ -2808,5 +2808,49 @@
                 "value": 0
             }
         }
+    },
+    "ReagentMode": {
+        "enums": {
+            "Contents": {
+                "type": "LogicReagentMode",
+                "value": 0
+            },
+            "Recipe": {
+                "type": "LogicReagentMode",
+                "value": 2
+            },
+            "Required": {
+                "type": "LogicReagentMode",
+                "value": 1
+            },
+            "TotalContents": {
+                "type": "LogicReagentMode",
+                "value": 3
+            }
+        }
+    },
+    "BatchMode": {
+        "enums": {
+            "Average": {
+                "type": "LogicBatchMethod",
+                "value": 0
+            },
+            "Count": {
+                "type": "LogicBatchMethod",
+                "value": 4
+            },
+            "Maximum": {
+                "type": "LogicBatchMethod",
+                "value": 3
+            },
+            "Minimum": {
+                "type": "LogicBatchMethod",
+                "value": 2
+            },
+            "Sum": {
+                "type": "LogicBatchMethod",
+                "value": 1
+            }
+        }
     }
 }
