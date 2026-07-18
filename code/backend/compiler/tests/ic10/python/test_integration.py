@@ -396,14 +396,19 @@ class TestDocCommentsIntegration:
 
     def test_alias_type_hint_ast_serialization(self):
         """带类型提示的别名 AST 序列化"""
-        source = "alias myFurnace d0 #: @type Furnace\n"
+        source = "\n".join([
+            "#> @device",
+            "#> @name Furnace",
+            "#> @end-device",
+            "alias myFurnace d0 #: @type Furnace",
+        ]) + "\n"
 
         program, parser, analyser = compile_program(source)
         data = json.loads(program.toJSON())
 
-        assert len(data["statements"]) == 1
-        assert data["statements"][0]["type"] == "AliasDirective"
-        assert data["statements"][0]["aliasType"] == "Furnace"
+        assert len(data["statements"]) == 2
+        alias_stmt = next(s for s in data["statements"] if s["type"] == "AliasDirective")
+        assert alias_stmt["typeName"] == "Furnace"
 
     def test_mixed_doc_comments_pipeline(self):
         """混合文档注释和代码的完整流水线"""
@@ -422,3 +427,188 @@ class TestDocCommentsIntegration:
         assert len(parser.diagnostics) == 0
         assert len(program.statements) == 5
         assert analyser is not None
+
+
+# ============================================================
+# 类型推导与设备上下文测试
+# ============================================================
+
+class TestTypeInference:
+    """类型推导与设备上下文传递测试"""
+
+    def test_validate_logic_names_via_doc_comment(self):
+        """通过文档注释验证设备逻辑名"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Sensor",
+            "#> @logic Pressure rw",
+            "#> @logic Temperature rw",
+            "#> @end-device",
+            "alias sensor d0 #: @type Sensor",
+            "l r0 sensor Pressure",
+            "l r1 sensor Temperature",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(analyser.diagnostics) == 0
+
+    def test_report_invalid_logic_name(self):
+        """无效逻辑名应上报 IWA14_2"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Sensor",
+            "#> @logic Pressure rw",
+            "#> @end-device",
+            "alias sensor d0 #: @type Sensor",
+            "l r0 sensor InvalidLogic",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(analyser.diagnostics) > 0
+        assert any(d["id"] == "IWA14_2" for d in analyser.diagnostics)
+
+    def test_no_duplicate_diagnostics(self):
+        """同一无效标识符不应重复上报"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Sensor",
+            "#> @logic Pressure rw",
+            "#> @end-device",
+            "alias sensor d0 #: @type Sensor",
+            "l r0 sensor BadLogic",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        bad_logic_diags = [d for d in analyser.diagnostics if "BadLogic" in d["message"]]
+        assert len(bad_logic_diags) <= 1
+
+    def test_device_context_within_instruction(self):
+        """设备上下文在同一条指令内传递"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Furnace",
+            "#> @logic Temperature r",
+            "#> @logic Active rw",
+            "#> @end-device",
+            "alias furnace d0 #: @type Furnace",
+            "s furnace Active r0",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(analyser.diagnostics) == 0
+
+    def test_device_context_reset_between_instructions(self):
+        """设备上下文在指令间重置"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Sensor",
+            "#> @logic Pressure rw",
+            "#> @end-device",
+            "alias sensor d0 #: @type Sensor",
+            "l r0 sensor Pressure",
+            "move r1 42",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(analyser.diagnostics) == 0
+
+    def test_slot_index_validation(self):
+        """slot index 验证"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Stacker",
+            "#> @slot 0 ore",
+            "#> @slot 1 ingot",
+            "#> @logicSlot Occupied",
+            "#> @end-device",
+            "alias stacker d0 #: @type Stacker",
+            "ls r0 stacker 0 Occupied",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+
+    def test_reagent_mode_validation(self):
+        """reagent mode 枚举验证"""
+        source = "\n".join([
+            "#> @enum",
+            "#> @name ReagentMode",
+            "#> @value Contents 0",
+            "#> @value Required 1",
+            "#> @end-enum",
+            "#> @device",
+            "#> @name Filter",
+            "#> @end-device",
+            "alias filter d0 #: @type Filter",
+            "lr r0 filter Contents Oxygen",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+
+    def test_symbol_table_contains_type_info(self):
+        """符号表应包含类型信息"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Sensor",
+            "#> @end-device",
+            "alias sensor d0 #: @type Sensor",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        symbols = json.loads(analyser.symbolTable.toJSON())
+        sensor_sym = next((s for s in symbols if s["name"] == "sensor"), None)
+        assert sensor_sym is not None
+        assert sensor_sym["type"] == "DEVICE"
+        assert sensor_sym["typeName"] == "Sensor"
+
+    def test_batch_mode_with_enum(self):
+        """batch mode 枚举处理"""
+        source = "\n".join([
+            "#> @enum",
+            "#> @name BatchMode",
+            "#> @value Greater 0",
+            "#> @value Less 1",
+            "#> @end-enum",
+            "lbn r0 0 0 Pressure Greater",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+
+    def test_direct_device_reference(self):
+        """直接使用设备引用（d0）无需别名"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Sensor",
+            "#> @logic Pressure rw",
+            "#> @end-device",
+            "l r0 d0 Pressure",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0

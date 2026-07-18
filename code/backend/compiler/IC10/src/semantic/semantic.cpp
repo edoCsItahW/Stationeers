@@ -25,7 +25,7 @@ namespace stationeers::ic10 {
     std::string Symbol::toJSON() const {
         return std::format(
             R"({{ "name": "{}", "type": "{}", "category": "{}", "typeName": {}, "value": {}, "desc": {} }})",
-            name, enumToStr(type), enumToStr(category), typeName ? '"' + *typeName + '"' : "null",
+            name, enumToStr(type.kind), enumToStr(type.category), type.typeName ? '"' + *type.typeName + '"' : "null",
             value ? '"' + *value + '"' : "null", desc ? '"' + *desc + '"' : "null"
         );
     }

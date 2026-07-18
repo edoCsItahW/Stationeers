@@ -139,14 +139,6 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct Symbol {
-        /**
-         * @if zh
-         * @brief 符号类型
-         * @elseif en
-         * @brief Symbol type
-         * @endif
-         */
-        BasicType type;
 
         /**
          * @if zh
@@ -157,13 +149,13 @@ namespace stationeers::ic10 {
          */
         std::string name;
 
-        TypeCategory category = TypeCategory::BASIC;
-
-        std::optional<std::string> typeName = std::nullopt;
+        Type type;
 
         std::optional<std::string> value = std::nullopt;
 
         std::optional<std::string> desc = std::nullopt;
+
+        std::vector<std::string> inferredTypes = {};
 
         /**
          * @if zh

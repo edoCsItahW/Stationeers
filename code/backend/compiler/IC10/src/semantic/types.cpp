@@ -24,4 +24,11 @@ namespace stationeers::ic10 {
         }, type);
     }
 
+    const CustomType* TypeTable::find(const std::string& name) const {
+        if (const auto res = types_.find(name); res != types_.end())
+            return &res->second;
+
+        return nullptr;
+    }
+
 }  // namespace stationeers::ic10

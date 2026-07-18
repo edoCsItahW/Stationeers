@@ -20,7 +20,6 @@
 #include "../local.hpp"
 #include "common/utils/fstr.hpp"
 
-
 namespace stationeers::ic10 {
 
     struct EnUs;
@@ -70,7 +69,9 @@ namespace stationeers::ic10 {
 
     LOCAL_MSG_EN_US(IEL2_1, "Unclosed paired symbols '{}' - lexical analysis.")
 
-    LOCAL_MSG_EN_US(IEL3_2, "Token '{}' is immediately followed by '{}' without whitespace - lexical analysis.")
+    LOCAL_MSG_EN_US(
+        IEL3_2, "Token '{}' is immediately followed by '{}' without whitespace - lexical analysis."
+    )
 
     /* Parser */
 
@@ -186,7 +187,39 @@ namespace stationeers::ic10 {
 
     // Warning
 
-    LOCAL_MSG_EN_US(IWA1_1, "'{}' is not a Label type - semantic analysis.")
+    LOCAL_MSG_EN_US(IWA1_1, "'{}' is not a Register type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA2_1, "'{}' is not a Device type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA3_1, "'{}' is not a Register or Number type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA4_1, "'{}' is not a Device or Register type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA5_1, "'{}' is not a LogicSlot type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA6_1, "'{}' is not a ReagentMode type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA7_1, "'{}' is not a Label type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA8_1, "'{}' is not a Logic type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA9_1, "'{}' is not a SlotIndex type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA10_1, "'{}' is not a BatchMode type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA11_2, "'{}' is not within the LogicSlot of device '{}' - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA12_1, "'{}' is not a known LogicSlot - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA13_1, "'{}' is not a known ReagentMode - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA14_2, "'{}' is not within the Logic of device '{}' - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA15_1, "'{}' is not a known Logic - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA16_2, "'{}' is not within the Slot of device '{}' - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IWA17_1, "'{}' is not a known BatchMode - semantic analysis.")
 
     // Error
 
@@ -201,6 +234,10 @@ namespace stationeers::ic10 {
     LOCAL_MSG_EN_US(IEA5_1, "Constant '{}' has been redefined - semantic analysis.")
 
     LOCAL_MSG_EN_US(IEA6, "Unknown Grammar Type '{}' - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IEA7_1, "The Device '{}' should not be annotated as an Enum type - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IEA8_1, "Missing standard library type '{}' - semantic analysis.")
 
 }  // namespace stationeers::ic10
 
