@@ -286,7 +286,7 @@ namespace stationeers {
     template<IsEnum E, E I>
     inline constexpr int get_number_of_args = [] {
         constexpr std::string_view str = enumToStr(I);
-        if constexpr (constexpr auto pos = str.rfind('_'); pos == std::string::npos)
+        if constexpr (constexpr auto pos [[maybe_unused]] = str.rfind('_'); pos == std::string::npos)
             return 0;
         else {
             int result = 0;
@@ -515,7 +515,9 @@ namespace stationeers {
          * @endif
          */
         template<E I, std::size_t N = 0>
+        #ifdef IC10_LOCAL_ARGS_CHECK
             requires number_of_args_check<E, I, N>
+        #endif
         [[nodiscard]] static auto msg()
 // resolve MSVC C2244 error
 #ifndef _MSC_VER
@@ -542,7 +544,9 @@ namespace stationeers {
          * @endif
          */
         template<E I>
+        #ifdef IC10_LOCAL_ARGS_CHECK
             requires number_of_args_check<E, I, 0>
+        #endif
         [[nodiscard]] static std::string msgStr()
 // resolve MSVC C2244 error
 #ifndef _MSC_VER
@@ -573,7 +577,9 @@ namespace stationeers {
          * @endif
          */
         template<E I, typename... Args>
+        #ifdef IC10_LOCAL_ARGS_CHECK
             requires number_of_args_check<E, I, sizeof...(Args)>
+        #endif
         [[nodiscard]] static auto msgFormat(Args&&... args)
 // resolve MSVC C2244 error
 #ifndef _MSC_VER

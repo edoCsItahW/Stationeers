@@ -63,6 +63,10 @@ namespace stationeers::ic10 {
         HEX_COMMENT,    ///< @if zh #号注释 @else Hexadecimal @endif
         SLASH_COMMENT,  ///< @if zh //号注释 @else Slash @endif
 
+        /* 注解 */
+        DOC_COMMENT,  ///< @if zh 文档注释(#>开头) @else Doc comment (#> prefix) @endif
+        TYPE_HINT,    ///< @if zh 类型提示(#:开头) @else Type hint (#: prefix) @endif
+
         /* 换行 */
         NEWLINE,  ///< @if zh 换行符 @else Newline @endif
 
@@ -258,6 +262,7 @@ namespace stationeers::ic10 {
         LITERAL,     ///< @if zh 字面值 @else Literal @endif
         SYMBOL,      ///< @if zh 符号 @else Symbol @endif
         COMMENT,     ///< @if zh 注释 @else Comment @endif
+        ANNOTATION,  ///< @if zh 注解(文档注释/类型提示) @else Annotation (doc comment/type hint) @endif
         WHITESPACE,  ///< @if zh 空白符 @else Whitespace @endif
         END,         ///< @if zh 文件结束 @else End of file @endif
         INVALID      ///< @if zh 无效标记 @else Invalid token @endif

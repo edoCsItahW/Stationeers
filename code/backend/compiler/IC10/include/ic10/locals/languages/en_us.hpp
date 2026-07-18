@@ -47,7 +47,13 @@ namespace stationeers::ic10 {
      */
 #define LOCAL_MSG_EN_US(id, msg) LOCAL_MSG(EnUs, id, msg)
 
+    // Inner Error
+
     LOCAL_MSG_EN_US(IE0_1, "{}")
+
+    /* Lexer */
+
+    // Warning
 
     LOCAL_MSG_EN_US(
         IWL1,
@@ -58,107 +64,131 @@ namespace stationeers::ic10 {
 
     LOCAL_MSG_EN_US(IWL3, "In IC10 syntax, device only has r0-r5 - lexical")
 
+    // Error
+
     LOCAL_MSG_EN_US(IEL1_1, "Unknown operation symbol'{}' - lexical analysis.")
 
     LOCAL_MSG_EN_US(IEL2_1, "Unclosed paired symbols '{}' - lexical analysis.")
 
     LOCAL_MSG_EN_US(IEL3_2, "Token '{}' is immediately followed by '{}' without whitespace - lexical analysis.")
 
+    /* Parser */
+
+    // Message
+
     LOCAL_MSG_EN_US(IMP1, "Unexpectedly encountered the end of the file - syntax analysis.")
 
+    // Error
+
+    LOCAL_MSG_EN_US(IEP1_1, "Unexpected token '{}' - syntax analysis.")
+
     LOCAL_MSG_EN_US(
-        IMP2_1,
+        IEP2_1,
         "Expected to read a preprocessing directive token, but a '{}' token was read instead "
         "- syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP3_1,
+        IEP3_1,
         "Expected to read a executable instruction token, but a '{}' token was read instead "
         "- syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP4_1, "Expected to read a unary instruction token, but a '{}' token was read instead - "
+        IEP4_1, "Expected to read a unary instruction token, but a '{}' token was read instead - "
                 "syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP5_1, "Expected to read a binary instruction token, but a '{}' token was read instead - "
+        IEP5_1, "Expected to read a binary instruction token, but a '{}' token was read instead - "
                 "syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP6_1, "Expected to read a ternary instruction token, but a '{}' token was read instead - "
+        IEP6_1, "Expected to read a ternary instruction token, but a '{}' token was read instead - "
                 "syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP7_1,
+        IEP7_1,
         "Expected to read a quaternary instruction token, but a '{}' token was read instead "
         "- syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP8_1, "Expected to read a quinary instruction token, but a '{}' token was read instead - "
+        IEP8_1, "Expected to read a quinary instruction token, but a '{}' token was read instead - "
                 "syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP9_1, "Expected to read a senary instruction token, but a '{}' token was read instead - "
+        IEP9_1, "Expected to read a senary instruction token, but a '{}' token was read instead - "
                 "syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP10_1,
+        IEP10_1,
         "Expected to read a operand tokens, but a '{}' token was read instead - syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP11_1, "Expected to read a register or device token, but a '{}' token was read instead - "
+        IEP11_1, "Expected to read a register or device token, but a '{}' token was read instead - "
                  "syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP12_1,
+        IEP12_1,
         "Expected to read a register or identifier token, but a '{}' token was read instead "
         "- syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP13_1,
+        IEP13_1,
         "Expected to read the device reference token, but ended up reading the '{}' token - "
         "syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP14_1,
+        IEP14_1,
         "Expected to read a macro call token, but a '{}' token was read instead - syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP15_1, "Expected to read an identifier or a number token, but a '{}' token was read "
+        IEP15_1, "Expected to read an identifier or a number token, but a '{}' token was read "
                  "instead - syntax analysis."
     )
 
     LOCAL_MSG_EN_US(
-        IMP16_1,
+        IEP16_1,
         "Expected to read a number token, but a '{}' token was read instead - syntax analysis."
     )
 
-    LOCAL_MSG_EN_US(IMP17, "Missing operand - syntax analysis.")
-    LOCAL_MSG_EN_US(IMP18, "Missing register or device - syntax analysis.")
-    LOCAL_MSG_EN_US(IMP19, "Missing register or identifier - syntax analysis.")
-    LOCAL_MSG_EN_US(IMP20, "Missing device reference - syntax analysis.")
-    LOCAL_MSG_EN_US(IMP21, "Missing macro call - syntax analysis.")
-    LOCAL_MSG_EN_US(IMP22, "Missing identifier or number - syntax analysis.")
-    LOCAL_MSG_EN_US(IMP23, "Missing colon after label - syntax analysis.")
-    LOCAL_MSG_EN_US(IMP24, "Missing alias keyword - syntax analysis.")
-    LOCAL_MSG_EN_US(IMP25, "Missing define keyword - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP17, "Missing operand - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP18, "Missing register or device - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP19, "Missing register or identifier - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP20, "Missing device reference - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP21, "Missing macro call - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP22, "Missing identifier or number - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP23, "Missing colon after label - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP24, "Missing alias keyword - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP25, "Missing define keyword - syntax analysis.")
 
-    LOCAL_MSG_EN_US(IEP1_1, "Unexpected token '{}' - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP26, "Missing newline between statements - syntax analysis.")
 
-    LOCAL_MSG_EN_US(IEP2, "Missing newline between statements - syntax analysis.")
+    LOCAL_MSG_EN_US(IEP27, "Invalid doc tag - syntax analysis.")
+
+    LOCAL_MSG_EN_US(IEP28, "Unclosed @device block, expected @end-device - syntax analysis.")
+
+    LOCAL_MSG_EN_US(IEP29, "Unclosed @enum block, expected @end-enum - syntax analysis.")
+
+    LOCAL_MSG_EN_US(IEP30, "Expected to read @device or @enum token - syntax analysis.")
+
+    /* Analysis */
+
+    // Warning
+
+    LOCAL_MSG_EN_US(IWA1_1, "'{}' is not a Label type - semantic analysis.")
+
+    // Error
 
     LOCAL_MSG_EN_US(IEA1_2, "'{}' expected, but found '{}' - syntax analysis.")
 
@@ -168,7 +198,9 @@ namespace stationeers::ic10 {
 
     LOCAL_MSG_EN_US(IEA4, "An alias cannot be defined for another alias - semantic analysis.")
 
-    LOCAL_MSG_EN_US(IEA5, "Unknown Grammar Type '{}' - semantic analysis.")
+    LOCAL_MSG_EN_US(IEA5_1, "Constant '{}' has been redefined - semantic analysis.")
+
+    LOCAL_MSG_EN_US(IEA6, "Unknown Grammar Type '{}' - semantic analysis.")
 
 }  // namespace stationeers::ic10
 

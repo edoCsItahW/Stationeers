@@ -19,6 +19,7 @@
 #include "common/exception/error.hpp"
 #include "common/utils/common.hpp"
 #include "ic10/locals/local.hpp"
+#include "ic10/parser/doc_parser.hpp"
 #include <format>
 
 namespace stationeers::ic10 {
@@ -38,20 +39,17 @@ namespace stationeers::ic10 {
             program.statements.push_back(parseStatement());
 
             // 跳过行内注释（注释与语句在同一行，不需要换行分隔）
-            while (inScope() && current()->category == TokenCategory::COMMENT) {
-                consume();
-            }
+            while (inScope() && current()->category == TokenCategory::COMMENT) consume();
 
             // 除最后一个语句可以直接以END结尾
             if (current()->type == TokenType::END) break;
 
             // 语句之间必须以换行分隔
             // 参考IC10.g4: program : statement (NEWLINE+ statement)* NEWLINE* EOF;
-            if (current()->type == TokenType::NEWLINE) {
+            if (current()->type == TokenType::NEWLINE)
                 expect(TokenType::NEWLINE, false);
-            } else {
-                reporter_.error<MsgId::IEP2>(current()->pos, endPos(*current()));
-            }
+            else
+                reporter_.error<MsgId::IEP26>(current()->pos, endPos(*current()));
 
             // 其余换行和注释跳过
             skip();
@@ -79,6 +77,19 @@ namespace stationeers::ic10 {
 
         switch (current()->type) {
             using enum TokenType;
+            case DOC_COMMENT: {
+                DocParser docParser(tokens_, idx_, reporter_);
+                return wide_cast<Statement>(docParser.parseDocCommentBlock());
+            }
+            case TYPE_HINT: {
+                const auto tokenTypeStr = enumToStr(current()->type);
+                reporter_.errorWith<MsgId::IEP1_1>(
+                    current()->pos, endPos(*current()), tokenTypeStr
+                );
+                auto errToken = *current();
+                consume();
+                return ErrorNode{errToken, Loc::msgFormat<MsgId::IEP1_1>(tokenTypeStr)};
+            }
             case IDENTIFIER: return wide_cast<Statement>(parseLabelDef(layer));
             case KEYWORD_ALIAS:
             case KEYWORD_DEFINE: return wide_cast<Statement>(parsePreprocessorDirective(layer));
@@ -97,14 +108,51 @@ namespace stationeers::ic10 {
             expect(TokenType::COLON);
 
         } catch (const Error&) {
-            reporter_.error<MsgId::IMP23>(current()->pos, endPos(*current()));
+            reporter_.error<MsgId::IEP23>(current()->pos, endPos(*current()));
 
             auto errToken = *current();
             consume();
-            return ErrorNode{errToken, Loc::msgStr<MsgId::IMP23>()};
+            return ErrorNode{errToken, Loc::msgStr<MsgId::IEP23>()};
         }
 
         return labelDef;
+    }
+
+    Parser::TypeHintResult Parser::parseTypeHintTags(const std::string& lexeme) {
+        TypeHintResult result;
+
+        auto content = lexeme.substr(2);  // 跳过 "#:"
+        auto pos     = content.find_first_not_of(" \t");
+
+        while (pos != std::string::npos) {
+            if (content[pos] != '@') break;
+
+            auto tagStart = pos + 1;
+            auto tagEnd   = content.find_first_of(" \t", tagStart);
+            if (tagEnd == std::string::npos) tagEnd = content.size();
+            auto tagName = content.substr(tagStart, tagEnd - tagStart);
+
+            auto valueStart = content.find_first_not_of(" \t", tagEnd);
+            std::string value;
+            if (valueStart != std::string::npos && content[valueStart] != '@') {
+                auto valueEnd = content.find_first_of(" \t", valueStart);
+                if (valueEnd == std::string::npos) valueEnd = content.size();
+                value = content.substr(valueStart, valueEnd - valueStart);
+                // 去除值尾部空白（如 Windows CRLF 残留的 '\r'）
+                while (!value.empty() && std::isspace(static_cast<unsigned char>(value.back())))
+                    value.pop_back();
+                pos = content.find_first_not_of(" \t", valueEnd);
+            } else {
+                pos = valueStart;
+            }
+
+            if (tagName == "type" && !value.empty())
+                result.type = value;
+            else if (tagName == "desc" && !value.empty())
+                result.desc = value;
+        }
+
+        return result;
     }
 
     PreprocessorDirective Parser::parsePreprocessorDirective(int layer) {
@@ -112,17 +160,19 @@ namespace stationeers::ic10 {
 
         ++layer;
 
-        if (current()->type == TokenType::KEYWORD_ALIAS) return wide_cast<PreprocessorDirective>(parseAliasDirective(layer));
+        if (current()->type == TokenType::KEYWORD_ALIAS)
+            return wide_cast<PreprocessorDirective>(parseAliasDirective(layer));
 
-        if (current()->type == TokenType::KEYWORD_DEFINE) return wide_cast<PreprocessorDirective>(parseDefineDirective(layer));
+        if (current()->type == TokenType::KEYWORD_DEFINE)
+            return wide_cast<PreprocessorDirective>(parseDefineDirective(layer));
 
-        reporter_.errorWith<MsgId::IMP2_1>(
+        reporter_.errorWith<MsgId::IEP2_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
         auto errToken = *current();
         consume();
-        return ErrorNode{errToken, Loc::msgFormat<MsgId::IMP2_1>(enumToStr(errToken.type))};
+        return ErrorNode{errToken, Loc::msgFormat<MsgId::IEP2_1>(enumToStr(errToken.type))};
     }
 
     ShallowErrorable<AliasDirective> Parser::parseAliasDirective(int layer) {
@@ -136,14 +186,23 @@ namespace stationeers::ic10 {
             expect(TokenType::KEYWORD_ALIAS);
 
         } catch (const Error&) {
-            reporter_.error<MsgId::IMP24>(current()->pos, endPos(*current()));
+            reporter_.error<MsgId::IEP24>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP24>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP24>()};
         }
 
         aliasDirective.identifier = parseIdentifier(layer);
 
         aliasDirective.registerOrDevice = parseRegisterOrDevice(layer);
+
+        // 解析尾随类型提示（同一行）
+        if (inScope() && current()->type == TokenType::TYPE_HINT) {
+            auto token = current();
+            consume();
+            auto hintResult     = parseTypeHintTags(token->lexeme);
+            aliasDirective.type = hintResult.type;
+            aliasDirective.desc = hintResult.desc;
+        }
 
         return aliasDirective;
     }
@@ -174,13 +233,13 @@ namespace stationeers::ic10 {
         if (SenaryInstructionMap::contains(current()->type))
             return wide_cast<ExecutableInstruction>(parseSenaryInstruction(layer));
 
-        reporter_.errorWith<MsgId::IMP3_1>(
+        reporter_.errorWith<MsgId::IEP3_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
         auto errToken = *current();
         consume();
-        return ErrorNode{errToken, Loc::msgFormat<MsgId::IMP3_1>(enumToStr(errToken.type))};
+        return ErrorNode{errToken, Loc::msgFormat<MsgId::IEP3_1>(enumToStr(errToken.type))};
     }
 
 #define VARIANT_TRANS_FACTORY(narrowType, wideType, ...)                                           \
@@ -240,24 +299,22 @@ namespace stationeers::ic10 {
             );
 
         INSTRUCTION_CASE(
-            UnaryInstructionMap_DAR, UnaryInstruction, c->type, c->pos,
-            parseDeviceAliasRef(layer)
+            UnaryInstructionMap_DAR, UnaryInstruction, c->type, c->pos, parseDeviceAliasRef(layer)
         )
 
         INSTRUCTION_CASE(
-            UnaryInstructionMap_RON, UnaryInstruction, c->type, c->pos,
-            parseRegisterOrNumber(layer)
+            UnaryInstructionMap_RON, UnaryInstruction, c->type, c->pos, parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
             UnaryInstructionMap_JT, UnaryInstruction, c->type, c->pos, parseJumpTarget(layer)
         )
 
-        reporter_.errorWith<MsgId::IMP4_1>(
+        reporter_.errorWith<MsgId::IEP4_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP4_1>(enumToStr(c->type))};
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IEP4_1>(enumToStr(c->type))};
     }
 
     BinaryInstruction Parser::parseBinaryInstruction(int layer) {
@@ -289,11 +346,11 @@ namespace stationeers::ic10 {
             parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
         )
 
-        reporter_.errorWith<MsgId::IMP5_1>(
+        reporter_.errorWith<MsgId::IEP5_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP5_1>(enumToStr(c->type))};
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IEP5_1>(enumToStr(c->type))};
     }
 
     TernaryInstruction Parser::parseTernaryInstruction(int layer) {
@@ -325,8 +382,7 @@ namespace stationeers::ic10 {
 
         INSTRUCTION_CASE(
             TernaryInstructionMap_DR_RON_RON, TernaryInstruction, c->type, c->pos,
-            parseDeviceReference(layer), parseRegisterOrNumber(layer),
-            parseRegisterOrNumber(layer)
+            parseDeviceReference(layer), parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
         )
 
         INSTRUCTION_CASE(
@@ -354,11 +410,11 @@ namespace stationeers::ic10 {
             parseRegisterOrNumber(layer), parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
         )
 
-        reporter_.errorWith<MsgId::IMP6_1>(
+        reporter_.errorWith<MsgId::IEP6_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP6_1>(enumToStr(c->type))};
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IEP6_1>(enumToStr(c->type))};
     }
 
     QuaternaryInstruction Parser::parseQuaternaryInstruction(int layer) {
@@ -418,11 +474,11 @@ namespace stationeers::ic10 {
             parseJumpTarget(layer)
         )
 
-        reporter_.errorWith<MsgId::IMP7_1>(
+        reporter_.errorWith<MsgId::IEP7_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP7_1>(enumToStr(c->type))};
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IEP7_1>(enumToStr(c->type))};
     }
 
     QuinaryInstruction Parser::parseQuinaryInstruction(int layer) {
@@ -446,11 +502,11 @@ namespace stationeers::ic10 {
             parseLogicSlotType(layer), parseBatchMode(layer)
         )
 
-        reporter_.errorWith<MsgId::IMP8_1>(
+        reporter_.errorWith<MsgId::IEP8_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP8_1>(enumToStr(c->type))};
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IEP8_1>(enumToStr(c->type))};
     }
 
     SenaryInstruction Parser::parseSenaryInstruction(int layer) {
@@ -469,11 +525,11 @@ namespace stationeers::ic10 {
             parseBatchMode(layer)
         )
 
-        reporter_.errorWith<MsgId::IMP9_1>(
+        reporter_.errorWith<MsgId::IEP9_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
-        return ErrorNode{*current(), Loc::msgFormat<MsgId::IMP9_1>(enumToStr(c->type))};
+        return ErrorNode{*current(), Loc::msgFormat<MsgId::IEP9_1>(enumToStr(c->type))};
     }
 
     ShallowErrorable<DefineDirective> Parser::parseDefineDirective(int layer) {
@@ -487,14 +543,23 @@ namespace stationeers::ic10 {
             expect(TokenType::KEYWORD_DEFINE);
 
         } catch (const Error&) {
-            reporter_.error<MsgId::IMP25>(current()->pos, endPos(*current()));
+            reporter_.error<MsgId::IEP25>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP25>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP25>()};
         }
 
         defineDirective.identifier = parseIdentifier(layer);
 
         defineDirective.operand = parseNumberValue(layer);
+
+        // 解析尾随类型提示（同一行）
+        if (inScope() && current()->type == TokenType::TYPE_HINT) {
+            auto token = current();
+            consume();
+            auto hintResult      = parseTypeHintTags(token->lexeme);
+            defineDirective.type = hintResult.type;
+            defineDirective.desc = hintResult.desc;
+        }
 
         return defineDirective;
     }
@@ -534,28 +599,27 @@ namespace stationeers::ic10 {
                 case KEYWORD_RGAS: return wide_cast<Operand>(parseConstant(layer));
                 default: {
                     // 理论上不会到这里，isStartToken 已过滤
-                    reporter_.errorWith<MsgId::IMP10_1>(
+                    reporter_.errorWith<MsgId::IEP10_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
 
                     return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP10_1>(enumToStr(current()->type))
+                        *current(), Loc::msgFormat<MsgId::IEP10_1>(enumToStr(current()->type))
                     };
                 }
             }
         }
 
         // 情况2：是停止点（语句开始/行结束）→ 不消耗，返回 ErrorNode
-        if (current()->type == TokenType::NEWLINE ||
-            current()->type == TokenType::END ||
-            isStatementStart(current()->type)) {
-            reporter_.error<MsgId::IMP17>(current()->pos, endPos(*current()));
+        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
+            || isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IEP17>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP17>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP17>()};
         }
 
         // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<MsgId::IMP10_1>(
+        reporter_.errorWith<MsgId::IEP10_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
@@ -572,9 +636,7 @@ namespace stationeers::ic10 {
         try {
             reg.value = expect(TokenType::REGISTER)->lexeme;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         return reg;
     }
@@ -594,16 +656,15 @@ namespace stationeers::ic10 {
         }
 
         // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE ||
-            current()->type == TokenType::END ||
-            isStatementStart(current()->type)) {
-            reporter_.error<MsgId::IMP18>(current()->pos, endPos(*current()));
+        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
+            || isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IEP18>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP18>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP18>()};
         }
 
         // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<MsgId::IMP11_1>(
+        reporter_.errorWith<MsgId::IEP11_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
@@ -627,16 +688,15 @@ namespace stationeers::ic10 {
         }
 
         // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE ||
-            current()->type == TokenType::END ||
-            isStatementStart(current()->type)) {
-            reporter_.error<MsgId::IMP19>(current()->pos, endPos(*current()));
+        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
+            || isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IEP19>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP19>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP19>()};
         }
 
         // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<MsgId::IMP12_1>(
+        reporter_.errorWith<MsgId::IEP12_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
@@ -664,28 +724,27 @@ namespace stationeers::ic10 {
                 case IDENTIFIER:
                 case REGISTER: return wide_cast<DeviceReference>(parseRegisterOrIdentifier(layer));
                 default: {
-                    reporter_.errorWith<MsgId::IMP13_1>(
+                    reporter_.errorWith<MsgId::IEP13_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
 
                     return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP13_1>(enumToStr(current()->type))
+                        *current(), Loc::msgFormat<MsgId::IEP13_1>(enumToStr(current()->type))
                     };
                 }
             }
         }
 
         // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE ||
-            current()->type == TokenType::END ||
-            isStatementStart(current()->type)) {
-            reporter_.error<MsgId::IMP20>(current()->pos, endPos(*current()));
+        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
+            || isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IEP20>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP20>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP20>()};
         }
 
         // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<MsgId::IMP13_1>(
+        reporter_.errorWith<MsgId::IEP13_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
@@ -710,7 +769,8 @@ namespace stationeers::ic10 {
             switch (current()->type) {
                 using enum TokenType;
                 case REGISTER:
-                case IDENTIFIER: return wide_cast<RegisterOrNumber>(parseRegisterOrIdentifier(layer));
+                case IDENTIFIER:
+                    return wide_cast<RegisterOrNumber>(parseRegisterOrIdentifier(layer));
                 case INTEGER:
                 case FLOAT:
                 case HEX_NUMBER:
@@ -727,28 +787,27 @@ namespace stationeers::ic10 {
                 case KEYWORD_EPSILON:
                 case KEYWORD_RGAS: return wide_cast<RegisterOrNumber>(parseConstant(layer));
                 default: {
-                    reporter_.errorWith<MsgId::IMP10_1>(
+                    reporter_.errorWith<MsgId::IEP10_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
 
                     return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP10_1>(enumToStr(current()->type))
+                        *current(), Loc::msgFormat<MsgId::IEP10_1>(enumToStr(current()->type))
                     };
                 }
             }
         }
 
         // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE ||
-            current()->type == TokenType::END ||
-            isStatementStart(current()->type)) {
-            reporter_.error<MsgId::IMP17>(current()->pos, endPos(*current()));
+        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
+            || isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IEP17>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP17>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP17>()};
         }
 
         // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<MsgId::IMP10_1>(
+        reporter_.errorWith<MsgId::IEP10_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
@@ -789,28 +848,27 @@ namespace stationeers::ic10 {
                 case KEYWORD_EPSILON:
                 case KEYWORD_RGAS: return wide_cast<NumberValue>(parseConstant(layer));
                 default: {
-                    reporter_.errorWith<MsgId::IMP15_1>(
+                    reporter_.errorWith<MsgId::IEP15_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
 
                     return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP15_1>(enumToStr(current()->type))
+                        *current(), Loc::msgFormat<MsgId::IEP15_1>(enumToStr(current()->type))
                     };
                 }
             }
         }
 
         // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE ||
-            current()->type == TokenType::END ||
-            isStatementStart(current()->type)) {
-            reporter_.error<MsgId::IMP22>(current()->pos, endPos(*current()));
+        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
+            || isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IEP22>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP22>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP22>()};
         }
 
         // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<MsgId::IMP15_1>(
+        reporter_.errorWith<MsgId::IEP15_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
@@ -844,28 +902,27 @@ namespace stationeers::ic10 {
                 case DEVICE: return wide_cast<DeviceAliasRef>(parseDevice(layer));
                 case IDENTIFIER: return wide_cast<DeviceAliasRef>(parseIdentifier(layer));
                 default: {
-                    reporter_.errorWith<MsgId::IMP13_1>(
+                    reporter_.errorWith<MsgId::IEP13_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
 
                     return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP13_1>(enumToStr(current()->type))
+                        *current(), Loc::msgFormat<MsgId::IEP13_1>(enumToStr(current()->type))
                     };
                 }
             }
         }
 
         // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE ||
-            current()->type == TokenType::END ||
-            isStatementStart(current()->type)) {
-            reporter_.error<MsgId::IMP20>(current()->pos, endPos(*current()));
+        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
+            || isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IEP20>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP20>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP20>()};
         }
 
         // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<MsgId::IMP13_1>(
+        reporter_.errorWith<MsgId::IEP13_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
@@ -889,16 +946,15 @@ namespace stationeers::ic10 {
         }
 
         // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE ||
-            current()->type == TokenType::END ||
-            isStatementStart(current()->type)) {
-            reporter_.error<MsgId::IMP21>(current()->pos, endPos(*current()));
+        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
+            || isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IEP21>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP21>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP21>()};
         }
 
         // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<MsgId::IMP14_1>(
+        reporter_.errorWith<MsgId::IEP14_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
@@ -919,9 +975,7 @@ namespace stationeers::ic10 {
         try {
             hashCall.value = parseString(++layer);
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         hashCall.endPosition = expect(TokenType::RPAREN)->pos;
 
@@ -942,9 +996,7 @@ namespace stationeers::ic10 {
         try {
             strCall.endPosition = expect(TokenType::RPAREN)->pos;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
 
         return strCall;
@@ -958,9 +1010,7 @@ namespace stationeers::ic10 {
         try {
             constant.keyword = current()->lexeme;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         consume();
 
@@ -1018,28 +1068,27 @@ namespace stationeers::ic10 {
                 case BINARY_NUMBER:
                     return wide_cast<Errorable<Identifier, Number>>(parseNumber(layer));
                 default: {
-                    reporter_.errorWith<MsgId::IMP15_1>(
+                    reporter_.errorWith<MsgId::IEP15_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
 
                     return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP15_1>(enumToStr(current()->type))
+                        *current(), Loc::msgFormat<MsgId::IEP15_1>(enumToStr(current()->type))
                     };
                 }
             }
         }
 
         // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE ||
-            current()->type == TokenType::END ||
-            isStatementStart(current()->type)) {
-            reporter_.error<MsgId::IMP22>(current()->pos, endPos(*current()));
+        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
+            || isStatementStart(current()->type)) {
+            reporter_.error<MsgId::IEP22>(current()->pos, endPos(*current()));
 
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IMP22>()};
+            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP22>()};
         }
 
         // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<MsgId::IMP15_1>(
+        reporter_.errorWith<MsgId::IEP15_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
@@ -1056,9 +1105,7 @@ namespace stationeers::ic10 {
         try {
             device.value = expect(TokenType::DEVICE)->lexeme;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         return device;
     }
@@ -1071,9 +1118,7 @@ namespace stationeers::ic10 {
         try {
             string.value = expect(TokenType::STRING)->lexeme;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         return string;
     }
@@ -1086,9 +1131,7 @@ namespace stationeers::ic10 {
         try {
             identifier.value = expect(TokenType::IDENTIFIER)->lexeme;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         return identifier;
     }
@@ -1112,12 +1155,12 @@ namespace stationeers::ic10 {
                 case HEX_NUMBER: return wide_cast<Number>(parseHexNumber(layer));
                 case BINARY_NUMBER: return wide_cast<Number>(parseBinaryNumber(layer));
                 default: {
-                    reporter_.errorWith<MsgId::IMP16_1>(
+                    reporter_.errorWith<MsgId::IEP16_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
 
                     return ErrorNode{
-                        *current(), Loc::msgFormat<MsgId::IMP16_1>(enumToStr(current()->type))
+                        *current(), Loc::msgFormat<MsgId::IEP16_1>(enumToStr(current()->type))
                     };
                 }
             }
@@ -1130,9 +1173,7 @@ namespace stationeers::ic10 {
         try {
             integer.value = expect(TokenType::INTEGER)->lexeme;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         return integer;
     }
@@ -1143,9 +1184,7 @@ namespace stationeers::ic10 {
         try {
             floatNum.value = expect(TokenType::FLOAT)->lexeme;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         return floatNum;
     }
@@ -1156,9 +1195,7 @@ namespace stationeers::ic10 {
         try {
             hexNum.value = expect(TokenType::HEX_NUMBER)->lexeme;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         return hexNum;
     }
@@ -1169,9 +1206,7 @@ namespace stationeers::ic10 {
         try {
             binNum.value = expect(TokenType::BINARY_NUMBER)->lexeme;
 
-        } catch (const Error& e) {
-            return ErrorNode{*current(), {e.message().data()}};
-        }
+        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
         return binNum;
     }

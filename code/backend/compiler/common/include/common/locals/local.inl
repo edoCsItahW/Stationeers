@@ -84,21 +84,27 @@ namespace stationeers {
 #ifndef _MSC_VER
     template<IsMsgPack P>
     template<typename Local<P>::E I, std::size_t N>
+    #ifdef IC10_LOCAL_ARGS_CHECK
         requires number_of_args_check<typename Local<P>::E, I, N>
+    #endif
     auto Local<P>::msg() {
         return language_->template getMsg<I>();
     }
 
     template<IsMsgPack P>
     template<typename Local<P>::E I>
+    #ifdef IC10_LOCAL_ARGS_CHECK
         requires number_of_args_check<typename Local<P>::E, I, 0>
+    #endif
     std::string Local<P>::msgStr() {
         return std::string(msg<I, 0>());
     }
 
     template<IsMsgPack P>
     template<typename Local<P>::E I, typename... Args>
+    #ifdef IC10_LOCAL_ARGS_CHECK
         requires number_of_args_check<typename Local<P>::E, I, sizeof...(Args)>
+    #endif
     auto Local<P>::msgFormat(Args&&... args) {
         return std::apply(
             [&](const auto&... unpacked) {

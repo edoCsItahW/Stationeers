@@ -15,6 +15,7 @@
 
 import os
 import sys
+import json
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "python", "ic10"))
@@ -32,6 +33,7 @@ from ic10_python import (
     IncParserResult,
     IncCompiler,
     IncCompileResult,
+    TokenType,
 )
 
 
@@ -43,6 +45,16 @@ def setup_module(module):
 # ============================================================
 # 辅助函数
 # ============================================================
+
+def compile_program(source):
+    """完整编译：源码 → 词法 → 语法 → 语义"""
+    tokens = Lexer.tokenize(source)
+    parser = Parser(tokens)
+    program = parser.parse()
+    analyser = Analyser()
+    analyser.visit(program)
+    return program, parser, analyser
+
 
 SRC_SIMPLE = "\n".join([
     "alias ic d0",
@@ -329,3 +341,84 @@ class TestIncrementalPipeline:
 
         parse_inc = p.parseInc(lex_inc.tokens, lex_inc.changedStartLine)
         assert isinstance(parse_inc.ast, Program)
+
+
+# ============================================================
+# 文档注释与类型提示集成测试
+# ============================================================
+
+class TestDocCommentsIntegration:
+    """Integration tests for doc comments and type hints."""
+
+    def test_doc_comment_tokens_flow(self):
+        """文档注释 tokens 通过完整编译流水线"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Furnace",
+            "#> @end-device",
+        ]) + "\n"
+
+        tokens = Lexer.tokenize(source)
+        parser = Parser(tokens)
+        program = parser.parse()
+
+        doc_comment_tokens = [t for t in tokens if t.type == TokenType.DOC_COMMENT]
+        assert len(doc_comment_tokens) > 0
+        assert len(program.statements) == 1
+
+    def test_type_hint_tokens_flow(self):
+        """类型提示 tokens 通过完整编译流水线"""
+        source = "alias myFurnace d0 #: @type Furnace\n"
+
+        tokens = Lexer.tokenize(source)
+        parser = Parser(tokens)
+        program = parser.parse()
+
+        type_hint_tokens = [t for t in tokens if t.type == TokenType.TYPE_HINT]
+        assert len(type_hint_tokens) == 1
+        assert len(program.statements) == 1
+
+    def test_doc_comment_ast_serialization(self):
+        """文档注释 AST 序列化"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Furnace",
+            "#> @desc 炉窑",
+            "#> @end-device",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+        data = json.loads(program.toJSON())
+
+        assert len(data["statements"]) == 1
+        assert data["statements"][0]["type"] == "DeviceDocComment"
+        assert data["statements"][0]["name"] == "Furnace"
+
+    def test_alias_type_hint_ast_serialization(self):
+        """带类型提示的别名 AST 序列化"""
+        source = "alias myFurnace d0 #: @type Furnace\n"
+
+        program, parser, analyser = compile_program(source)
+        data = json.loads(program.toJSON())
+
+        assert len(data["statements"]) == 1
+        assert data["statements"][0]["type"] == "AliasDirective"
+        assert data["statements"][0]["aliasType"] == "Furnace"
+
+    def test_mixed_doc_comments_pipeline(self):
+        """混合文档注释和代码的完整流水线"""
+        source = "\n".join([
+            "#> @device",
+            "#> @name Pump",
+            "#> @end-device",
+            "alias pump d0 #: @type Pump",
+            "main:",
+            "l r0 pump Pressure",
+            "hcf",
+        ]) + "\n"
+
+        program, parser, analyser = compile_program(source)
+
+        assert len(parser.diagnostics) == 0
+        assert len(program.statements) == 5
+        assert analyser is not None
