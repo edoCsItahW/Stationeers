@@ -447,6 +447,10 @@ class TestDocCommentsAndTypeHints:
     def test_alias_with_type_hint(self):
         """带类型提示的别名定义"""
         source = "\n".join([
+            "#> @device",
+            "#> @name Furnace",
+            "#> @logic Pressure r",
+            "#> @end-device",
             "alias myDevice d0 #: @type Furnace",
             "alias myReg r0",
             "main:",
@@ -457,4 +461,4 @@ class TestDocCommentsAndTypeHints:
         program, parser, analyser = compile_program(source)
 
         assert len(parser.diagnostics) == 0
-        assert len(program.statements) == 5
+        assert len(program.statements) == 6

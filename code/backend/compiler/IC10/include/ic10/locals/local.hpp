@@ -111,7 +111,23 @@ namespace stationeers::ic10 {
 
         // Warnning
 
-        IWA1_1,  // '{}' is not a Label type - semantic analysis.
+        IWA1_1,   // '{}' is not a Register type - semantic analysis.
+        IWA2_1,   // '{}' is not a Device type - semantic analysis.
+        IWA3_1,   // '{}' is not a Register or Number type - semantic analysis.
+        IWA4_1,   // '{}' is not a Device or Register type - semantic analysis.
+        IWA5_1,   // '{}' is not a LogicSlot type - semantic analysis.
+        IWA6_1,   // '{}' is not a ReagentMode type - semantic analysis.
+        IWA7_1,   // '{}' is not a Label type - semantic analysis.
+        IWA8_1,   // '{}' is not a Logic type - semantic analysis.
+        IWA9_1,   // '{}' is not a SlotIndex type - semantic analysis.
+        IWA10_1,  // '{}' is not a BatchMode type - semantic analysis.
+        IWA11_2,  // '{}' is not within the LogicSlot of device '{}' - semantic analysis.
+        IWA12_1,  // '{}' is not a known LogicSlot - semantic analysis.
+        IWA13_1,  // '{}' is not a known ReagentMode - semantic analysis.
+        IWA14_2,  // '{}' is not within the Logic of device '{}' - semantic analysis.
+        IWA15_1,  // '{}' is not a known Logic - semantic analysis.
+        IWA16_2,  // '{}' is not within the Slot of device '{}' - semantic analysis.
+        IWA17_1,  // '{}' is not a known BatchMode - semantic analysis.
 
         // Error
 
@@ -121,6 +137,8 @@ namespace stationeers::ic10 {
         IEA4,    // An alias cannot be defined for another alias - semantic analysis.
         IEA5_1,  // Constant '{}' has been redefined - semantic analysis.
         IEA6,    // Unknown Grammar Type '{}' - semantic analysis.
+        IEA7_1,  // The Device '{}' should not be annotated as an Enum type - semantic analysis.
+        IEA8_1,  // Missing standard library type '{}' - semantic analysis.
     };
 
     template<typename, IC10MsgId>

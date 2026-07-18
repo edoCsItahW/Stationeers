@@ -143,7 +143,7 @@ namespace stationeers::ic10 {
         for (const auto& s : slots) {
             result += std::format(
                 "\n#> @slot {} {}", s.index,
-                s.direction == SlotDirection::INPUT ? "inout" : "output"
+                s.direction == SlotDirection::INPUT ? "input" : "output"
             );
 
             if (s.desc) result += std::format(" {}", s.desc->value);
