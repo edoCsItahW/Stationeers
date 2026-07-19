@@ -67,14 +67,14 @@ namespace stationeers::ic10 {
 
         // 分析结束，此时依然悬而未决的 Future 被确定为未定义，向所有等待者返回错误
         // Linker 场景下推迟到所有单元处理完后统一调用
-        if (!deferFailAllPending_)
-            symbolTable_->failAllPending();
+        if (!deferFailAllPending_) symbolTable_->failAllPending();
 
         co_return;
     }
 
     // 解析符号：从符号表取 Future 并等待结果，失败则转化为诊断
-    Task<std::shared_ptr<Symbol>> Analyser::resolveSymbol(const std::string& name, const Pos& pos) {
+    Task<std::shared_ptr<Symbol>> Analyser::resolveSymbol(const std::string& name, const Pos& pos
+    ) const {
         auto result = co_await std::move(symbolTable_->resolve(name, pos));
 
         // 解析失败：将异常重新抛出以捕获其消息，统一以 IE0_1 上报
@@ -102,7 +102,7 @@ namespace stationeers::ic10 {
     }
 
     // 定义符号：包装符号表 define，重定义时上报 IEA2_1
-    void Analyser::defineSymbol(const Identifier& identifier, Symbol&& symbol) {
+    void Analyser::defineSymbol(const Identifier& identifier, Symbol&& symbol) const {
         if (auto res = symbolTable_->define(identifier.value, std::make_shared<Symbol>(symbol));
             !res.has_value())
             reporter_->errorWith<IMsgId::IEA2_1>(
@@ -162,8 +162,11 @@ namespace stationeers::ic10 {
                     else if constexpr (std::is_same_v<V, ErrorNode>)
                         symbol.type = {};
 
-                    else if constexpr (std::is_same_v<V, Register>)
+                    else if constexpr (std::is_same_v<V, Register>) {
                         symbol.type = type_of<Register>;
+
+                        symbol.value = ins.value;
+                    }
 
                     else if constexpr (std::is_same_v<V, Device>) {
                         symbol.type = type_of<Device>;
@@ -175,8 +178,13 @@ namespace stationeers::ic10 {
                         symbol.type = type_of<V>;
                     }
 
-                    if (aliasDirective.type.has_value())
+                    // 有类型注释
+                    if (aliasDirective.type.has_value()) {
                         symbol.type.typeName = aliasDirective.type.value();
+
+                        if (auto it = symbolTable_->builtinSymbols.find(*symbol.value); it != symbolTable_->builtinSymbols.end())
+                            it->second.type.typeName = aliasDirective.type.value();
+                    }
 
                     if (aliasDirective.desc.has_value()) symbol.desc = aliasDirective.desc.value();
 
@@ -185,7 +193,8 @@ namespace stationeers::ic10 {
                 aliasDirective.registerOrDevice
             );
 
-            if (aliasDirective.type) {
+            // 如果存在类型注释，先检查是否给设备进行了错误的枚举注释
+            if (aliasDirective.type)
                 if (auto* typePtr = typeTable_->find(aliasDirective.type.value()); typePtr)
                     std::visit(
                         [&]<typename T>(T&&) {
@@ -198,7 +207,7 @@ namespace stationeers::ic10 {
                         },
                         *typePtr
                     );
-            }
+
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
@@ -258,7 +267,14 @@ namespace stationeers::ic10 {
                         symbol.value = ins.value;
                     }
 
-                    if (defineDirective.type) symbol.type.typeName = defineDirective.type.value();
+                    if (defineDirective.type) {
+                        std::cout << defineDirective.type.value() << std::endl;
+                        if (*defineDirective.type == "__register__")
+                            symbol.type = type_of<Register>;
+
+                        else if (*defineDirective.type == "__device__")
+                            symbol.type = type_of<Device>;
+                    }
 
                     if (defineDirective.desc) symbol.desc = defineDirective.desc.value();
 

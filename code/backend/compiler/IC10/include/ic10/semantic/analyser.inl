@@ -19,22 +19,24 @@
 
 #include "ic10/locals/local.hpp"
 
-
 namespace stationeers::ic10 {
 
     template<IMsgId I, auto... Vs>
-    requires (... && (std::is_same_v<decltype(Vs), BasicType> || std::is_same_v<decltype(Vs), TypeCategory>))
+        requires(
+            ...
+            && (std::is_same_v<decltype(Vs), BasicType>
+                || std::is_same_v<decltype(Vs), TypeCategory>)
+        )
     bool Analyser::checkOperandType(const std::shared_ptr<Symbol>& symbol, auto&& arg) const {
         auto flag = (... || ([&]<auto V> {
-            using T = decltype(V);
+                         using T = decltype(V);
 
-            if constexpr (std::is_same_v<T, BasicType>)
-                return symbol->type.kind == V;
+                         if constexpr (std::is_same_v<T, BasicType>)
+                             return symbol->type.kind == V;
 
-            else
-                return symbol->type.category == V;
-
-        }.template operator()<Vs>()));
+                         else
+                             return symbol->type.category == V;
+                     }.template operator()<Vs>()));
 
         if (!flag) reporter_->errorWith<I>(arg.start(), arg.end(), symbol->name);
 
@@ -88,8 +90,8 @@ namespace stationeers::ic10 {
                         // 设备特定检查通过（返回 true）则跳过通用 IdentifierChecker
                         if (pendingDeviceSymbol_
                             && checkWithDeviceContext<Type>(
-                                *sym, *pendingDeviceSymbol_->symbol,
-                                pendingDeviceSymbol_->start, pendingDeviceSymbol_->end
+                                *sym, *pendingDeviceSymbol_->symbol, pendingDeviceSymbol_->start,
+                                pendingDeviceSymbol_->end
                             ))
                             co_return;
 
@@ -98,15 +100,17 @@ namespace stationeers::ic10 {
                     }
                     // 设备引用/别名：需 resolve 以获取设备符号（可能为前向引用）
                     // 注意：必须通过 resolveSymbol（Task<shared_ptr<Symbol>>）而非直接 resolve，
-                    // 因为 process 是 Task<void>，其 coro_state_weak_ 未设置，无法注册为 Future 等待者，
-                    // 直接 co_await resolve 会导致协程永久挂起且 rethrow 永远不被调用。
-                    // resolveSymbol 是非 void Task，可正确注册为等待者，被 failAllPending 恢复后上报 IE0_1。
+                    // 因为 process 是 Task<void>，其 coro_state_weak_ 未设置，无法注册为 Future
+                    // 等待者， 直接 co_await resolve 会导致协程永久挂起且 rethrow 永远不被调用。
+                    // resolveSymbol 是非 void Task，可正确注册为等待者，被 failAllPending
+                    // 恢复后上报 IE0_1。
                     else if constexpr (
                         Type == OperandType::DEV_REF || Type == OperandType::DEV_ALIAS
                     ) {
                         auto result = co_await resolveSymbol(arg.value, arg.position);
 
-                        // resolveSymbol 失败时已由内部 rethrow 上报 IE0_1，result.value() 为 nullptr
+                        // resolveSymbol 失败时已由内部 rethrow 上报 IE0_1，result.value() 为
+                        // nullptr
                         if (result.has_value() && result.value())
                             pendingDeviceSymbol_ = {
                                 std::move(result.value()), arg.start(), arg.end()
@@ -126,11 +130,18 @@ namespace stationeers::ic10 {
 
                 else if constexpr (std::is_same_v<U, Device>) {
                     if constexpr (Type == OperandType::DEV_REF || Type == OperandType::DEV_ALIAS) {
-                        auto devSym = std::make_shared<Symbol>(arg.value, type_of<Device>);
+                        std::shared_ptr<Symbol> devSym;
+
+                        if (auto it = symbolTable_->builtinSymbols.find(arg.value);
+                            it != symbolTable_->builtinSymbols.end())
+                            devSym = std::make_shared<Symbol>(it->second);
+                        else
+                            devSym = std::make_shared<Symbol>(arg.value, type_of<Device>);
 
                         pendingDeviceSymbol_ = {devSym, arg.start(), arg.end()};
 
                         co_return;
+
                     } else
                         (void)co_await this->operator()(arg);
                 }
@@ -169,46 +180,36 @@ namespace stationeers::ic10 {
 
         if (const auto* ct = typeTable_->find(*typeName);
             ct && std::holds_alternative<DeviceType>(*ct)) {
-            const auto& dt = std::get<DeviceType>(*ct);
-            bool flag      = false;
-
-            switch (Type) {
-                case OperandType::LOGIC_SLOT:
-                    flag = std::ranges::contains(
+            if constexpr (
+                const auto& dt = std::get<DeviceType>(*ct); Type == OperandType::LOGIC_SLOT
+            ) {
+                if (!std::ranges::contains(
                         dt.logicSlots | std::views::transform(&DeviceLogicSlot::name),
                         currentSym.name
-                    );
+                    ))
+                    reporter_->errorWith<IMsgId::IWA11_2>(start, end, currentSym.name, *typeName);
 
-                    if (!flag)
-                        reporter_->errorWith<IMsgId::IWA11_2>(start, end, currentSym.name, *typeName);
-
-                    break;
-                case OperandType::LOGIC_TYPE:
-                    flag = std::ranges::contains(
+            } else if constexpr (Type == OperandType::LOGIC_TYPE) {
+                if (!std::ranges::contains(
                         dt.logics | std::views::transform(&DeviceLogic::name), currentSym.name
-                    );
+                    ))
+                    reporter_->errorWith<IMsgId::IWA14_2>(start, end, currentSym.name, *typeName);
 
-                    if (!flag)
-                        reporter_->errorWith<IMsgId::IWA14_2>(start, end, currentSym.name, *typeName);
-
-                    break;
-                case OperandType::SLOT_IDX:
-                    if (currentSym.value) {
-                        flag = std::ranges::contains(
+            } else if constexpr (Type == OperandType::SLOT_IDX) {
+                if (currentSym.value) {
+                    if (!std::ranges::contains(
                             dt.slots | std::views::transform(&DeviceSlot::index), *currentSym.value
+                        ))
+                        reporter_->errorWith<IMsgId::IWA16_2>(
+                            start, end, *currentSym.value, *typeName
                         );
 
-                        if (!flag)
-                            reporter_->errorWith<IMsgId::IWA16_2>(
-                                start, end, *currentSym.value, *typeName
-                            );
-                    } else
-                        // 无法获取数值 → 回落
-                        return false;
+                } else
+                    // 无法获取数值 → 回落
+                    return false;
 
-                    break;
-                default: return false;
-            }
+            } else
+                return false;
 
             // 设备类型已找到：无论逻辑名是否匹配，检查都已在此完成，
             // 调用方不应再回落到 IdentifierChecker（否则会重复上报相同诊断）。
@@ -231,13 +232,11 @@ namespace stationeers::ic10 {
         if constexpr (constexpr auto enumName = operand_type_name_v<Type>; enumName != "~") {
             if (auto* enumType = typeTable_->find(std::string(enumName));
                 enumType && std::holds_alternative<EnumType>(*enumType)) {
-                bool found = std::ranges::contains(
-                    std::get<EnumType>(*enumType).values
-                        | std::views::transform(&EnumValueEntry::name),
-                    name
-                );
-
-                if (!found) {
+                if (!std::ranges::contains(
+                        std::get<EnumType>(*enumType).values
+                            | std::views::transform(&EnumValueEntry::name),
+                        name
+                    )) {
                     // 按操作数类型分派到对应诊断消息
                     if constexpr (Type == OperandType::LOGIC_SLOT)
                         reporter_->errorWith<IMsgId::IWA12_1>(start, end, name);
@@ -318,30 +317,39 @@ namespace stationeers::ic10 {
         return true;
     }
 
+    // Register or Identifier - Register | Identifier
     bool Analyser::IdentifierChecker<OperandType::REG_IDENT>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
         return self->checkOperandType<IMsgId::IWA1_1, BasicType::REGISTER>(symbol, arg);
     }
 
+    // Device Alias - Device | Identifier
     bool Analyser::IdentifierChecker<OperandType::DEV_ALIAS>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
         return self->checkOperandType<IMsgId::IWA2_1, BasicType::DEVICE>(symbol, arg);
     }
 
+    // Register or Number - Register | Identifier | [Number]
     bool Analyser::IdentifierChecker<OperandType::REG_NUM>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
-        return self->checkOperandType<IMsgId::IWA3_1, BasicType::REGISTER, TypeCategory::NUMBER>(symbol, arg);
+        return self->checkOperandType<IMsgId::IWA3_1, BasicType::REGISTER, TypeCategory::NUMBER>(
+            symbol, arg
+        );
     }
 
+    // Device Reference - Device | Register | Identifier
     bool Analyser::IdentifierChecker<OperandType::DEV_REF>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
-        return self->checkOperandType<IMsgId::IWA4_1, BasicType::DEVICE, BasicType::REGISTER>(symbol, arg);
+        return self->checkOperandType<IMsgId::IWA4_1, BasicType::DEVICE, BasicType::REGISTER>(
+            symbol, arg
+        );
     }
 
+    // Logic Slot - Identifier | [Number]
     bool Analyser::IdentifierChecker<OperandType::LOGIC_SLOT>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
@@ -399,9 +407,7 @@ namespace stationeers::ic10 {
             );
 
             if (!isLogicSlot)
-                return self->checkOperandType<IMsgId::IWA5_1, TypeCategory::NUMBER>(
-                    symbol, arg
-                );
+                return self->checkOperandType<IMsgId::IWA5_1, TypeCategory::NUMBER>(symbol, arg);
 
         } else
             self->reporter_->errorWith<IMsgId::IEA8_1>(arg.start(), arg.end(), "LogicSlotType");
@@ -409,6 +415,7 @@ namespace stationeers::ic10 {
         return false;
     }
 
+    // Reagent Mode - Identifier | [Number]
     bool Analyser::IdentifierChecker<OperandType::REAGENT_MODE>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
@@ -436,15 +443,14 @@ namespace stationeers::ic10 {
             );
 
             if (!isReagentMode)
-                return self->checkOperandType<IMsgId::IWA6_1, TypeCategory::NUMBER>(
-                    symbol, arg
-                );
+                return self->checkOperandType<IMsgId::IWA6_1, TypeCategory::NUMBER>(symbol, arg);
         } else
             self->reporter_->errorWith<IMsgId::IEA8_1>(arg.start(), arg.end(), "ReagentMode");
 
         return false;
     }
 
+    // Jump Target - Identifier | [Number]
     bool Analyser::IdentifierChecker<OperandType::JUMP_TARGET>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
@@ -453,6 +459,7 @@ namespace stationeers::ic10 {
         );
     }
 
+    // Logic Type - Identifier | [Number]
     bool Analyser::IdentifierChecker<OperandType::LOGIC_TYPE>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
@@ -520,9 +527,7 @@ namespace stationeers::ic10 {
             );
 
             if (!isLogicSlot)
-                return self->checkOperandType<IMsgId::IWA8_1, TypeCategory::NUMBER>(
-                    symbol, arg
-                );
+                return self->checkOperandType<IMsgId::IWA8_1, TypeCategory::NUMBER>(symbol, arg);
 
         } else
             self->reporter_->errorWith<IMsgId::IEA8_1>(arg.start(), arg.end(), "LogicType");
@@ -530,6 +535,7 @@ namespace stationeers::ic10 {
         return false;
     }
 
+    // Slot Index - [Number]
     bool Analyser::IdentifierChecker<OperandType::SLOT_IDX>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
@@ -561,11 +567,10 @@ namespace stationeers::ic10 {
             );
         }
 
-        return self->checkOperandType<IMsgId::IWA9_1, TypeCategory::NUMBER>(
-            symbol, arg
-        );
+        return self->checkOperandType<IMsgId::IWA9_1, TypeCategory::NUMBER>(symbol, arg);
     }
 
+    // Batch Mode - Identifier | [Number]
     bool Analyser::IdentifierChecker<OperandType::BATCH_MODE>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
@@ -593,9 +598,7 @@ namespace stationeers::ic10 {
             );
 
             if (!isBatchMode)
-                return self->checkOperandType<IMsgId::IWA10_1, TypeCategory::NUMBER>(
-                    symbol, arg
-                );
+                return self->checkOperandType<IMsgId::IWA10_1, TypeCategory::NUMBER>(symbol, arg);
         } else
             self->reporter_->errorWith<IMsgId::IEA8_1>(arg.start(), arg.end(), "BatchMode");
 

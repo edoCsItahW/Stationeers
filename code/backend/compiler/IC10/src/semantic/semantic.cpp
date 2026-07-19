@@ -25,7 +25,8 @@ namespace stationeers::ic10 {
     std::string Symbol::toJSON() const {
         return std::format(
             R"({{ "name": "{}", "type": "{}", "category": "{}", "typeName": {}, "value": {}, "desc": {} }})",
-            name, enumToStr(type.kind), enumToStr(type.category), type.typeName ? '"' + *type.typeName + '"' : "null",
+            name, enumToStr(type.kind), enumToStr(type.category),
+            type.typeName ? '"' + *type.typeName + '"' : "null",
             value ? '"' + *value + '"' : "null", desc ? '"' + *desc + '"' : "null"
         );
     }
@@ -35,6 +36,17 @@ namespace stationeers::ic10 {
     bool SymbolTable::Entry::ready() const { return future.isReady(); }
 
     // SymbolTable
+
+    SymbolTable::SymbolTable() {
+        auto pairs =
+            std::views::iota(0, 6) | std::views::transform([](const int x) {
+                auto key = std::string("d") + std::to_string(x);
+                return std::pair(key, Symbol{.name = std::move(key), .type = type_of<Device>});
+            })
+            | std::ranges::to<std::vector<std::pair<std::string, Symbol>>>();
+
+        builtinSymbols = {pairs.begin(), pairs.end()};
+    }
 
     std::expected<void, std::string> SymbolTable::define(
         const std::string& name, const std::shared_ptr<Symbol>& symbol
@@ -61,8 +73,7 @@ namespace stationeers::ic10 {
     }
 
     bool SymbolTable::contains(const std::string& name) const {
-        if (auto it = symbols_.find(name); it != symbols_.end())
-            return it->second.ready();
+        if (auto it = symbols_.find(name); it != symbols_.end()) return it->second.ready();
         return false;
     }
 
