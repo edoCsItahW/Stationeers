@@ -282,6 +282,8 @@ namespace stationeers::ic10 {
         std::unordered_map<std::string, Entry> symbols_;
 
     public:
+        std::unordered_map<std::string, Symbol> builtinSymbols;
+
         /**
          * @if zh
          * @brief 默认构造函数
@@ -289,7 +291,7 @@ namespace stationeers::ic10 {
          * @brief Default constructor
          * @endif
          */
-        SymbolTable() = default;
+        SymbolTable();
 
         /**
          * @if zh
