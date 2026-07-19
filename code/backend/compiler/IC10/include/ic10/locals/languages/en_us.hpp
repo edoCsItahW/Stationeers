@@ -247,7 +247,8 @@ namespace stationeers::ic10 {
 
 Usage: {}
 
-[options] <input-file>
+[options] <input-file>...
+       [options] --link <input-file>...
 
 Options:
   -h, --help           Show this help message and exit
@@ -259,6 +260,9 @@ Stage selection:
   --emit-ast           Output AST as JSON and exit
   --emit-symbols       Perform semantic analysis and output symbol table as JSON
                        (default if no --emit-* option is specified)
+  --link               Link multiple compilation units and output the merged
+                       symbol table. Multiple input files are allowed; ignores
+                       --emit-tokens/--emit-ast and forces symbol-table output.
 
 Output format:
   --pretty             Pretty-print JSON output

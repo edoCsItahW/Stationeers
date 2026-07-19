@@ -60,7 +60,11 @@ namespace stationeers::ic10 {
         return {};
     }
 
-    bool SymbolTable::contains(const std::string& name) const { return symbols_.contains(name); }
+    bool SymbolTable::contains(const std::string& name) const {
+        if (auto it = symbols_.find(name); it != symbols_.end())
+            return it->second.ready();
+        return false;
+    }
 
     std::string SymbolTable::toJSON() const {
         std::stringstream ss;
