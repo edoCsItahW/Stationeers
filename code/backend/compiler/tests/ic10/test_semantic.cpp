@@ -50,8 +50,8 @@ namespace {
     class SemanticTestFixture : public ::testing::Test {
     protected:
         static void SetUpTestSuite() {
-            Loc::registerLanguage<ZhHans>("zh-hans");
-            Loc::setLanguage("zh-hans");
+            ILoc::registerLanguage<ZhHans>("zh-hans");
+            ILoc::setLanguage("zh-hans");
         }
 
         /// @brief 完整编译流水线结果 / Full compilation pipeline result

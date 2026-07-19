@@ -137,16 +137,16 @@ namespace stationeers::ic10 {
     // -------- 解析入口 --------
     Errorable<DocComment> DocParser::parseDocCommentBlock() {
         if (!inScope() || current()->type != TokenType::DOC_COMMENT) {
-            reporter_.error<MsgId::IEP27>(current()->pos, endPos(*current()));
-            return ErrorNode{*current(), Loc::msgStr<MsgId::IEP27>()};
+            reporter_.error<IMsgId::IEP27>(current()->pos, endPos(*current()));
+            return ErrorNode{*current(), ILoc::msgStr<IMsgId::IEP27>()};
         }
 
         auto firstTag = tryParseDocTag(current()->lexeme);
         if (!firstTag) {
-            reporter_.error<MsgId::IEP27>(current()->pos, endPos(*current()));
+            reporter_.error<IMsgId::IEP27>(current()->pos, endPos(*current()));
             auto err = *current();
             consume();
-            return ErrorNode{err, Loc::msgStr<MsgId::IEP27>()};
+            return ErrorNode{err, ILoc::msgStr<IMsgId::IEP27>()};
         }
 
         auto [tagType, _] = *firstTag;
@@ -157,10 +157,10 @@ namespace stationeers::ic10 {
         if (tagType == DocTagType::ENUM)
             return wide_cast<DocComment>(parseEnumDocCommentBlock());
 
-        reporter_.errorWith<MsgId::IEP30>(current()->pos, endPos(*current()));
+        reporter_.errorWith<IMsgId::IEP30>(current()->pos, endPos(*current()));
         auto err = *current();
         consume();
-        return ErrorNode{err, Loc::msgFormat<MsgId::IEP30>()};
+        return ErrorNode{err, ILoc::msgFormat<IMsgId::IEP30>()};
     }
 
     // -------- 设备块解析（简化后） --------
@@ -181,7 +181,7 @@ namespace stationeers::ic10 {
             auto tagInfo = tryParseDocTag(current()->lexeme);
             if (!tagInfo) {
                 // 无效标签 → 报告错误，消耗 token，继续扫描
-                reporter_.error<MsgId::IEP27>(current()->pos, endPos(*current()));
+                reporter_.error<IMsgId::IEP27>(current()->pos, endPos(*current()));
                 consume();
                 continue;
             }
@@ -197,12 +197,12 @@ namespace stationeers::ic10 {
                 it->second(args, doc);
             else
                 // 未知标签 → 报告错误（不中断循环）
-                reporter_.errorWith<MsgId::IEP30>(current()->pos, endPos(*current()));
+                reporter_.errorWith<IMsgId::IEP30>(current()->pos, endPos(*current()));
 
             consume();  // 消费当前 DOC_COMMENT
         }
 
-        if (!ended) reporter_.error<MsgId::IEP28>(current()->pos, endPos(*current()));
+        if (!ended) reporter_.error<IMsgId::IEP28>(current()->pos, endPos(*current()));
         return doc;
     }
 
@@ -238,7 +238,7 @@ namespace stationeers::ic10 {
             consume();
         }
 
-        if (!ended) reporter_.error<MsgId::IEP29>(current()->pos, endPos(*current()));
+        if (!ended) reporter_.error<IMsgId::IEP29>(current()->pos, endPos(*current()));
         return doc;
     }
 

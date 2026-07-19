@@ -25,8 +25,8 @@ using namespace stationeers::ic10;
 class ParserTestFixture : public ::testing::Test {
 protected:
     static void SetUpTestSuite() {
-        Loc::registerLanguage<ZhHans>("zh-hans");
-        Loc::setLanguage("zh-hans");
+        ILoc::registerLanguage<ZhHans>("zh-hans");
+        ILoc::setLanguage("zh-hans");
     }
 
     static Program parse(const std::string& source) {

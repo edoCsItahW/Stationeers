@@ -28,8 +28,8 @@ namespace {
 void initLocale() {
     static bool initialized = false;
     if (!initialized) {
-        Loc::registerLanguage<ZhHans>("zh-hans");
-        Loc::setLanguage("zh-hans");
+        ILoc::registerLanguage<ZhHans>("zh-hans");
+        ILoc::setLanguage("zh-hans");
         initialized = true;
     }
 }
