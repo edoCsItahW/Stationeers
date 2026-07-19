@@ -539,7 +539,7 @@ namespace stationeers::ic10 {
             );
         };
 
-        template<typename T, T V, MsgId I>
+        template<typename T, T V, IMsgId I>
         bool checkOperandType(const std::shared_ptr<Symbol>& symbol, auto&& arg) const;
 
         template<OperandType Type>

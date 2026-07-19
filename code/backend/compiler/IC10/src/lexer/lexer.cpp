@@ -167,7 +167,7 @@ namespace stationeers::ic10 {
         // finally:
         // 令牌边界检查：数字后若紧跟字母/数字/下划线，说明缺少空白分隔
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
-            reporter_.errorWith<MsgId::IEL3_2>(
+            reporter_.errorWith<IMsgId::IEL3_2>(
                 pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
             );
         }
@@ -191,7 +191,7 @@ namespace stationeers::ic10 {
 
         // 令牌边界检查
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
-            reporter_.errorWith<MsgId::IEL3_2>(
+            reporter_.errorWith<IMsgId::IEL3_2>(
                 pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
             );
         }
@@ -212,7 +212,7 @@ namespace stationeers::ic10 {
 
         // 令牌边界检查
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
-            reporter_.errorWith<MsgId::IEL3_2>(
+            reporter_.errorWith<IMsgId::IEL3_2>(
                 pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
             );
         }
@@ -244,7 +244,7 @@ namespace stationeers::ic10 {
 
         // 未闭合字符串：到达输入末尾或遇到换行符
         if (!inScope() || *current() == '\n') {
-            reporter_.errorWith<MsgId::IEL2_1>(
+            reporter_.errorWith<IMsgId::IEL2_1>(
                 start, stationeers::endPos(start, value.size()), std::string{1, '\"'}
             );
 
@@ -257,7 +257,7 @@ namespace stationeers::ic10 {
 
         // 令牌边界检查：字符串后若紧跟字母/数字/下划线，说明缺少空白分隔
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
-            reporter_.errorWith<MsgId::IEL3_2>(
+            reporter_.errorWith<IMsgId::IEL3_2>(
                 pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
             );
         }
@@ -355,7 +355,7 @@ namespace stationeers::ic10 {
             token = {it->second, start, std::string(1, *current()), TokenCategory::SYMBOL};
 
         else {
-            reporter_.errorWith<MsgId::IEL1_1>(start, endPos(token), std::string{1, *current()});
+            reporter_.errorWith<IMsgId::IEL1_1>(start, endPos(token), std::string{1, *current()});
 
             token = {TokenType::UNKNOWN, start, std::string(1, *current()), TokenCategory::INVALID};
         }

@@ -38,6 +38,7 @@
  * @endif
  */
 
+#include "common/utils/file.hpp"
 #include "ic10/lexer/lexer.hpp"
 #include "ic10/locals/languages/en_us.hpp"
 #include "ic10/locals/languages/zh_hans.hpp"
@@ -45,7 +46,6 @@
 #include "ic10/semantic/analyser.hpp"
 #include <cstdlib>
 #include <expected>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <span>
@@ -59,17 +59,19 @@ namespace stationeers::ic10 {
     //  命令行选项
     // -------------------------------------------------------------------------
 
-    struct Options {
-        std::string inputFile;    ///< 输入源文件路径
-        std::string outputFile;   ///< 输出文件路径（空表示stdout）
-        std::string locale = "zh-hans";  ///< 本地化语言
-        bool emitTokens = false;  ///< 输出Token流
-        bool emitAst = false;     ///< 输出AST
-        bool emitSymbols = false; ///< 输出符号表
-        bool pretty = false;      ///< 美化JSON输出
-        bool showHelp = false;    ///< 显示帮助
-        bool showVersion = false; ///< 显示版本
-    };
+    namespace {
+        struct Options {
+            std::string inputFile;         ///< 输入源文件路径
+            std::string outputFile;        ///< 输出文件路径（空表示stdout）
+            std::string locale = "en-us";  ///< 本地化语言
+            bool emitTokens    = false;    ///< 输出Token流
+            bool emitAst       = false;    ///< 输出AST
+            bool emitSymbols   = false;    ///< 输出符号表
+            bool pretty        = false;    ///< 美化JSON输出
+            bool showHelp      = false;    ///< 显示帮助
+            bool showVersion   = false;    ///< 显示版本
+        };
+    }  // namespace
 
     // -------------------------------------------------------------------------
     //  文件IO
@@ -80,17 +82,15 @@ namespace stationeers::ic10 {
      * @param filename 文件路径
      * @return 文件内容或错误信息
      */
-    auto readFile(const std::string& filename) -> std::expected<std::string, std::string> {
-        std::ifstream file(filename, std::ios::binary | std::ios::ate);
-        if (!file) return std::unexpected("无法打开文件: " + filename);
+    static std::string readFile(const std::string& filename) {
+        if (auto result = stationeers::readFile(filename); result)
+            return result.value();
 
-        const auto size = file.tellg();
-        file.seekg(0);
+        else {
+            std::cerr << result.error();
 
-        std::string content(static_cast<std::size_t>(size), '\0');
-        if (!file.read(content.data(), size)) return std::unexpected("读取文件失败: " + filename);
-
-        return content;
+            std::exit(1);
+        }
     }
 
     /**
@@ -98,17 +98,18 @@ namespace stationeers::ic10 {
      * @param content 输出内容
      * @param filename 文件路径（空则输出到stdout）
      */
-    void writeOutput(const std::string& content, const std::string& filename) {
+    static void writeOutput(const std::string& content, const std::string& filename) {
         if (filename.empty()) {
             std::cout << content << '\n';
+
             return;
         }
-        std::ofstream file(filename);
-        if (!file) {
-            std::cerr << "错误: 无法写入文件: " << filename << '\n';
+
+        if (auto result = writeFile(content, filename); !result) {
+            std::cerr << result.error();
+
             std::exit(1);
         }
-        file << content << '\n';
     }
 
     // -------------------------------------------------------------------------
@@ -120,10 +121,10 @@ namespace stationeers::ic10 {
      * @param json 紧凑JSON字符串
      * @return 格式化后的JSON字符串
      */
-    std::string prettyJSON(std::string_view json) {
+    static std::string prettyJSON(std::string_view json) {
         std::string result;
         result.reserve(json.size() * 2);
-        int indent = 0;
+        int indent    = 0;
         bool inString = false;
 
         for (std::size_t i = 0; i < json.size(); ++i) {
@@ -143,25 +144,29 @@ namespace stationeers::ic10 {
             if (ch == '{' || ch == '[') {
                 result += ch;
                 result += '\n';
-                indent += 2;
+                indent += 4;
                 result.append(indent, ' ');
+
             } else if (ch == '}' || ch == ']') {
                 result += '\n';
-                indent -= 2;
+                indent -= 4;
                 result.append(indent, ' ');
                 result += ch;
+
             } else if (ch == ',') {
                 result += ch;
                 result += '\n';
                 result.append(indent, ' ');
+
             } else if (ch == ':') {
                 result += ch;
                 result += ' ';
+
             } else if (ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r') {
                 // 跳过空白字符
-            } else {
+
+            } else
                 result += ch;
-            }
         }
         return result;
     }
@@ -175,7 +180,7 @@ namespace stationeers::ic10 {
      * @param args 参数列表（不包含程序名）
      * @return 解析后的选项或错误信息
      */
-    auto parseArgs(std::span<char*> args) -> std::expected<Options, std::string> {
+    static auto parseArgs(std::span<char*> args) -> std::expected<Options, std::string> {
         Options opts;
 
         for (std::size_t i = 0; i < args.size(); ++i) {
@@ -190,7 +195,8 @@ namespace stationeers::ic10 {
                 return opts;
             }
             if (arg == "-o" || arg == "--output") {
-                if (i + 1 >= args.size()) return std::unexpected("选项 " + std::string(arg) + " 需要参数");
+                if (i + 1 >= args.size())
+                    return std::unexpected(ILoc::msgFormat<IMsgId::IIO1_1>(arg));
                 opts.outputFile = args[++i];
                 continue;
             }
@@ -211,28 +217,23 @@ namespace stationeers::ic10 {
                 continue;
             }
             if (arg == "--locale") {
-                if (i + 1 >= args.size()) return std::unexpected("选项 --locale 需要参数");
+                if (i + 1 >= args.size())
+                    return std::unexpected(ILoc::msgFormat<IMsgId::IIO1_1>(arg));
                 opts.locale = args[++i];
                 continue;
             }
-            if (arg.starts_with("-")) {
-                return std::unexpected("未知选项: " + std::string(arg));
-            }
-            if (opts.inputFile.empty()) {
+            if (arg.starts_with("-")) return std::unexpected(ILoc::msgFormat<IMsgId::IIO2_1>(arg));
+            if (opts.inputFile.empty())
                 opts.inputFile = arg;
-            } else {
-                return std::unexpected("多余的输入文件: " + std::string(arg));
-            }
+            else
+                return std::unexpected(ILoc::msgFormat<IMsgId::IIO3_1>(arg));
         }
 
-        if (!opts.showHelp && !opts.showVersion && opts.inputFile.empty()) {
-            return std::unexpected("缺少输入文件");
-        }
+        if (!opts.showHelp && !opts.showVersion && opts.inputFile.empty())
+            return std::unexpected(ILoc::msgStr<IMsgId::IIO4>());
 
         // 未指定任何emit选项时，默认执行完整编译（emit-symbols行为）
-        if (!opts.emitTokens && !opts.emitAst && !opts.emitSymbols) {
-            opts.emitSymbols = true;
-        }
+        if (!opts.emitTokens && !opts.emitAst && !opts.emitSymbols) opts.emitSymbols = true;
 
         return opts;
     }
@@ -241,38 +242,11 @@ namespace stationeers::ic10 {
     //  帮助信息
     // -------------------------------------------------------------------------
 
-    void printHelp(std::string_view programName) {
-        std::cout << R"(ic10c - IC10 script compiler
-
-Usage: )" << programName << R"( [options] <input-file>
-
-Options:
-  -h, --help           Show this help message and exit
-  -v, --version        Show version information and exit
-  -o, --output FILE    Write output to FILE instead of stdout
-
-Stage selection:
-  --emit-tokens        Output token stream as JSON and exit
-  --emit-ast           Output AST as JSON and exit
-  --emit-symbols       Perform semantic analysis and output symbol table as JSON
-                       (default if no --emit-* option is specified)
-
-Output format:
-  --pretty             Pretty-print JSON output
-
-Localization:
-  --locale LANG        Set locale: zh-hans, en-us (default: zh-hans)
-
-Exit codes:
-  0  Success
-  1  Command-line or file error
-  2  Compilation produced diagnostics (warnings or errors)
-)";
+    static void printHelp(std::string_view programName) {
+        std::cout << ILoc::msgFormat<IMsgId::IIO0_1>(programName);
     }
 
-    void printVersion() {
-        std::cout << "ic10c version 2.0.0\n";
-    }
+    static void printVersion() { std::cout << "ic10c version 2.0.0\n"; }
 
     // -------------------------------------------------------------------------
     //  编译阶段执行
@@ -281,7 +255,7 @@ Exit codes:
     /**
      * @brief 执行词法分析并输出Token JSON数组
      */
-    int runEmitTokens(const std::string& source, const Options& opts) {
+    static int runEmitTokens(const std::string& source, const Options& opts) {
         const auto tokens = Lexer::tokenize(source);
 
         std::stringstream ss;
@@ -295,29 +269,33 @@ Exit codes:
 
         std::string output = ss.str();
         if (opts.pretty) output = prettyJSON(output);
+
         writeOutput(output, opts.outputFile);
+
         return 0;
     }
 
     /**
      * @brief 执行语法分析并输出AST JSON
      */
-    int runEmitAst(const std::string& source, const Options& opts) {
+    static int runEmitAst(const std::string& source, const Options& opts) {
         const auto tokens = Lexer::tokenize(source);
-        const auto ast = Parser::parsing(tokens);
+        const auto ast    = Parser::parsing(tokens);
 
         std::string output = ast.toJSON();
         if (opts.pretty) output = prettyJSON(output);
+
         writeOutput(output, opts.outputFile);
+
         return 0;
     }
 
     /**
      * @brief 执行完整编译（含语义分析）并输出符号表JSON和诊断信息
      */
-    int runEmitSymbols(const std::string& source, const Options& opts) {
+    static int runEmitSymbols(const std::string& source, const Options& opts) {
         const auto tokens = Lexer::tokenize(source);
-        const auto ast = Parser::parsing(tokens);
+        const auto ast    = Parser::parsing(tokens);
 
         Analyser analyser;
         auto task = analyser.visit(ast);
@@ -328,9 +306,7 @@ Exit codes:
         writeOutput(output, opts.outputFile);
 
         const auto& diagnostics = analyser.getDiagnostics();
-        for (const auto& diag : diagnostics) {
-            std::cerr << diag.message << '\n';
-        }
+        for (const auto& diag : diagnostics) std::cerr << diag.message << '\n';
 
         return diagnostics.empty() ? 0 : 2;
     }
@@ -339,7 +315,7 @@ Exit codes:
     //  主函数
     // -------------------------------------------------------------------------
 
-    int main(int argc, char* argv[]) {
+    static int main(int argc, char* argv[]) {
         std::ios::sync_with_stdio(false);
         std::cin.tie(nullptr);
         std::cout.tie(nullptr);
@@ -348,16 +324,30 @@ Exit codes:
         system("chcp 65001>nul");
 #endif
 
+        // 预先注册并设置默认语言，确保早期调用（如parseArgs中的错误消息）可用
+        ILoc::registerLanguage<EnUs>("en-us");
+        ILoc::registerLanguage<ZhHans>("zh-hans");
+        ILoc::setLanguage("en-us");
+
         // 解析命令行参数
-        std::span<char*> args(argv + 1, static_cast<std::size_t>(argc - 1));
+        std::span args(argv + 1, static_cast<std::size_t>(argc - 1));
         auto parseResult = parseArgs(args);
         if (!parseResult) {
-            std::cerr << "错误: " << parseResult.error() << "\n"
-                      << "使用 -h 或 --help 查看帮助信息\n";
+            std::cerr << ILoc::msgFormat<IMsgId::IIO5_1>(parseResult.error());
             return 1;
         }
 
         const auto& opts = parseResult.value();
+
+        // 根据用户指定的locale切换语言
+        if (opts.locale == "zh-hans" || opts.locale == "zh_hans") {
+            ILoc::setLanguage("zh-hans");
+
+        } else if (opts.locale != "en-us" && opts.locale != "en_us") {
+            std::cerr << ILoc::msgFormat<IMsgId::IIO6_1>(opts.locale);
+
+            return 1;
+        }
 
         if (opts.showHelp) {
             printHelp(argv[0]);
@@ -369,29 +359,15 @@ Exit codes:
             return 0;
         }
 
-        // 设置本地化语言
-        if (opts.locale == "zh-hans" || opts.locale == "zh_hans") {
-            Loc::registerLanguage<ZhHans>("zh-hans");
-            Loc::setLanguage("zh-hans");
-        } else if (opts.locale == "en-us" || opts.locale == "en_us") {
-            Loc::registerLanguage<EnUs>("en-us");
-            Loc::setLanguage("en-us");
-        } else {
-            std::cerr << "错误: 不支持的语言: " << opts.locale << "\n";
-            return 1;
-        }
-
         // 读取输入文件
         auto sourceResult = readFile(opts.inputFile);
-        if (!sourceResult) {
-            std::cerr << "错误: " << sourceResult.error() << "\n";
-            return 1;
-        }
 
         // 根据选项执行对应编译阶段
-        if (opts.emitTokens) return runEmitTokens(sourceResult.value(), opts);
-        if (opts.emitAst) return runEmitAst(sourceResult.value(), opts);
-        return runEmitSymbols(sourceResult.value(), opts);
+        if (opts.emitTokens) return runEmitTokens(sourceResult, opts);
+
+        if (opts.emitAst) return runEmitAst(sourceResult, opts);
+
+        return runEmitSymbols(sourceResult, opts);
     }
 
 }  // namespace stationeers::ic10

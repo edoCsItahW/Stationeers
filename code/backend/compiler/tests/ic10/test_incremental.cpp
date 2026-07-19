@@ -94,8 +94,8 @@ void expectProgramsMatch(const Program& actual, const Program& expected) {
 // ============================================================
 
 TEST(IncrementalLexerTest, FullLexSingleLineMatchesBaseline) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 42";
     IncLexer lexer;
     auto result = lexer.tokenizeFull(src);
@@ -105,8 +105,8 @@ TEST(IncrementalLexerTest, FullLexSingleLineMatchesBaseline) {
 }
 
 TEST(IncrementalLexerTest, FullLexMultiLinePositionsMatchBaseline) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 42\nsub r2 r3 100\nyield";
     IncLexer lexer;
     auto result = lexer.tokenizeFull(src);
@@ -115,8 +115,8 @@ TEST(IncrementalLexerTest, FullLexMultiLinePositionsMatchBaseline) {
 }
 
 TEST(IncrementalLexerTest, NoChangeReturnsIncremental) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1\nsub r2 r3";
     IncLexer lexer;
     lexer.tokenizeFull(src);
@@ -128,8 +128,8 @@ TEST(IncrementalLexerTest, NoChangeReturnsIncremental) {
 }
 
 TEST(IncrementalLexerTest, ModifyMiddleLinePositionsCorrect) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 1\nsub r2 r3 2\nmul r4 r5 3";
     IncLexer lexer;
     lexer.tokenizeFull(src);
@@ -144,8 +144,8 @@ TEST(IncrementalLexerTest, ModifyMiddleLinePositionsCorrect) {
 }
 
 TEST(IncrementalLexerTest, InsertLinePositionsCorrect) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1\nmul r4 r5";
     IncLexer lexer;
     lexer.tokenizeFull(src);
@@ -159,8 +159,8 @@ TEST(IncrementalLexerTest, InsertLinePositionsCorrect) {
 }
 
 TEST(IncrementalLexerTest, DeleteLinePositionsCorrect) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1\nsub r2 r3\nmul r4 r5";
     IncLexer lexer;
     lexer.tokenizeFull(src);
@@ -174,8 +174,8 @@ TEST(IncrementalLexerTest, DeleteLinePositionsCorrect) {
 }
 
 TEST(IncrementalLexerTest, AppendLinePositionsCorrect) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1";
     IncLexer lexer;
     lexer.tokenizeFull(src);
@@ -193,8 +193,8 @@ TEST(IncrementalLexerTest, AppendLinePositionsCorrect) {
 // ============================================================
 
 TEST(IncrementalParserTest, FullParseMatchesBaseline) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 42\nyield";
     auto tokens = Lexer::tokenize(src);
     IncParser parser;
@@ -204,8 +204,8 @@ TEST(IncrementalParserTest, FullParseMatchesBaseline) {
 }
 
 TEST(IncrementalParserTest, ModifyMiddleStatementMatchesBaseline) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 1\nmul r2 r3 2\ndiv r4 r5 3";
     auto fullTokens = Lexer::tokenize(src);
     IncParser parser;
@@ -222,8 +222,8 @@ TEST(IncrementalParserTest, ModifyMiddleStatementMatchesBaseline) {
 }
 
 TEST(IncrementalParserTest, InsertStatementMatchesBaseline) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 1\nmul r4 r5 3";
     auto fullTokens = Lexer::tokenize(src);
     IncParser parser;
@@ -240,8 +240,8 @@ TEST(IncrementalParserTest, InsertStatementMatchesBaseline) {
 }
 
 TEST(IncrementalParserTest, DeleteStatementMatchesBaseline) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 1\ndiv r2 r3 2\nmul r4 r5 3";
     auto fullTokens = Lexer::tokenize(src);
     IncParser parser;
@@ -258,8 +258,8 @@ TEST(IncrementalParserTest, DeleteStatementMatchesBaseline) {
 }
 
 TEST(IncrementalParserTest, AppendStatementMatchesBaseline) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 1";
     auto fullTokens = Lexer::tokenize(src);
     IncParser parser;
@@ -276,8 +276,8 @@ TEST(IncrementalParserTest, AppendStatementMatchesBaseline) {
 }
 
 TEST(IncrementalParserTest, LabelAndAliasIncremental) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "label1:\nalias foo r0\nadd foo r1 42";
     auto fullTokens = Lexer::tokenize(src);
     IncParser parser;
@@ -298,8 +298,8 @@ TEST(IncrementalParserTest, LabelAndAliasIncremental) {
 // ============================================================
 
 TEST(IncrementalCompilerTest, FullCompileWorks) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 42\nmul r2 r3 10";
     IncCompiler compiler;
     auto result = compiler.compileFull(src);
@@ -308,8 +308,8 @@ TEST(IncrementalCompilerTest, FullCompileWorks) {
 }
 
 TEST(IncrementalCompilerTest, IncrementalModifyMatchesFull) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 1\nmul r2 r3 2\ndiv r4 r5 3";
     IncCompiler compiler;
     compiler.compileFull(src);
@@ -326,8 +326,8 @@ TEST(IncrementalCompilerTest, IncrementalModifyMatchesFull) {
 }
 
 TEST(IncrementalCompilerTest, IncrementalInsertMatchesFull) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 1\nmul r4 r5 3";
     IncCompiler compiler;
     compiler.compileFull(src);
@@ -342,8 +342,8 @@ TEST(IncrementalCompilerTest, IncrementalInsertMatchesFull) {
 }
 
 TEST(IncrementalCompilerTest, IncrementalDeleteMatchesFull) {
-    Loc::registerLanguage<ZhHans>("zh-hans");
-    Loc::setLanguage("zh-hans");
+    ILoc::registerLanguage<ZhHans>("zh-hans");
+    ILoc::setLanguage("zh-hans");
     std::string src = "add r0 r1 1\ndiv r2 r3 2\nmul r4 r5 3";
     IncCompiler compiler;
     compiler.compileFull(src);
