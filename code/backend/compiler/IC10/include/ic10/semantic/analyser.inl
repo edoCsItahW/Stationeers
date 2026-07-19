@@ -22,7 +22,7 @@
 
 namespace stationeers::ic10 {
 
-    template<typename T, T V, MsgId I>
+    template<typename T, T V, IMsgId I>
     bool Analyser::checkOperandType(const std::shared_ptr<Symbol>& symbol, auto&& arg) const {
         bool flag = false;
 
@@ -176,7 +176,7 @@ namespace stationeers::ic10 {
                     );
 
                     if (!flag)
-                        reporter_.errorWith<MsgId::IWA11_2>(start, end, currentSym.name, *typeName);
+                        reporter_.errorWith<IMsgId::IWA11_2>(start, end, currentSym.name, *typeName);
 
                     break;
                 case OperandType::LOGIC_TYPE:
@@ -185,7 +185,7 @@ namespace stationeers::ic10 {
                     );
 
                     if (!flag)
-                        reporter_.errorWith<MsgId::IWA14_2>(start, end, currentSym.name, *typeName);
+                        reporter_.errorWith<IMsgId::IWA14_2>(start, end, currentSym.name, *typeName);
 
                     break;
                 case OperandType::SLOT_IDX:
@@ -195,7 +195,7 @@ namespace stationeers::ic10 {
                         );
 
                         if (!flag)
-                            reporter_.errorWith<MsgId::IWA16_2>(
+                            reporter_.errorWith<IMsgId::IWA16_2>(
                                 start, end, *currentSym.value, *typeName
                             );
                     } else
@@ -236,13 +236,13 @@ namespace stationeers::ic10 {
                 if (!found) {
                     // 按操作数类型分派到对应诊断消息
                     if constexpr (Type == OperandType::LOGIC_SLOT)
-                        reporter_.errorWith<MsgId::IWA12_1>(start, end, name);
+                        reporter_.errorWith<IMsgId::IWA12_1>(start, end, name);
                     else if constexpr (Type == OperandType::LOGIC_TYPE)
-                        reporter_.errorWith<MsgId::IWA15_1>(start, end, name);
+                        reporter_.errorWith<IMsgId::IWA15_1>(start, end, name);
                     else if constexpr (Type == OperandType::REAGENT_MODE)
-                        reporter_.errorWith<MsgId::IWA13_1>(start, end, name);
+                        reporter_.errorWith<IMsgId::IWA13_1>(start, end, name);
                     else if constexpr (Type == OperandType::BATCH_MODE)
-                        reporter_.errorWith<MsgId::IWA17_1>(start, end, name);
+                        reporter_.errorWith<IMsgId::IWA17_1>(start, end, name);
                 }
 
                 // 无论是否找到都返回 true：找到则合法；未找到则已上报"不是已知的X"，
@@ -251,7 +251,7 @@ namespace stationeers::ic10 {
             }
 
             // 标准库枚举类型缺失：上报 IEA8_1，并阻止未定义标识符上报
-            reporter_.errorWith<MsgId::IEA8_1>(start, end, std::string(enumName));
+            reporter_.errorWith<IMsgId::IEA8_1>(start, end, std::string(enumName));
             return true;
         }
 
@@ -276,7 +276,7 @@ namespace stationeers::ic10 {
 
             if (!found)
                 // 上报错误：该数字不在设备槽范围内
-                reporter_.errorWith<MsgId::IWA16_2>(
+                reporter_.errorWith<IMsgId::IWA16_2>(
                     number.start(), number.end(), idxStr, *typeName
                 );
 
@@ -295,14 +295,14 @@ namespace stationeers::ic10 {
         if constexpr (requires { std::get<0>(arg); })
             std::apply(
                 [this](const auto& innerArg) {
-                    reporter_.errorWith<MsgId::IEA6>(
+                    reporter_.errorWith<IMsgId::IEA6>(
                         innerArg.start(), innerArg.end(), std::string(U::nodeName)
                     );
                 },
                 arg
             );
         else
-            reporter_.errorWith<MsgId::IEA6>(arg.start(), arg.end(), std::string(U::nodeName));
+            reporter_.errorWith<IMsgId::IEA6>(arg.start(), arg.end(), std::string(U::nodeName));
 
         co_return;
     }
@@ -317,13 +317,13 @@ namespace stationeers::ic10 {
     bool Analyser::IdentifierChecker<OperandType::REG_IDENT>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
-        return self->checkOperandType<BasicType, BasicType::REGISTER, MsgId::IWA1_1>(symbol, arg);
+        return self->checkOperandType<BasicType, BasicType::REGISTER, IMsgId::IWA1_1>(symbol, arg);
     }
 
     bool Analyser::IdentifierChecker<OperandType::DEV_ALIAS>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
-        return self->checkOperandType<BasicType, BasicType::DEVICE, MsgId::IWA2_1>(symbol, arg);
+        return self->checkOperandType<BasicType, BasicType::DEVICE, IMsgId::IWA2_1>(symbol, arg);
     }
 
     bool Analyser::IdentifierChecker<OperandType::REG_NUM>::check(
@@ -332,7 +332,7 @@ namespace stationeers::ic10 {
         const bool result = symbol->type.kind != BasicType::REGISTER
                          && symbol->type.category != TypeCategory::NUMBER;
 
-        if (result) self->reporter_.errorWith<MsgId::IWA3_1>(arg.start(), arg.end(), symbol->name);
+        if (result) self->reporter_.errorWith<IMsgId::IWA3_1>(arg.start(), arg.end(), symbol->name);
 
         return result;
     }
@@ -343,7 +343,7 @@ namespace stationeers::ic10 {
         const bool result =
             symbol->type.kind != BasicType::DEVICE && symbol->type.kind != BasicType::REGISTER;
 
-        if (result) self->reporter_.errorWith<MsgId::IWA4_1>(arg.start(), arg.end(), symbol->name);
+        if (result) self->reporter_.errorWith<IMsgId::IWA4_1>(arg.start(), arg.end(), symbol->name);
 
         return result;
     }
@@ -367,7 +367,7 @@ namespace stationeers::ic10 {
                         );
 
                         if (!flag)
-                            self->reporter_.errorWith<MsgId::IWA11_2>(
+                            self->reporter_.errorWith<IMsgId::IWA11_2>(
                                 arg.start(), arg.end(), arg.value, deviceTypeName
                             );
 
@@ -392,7 +392,7 @@ namespace stationeers::ic10 {
                         );
 
                         if (!flag)
-                            self->reporter_.errorWith<MsgId::IWA12_1>(
+                            self->reporter_.errorWith<IMsgId::IWA12_1>(
                                 arg.start(), arg.end(), arg.value
                             );
 
@@ -405,12 +405,12 @@ namespace stationeers::ic10 {
             );
 
             if (!isLogicSlot)
-                return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, MsgId::IWA5_1>(
+                return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, IMsgId::IWA5_1>(
                     symbol, arg
                 );
 
         } else
-            self->reporter_.errorWith<MsgId::IEA8_1>(arg.start(), arg.end(), "LogicSlotType");
+            self->reporter_.errorWith<IMsgId::IEA8_1>(arg.start(), arg.end(), "LogicSlotType");
 
         return false;
     }
@@ -429,7 +429,7 @@ namespace stationeers::ic10 {
                         );
 
                         if (!flag)
-                            self->reporter_.errorWith<MsgId::IWA13_1>(
+                            self->reporter_.errorWith<IMsgId::IWA13_1>(
                                 arg.start(), arg.end(), arg.value
                             );
 
@@ -442,11 +442,11 @@ namespace stationeers::ic10 {
             );
 
             if (!isReagentMode)
-                return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, MsgId::IWA6_1>(
+                return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, IMsgId::IWA6_1>(
                     symbol, arg
                 );
         } else
-            self->reporter_.errorWith<MsgId::IEA8_1>(arg.start(), arg.end(), "ReagentMode");
+            self->reporter_.errorWith<IMsgId::IEA8_1>(arg.start(), arg.end(), "ReagentMode");
 
         return false;
     }
@@ -454,7 +454,7 @@ namespace stationeers::ic10 {
     bool Analyser::IdentifierChecker<OperandType::JUMP_TARGET>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
-        return self->checkOperandType<TypeCategory, TypeCategory::LABEL, MsgId::IWA7_1>(
+        return self->checkOperandType<TypeCategory, TypeCategory::LABEL, IMsgId::IWA7_1>(
             symbol, arg
         );
     }
@@ -481,7 +481,7 @@ namespace stationeers::ic10 {
                                 }
                             );
                             it == view.end())
-                            self->reporter_.errorWith<MsgId::IWA14_2>(
+                            self->reporter_.errorWith<IMsgId::IWA14_2>(
                                 arg.start(), arg.end(), arg.value, deviceTypeName
                             );
 
@@ -513,7 +513,7 @@ namespace stationeers::ic10 {
                         );
 
                         if (!flag)
-                            self->reporter_.errorWith<MsgId::IWA15_1>(
+                            self->reporter_.errorWith<IMsgId::IWA15_1>(
                                 arg.start(), arg.end(), arg.value
                             );
 
@@ -526,12 +526,12 @@ namespace stationeers::ic10 {
             );
 
             if (!isLogicSlot)
-                return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, MsgId::IWA8_1>(
+                return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, IMsgId::IWA8_1>(
                     symbol, arg
                 );
 
         } else
-            self->reporter_.errorWith<MsgId::IEA8_1>(arg.start(), arg.end(), "LogicType");
+            self->reporter_.errorWith<IMsgId::IEA8_1>(arg.start(), arg.end(), "LogicType");
 
         return false;
     }
@@ -555,7 +555,7 @@ namespace stationeers::ic10 {
                             );
 
                             if (!flag)
-                                self->reporter_.errorWith<MsgId::IWA16_2>(
+                                self->reporter_.errorWith<IMsgId::IWA16_2>(
                                     arg.start(), arg.end(), *symbol->value, deviceTypeName
                                 );
 
@@ -567,7 +567,7 @@ namespace stationeers::ic10 {
             );
         }
 
-        return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, MsgId::IWA9_1>(
+        return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, IMsgId::IWA9_1>(
             symbol, arg
         );
     }
@@ -586,7 +586,7 @@ namespace stationeers::ic10 {
                         );
 
                         if (!flag)
-                            self->reporter_.errorWith<MsgId::IWA17_1>(
+                            self->reporter_.errorWith<IMsgId::IWA17_1>(
                                 arg.start(), arg.end(), arg.value
                             );
 
@@ -599,11 +599,11 @@ namespace stationeers::ic10 {
             );
 
             if (!isBatchMode)
-                return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, MsgId::IWA10_1>(
+                return self->checkOperandType<TypeCategory, TypeCategory::NUMBER, IMsgId::IWA10_1>(
                     symbol, arg
                 );
         } else
-            self->reporter_.errorWith<MsgId::IEA8_1>(arg.start(), arg.end(), "BatchMode");
+            self->reporter_.errorWith<IMsgId::IEA8_1>(arg.start(), arg.end(), "BatchMode");
 
         return false;
     }
