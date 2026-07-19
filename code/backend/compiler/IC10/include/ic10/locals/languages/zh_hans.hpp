@@ -191,18 +191,22 @@ namespace stationeers::ic10 {
 
 用法: {}
 
-[选项...] <输入文件>
+[选项...] <输入文件>...
+       [选项...] --link <输入文件>...
 
 选项:
   -h, --help           显示此帮助消息并退出
-  -v, --version        Show version information and exit
-  -o, --output FILE    Write output to FILE instead of stdout
+  -v, --version        显示版本信息并退出
+  -o, --output FILE    将输出写入 FILE 而非 stdout
 
 阶段选择:
   --emit-tokens        将词法令牌流输出为JSON并退出
   --emit-ast           将AST（抽象语法数）输出为JSON并退出
   --emit-symbols       执行语义分析并将符号表输出为JSON
                        (如果未指定 --emit-* 选项，则默认此设置)
+  --link               链接多个编译单元并输出合并后的符号表。
+                       允许指定多个输入文件；忽略 --emit-tokens/--emit-ast，
+                       强制输出符号表。
 
 输出格式化:
   --pretty             美观的输出JSON
