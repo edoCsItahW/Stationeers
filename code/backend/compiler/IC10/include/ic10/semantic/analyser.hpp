@@ -216,7 +216,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Task<std::shared_ptr<Symbol>> resolveSymbol(const std::string& name, const Pos& pos);
+        Task<std::shared_ptr<Symbol>> resolveSymbol(const std::string& name, const Pos& pos) const;
 
         void rethrow(
             const std::exception_ptr& exception, const std::string& name, const Pos& pos
@@ -237,7 +237,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        void defineSymbol(const Identifier& identifier, Symbol&& symbol);
+        void defineSymbol(const Identifier& identifier, Symbol&& symbol) const;
 
         /**
          * @if zh
