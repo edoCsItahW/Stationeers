@@ -6,6 +6,7 @@ add_executable(ic10_tests
         test_integration.cpp
         test_system.cpp
         test_semantic.cpp
+        test_linker.cpp
 )
 
 # 链接必要的库

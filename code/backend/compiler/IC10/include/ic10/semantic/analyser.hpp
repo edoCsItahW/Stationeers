@@ -98,6 +98,10 @@ namespace stationeers::ic10 {
      */
     class Analyser : public std::enable_shared_from_this<Analyser> {
     public:
+        Analyser();
+
+        ~Analyser();
+
         /**
          * @if zh
          *
@@ -128,7 +132,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        SymbolTable& getSymbolTable();
+        SymbolTable& getSymbolTable() const;
 
         /**
          * @if zh
@@ -163,6 +167,15 @@ namespace stationeers::ic10 {
         Task<> visit(const Program& program);
 
     private:
+
+        friend class Linker;
+
+        Analyser(TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10MsgPack>& reporter, bool deferFailAllPending = false);
+
+        bool ownsResources_ = false;
+
+        bool deferFailAllPending_ = false;
+
         /**
          * @if zh
          * @brief 符号表实例
@@ -170,9 +183,9 @@ namespace stationeers::ic10 {
          * @brief Symbol table instance
          * @endif
          */
-        SymbolTable symbolTable_{};
+        SymbolTable* symbolTable_;
 
-        TypeTable typeTable_{};
+        TypeTable* typeTable_;
 
         struct DeviceSymbol {
             std::shared_ptr<Symbol> symbol;
@@ -184,7 +197,7 @@ namespace stationeers::ic10 {
 
         std::optional<DeviceSymbol> pendingDeviceSymbol_;
 
-        mutable DiagnosticReporter<IC10MsgPack> reporter_;
+        mutable DiagnosticReporter<IC10MsgPack>* reporter_;
 
         /**
          * @if zh
@@ -539,7 +552,8 @@ namespace stationeers::ic10 {
             );
         };
 
-        template<typename T, T V, IMsgId I>
+        template<IMsgId I, auto... Vs>
+        requires (... && (std::is_same_v<decltype(Vs), BasicType> || std::is_same_v<decltype(Vs), TypeCategory>))
         bool checkOperandType(const std::shared_ptr<Symbol>& symbol, auto&& arg) const;
 
         template<OperandType Type>
