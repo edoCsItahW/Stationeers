@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef COMPILER_LOCAL_HPP
-#define COMPILER_LOCAL_HPP
+#ifndef COMPILER_IC10_LOCAL_HPP
+#define COMPILER_IC10_LOCAL_HPP
 #pragma once
 
 #include "common/locals/local.hpp"
@@ -139,6 +139,19 @@ namespace stationeers::ic10 {
         IEA6,    // Unknown Grammar Type '{}' - semantic analysis.
         IEA7_1,  // The Device '{}' should not be annotated as an Enum type - semantic analysis.
         IEA8_1,  // Missing standard library type '{}' - semantic analysis.
+
+        /* Complier */
+
+        // Error
+
+        IIO0_1,  // [ help message ]
+        IIO1_1,  // option '{}' requires parameters - IC10 compiler.
+        IIO2_1,  // unknown option '{}' - IC10 compiler.
+        IIO3_1,  // excess input files '{}' - IC10 compiler.
+        IIO4,    // missing input file - IC10 compiler.
+        IIO5_1,  // Error: {}\nUse -h or --help to view help information\n
+        IIO6_1,  // Error: Unsupported languages {}\n
+
     };
 
     template<typename, IC10MsgId>
@@ -148,9 +161,9 @@ namespace stationeers::ic10 {
 
     class IC10Local : public Local<IC10MsgPack> {};
 
-    using MsgId = IC10MsgId;
+    using IMsgId = IC10MsgId;
 
-    using Loc = IC10Local;
+    using ILoc = IC10Local;
 
     /**
      * @def LOCAL_MSG(type, id, _msg)
@@ -173,7 +186,7 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-#define LOCAL_MSG(type, id, _msg)                                                                  \
+#define IC10_LOCAL_MSG(type, id, _msg)                                                             \
     template<>                                                                                     \
     struct IC10MsgMap<type, IC10MsgId::id> {                                                       \
         static constexpr auto msg = _msg##_fs;                                                     \
@@ -182,4 +195,4 @@ namespace stationeers::ic10 {
 }  // namespace stationeers::ic10
 
 
-#endif  // COMPILER_LOCAL_HPP
+#endif  // COMPILER_IC10_LOCAL_HPP
