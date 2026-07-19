@@ -46,6 +46,20 @@ namespace stationeers::ic10 {
 
         const std::vector<Diagnostic>& getDiagnostics() const;
 
+        /**
+         * @if zh
+         * @brief 合并另一个 reporter 的诊断到当前 reporter
+         * @details 用于多编译单元场景下，将各单元独立 reporter 的诊断汇总到主 reporter。
+         * @param other 源 reporter，其诊断会被追加到当前 reporter
+         * @elseif en
+         * @brief Merge diagnostics from another reporter into this one
+         * @details Used in multi-unit scenarios to aggregate diagnostics from per-unit
+         *          reporters into the main reporter.
+         * @param other Source reporter whose diagnostics will be appended to this reporter
+         * @endif
+         */
+        void mergeFrom(const DiagnosticReporter& other);
+
         template<E I>
         void emplace(const Error& error)
 #ifdef _MSC_VER

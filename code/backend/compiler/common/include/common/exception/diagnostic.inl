@@ -27,6 +27,11 @@ namespace stationeers::ic10 {
         return diagnostics_;
     }
 
+    template<IsMsgPack P>
+    void DiagnosticReporter<P>::mergeFrom(const DiagnosticReporter& other) {
+        diagnostics_.insert_range(diagnostics_.end(), other.diagnostics_);
+    }
+
 #ifndef _MSC_VER
 
     template<IsMsgPack P>

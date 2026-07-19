@@ -18,6 +18,29 @@
 
 namespace stationeers::ic10 {
 
+    Analyser::Analyser(
+        TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10MsgPack>& reporter,
+        bool deferFailAllPending
+    )
+        : typeTable_(&typeTable)
+        , symbolTable_(&symbolTable)
+        , reporter_(&reporter)
+        , deferFailAllPending_(deferFailAllPending) {}
+
+    Analyser::Analyser()
+        : typeTable_(new TypeTable())
+        , symbolTable_(new SymbolTable())
+        , reporter_(new DiagnosticReporter<IC10MsgPack>())
+        , ownsResources_(true) {}
+
+    Analyser::~Analyser() {
+        if (ownsResources_) {
+            delete typeTable_;
+            delete symbolTable_;
+            delete reporter_;
+        }
+    }
+
     // 分析入口：构造临时分析器并访问程序根节点
     Task<> Analyser::analyse(const Program& program) {
         auto analyser = Analyser();
@@ -25,11 +48,11 @@ namespace stationeers::ic10 {
         (void)co_await analyser.visit(program);
     }
 
-    SymbolTable& Analyser::getSymbolTable() { return symbolTable_; }
+    SymbolTable& Analyser::getSymbolTable() const { return *symbolTable_; }
 
     // 获取诊断报告器累积的所有诊断信息
     const std::vector<Diagnostic>& Analyser::getDiagnostics() const {
-        return reporter_.getDiagnostics();
+        return reporter_->getDiagnostics();
     }
 
     // 访问 Program：逐条遍历语句，结束后清理未决 Future
@@ -43,14 +66,16 @@ namespace stationeers::ic10 {
             );
 
         // 分析结束，此时依然悬而未决的 Future 被确定为未定义，向所有等待者返回错误
-        symbolTable_.failAllPending();
+        // Linker 场景下推迟到所有单元处理完后统一调用
+        if (!deferFailAllPending_)
+            symbolTable_->failAllPending();
 
         co_return;
     }
 
     // 解析符号：从符号表取 Future 并等待结果，失败则转化为诊断
     Task<std::shared_ptr<Symbol>> Analyser::resolveSymbol(const std::string& name, const Pos& pos) {
-        auto result = co_await std::move(symbolTable_.resolve(name, pos));
+        auto result = co_await std::move(symbolTable_->resolve(name, pos));
 
         // 解析失败：将异常重新抛出以捕获其消息，统一以 IE0_1 上报
         if (!result.has_value()) {
@@ -63,13 +88,14 @@ namespace stationeers::ic10 {
     }
 
     void Analyser::rethrow(
-        const std::exception_ptr& exception, const std::string& name, const Pos& pos) const {
+        const std::exception_ptr& exception, const std::string& name, const Pos& pos
+    ) const {
         try {
             std::rethrow_exception(exception);
         } catch (const Error& e) {
-            reporter_.errorWith<IMsgId::IE0_1>(e.getStart(), e.getEnd(), e.message());
+            reporter_->errorWith<IMsgId::IE0_1>(e.getStart(), e.getEnd(), e.message());
         } catch (const std::exception& e) {
-            reporter_.errorWith<IMsgId::IE0_1>(
+            reporter_->errorWith<IMsgId::IE0_1>(
                 pos, endPos(pos, name.size()), std::string(e.what())
             );
         }
@@ -77,9 +103,9 @@ namespace stationeers::ic10 {
 
     // 定义符号：包装符号表 define，重定义时上报 IEA2_1
     void Analyser::defineSymbol(const Identifier& identifier, Symbol&& symbol) {
-        if (auto res = symbolTable_.define(identifier.value, std::make_shared<Symbol>(symbol));
+        if (auto res = symbolTable_->define(identifier.value, std::make_shared<Symbol>(symbol));
             !res.has_value())
-            reporter_.errorWith<IMsgId::IEA2_1>(
+            reporter_->errorWith<IMsgId::IEA2_1>(
                 identifier.start(), identifier.end(), identifier.value
             );
     }
@@ -95,7 +121,7 @@ namespace stationeers::ic10 {
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
         else
-            reporter_.errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<IMsgId::IEA1_2>(
                 labelDef.start(), labelDef.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(labelDef.identifier).nodeName.value.data()
             );
@@ -126,7 +152,9 @@ namespace stationeers::ic10 {
 
                     // 不允许为别名定义别名
                     if constexpr (std::is_same_v<V, Identifier>) {
-                        reporter_.error<IMsgId::IEA4>(aliasDirective.start(), aliasDirective.end());
+                        reporter_->error<IMsgId::IEA4>(
+                            aliasDirective.start(), aliasDirective.end()
+                        );
                         symbol.type = {};
                     }
 
@@ -144,7 +172,7 @@ namespace stationeers::ic10 {
                     }
 
                     else {
-                        symbol.type     = type_of<V>;
+                        symbol.type = type_of<V>;
                     }
 
                     if (aliasDirective.type.has_value())
@@ -158,20 +186,24 @@ namespace stationeers::ic10 {
             );
 
             if (aliasDirective.type) {
-                if (auto* typePtr = typeTable_.find(aliasDirective.type.value()); typePtr)
-                    std::visit([&]<typename T>(T&&) {
-                        using U = std::remove_cvref_t<T>;
+                if (auto* typePtr = typeTable_->find(aliasDirective.type.value()); typePtr)
+                    std::visit(
+                        [&]<typename T>(T&&) {
+                            using U = std::remove_cvref_t<T>;
 
-                        if constexpr (std::is_same_v<U, EnumType>)
-                            reporter_.errorWith<IMsgId::IEA7_1>(aliasDirective.start(), aliasDirective.end(), identifier.value);
-
-                    }, *typePtr);
+                            if constexpr (std::is_same_v<U, EnumType>)
+                                reporter_->errorWith<IMsgId::IEA7_1>(
+                                    aliasDirective.start(), aliasDirective.end(), identifier.value
+                                );
+                        },
+                        *typePtr
+                    );
             }
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
         else
-            reporter_.errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<IMsgId::IEA1_2>(
                 aliasDirective.start(), aliasDirective.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(aliasDirective.identifier).nodeName.value.data()
             );
@@ -200,7 +232,7 @@ namespace stationeers::ic10 {
                     symbol.name = identifier.value;
 
                     if constexpr (std::is_same_v<V, Identifier>)
-                        reporter_.errorWith<IMsgId::IEA5_1>(
+                        reporter_->errorWith<IMsgId::IEA5_1>(
                             defineDirective.start(), defineDirective.end(), ins.value
                         );
 
@@ -209,10 +241,10 @@ namespace stationeers::ic10 {
                         symbol.type = {};
 
                     else if constexpr (std::is_same_v<V, Constant>)
-                        symbol.type     = type_of<Constant>;
+                        symbol.type = type_of<Constant>;
 
                     else if constexpr (std::is_same_v<V, HashCall> || std::is_same_v<V, StrCall>) {
-                        symbol.type     = type_of<V>;
+                        symbol.type = type_of<V>;
 
                         if (std::holds_alternative<String>(ins.value)) {
                             symbol.value = ins.toString();
@@ -221,7 +253,7 @@ namespace stationeers::ic10 {
                     }
 
                     else {
-                        symbol.type     = type_of<V>;
+                        symbol.type = type_of<V>;
 
                         symbol.value = ins.value;
                     }
@@ -238,7 +270,7 @@ namespace stationeers::ic10 {
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
         else
-            reporter_.errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<IMsgId::IEA1_2>(
                 defineDirective.start(), defineDirective.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(defineDirective.identifier).nodeName.value.data()
             );
@@ -247,7 +279,7 @@ namespace stationeers::ic10 {
     }
 
     Task<> Analyser::operator()(const DeviceDocComment& deviceDocComment) {
-        typeTable_.registerType(
+        typeTable_->registerType(
             DeviceType{
                 .name       = deviceDocComment.name,
                 .desc       = deviceDocComment.desc,
@@ -263,7 +295,7 @@ namespace stationeers::ic10 {
     }
 
     Task<> Analyser::operator()(const EnumDocComment& enumDocComment) {
-        typeTable_.registerType(
+        typeTable_->registerType(
             EnumType{
                 .name   = enumDocComment.name,
                 .desc   = enumDocComment.desc,
@@ -278,7 +310,7 @@ namespace stationeers::ic10 {
     Task<> Analyser::operator()(const StrCall& strCall) {
         // value 解析失败，上报类型不匹配
         if (std::holds_alternative<ErrorNode>(strCall.value))
-            reporter_.errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<IMsgId::IEA1_2>(
                 strCall.start(), strCall.end(), String::nodeName.value.data(),
                 std::get<ErrorNode>(strCall.value).nodeName.value.data()
             );
@@ -290,7 +322,7 @@ namespace stationeers::ic10 {
     Task<> Analyser::operator()(const HashCall& hashCall) {
         // value 解析失败，上报类型不匹配
         if (std::holds_alternative<ErrorNode>(hashCall.value))
-            reporter_.errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<IMsgId::IEA1_2>(
                 hashCall.start(), hashCall.end(), String::nodeName.value.data(),
                 std::get<ErrorNode>(hashCall.value).nodeName.value.data()
             );

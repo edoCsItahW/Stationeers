@@ -8,18 +8,20 @@
 /**
  * @file main.cpp
  * @author edocsitahw
- * @version 2.0
- * @date 2026/07/09
+ * @version 2.1
+ * @date 2026/07/19
  * @if zh
  * @brief IC10命令行编译器入口
  * @details ic10c - IC10脚本语言命令行编译器。支持词法分析、语法分析、
  *          语义分析各阶段的独立输出，以及完整的编译流程。
+ *          链接模式（--link）支持多个编译单元的符号合并与前向引用解析。
  * @par 基本用法:
  * @code
  * ic10c input.ic                    # 编译并输出符号表JSON
  * ic10c --emit-tokens input.ic      # 输出词法Token流
  * ic10c --emit-ast input.ic         # 输出语法树AST
  * ic10c -o out.json input.ic        # 输出到文件
+ * ic10c --link a.ic b.ic c.ic       # 链接多个单元并输出合并后的符号表
  * @endcode
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
@@ -27,19 +29,25 @@
  * @details ic10c - IC10 scripting language command-line compiler. Supports independent
  *          output of lexical analysis, parsing, and semantic analysis phases, as well
  *          as the complete compilation pipeline.
+ *          Link mode (--link) supports symbol merging and forward reference resolution
+ *          across multiple compilation units.
  * @par Basic usage:
  * @code
  * ic10c input.ic                    # Compile and output symbol table JSON
  * ic10c --emit-tokens input.ic      # Output lexical token stream
  * ic10c --emit-ast input.ic         # Output syntax tree AST
  * ic10c -o out.json input.ic        # Output to file
+ * ic10c --link a.ic b.ic c.ic       # Link multiple units and output merged symbol table
  * @endcode
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
 
+#include "common/locals/languages/en_us.hpp"
+#include "common/locals/languages/zh_hans.hpp"
 #include "common/utils/file.hpp"
 #include "ic10/lexer/lexer.hpp"
+#include "ic10/link/linker.hpp"
 #include "ic10/locals/languages/en_us.hpp"
 #include "ic10/locals/languages/zh_hans.hpp"
 #include "ic10/parser/parser.hpp"
@@ -52,6 +60,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace stationeers::ic10 {
 
@@ -61,15 +70,16 @@ namespace stationeers::ic10 {
 
     namespace {
         struct Options {
-            std::string inputFile;         ///< 输入源文件路径
-            std::string outputFile;        ///< 输出文件路径（空表示stdout）
-            std::string locale = "en-us";  ///< 本地化语言
-            bool emitTokens    = false;    ///< 输出Token流
-            bool emitAst       = false;    ///< 输出AST
-            bool emitSymbols   = false;    ///< 输出符号表
-            bool pretty        = false;    ///< 美化JSON输出
-            bool showHelp      = false;    ///< 显示帮助
-            bool showVersion   = false;    ///< 显示版本
+            std::vector<std::string> inputFiles;  ///< 输入源文件路径列表（link 模式下可多个）
+            std::string outputFile;               ///< 输出文件路径（空表示stdout）
+            std::string locale = "en-us";         ///< 本地化语言
+            bool emitTokens    = false;           ///< 输出Token流
+            bool emitAst       = false;           ///< 输出AST
+            bool emitSymbols   = false;           ///< 输出符号表
+            bool link          = false;           ///< 链接模式：合并多个编译单元的符号表
+            bool pretty        = false;           ///< 美化JSON输出
+            bool showHelp      = false;           ///< 显示帮助
+            bool showVersion   = false;           ///< 显示版本
         };
     }  // namespace
 
@@ -212,6 +222,10 @@ namespace stationeers::ic10 {
                 opts.emitSymbols = true;
                 continue;
             }
+            if (arg == "--link") {
+                opts.link = true;
+                continue;
+            }
             if (arg == "--pretty") {
                 opts.pretty = true;
                 continue;
@@ -223,17 +237,26 @@ namespace stationeers::ic10 {
                 continue;
             }
             if (arg.starts_with("-")) return std::unexpected(ILoc::msgFormat<IMsgId::IIO2_1>(arg));
-            if (opts.inputFile.empty())
-                opts.inputFile = arg;
-            else
+            // link 模式下允许多个输入文件；非 link 模式仅允许一个
+            // Multiple input files are allowed in link mode; only one is allowed otherwise.
+            if (!opts.link && !opts.inputFiles.empty())
                 return std::unexpected(ILoc::msgFormat<IMsgId::IIO3_1>(arg));
+            opts.inputFiles.emplace_back(arg);
         }
 
-        if (!opts.showHelp && !opts.showVersion && opts.inputFile.empty())
+        if (!opts.showHelp && !opts.showVersion && opts.inputFiles.empty())
             return std::unexpected(ILoc::msgStr<IMsgId::IIO4>());
 
+        // --link 模式强制执行符号表输出，忽略 emit-tokens/emit-ast
+        // --link mode forces symbol-table output; emit-tokens/emit-ast are ignored.
+        if (opts.link) {
+            opts.emitTokens  = false;
+            opts.emitAst     = false;
+            opts.emitSymbols = true;
+        }
         // 未指定任何emit选项时，默认执行完整编译（emit-symbols行为）
-        if (!opts.emitTokens && !opts.emitAst && !opts.emitSymbols) opts.emitSymbols = true;
+        else if (!opts.emitTokens && !opts.emitAst && !opts.emitSymbols)
+            opts.emitSymbols = true;
 
         return opts;
     }
@@ -246,7 +269,116 @@ namespace stationeers::ic10 {
         std::cout << ILoc::msgFormat<IMsgId::IIO0_1>(programName);
     }
 
-    static void printVersion() { std::cout << "ic10c version 2.0.0\n"; }
+    static void printVersion() { std::cout << "ic10c version 2.1.0\n"; }
+
+    // -------------------------------------------------------------------------
+    //  诊断输出（MSVC 风格）
+    // -------------------------------------------------------------------------
+
+    /**
+     * @if zh
+     * @brief 获取源代码中指定行的内容（行号从 1 开始）
+     * @param source 源代码字符串
+     * @param line 行号（从 1 开始）
+     * @return 该行内容（不含行尾换行符）；行号越界返回空串
+     * @elseif en
+     * @brief Get the content of a specific line in source code (1-based)
+     * @param source Source code string
+     * @param line Line number (1-based)
+     * @return Content of that line (without trailing newline); empty string if out of range
+     * @endif
+     */
+    static std::string_view getLine(std::string_view source, int line) {
+        if (line < 1) return {};
+        std::string_view remaining = source;
+        int current                = 1;
+        while (current < line) {
+            auto pos = remaining.find('\n');
+            if (pos == std::string_view::npos) return {};
+            remaining.remove_prefix(pos + 1);
+            ++current;
+        }
+        auto end = remaining.find('\n');
+        return remaining.substr(0, end);
+    }
+
+    /**
+     * @if zh
+     * @brief 以 MSVC 风格输出单条诊断
+     * @details 格式:
+     * @code
+     * 路径(行,列): level id: 消息
+     *     源代码行内容
+     *     ^~~~~~~（caret 指示范围）
+     * @endcode
+     * 若路径为空或源代码不可用，则只输出首行（路径/源代码行/caret 省略）。
+     * @param diag 诊断信息
+     * @param filePath 源文件路径（可为空）
+     * @param source 源代码内容（可为空）
+     * @elseif en
+     * @brief Print a single diagnostic in MSVC style
+     * @details Format:
+     * @code
+     * path(line,col): level id: message
+     *     source line content
+     *     ^~~~~~~ (caret indicating the range)
+     * @endcode
+     * If path is empty or source is unavailable, only the first line is printed
+     * (path/source-line/caret omitted).
+     * @param diag Diagnostic info
+     * @param filePath Source file path (may be empty)
+     * @param source Source code content (may be empty)
+     * @endif
+     */
+    static void printDiagnostic(
+        const Diagnostic& diag, std::string_view filePath, std::string_view source
+    ) {
+        const int line = diag.start.line(), column = diag.start.column();
+
+        if (!filePath.empty()) std::cerr << filePath << '(' << line << ',' << column << "): ";
+
+        std::cerr << enumToStr(diag.level) << ' ' << diag.id << ": " << diag.message << '\n';
+
+        if (source.empty()) return;
+
+        auto lineContent = getLine(source, line);
+        if (lineContent.empty()) return;
+
+        std::cerr << lineContent << '\n';
+
+        const int startCol = column;
+        const int endCol   = diag.end.line() == line ? diag.end.column() : startCol + 1;
+
+        std::string caret;
+        caret.reserve(static_cast<std::size_t>(std::max(endCol, startCol + 1)));
+        caret.append(static_cast<std::size_t>(std::max(startCol - 1, 0)), ' ');
+        caret.push_back('^');
+
+        if (const int tildeCount = std::max(endCol - startCol - 1, 0); tildeCount > 0)
+            caret.append(static_cast<std::size_t>(tildeCount), '~');
+
+        std::cerr << caret << '\n';
+    }
+
+    /**
+     * @if zh
+     * @brief 以 MSVC 风格输出诊断列表（针对单文件）
+     * @param diagnostics 诊断列表
+     * @param filePath 源文件路径
+     * @param source 源代码内容
+     * @elseif en
+     * @brief Print a list of diagnostics in MSVC style (for a single file)
+     * @param diagnostics Diagnostic list
+     * @param filePath Source file path
+     * @param source Source code content
+     * @endif
+     */
+    static void printDiagnostics(
+        const std::vector<Diagnostic>& diagnostics, std::string_view filePath,
+        std::string_view source
+    ) {
+        for (const auto& diag : diagnostics) printDiagnostic(diag, filePath, source);
+    }
 
     // -------------------------------------------------------------------------
     //  编译阶段执行
@@ -306,9 +438,56 @@ namespace stationeers::ic10 {
         writeOutput(output, opts.outputFile);
 
         const auto& diagnostics = analyser.getDiagnostics();
-        for (const auto& diag : diagnostics) std::cerr << diag.message << '\n';
+        printDiagnostics(diagnostics, opts.inputFiles.front(), source);
 
         return diagnostics.empty() ? 0 : 2;
+    }
+
+    /**
+     * @if zh
+     * @brief 执行链接模式：合并多个编译单元的符号表
+     * @details 将每个输入文件作为独立编译单元加入 Linker，调用 link() 合并符号表，
+     *          支持跨单元前向引用解析。输出合并后的符号表 JSON 和按文件分组的
+     *          MSVC 风格诊断信息。
+     * @param opts 已解析的命令行选项，opts.inputFiles 至少含一个文件
+     * @return 退出码：0 成功，1 文件错误，2 存在诊断信息
+     * @elseif en
+     * @brief Run link mode: merge symbol tables of multiple compilation units
+     * @details Adds each input file as an independent compilation unit to the Linker,
+     *          calls link() to merge symbol tables with cross-unit forward reference
+     *          resolution. Outputs the merged symbol table JSON and per-file MSVC-style
+     *          diagnostics.
+     * @param opts Parsed command-line options; opts.inputFiles must contain at least one file
+     * @return Exit code: 0 success, 1 file error, 2 diagnostics present
+     * @endif
+     */
+    static int runLink(const Options& opts) {
+        Linker linker;
+
+        auto pairs = opts.inputFiles | std::views::transform([&](const std::string& path) -> std::pair<std::string, std::string> {
+            auto source = readFile(path);
+
+            linker.addUnit(source, path);
+
+            return {path, std::move(source)};
+        }) | std::ranges::to<std::vector<std::pair<std::string, std::string>>>();
+
+        std::unordered_map files(pairs.begin(), pairs.end());
+
+        auto& symtab = linker.link();
+
+        std::string output = symtab.toJSON();
+        if (opts.pretty) output = prettyJSON(output);
+        writeOutput(output, opts.outputFile);
+
+        bool hasDiag = std::ranges::any_of(linker.getUnits(), [&](const auto& unit) {
+            bool flag = unit.diagnostics && !unit.diagnostics->empty();
+            if (flag)
+                printDiagnostics(*unit.diagnostics, unit.path, files[unit.path]);
+            return flag;
+        });
+
+        return hasDiag ? 2 : 0;
     }
 
     // -------------------------------------------------------------------------
@@ -325,8 +504,14 @@ namespace stationeers::ic10 {
 #endif
 
         // 预先注册并设置默认语言，确保早期调用（如parseArgs中的错误消息）可用
+
+        CLoc::registerLanguage<stationeers::EnUs>("en-us");
+        CLoc::registerLanguage<stationeers::ZhHans>("zh-hans");
+
         ILoc::registerLanguage<EnUs>("en-us");
         ILoc::registerLanguage<ZhHans>("zh-hans");
+
+        CLoc::setLanguage("en-us");
         ILoc::setLanguage("en-us");
 
         // 解析命令行参数
@@ -341,6 +526,7 @@ namespace stationeers::ic10 {
 
         // 根据用户指定的locale切换语言
         if (opts.locale == "zh-hans" || opts.locale == "zh_hans") {
+            CLoc::setLanguage("zh-hans");
             ILoc::setLanguage("zh-hans");
 
         } else if (opts.locale != "en-us" && opts.locale != "en_us") {
@@ -359,8 +545,13 @@ namespace stationeers::ic10 {
             return 0;
         }
 
-        // 读取输入文件
-        auto sourceResult = readFile(opts.inputFile);
+        // 链接模式：合并多个编译单元，无需读取单一 source
+        // Link mode: merge multiple compilation units, no single source needed.
+        if (opts.link) return runLink(opts);
+
+        // 非 link 模式：inputFiles 此时必含且仅含一个文件
+        // Non-link mode: inputFiles contains exactly one file at this point.
+        auto sourceResult = readFile(opts.inputFiles.front());
 
         // 根据选项执行对应编译阶段
         if (opts.emitTokens) return runEmitTokens(sourceResult, opts);
