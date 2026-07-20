@@ -266,6 +266,93 @@ class TokenCategory(enum.IntEnum):
     INVALID
 
 
+class OperandType(enum.IntEnum):
+    """IC10 operand type enumeration.
+
+    Auto-synced with C++ ``ic10::OperandType`` via pybind11 ``py::enum_``.
+    Used in AST JSON serialization for type1/type2/... fields as numeric values.
+    """
+    REG_IDENT = 0
+    """Register or identifier."""
+    DEV_ALIAS
+    """Device alias reference."""
+    REG_NUM
+    """Register or number."""
+    DEV_REF
+    """Device reference."""
+    LOGIC_SLOT
+    """Logic slot type."""
+    REAGENT_MODE
+    """Reagent mode."""
+    JUMP_TARGET
+    """Jump target."""
+    LOGIC_TYPE
+    """Logic type."""
+    SLOT_IDX
+    """Slot index."""
+    BATCH_MODE
+    """Batch mode."""
+
+
+class BasicType(enum.IntEnum):
+    """IC10 basic type enumeration.
+
+    Auto-synced with C++ ``ic10::BasicType`` via pybind11 ``py::enum_``.
+    Used in Symbol JSON serialization for the ``type`` field as numeric values.
+    """
+    STRING = 0
+    """String type."""
+    INTEGER
+    """Integer type."""
+    FLOAT
+    """Float type."""
+    REGISTER
+    """Register type."""
+    DEVICE
+    """Device type."""
+    UNKNOWN
+    """Unknown type."""
+    ENUM
+    """Enum type."""
+
+
+class TypeCategory(enum.IntEnum):
+    """IC10 type category enumeration.
+
+    Auto-synced with C++ ``ic10::TypeCategory`` via pybind11 ``py::enum_``.
+    Used in Symbol JSON serialization for the ``category`` field as numeric values.
+    """
+    LABEL = 0
+    """Label category."""
+    STR_CALL
+    """String call category."""
+    HASH_CALL
+    """Hash call category."""
+    CONSTANT
+    """Constant category."""
+    NUMBER
+    """Number category."""
+    BASIC
+    """Basic type category."""
+
+
+class Symbol(TypedDict):
+    """Symbol information from SymbolTable.toJSON()."""
+
+    name: str
+    """Symbol name."""
+    type: int
+    """Basic type (BasicType numeric value)."""
+    category: int
+    """Type category (TypeCategory numeric value)."""
+    typeName: Optional[str]
+    """Optional type name (e.g. device type name)."""
+    value: Optional[str]
+    """Optional symbol value."""
+    desc: Optional[str]
+    """Optional description."""
+
+
 # ============================================================================
 # IC10Local - Localization
 # ============================================================================

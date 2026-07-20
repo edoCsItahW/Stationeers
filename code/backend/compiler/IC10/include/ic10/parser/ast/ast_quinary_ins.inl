@@ -64,7 +64,7 @@ namespace stationeers::ic10 {
     std::string QuinaryInstructionBase<K, V1, V2, V3, V4, V5>::jsonBase(Params&&... params) const {
         return this->QuaternaryInstructionBase<K, V1, V2, V3, V4>::template jsonBase<
             "operand5", "type5", Vs...>(
-            operand5, enumToStr(type5), std::forward<Params>(params)...
+            operand5, static_cast<int>(type5), std::forward<Params>(params)...
         );
     }
 

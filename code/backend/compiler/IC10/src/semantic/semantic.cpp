@@ -23,7 +23,7 @@
 namespace stationeers::ic10 {
 
     std::string Symbol::toJSON() const {
-        return toJson<"name", "type", "category", "typeName", "value", "desc">(name, enumToStr(type.kind), enumToStr(type.category), type.typeName, value, desc);
+        return toJson<"name", "type", "category", "typeName", "value", "desc">(name, static_cast<int>(type.kind), static_cast<int>(type.category), type.typeName, value, desc);
     }
 
     // SymbolTable::Entry

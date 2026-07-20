@@ -23,7 +23,7 @@ import {setupUTF8Console} from '../utils';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const {IC10Local, TokenType, Lexer, Program, Parser, Analyser, SymbolTable} = IC10NodeAPI;
+const {IC10Local, TokenType, Lexer, Program, Parser, Analyser, SymbolTable, BasicType} = IC10NodeAPI;
 
 beforeAll(() => {
     setupUTF8Console();
@@ -755,7 +755,7 @@ describe('Type inference and semantic analysis', () => {
         const symbols = JSON.parse(result.analyser.symbolTable.toJSON());
         const furnaceSym = symbols.find((s: any) => s.name === 'furnace');
         expect(furnaceSym).toBeDefined();
-        expect(furnaceSym.type).toBe('DEVICE');
+        expect(furnaceSym.type).toBe(BasicType.DEVICE);
         expect(furnaceSym.typeName).toBe('Furnace');
     });
 

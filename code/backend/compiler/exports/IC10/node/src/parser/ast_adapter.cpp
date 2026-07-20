@@ -14,6 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_node/parser/ast_adapter.hpp"
+#include "common_node/enum_adapter.hpp"
 #include "common_node/pos_adapter.hpp"
 
 
@@ -47,6 +48,9 @@ namespace stationeers::ic10 {
         constructor.SuppressDestruct();
 
         (void)exports.Set("Program", func);
+
+        // 导出 OperandType 枚举,AST JSON 序列化中使用数值表示
+        (void)exports.Set("OperandType", exportEnum<OperandType>(env));
 
         return exports;
     }
