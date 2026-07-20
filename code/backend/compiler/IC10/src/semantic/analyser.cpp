@@ -268,7 +268,6 @@ namespace stationeers::ic10 {
                     }
 
                     if (defineDirective.type) {
-                        std::cout << defineDirective.type.value() << std::endl;
                         if (*defineDirective.type == "__register__")
                             symbol.type = type_of<Register>;
 

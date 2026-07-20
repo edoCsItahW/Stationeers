@@ -57,7 +57,7 @@ namespace stationeers::ic10 {
     std::string TernaryInstructionBase<K, V1, V2, V3>::jsonBase(Params&&... params) const {
         return this
             ->BinaryInstructionBase<K, V1, V2>::template jsonBase<"operand3", "type3", Vs...>(
-                operand3, enumToStr(type3), std::forward<Params>(params)...
+                operand3, static_cast<int>(type3), std::forward<Params>(params)...
             );
     }
 
