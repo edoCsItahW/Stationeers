@@ -20,6 +20,8 @@
 #include "ic10/pch/ast.hpp"
 #include "ic10/semantic/semantic.hpp"
 #include "ic10/semantic/types.hpp"
+#include "ic10/locals/local.hpp"
+#include "common/exception/diagnostic.hpp"
 #include <memory>
 
 namespace stationeers::ic10 {
