@@ -29,6 +29,7 @@
 #include "ic10_python/incremental/inc_lexer_adapter.hpp"
 #include "ic10_python/semantic/symbol_table_adapter.hpp"
 #include "ic10_python/semantic/analyser_adapter.hpp"
+#include "ic10_python/link/linker_adapter.hpp"
 #include "ic10_python/parser/parser_adapter.hpp"
 #include "ic10_python/locals/local_adapter.hpp"
 #include "ic10_python/lexer/lexer_adapter.hpp"
@@ -66,6 +67,7 @@ PYBIND11_MODULE(ic10_python, m) {
     ic::initParser(m);
     ic::initSymbolTable(m);
     ic::initAnalyser(m);
+    ic::initLinker(m);
     ic::initIncLexer(m);
     ic::initIncParser(m);
     ic::initIncCompiler(m);

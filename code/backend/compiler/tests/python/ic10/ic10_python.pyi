@@ -615,6 +615,112 @@ class Analyser:
 
 
 # ---------------------------------------------------------------------------
+# Linker - 链接器
+# ---------------------------------------------------------------------------
+
+class UnitInfo:
+    """Compilation unit information from Linker.
+
+    @ivar path: Source file path
+    @ivar diagnostics: List of diagnostics for this unit
+    """
+
+    path: str
+    """Source file path."""
+
+    @property
+    def diagnostics(self) -> List[Diagnostic]:
+        """Get the list of diagnostics for this unit."""
+        ...
+
+
+class Linker:
+    """IC10 linker for linking multiple compilation units.
+
+    Used to link multiple IC10 compilation units, merge their symbol tables,
+    and collect all diagnostics.
+
+    @example
+    @code
+    # Create linker and link multiple units
+    linker = ic10.Linker()
+
+    # Add source strings
+    linker.addUnit('alias sensor0 console0')
+    linker.addUnit('move r0 r1', 'file.ic10')
+
+    # Add parsed Program object
+    tokens = ic10.Lexer.tokenize('add r2 r0 r1')
+    parser = ic10.Parser(tokens)
+    program = parser.parse()
+    linker.addUnit(program, 'another.ic10')
+
+    # Perform linking
+    symbol_table = linker.link()
+
+    # Check diagnostics
+    if linker.diagnostics:
+        print('Diagnostics:', linker.diagnostics)
+    @endcode
+    """
+
+    def __init__(self) -> None: ...
+
+    def addUnit(self, program: Program) -> None:
+        """Add compilation unit (Program object).
+
+        @param program: Program object to link
+        """
+        ...
+
+    def addUnit(self, source: str) -> None:
+        """Add compilation unit (source code string).
+
+        @param source: IC10 source code string
+        """
+        ...
+
+    def addUnit(self, program: Program, path: str) -> None:
+        """Add compilation unit with path.
+
+        @param program: Program object to link
+        @param path: Source file path
+        """
+        ...
+
+    def addUnit(self, source: str, path: str) -> None:
+        """Add compilation unit with path (source string).
+
+        @param source: IC10 source code string
+        @param path: Source file path
+        """
+        ...
+
+    def link(self) -> SymbolTable:
+        """Perform linking.
+
+        @return: Merged SymbolTable object
+        """
+        ...
+
+    @property
+    def diagnostics(self) -> List[Diagnostic]:
+        """Get all diagnostics.
+
+        List of diagnostics, each is a dict with level, id, start, end, message fields.
+        """
+        ...
+
+    @property
+    def units(self) -> List[UnitInfo]:
+        """Get all compilation units.
+
+        List of UnitInfo objects.
+        """
+        ...
+
+
+# ---------------------------------------------------------------------------
 #  增量编译相关
 # ---------------------------------------------------------------------------
 
