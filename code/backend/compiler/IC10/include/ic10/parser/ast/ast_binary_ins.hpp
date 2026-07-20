@@ -31,7 +31,8 @@
  *        - RI_RON group (RegisterOrIdentifier, RegisterOrNumber): abs, acos, asin, atan, ceil,
  *          cos, exp, floor, log, round, sin, sqrt, tan, trunc, not, move, sgn, seqz, snez,
  *          sgez, sgtz, slez, sltz, snan, snanz
- *        - DR_RON group (DeviceReference, RegisterOrNumber): bdns, bdnsal, bdse, bdseal, brdns, brdse
+ *        - DR_RON group (DeviceReference, RegisterOrNumber): bdns, bdnsal, bdse, bdseal, brdns,
+ * brdse
  *        - RI_DR group (RegisterOrIdentifier, DeviceReference): sdns, sdse
  *        - RON_RON group (RegisterOrNumber, RegisterOrNumber): poke, beqz, beqzal, bnez, bnezal,
  *          bgez, bgezal, bgtz, bgtzal, blez, blezal, bltz, bltzal, bnan, breqz, brnez, brgez,
@@ -103,92 +104,144 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
-            template<typename... Ts>
-            [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
+            template<FString... Vs, AstJsonAble... Params>
+                requires(sizeof...(Vs) == sizeof...(Params))
+            [[nodiscard]] std::string jsonBase(Params&&... params) const;
         };
 
     }  // namespace ic10
 
-    /**
-     * @def DEFINE_BINARY_INSTRUCTION(upperCase, pascalCase, lowerCase, ...)
-     * @if zh
-     *
-     * @brief 定义二元指令
-     * @details 使用BinaryInstructionBase定义一个二元指令类型并注册到TypeMap
-     * @param upperCase 指令大写下划线名
-     * @param pascalCase 指令PascalCase名
-     * @param lowerCase 指令小写名
-     * @param ... 可变参数(操作数类型)
-     *
-     * @elseif en
-     *
-     * @brief Define binary instruction
-     * @details Defines a binary instruction type using BinaryInstructionBase and registers it in TypeMap
-     * @param upperCase Instruction uppercase underscore name
-     * @param pascalCase Instruction PascalCase name
-     * @param lowerCase Instruction lowercase name
-     * @param ... Variadic parameters (operand types)
-     *
-     * @endif
-     */
-    #define DEFINE_BINARY_INSTRUCTION(upperCase, pascalCase, lowerCase, ...)                           \
-        DEFINE_INSTRUCTION(upperCase, pascalCase, lowerCase, ic10::BinaryInstructionBase, __VA_ARGS__)
+/**
+ * @def DEFINE_BINARY_INSTRUCTION(upperCase, pascalCase, lowerCase, ...)
+ * @if zh
+ *
+ * @brief 定义二元指令
+ * @details 使用BinaryInstructionBase定义一个二元指令类型并注册到TypeMap
+ * @param upperCase 指令大写下划线名
+ * @param pascalCase 指令PascalCase名
+ * @param lowerCase 指令小写名
+ * @param ... 可变参数(操作数类型)
+ *
+ * @elseif en
+ *
+ * @brief Define binary instruction
+ * @details Defines a binary instruction type using BinaryInstructionBase and registers it in
+ * TypeMap
+ * @param upperCase Instruction uppercase underscore name
+ * @param pascalCase Instruction PascalCase name
+ * @param lowerCase Instruction lowercase name
+ * @param ... Variadic parameters (operand types)
+ *
+ * @endif
+ */
+#define DEFINE_BINARY_INSTRUCTION(upperCase, pascalCase, lowerCase, ...)                           \
+    DEFINE_INSTRUCTION(upperCase, pascalCase, lowerCase, ic10::BinaryInstructionBase, __VA_ARGS__)
 
     // 二元指令别名
-    DEFINE_BINARY_INSTRUCTION(abs, Abs, ABS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        abs, Abs, ABS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_BINARY_INSTRUCTION(acos, Acos, ACOS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        acos, Acos, ACOS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(asin, Asin, ASIN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        asin, Asin, ASIN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(atan, Atan, ATAN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        atan, Atan, ATAN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(ceil, Ceil, CEIL, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        ceil, Ceil, CEIL, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(cos, Cos, COS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        cos, Cos, COS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(exp, Exp, EXP, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        exp, Exp, EXP, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(floor, Floor, FLOOR, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        floor, Floor, FLOOR, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(log, Log, LOG, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        log, Log, LOG, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(round, Round, ROUND, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        round, Round, ROUND, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(sin, Sin, SIN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        sin, Sin, SIN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(sqrt, Sqrt, SQRT, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        sqrt, Sqrt, SQRT, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(tan, Tan, TAN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        tan, Tan, TAN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(trunc, Trunc, TRUNC, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        trunc, Trunc, TRUNC, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(not, Not, NOT, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        not, Not, NOT, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(move, Move, MOVE, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        move, Move, MOVE, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(sgn, Sgn, SGN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        sgn, Sgn, SGN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(seqz, Seqz, SEQZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        seqz, Seqz, SEQZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(snez, Snez, SNEZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        snez, Snez, SNEZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(sgez, Sgez, SGEZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        sgez, Sgez, SGEZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(sgtz, Sgtz, SGTZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        sgtz, Sgtz, SGTZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(slez, Slez, SLEZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        slez, Slez, SLEZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(sltz, Sltz, SLTZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        sltz, Sltz, SLTZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-#ifdef SNAN
-#undef SNAN
-#endif
-    DEFINE_BINARY_INSTRUCTION(snan, Snan, SNAN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    #ifdef SNAN
+        #undef SNAN
+    #endif
+    DEFINE_BINARY_INSTRUCTION(
+        snan, Snan, SNAN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(snanz, Snanz, SNANZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        snanz, Snanz, SNANZ, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM
+    )
 
 #endif
 
@@ -203,9 +256,9 @@ namespace stationeers {
          *          trunc、not、move、sgn、seqz、snez、sgez、sgtz、slez、sltz、snan、snanz。
          * @elseif en
          * @brief RI_RON group binary instruction TypeMap
-         * @details Contains binary instructions with operand types (RegisterOrIdentifier, RegisterOrNumber):
-         *          abs, acos, asin, atan, ceil, cos, exp, floor, log, round, sin, sqrt, tan,
-         *          trunc, not, move, sgn, seqz, snez, sgez, sgtz, slez, sltz, snan, snanz.
+         * @details Contains binary instructions with operand types (RegisterOrIdentifier,
+         * RegisterOrNumber): abs, acos, asin, atan, ceil, cos, exp, floor, log, round, sin, sqrt,
+         * tan, trunc, not, move, sgn, seqz, snez, sgez, sgtz, slez, sltz, snan, snanz.
          * @endif
          */
         using BinaryInstructionMap_RI_RON = TypeMap<
@@ -225,19 +278,31 @@ namespace stationeers {
 
     }  // namespace ic10
 
-    DEFINE_BINARY_INSTRUCTION(bdns, Bdns, BDNS, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        bdns, Bdns, BDNS, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM
+    )
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_BINARY_INSTRUCTION(bdnsal, Bdnsal, BDNSAL, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        bdnsal, Bdnsal, BDNSAL, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(bdse, Bdse, BDSE, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        bdse, Bdse, BDSE, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(bdseal, Bdseal, BDSEAL, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        bdseal, Bdseal, BDSEAL, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(brdns, Brdns, BRDNS, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        brdns, Brdns, BRDNS, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM
+    )
 
-    DEFINE_BINARY_INSTRUCTION(brdse, Brdse, BRDSE, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        brdse, Brdse, BRDSE, ic10::OperandType::DEV_REF, ic10::OperandType::REG_NUM
+    )
 
 #endif
 
@@ -250,8 +315,8 @@ namespace stationeers {
          *          bdns、bdnsal、bdse、bdseal、brdns、brdse。
          * @elseif en
          * @brief DR_RON group binary instruction TypeMap
-         * @details Contains binary instructions with operand types (DeviceReference, RegisterOrNumber):
-         *          bdns, bdnsal, bdse, bdseal, brdns, brdse.
+         * @details Contains binary instructions with operand types (DeviceReference,
+         * RegisterOrNumber): bdns, bdnsal, bdse, bdseal, brdns, brdse.
          * @endif
          */
         using BinaryInstructionMap_DR_RON = TypeMap<
@@ -265,11 +330,15 @@ namespace stationeers {
 
     }  // namespace ic10
 
-    DEFINE_BINARY_INSTRUCTION(sdns, Sdns, SDNS, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF)
+    DEFINE_BINARY_INSTRUCTION(
+        sdns, Sdns, SDNS, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF
+    )
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_BINARY_INSTRUCTION(sdse, Sdse, SDSE, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF)
+    DEFINE_BINARY_INSTRUCTION(
+        sdse, Sdse, SDSE, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF
+    )
 
 #endif
 
@@ -282,8 +351,8 @@ namespace stationeers {
          *          sdns、sdse。
          * @elseif en
          * @brief RI_DR group binary instruction TypeMap
-         * @details Contains binary instructions with operand types (RegisterOrIdentifier, DeviceReference):
-         *          sdns, sdse.
+         * @details Contains binary instructions with operand types (RegisterOrIdentifier,
+         * DeviceReference): sdns, sdse.
          * @endif
          */
         using BinaryInstructionMap_RI_DR = TypeMap<
@@ -296,30 +365,72 @@ namespace stationeers {
 
     }  // namespace ic10
 
-    DEFINE_BINARY_INSTRUCTION(poke, Poke, POKE, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        poke, Poke, POKE, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
 
 #ifndef IC10_SIMPLE_MODE
 
-    DEFINE_BINARY_INSTRUCTION(beqz, Beqz, BEQZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(beqzal, Beqzal, BEQZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(bnez, Bnez, BNEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(bnezal, Bnezal, BNEZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(bgez, Bgez, BGEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(bgezal, Bgezal, BGEZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(bgtz, Bgtz, BGTZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(bgtzal, Bgtzal, BGTZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(blez, Blez, BLEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(blezal, Blezal, BLEZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(bltz, Bltz, BLTZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(bltzal, Bltzal, BLTZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(bnan, Bnan, BNAN, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(breqz, Breqz, BREQZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(brnez, Brnez, BRNEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(brgez, Brgez, BRGEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(brgtz, Brgtz, BRGTZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(brlez, Brlez, BRLEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(brltz, Brltz, BRLTZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
-    DEFINE_BINARY_INSTRUCTION(brnan, Brnan, BRNAN, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM)
+    DEFINE_BINARY_INSTRUCTION(
+        beqz, Beqz, BEQZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        beqzal, Beqzal, BEQZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        bnez, Bnez, BNEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        bnezal, Bnezal, BNEZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        bgez, Bgez, BGEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        bgezal, Bgezal, BGEZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        bgtz, Bgtz, BGTZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        bgtzal, Bgtzal, BGTZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        blez, Blez, BLEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        blezal, Blezal, BLEZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        bltz, Bltz, BLTZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        bltzal, Bltzal, BLTZAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        bnan, Bnan, BNAN, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        breqz, Breqz, BREQZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        brnez, Brnez, BRNEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        brgez, Brgez, BRGEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        brgtz, Brgtz, BRGTZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        brlez, Brlez, BRLEZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        brltz, Brltz, BRLTZ, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
+    DEFINE_BINARY_INSTRUCTION(
+        brnan, Brnan, BRNAN, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
+    )
 
 #endif
 
@@ -333,9 +444,9 @@ namespace stationeers {
          *          bltz、bltzal、bnan、breqz、brnez、brgez、brgtz、brlez、brltz、brnan。
          * @elseif en
          * @brief RON_RON group binary instruction TypeMap
-         * @details Contains binary instructions with operand types (RegisterOrNumber, RegisterOrNumber):
-         *          poke, beqz, beqzal, bnez, bnezal, bgez, bgezal, bgtz, bgtzal, blez, blezal,
-         *          bltz, bltzal, bnan, breqz, brnez, brgez, brgtz, brlez, brltz, brnan.
+         * @details Contains binary instructions with operand types (RegisterOrNumber,
+         * RegisterOrNumber): poke, beqz, beqzal, bnez, bnezal, bgez, bgezal, bgtz, bgtzal, blez,
+         * blezal, bltz, bltzal, bnan, breqz, brnez, brgez, brgtz, brlez, brltz, brnan.
          * @endif
          */
         using BinaryInstructionMap_RON_RON = TypeMap<
@@ -347,8 +458,8 @@ namespace stationeers {
             TokenType::KEYWORD_BGTZ, TokenType::KEYWORD_BGTZAL, TokenType::KEYWORD_BLEZ,
             TokenType::KEYWORD_BLEZAL, TokenType::KEYWORD_BLTZ, TokenType::KEYWORD_BLTZAL,
             TokenType::KEYWORD_BNAN, TokenType::KEYWORD_BREQZ, TokenType::KEYWORD_BRNEZ,
-            TokenType::KEYWORD_BRGEZ, TokenType::KEYWORD_BRGTZ,
-            TokenType::KEYWORD_BRLEZ, TokenType::KEYWORD_BRLTZ, TokenType::KEYWORD_BRNAN
+            TokenType::KEYWORD_BRGEZ, TokenType::KEYWORD_BRGTZ, TokenType::KEYWORD_BRLEZ,
+            TokenType::KEYWORD_BRLTZ, TokenType::KEYWORD_BRNAN
 #endif
             >;
 
@@ -360,14 +471,13 @@ namespace stationeers {
             ExpInstruction, FloorInstruction, LogInstruction, RoundInstruction, SinInstruction,
             SqrtInstruction, TanInstruction, TruncInstruction, NotInstruction, MoveInstruction,
             SgnInstruction, SeqzInstruction, SnezInstruction, SgezInstruction, SgtzInstruction,
-            SlezInstruction, SltzInstruction, SnanInstruction, SnanzInstruction,
-            BeqzInstruction, BeqzalInstruction, BnezInstruction, BnezalInstruction, BgezInstruction,
+            SlezInstruction, SltzInstruction, SnanInstruction, SnanzInstruction, BeqzInstruction,
+            BeqzalInstruction, BnezInstruction, BnezalInstruction, BgezInstruction,
             BgezalInstruction, BgtzInstruction, BgtzalInstruction, BlezInstruction,
             BlezalInstruction, BltzInstruction, BltzalInstruction, BnanInstruction,
-            BdnsalInstruction, BdseInstruction, BdsealInstruction,
-            BreqzInstruction, BrnezInstruction, BrgezInstruction, BrgtzInstruction, BrlezInstruction,
-            BrltzInstruction, BrnanInstruction, BrdnsInstruction, BrdseInstruction,
-            SdseInstruction
+            BdnsalInstruction, BdseInstruction, BdsealInstruction, BreqzInstruction,
+            BrnezInstruction, BrgezInstruction, BrgtzInstruction, BrlezInstruction,
+            BrltzInstruction, BrnanInstruction, BrdnsInstruction, BrdseInstruction, SdseInstruction
 #endif
             >;
 
@@ -389,10 +499,10 @@ namespace stationeers {
             TokenType::KEYWORD_BGTZ, TokenType::KEYWORD_BGTZAL, TokenType::KEYWORD_BLEZ,
             TokenType::KEYWORD_BLEZAL, TokenType::KEYWORD_BLTZ, TokenType::KEYWORD_BLTZAL,
             TokenType::KEYWORD_BNAN, TokenType::KEYWORD_BREQZ, TokenType::KEYWORD_BRNEZ,
-            TokenType::KEYWORD_BRGEZ, TokenType::KEYWORD_BRGTZ,
-            TokenType::KEYWORD_BRLEZ, TokenType::KEYWORD_BRLTZ, TokenType::KEYWORD_BRNAN,
-            TokenType::KEYWORD_BDNSAL, TokenType::KEYWORD_BDSE, TokenType::KEYWORD_BDSEAL,
-            TokenType::KEYWORD_BRDNS, TokenType::KEYWORD_BRDSE, TokenType::KEYWORD_SDSE
+            TokenType::KEYWORD_BRGEZ, TokenType::KEYWORD_BRGTZ, TokenType::KEYWORD_BRLEZ,
+            TokenType::KEYWORD_BRLTZ, TokenType::KEYWORD_BRNAN, TokenType::KEYWORD_BDNSAL,
+            TokenType::KEYWORD_BDSE, TokenType::KEYWORD_BDSEAL, TokenType::KEYWORD_BRDNS,
+            TokenType::KEYWORD_BRDSE, TokenType::KEYWORD_SDSE
 #endif
             >;
 

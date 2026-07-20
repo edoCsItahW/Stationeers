@@ -1,6 +1,9 @@
 // Copyright (c) 2026. All rights reserved.
 // This source code is licensed under the CC BY-NC-SA
 // (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
+// This software is protected by copyright law. Reproduction, distribution, or use for commercial
+// purposes is prohibited without the author's permission. If you have any questions or require
+// permission, please contact the author: edocsitahw@qq.com
 
 /**
  * @file test_semantic.cpp
@@ -43,6 +46,7 @@
 #include "ic10/semantic/analyser.hpp"
 
 using namespace stationeers::ic10;
+using stationeers::Pos;
 
 namespace {
 
@@ -531,4 +535,672 @@ TEST_F(SemanticTestFixture, UndefinedDeviceAliasReportsIE0_1) {
     assertNoLexerParserDiags(result);
     EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IE0_1"))
         << "undefinedDev 未定义，应上报 IE0_1";
+}
+
+// ============================================================
+// SymbolTable 单元测试
+// SymbolTable unit tests
+// ============================================================
+
+/// @brief 符号表测试夹具 / Symbol table test fixture
+class SymbolTableTestFixture : public ::testing::Test {
+protected:
+    static void SetUpTestSuite() {
+        ILoc::registerLanguage<ZhHans>("zh-hans");
+        ILoc::setLanguage("zh-hans");
+    }
+
+    /// @brief 创建一个整数类型符号 / Create an integer type symbol
+    static std::shared_ptr<Symbol> makeIntSymbol(const std::string& name, const std::string& value = {}) {
+        auto sym = std::make_shared<Symbol>();
+        sym->name = name;
+        sym->type = type_of<Integer>;
+        if (!value.empty()) sym->value = value;
+        return sym;
+    }
+
+    /// @brief 创建一个寄存器类型符号 / Create a register type symbol
+    static std::shared_ptr<Symbol> makeRegSymbol(const std::string& name) {
+        auto sym = std::make_shared<Symbol>();
+        sym->name = name;
+        sym->type = type_of<Register>;
+        return sym;
+    }
+
+    /// @brief 创建一个设备类型符号 / Create a device type symbol
+    static std::shared_ptr<Symbol> makeDeviceSymbol(const std::string& name) {
+        auto sym = std::make_shared<Symbol>();
+        sym->name = name;
+        sym->type = type_of<Device>;
+        return sym;
+    }
+};
+
+/// @brief 空符号表 contains 返回 false / Empty symbol table contains returns false
+TEST_F(SymbolTableTestFixture, EmptyTableContainsReturnsFalse) {
+    SymbolTable st;
+    EXPECT_FALSE(st.contains("anything"));
+    EXPECT_FALSE(st.contains("foo"));
+}
+
+/// @brief define 后 contains 返回 true / contains returns true after define
+TEST_F(SymbolTableTestFixture, DefineThenContainsReturnsTrue) {
+    SymbolTable st;
+    auto result = st.define("x", makeIntSymbol("x", "42"));
+    EXPECT_TRUE(result.has_value());
+    EXPECT_TRUE(st.contains("x"));
+}
+
+/// @brief 重复定义返回错误 / Redefinition returns error
+TEST_F(SymbolTableTestFixture, RedefinitionReturnsError) {
+    SymbolTable st;
+    (void)st.define("x", makeIntSymbol("x", "1"));
+    auto result = st.define("x", makeIntSymbol("x", "2"));
+    EXPECT_FALSE(result.has_value());
+    EXPECT_FALSE(result.error().empty());
+}
+
+/// @brief 重复定义后符号值不变 / Symbol value unchanged after redefinition attempt
+TEST_F(SymbolTableTestFixture, RedefinitionKeepsOriginalValue) {
+    SymbolTable st;
+    (void)st.define("x", makeIntSymbol("x", "1"));
+    (void)st.define("x", makeIntSymbol("x", "2"));
+    // 从 toJSON 或其他方式验证值保持不变
+    auto json = st.toJSON();
+    EXPECT_NE(json.find("\"1\""), std::string::npos);
+}
+
+/// @brief resolve 创建 pending 条目，contains 返回 false
+///        resolve creates pending entry, contains returns false
+TEST_F(SymbolTableTestFixture, ResolveCreatesPendingEntry) {
+    SymbolTable st;
+    Pos pos(1, 1, 0);
+    auto& future = st.resolve("x", pos);
+    EXPECT_FALSE(st.contains("x"));
+    EXPECT_FALSE(future.isReady());
+}
+
+/// @brief resolve 后 define 填充 Future / define after resolve fills the Future
+TEST_F(SymbolTableTestFixture, DefineAfterResolveFillsFuture) {
+    SymbolTable st;
+    Pos pos(1, 1, 0);
+    auto& future = st.resolve("x", pos);
+    EXPECT_FALSE(future.isReady());
+
+    auto result = st.define("x", makeIntSymbol("x", "42"));
+    EXPECT_TRUE(result.has_value());
+    EXPECT_TRUE(future.isReady());
+    EXPECT_TRUE(st.contains("x"));
+
+    auto sym = future.get();
+    ASSERT_TRUE(sym.has_value());
+    EXPECT_EQ(sym.value()->name, "x");
+    EXPECT_EQ(sym.value()->value, "42");
+}
+
+/// @brief 对同一符号多次 resolve 返回同一 Future
+///        Multiple resolve calls for same symbol return the same Future
+TEST_F(SymbolTableTestFixture, MultipleResolveSameFuture) {
+    SymbolTable st;
+    Pos pos1(1, 1, 0);
+    Pos pos2(2, 1, 10);
+    auto& fut1 = st.resolve("x", pos1);
+    auto& fut2 = st.resolve("x", pos2);
+    EXPECT_EQ(&fut1, &fut2);
+}
+
+/// @brief failAllPending 标记未决符号为失败
+///        failAllPending marks pending symbols as failed
+TEST_F(SymbolTableTestFixture, FailAllPendingMarksFailed) {
+    SymbolTable st;
+    Pos pos(1, 1, 0);
+    auto& future = st.resolve("undefined_sym", pos);
+    EXPECT_FALSE(future.isReady());
+
+    st.failAllPending();
+    // failAllPending 设置 FAILED 状态，isReady() 只对 READY 状态返回 true
+    EXPECT_FALSE(future.isReady());
+    EXPECT_FALSE(st.contains("undefined_sym"));
+}
+
+/// @brief failAllPending 不影响已定义符号
+///        failAllPending does not affect defined symbols
+TEST_F(SymbolTableTestFixture, FailAllPendingDoesNotAffectDefined) {
+    SymbolTable st;
+    (void)st.define("defined", makeIntSymbol("defined", "1"));
+    Pos pos(1, 1, 0);
+    (void)st.resolve("pending", pos);
+
+    st.failAllPending();
+    EXPECT_TRUE(st.contains("defined"));
+    EXPECT_FALSE(st.contains("pending"));
+}
+
+/// @brief 空符号表 toJSON 为空数组 / Empty symbol table toJSON is empty array
+TEST_F(SymbolTableTestFixture, EmptyTableToJSONEmptyArray) {
+    SymbolTable st;
+    auto json = st.toJSON();
+    EXPECT_EQ(json, "[]");
+}
+
+/// @brief 符号表 toJSON 包含已定义符号 / Symbol table toJSON includes defined symbols
+TEST_F(SymbolTableTestFixture, ToJSONIncludesDefinedSymbols) {
+    SymbolTable st;
+    (void)st.define("foo", makeIntSymbol("foo", "42"));
+    (void)st.define("bar", makeRegSymbol("bar"));
+
+    auto json = st.toJSON();
+    EXPECT_NE(json.find("foo"), std::string::npos);
+    EXPECT_NE(json.find("bar"), std::string::npos);
+    EXPECT_NE(json.find("42"), std::string::npos);
+}
+
+/// @brief 符号表 toJSON 不包含未决符号 / Symbol table toJSON excludes pending symbols
+TEST_F(SymbolTableTestFixture, ToJSONExcludesPendingSymbols) {
+    SymbolTable st;
+    (void)st.define("defined", makeIntSymbol("defined", "1"));
+    Pos pos(1, 1, 0);
+    (void)st.resolve("pending", pos);
+
+    auto json = st.toJSON();
+    EXPECT_NE(json.find("defined"), std::string::npos);
+    EXPECT_EQ(json.find("pending"), std::string::npos);
+}
+
+/// @brief 符号表内置 d0-d5 设备符号
+///        Symbol table has builtin d0-d5 device symbols
+TEST_F(SymbolTableTestFixture, BuiltinDeviceSymbolsExist) {
+    SymbolTable st;
+
+    // 1. 验证 size 不为 0
+    EXPECT_GT(st.builtinSymbols.size(), 0u) << "builtinSymbols should not be empty";
+
+    // 2. 验证 d0 存在且 name 正确
+    auto it0 = st.builtinSymbols.find("d0");
+    ASSERT_NE(it0, st.builtinSymbols.end()) << "d0 should exist in builtinSymbols";
+    EXPECT_EQ(it0->second.name, "d0") << "d0 symbol name should be d0";
+
+    // 3. 验证 d5 存在
+    auto it5 = st.builtinSymbols.find("d5");
+    ASSERT_NE(it5, st.builtinSymbols.end()) << "d5 should exist in builtinSymbols";
+
+    // 4. 验证 d6 不存在
+    EXPECT_EQ(st.builtinSymbols.find("d6"), st.builtinSymbols.end()) << "d6 should not exist";
+
+    // 5. 验证总数为 6
+    EXPECT_EQ(st.builtinSymbols.size(), 6u) << "builtinSymbols should have 6 entries";
+
+    // 6. 验证内置符号类型是 DEVICE
+    EXPECT_EQ(it0->second.type.kind, BasicType::DEVICE) << "d0 type should be DEVICE";
+}
+
+/// @brief find 能找到已定义符号 / find finds defined symbols
+TEST_F(SymbolTableTestFixture, FindDefinedSymbol) {
+    SymbolTable st;
+    (void)st.define("x", makeIntSymbol("x"));
+    auto it = st.find("x");
+    EXPECT_NE(it, st.end());
+    EXPECT_TRUE(it->second.ready());
+}
+
+/// @brief find 找不到未定义符号 / find returns end for undefined symbol
+TEST_F(SymbolTableTestFixture, FindUndefinedReturnsEnd) {
+    SymbolTable st;
+    auto it = st.find("nonexistent");
+    EXPECT_EQ(it, st.end());
+}
+
+/// @brief find 能找到 pending 条目（与 contains 不同）
+///        find finds pending entries (unlike contains)
+TEST_F(SymbolTableTestFixture, FindPendingEntryFound) {
+    SymbolTable st;
+    Pos pos(1, 1, 0);
+    (void)st.resolve("pending", pos);
+    auto it = st.find("pending");
+    EXPECT_NE(it, st.end());
+    EXPECT_FALSE(it->second.ready());
+}
+
+/// @brief begin/end 迭代器遍历所有条目（包括 pending）
+///        begin/end iterators iterate all entries (including pending)
+TEST_F(SymbolTableTestFixture, BeginEndIterateAllEntries) {
+    SymbolTable st;
+    (void)st.define("defined", makeIntSymbol("defined"));
+    Pos pos(1, 1, 0);
+    (void)st.resolve("pending", pos);
+
+    int count = 0;
+    for (auto it = st.begin(); it != st.end(); ++it) {
+        ++count;
+    }
+    EXPECT_EQ(count, 2);
+}
+
+/// @brief Symbol::toJSON 输出正确格式 / Symbol::toJSON outputs correct format
+TEST_F(SymbolTableTestFixture, SymbolToJSONFormat) {
+    auto sym = makeIntSymbol("testSym", "100");
+    sym->desc = "test description";
+    auto json = sym->toJSON();
+
+    EXPECT_NE(json.find("\"name\""), std::string::npos);
+    EXPECT_NE(json.find("testSym"), std::string::npos);
+    EXPECT_NE(json.find("\"type\""), std::string::npos);
+    EXPECT_NE(json.find("\"value\""), std::string::npos);
+    EXPECT_NE(json.find("\"desc\""), std::string::npos);
+    EXPECT_NE(json.find("test description"), std::string::npos);
+}
+
+/// @brief 符号带 typeName 的 toJSON 输出
+///        Symbol with typeName toJSON output
+TEST_F(SymbolTableTestFixture, SymbolWithTypeNameToJSON) {
+    auto sym = makeDeviceSymbol("dev");
+    sym->type.typeName = "Furnace";
+    auto json = sym->toJSON();
+
+    EXPECT_NE(json.find("typeName"), std::string::npos);
+    EXPECT_NE(json.find("Furnace"), std::string::npos);
+}
+
+// ============================================================
+// TypeTable 单元测试
+// TypeTable unit tests
+// ============================================================
+
+/// @brief 类型表测试夹具 / Type table test fixture
+class TypeTableTestFixture : public ::testing::Test {
+protected:
+    static void SetUpTestSuite() {
+        ILoc::registerLanguage<ZhHans>("zh-hans");
+        ILoc::setLanguage("zh-hans");
+    }
+};
+
+/// @brief 空类型表 find 返回 nullptr / Empty type table find returns nullptr
+TEST_F(TypeTableTestFixture, EmptyTableFindReturnsNull) {
+    TypeTable tt;
+    EXPECT_EQ(tt.find("Anything"), nullptr);
+}
+
+/// @brief registerType 后 find 可找到 / find finds after registerType
+TEST_F(TypeTableTestFixture, RegisterThenFindSucceeds) {
+    TypeTable tt;
+    EnumType enumType;
+    enumType.name = "TestEnum";
+    tt.registerType(CustomType{enumType});
+
+    auto* found = tt.find("TestEnum");
+    ASSERT_NE(found, nullptr);
+    ASSERT_TRUE(std::holds_alternative<EnumType>(*found));
+    EXPECT_EQ(std::get<EnumType>(*found).name, "TestEnum");
+}
+
+/// @brief 注册设备类型后可找到 / Registered device type can be found
+TEST_F(TypeTableTestFixture, RegisterDeviceType) {
+    TypeTable tt;
+    DeviceType devType;
+    devType.name = "TestDevice";
+    tt.registerType(CustomType{devType});
+
+    auto* found = tt.find("TestDevice");
+    ASSERT_NE(found, nullptr);
+    ASSERT_TRUE(std::holds_alternative<DeviceType>(*found));
+    EXPECT_EQ(std::get<DeviceType>(*found).name, "TestDevice");
+}
+
+/// @brief 注册多个类型后都可找到 / Multiple registered types all findable
+TEST_F(TypeTableTestFixture, RegisterMultipleTypes) {
+    TypeTable tt;
+
+    EnumType enumType;
+    enumType.name = "EnumA";
+    tt.registerType(CustomType{enumType});
+
+    DeviceType devType;
+    devType.name = "DevB";
+    tt.registerType(CustomType{devType});
+
+    EXPECT_NE(tt.find("EnumA"), nullptr);
+    EXPECT_NE(tt.find("DevB"), nullptr);
+    EXPECT_EQ(tt.find("NonExistent"), nullptr);
+}
+
+/// @brief 设备类型包含 slots/logics/modes 等信息
+///        Device type includes slots/logics/modes info
+TEST_F(TypeTableTestFixture, DeviceTypeHasSlotsAndLogics) {
+    TypeTable tt;
+    DeviceType devType;
+    devType.name = "Sensor";
+
+    DeviceSlot slot;
+    slot.index = "0";
+    slot.direction = SlotDirection::INPUT;
+    devType.slots.push_back(slot);
+
+    DeviceLogic logic;
+    logic.name = "Pressure";
+    logic.access = LogicAccess::R;
+    devType.logics.push_back(logic);
+
+    tt.registerType(CustomType{devType});
+
+    auto* found = tt.find("Sensor");
+    ASSERT_NE(found, nullptr);
+    auto& dev = std::get<DeviceType>(*found);
+    EXPECT_EQ(dev.slots.size(), 1u);
+    EXPECT_EQ(dev.logics.size(), 1u);
+    EXPECT_EQ(dev.slots[0].index, "0");
+    EXPECT_EQ(dev.logics[0].name, "Pressure");
+}
+
+/// @brief 枚举类型包含值列表 / Enum type contains value list
+TEST_F(TypeTableTestFixture, EnumTypeHasValues) {
+    TypeTable tt;
+    EnumType enumType;
+    enumType.name = "ModeType";
+
+    EnumValueEntry val1;
+    val1.name = "ModeA";
+    val1.value = "0";
+    enumType.values.push_back(val1);
+
+    EnumValueEntry val2;
+    val2.name = "ModeB";
+    val2.value = "1";
+    enumType.values.push_back(val2);
+
+    tt.registerType(CustomType{enumType});
+
+    auto* found = tt.find("ModeType");
+    ASSERT_NE(found, nullptr);
+    auto& en = std::get<EnumType>(*found);
+    EXPECT_EQ(en.values.size(), 2u);
+    EXPECT_EQ(en.values[0].name, "ModeA");
+    EXPECT_EQ(en.values[1].value, "1");
+}
+
+// ============================================================
+// 语义分析扩展测试：更多边界场景
+// Extended semantic analysis tests: more boundary scenarios
+// ============================================================
+
+/// @brief alias 重定义应上报 IEA2_1 / Alias redefinition reports IEA2_1
+TEST_F(SemanticTestFixture, AliasRedefinitionReportsIEA2_1) {
+    auto source = withStdLib(
+        "alias foo r0\n"
+        "alias foo r1\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IEA2_1"))
+        << "alias foo 重复定义，应上报 IEA2_1";
+}
+
+/// @brief define 重定义应上报 IEA2_1 / Define redefinition reports IEA2_1
+TEST_F(SemanticTestFixture, DefineRedefinitionReportsIEA2_1) {
+    auto source = withStdLib(
+        "define VAL 10\n"
+        "define VAL 20\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IEA2_1"))
+        << "define VAL 重复定义，应上报 IEA2_1";
+}
+
+/// @brief 标签重定义应上报 IEA2_1 / Label redefinition reports IEA2_1
+TEST_F(SemanticTestFixture, LabelRedefinitionReportsIEA2_1) {
+    auto source = withStdLib(
+        "loop:\n"
+        "loop:\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IEA2_1"))
+        << "标签 loop 重复定义，应上报 IEA2_1";
+}
+
+/// @brief 未定义跳转目标应上报 IE0_1 / Undefined jump target reports IE0_1
+TEST_F(SemanticTestFixture, UndefinedJumpTargetReportsIE0_1) {
+    auto source = withStdLib(
+        "j nonexistent\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IE0_1"))
+        << "nonexistent 标签未定义，应上报 IE0_1";
+}
+
+/// @brief 前向引用标签合法，不上报错误 / Forward label reference is legal
+TEST_F(SemanticTestFixture, ForwardLabelReferenceNoError) {
+    auto source = withStdLib(
+        "j end\n"
+        "end:\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_TRUE(result.analyser->getSymbolTable().contains("end"));
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IE0_1"))
+        << "前向引用标签是合法的，不应上报 IE0_1";
+}
+
+/// @brief LOGIC_SLOT 缺失枚举应上报 IEA8_1 / Missing LogicSlotType enum reports IEA8_1
+TEST_F(SemanticTestFixture, MissingLogicSlotTypeEnumReportsIEA8_1) {
+    // 仅加载 BatchMode 和 LogicType，不加载 LogicSlotType
+    auto source = withEnums(
+        {kBatchModeEnum, kLogicTypeEnum},
+        "lbs r0 100 0 Quantity Average\nhcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IEA8_1"))
+        << "LogicSlotType 枚举未定义，应上报 IEA8_1";
+}
+
+/// @brief REAGENT_MODE 缺失枚举应上报 IEA8_1 / Missing ReagentMode enum reports IEA8_1
+TEST_F(SemanticTestFixture, MissingReagentModeEnumReportsIEA8_1) {
+    // 不加载 ReagentMode
+    auto source = withEnums(
+        {kLogicTypeEnum},
+        "main:\n"
+        "lr r0 d0 Contents main\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IEA8_1"))
+        << "ReagentMode 枚举未定义，应上报 IEA8_1";
+}
+
+/// @brief BATCH_MODE 缺失枚举应上报 IEA8_1 / Missing BatchMode enum reports IEA8_1
+TEST_F(SemanticTestFixture, MissingBatchModeEnumReportsIEA8_1) {
+    // 仅加载 LogicType，不加载 BatchMode
+    auto source = withEnums(
+        {kLogicTypeEnum},
+        "lb r0 100 Pressure Average\nhcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IEA8_1"))
+        << "BatchMode 枚举未定义，应上报 IEA8_1";
+}
+
+/// @brief LOGIC_SLOT 接受数字字面量 / LOGIC_SLOT accepts numeric literal
+TEST_F(SemanticTestFixture, LogicSlotAcceptsNumber) {
+    auto source = withStdLib("lbs r0 100 0 3 Average\nhcf\n");
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IWA12_1"))
+        << "数字 3 是合法的 LOGIC_SLOT 值";
+}
+
+/// @brief REAGENT_MODE 接受数字字面量 / REAGENT_MODE accepts numeric literal
+TEST_F(SemanticTestFixture, ReagentModeAcceptsNumber) {
+    auto source = withStdLib(
+        "main:\n"
+        "lr r0 d0 0 main\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IWA13_1"))
+        << "数字 0 是合法的 REAGENT_MODE 值";
+}
+
+/// @brief alias 类型提示指向不存在类型时不崩溃 / Alias with nonexistent type hint does not crash
+TEST_F(SemanticTestFixture, AliasWithNonexistentTypeHintNoCrash) {
+    auto source = withStdLib(
+        "alias dev d0 #: @type NonexistentType\n"
+        "l r0 dev Pressure\n"
+        "hcf\n"
+    );
+    EXPECT_NO_THROW({
+        auto result = compile(source);
+        (void)result;
+    });
+}
+
+/// @brief 多个未定义符号都应上报 / Multiple undefined symbols all reported
+TEST_F(SemanticTestFixture, MultipleUndefinedSymbolsAllReported) {
+    auto source = withStdLib(
+        "move r0 undefA\n"
+        "move r1 undefB\n"
+        "j undefC\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    // 至少应有3个未定义符号相关错误
+    EXPECT_GE(result.analyserDiags.size(), 3u);
+}
+
+/// @brief 符号表包含 alias 定义的符号 / Symbol table contains alias-defined symbols
+TEST_F(SemanticTestFixture, SymbolTableContainsAliasSymbols) {
+    auto source = withStdLib(
+        "alias myReg r0\n"
+        "alias myDev d0\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    auto& symtab = result.analyser->getSymbolTable();
+    EXPECT_TRUE(symtab.contains("myReg"));
+    EXPECT_TRUE(symtab.contains("myDev"));
+}
+
+/// @brief 符号表包含 define 定义的符号 / Symbol table contains define-defined symbols
+TEST_F(SemanticTestFixture, SymbolTableContainsDefineSymbols) {
+    auto source = withStdLib(
+        "define MAX 100\n"
+        "define NAME HASH(\"test\")\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    auto& symtab = result.analyser->getSymbolTable();
+    EXPECT_TRUE(symtab.contains("MAX"));
+    EXPECT_TRUE(symtab.contains("NAME"));
+}
+
+/// @brief 符号表包含标签定义 / Symbol table contains label definitions
+TEST_F(SemanticTestFixture, SymbolTableContainsLabels) {
+    auto source = withStdLib(
+        "start:\n"
+        "loop:\n"
+        "j end\n"
+        "end:\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    auto& symtab = result.analyser->getSymbolTable();
+    EXPECT_TRUE(symtab.contains("start"));
+    EXPECT_TRUE(symtab.contains("loop"));
+    EXPECT_TRUE(symtab.contains("end"));
+}
+
+/// @brief 设备别名通过 alias 定义后可被引用 / Device alias defined by alias can be referenced
+TEST_F(SemanticTestFixture, DeviceAliasDefinedByAliasCanBeReferenced) {
+    auto source = withStdLib(
+        "alias myDev d0\n"
+        "l r0 myDev Pressure\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    auto& symtab = result.analyser->getSymbolTable();
+    EXPECT_TRUE(symtab.contains("myDev"));
+}
+
+/// @brief 常量引用（pi/nan/rgas 等）不应产生未定义错误
+///        Constant references (pi/nan/rgas etc.) should not produce undefined errors
+TEST_F(SemanticTestFixture, ConstantsReferenceNoUndefinedError) {
+    auto source = withStdLib(
+        "move r0 pi\n"
+        "move r1 nan\n"
+        "move r2 rgas\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    // 常量是内置的，不应产生未定义错误
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IE0_1"));
+}
+
+/// @brief 空程序语义分析无错误 / Empty program semantic analysis has no errors
+TEST_F(SemanticTestFixture, EmptyProgramNoErrors) {
+    auto result = compile("");
+
+    EXPECT_TRUE(result.lexerDiags.empty());
+    EXPECT_TRUE(result.parserDiags.empty());
+    EXPECT_TRUE(result.analyserDiags.empty());
+    EXPECT_EQ(result.ast.statements.size(), 0u);
+}
+
+/// @brief 仅含文档注释的程序无错误 / Program with only doc comments has no errors
+TEST_F(SemanticTestFixture, DocCommentOnlyProgramNoErrors) {
+    auto source = std::string(kLogicTypeEnum) + "\n" + std::string(kTestDevice);
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    EXPECT_TRUE(result.lexerDiags.empty());
+    EXPECT_TRUE(result.parserDiags.empty());
+    // 文档注释定义类型，不应有语义错误
+    EXPECT_TRUE(result.analyserDiags.empty());
 }

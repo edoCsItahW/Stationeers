@@ -55,14 +55,11 @@ namespace stationeers::ic10 {
     }
 
     template<FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4>
-    template<typename... Ts>
-    std::string QuaternaryInstructionBase<K, V1, V2, V3, V4>::jsonBase(
-        std::pair<std::string, Ts>... fields
-    ) const {
-        return this->TernaryInstructionBase<K, V1, V2, V3>::template jsonBase<
-            std::string, std::string_view, Ts...>(
-            {"operand4", call(operand4, [](auto&& o) { return o.toJSON(); })},
-            {"type4", enumToStr(type4)}, fields...
+    template<FString... Vs, AstJsonAble... Params>
+        requires(sizeof...(Vs) == sizeof...(Params))
+    std::string QuaternaryInstructionBase<K, V1, V2, V3, V4>::jsonBase(Params&&... params) const {
+        return this->TernaryInstructionBase<K, V1, V2, V3>::template jsonBase<"operand4", "type4", Vs...>(
+            operand4, enumToStr(type4), std::forward<Params>(params)...
         );
     }
 

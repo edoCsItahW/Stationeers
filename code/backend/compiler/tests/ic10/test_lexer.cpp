@@ -22,6 +22,8 @@
 
 
 using namespace stationeers::ic10;
+using stationeers::Pos;
+using stationeers::endPos;
 
 namespace {
 
@@ -967,4 +969,132 @@ TEST(LexerTest, NumberFollowedBySymbolNoError) {
     Lexer lexer("main:");
     (void)lexer.scan();
     EXPECT_TRUE(lexer.getDiagnostics().empty());
+}
+
+// ============================================================
+// Token 单元测试
+// Token unit tests
+// ============================================================
+
+TEST(TokenTest, DefaultTokenIsUnknown) {
+    initLocale();
+    Token tok;
+    EXPECT_EQ(tok.type, TokenType::UNKNOWN);
+    EXPECT_EQ(tok.category, TokenCategory::INVALID);
+    EXPECT_EQ(tok.lexeme, "");
+    EXPECT_EQ(tok.pos.line(), 1);
+    EXPECT_EQ(tok.pos.column(), 1);
+    EXPECT_EQ(tok.pos.offset(), 0u);
+}
+
+TEST(TokenTest, TokenToStringNotEmpty) {
+    initLocale();
+    Token tok;
+    tok.type = TokenType::KEYWORD_ADD;
+    tok.lexeme = "add";
+    tok.category = TokenCategory::LITERAL;
+    auto str = tok.toString();
+    EXPECT_FALSE(str.empty());
+}
+
+TEST(TokenTest, TokenToJSONIsValid) {
+    initLocale();
+    Token tok;
+    tok.type = TokenType::INTEGER;
+    tok.lexeme = "42";
+    tok.category = TokenCategory::LITERAL;
+    auto json = tok.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find('{'), std::string::npos);
+    EXPECT_NE(json.find('}'), std::string::npos);
+    EXPECT_NE(json.find("42"), std::string::npos);
+}
+
+TEST(TokenTest, TokenStreamOutputWorks) {
+    initLocale();
+    Token tok;
+    tok.type = TokenType::REGISTER;
+    tok.lexeme = "r0";
+    tok.category = TokenCategory::LITERAL;
+    std::ostringstream oss;
+    oss << tok;
+    EXPECT_FALSE(oss.str().empty());
+}
+
+// ============================================================
+// Position 单元测试
+// Position unit tests
+// ============================================================
+
+TEST(PositionTest, DefaultPositionIsStart) {
+    initLocale();
+    Pos pos;
+    EXPECT_EQ(pos.line(), 1);
+    EXPECT_EQ(pos.column(), 1);
+    EXPECT_EQ(pos.offset(), 0u);
+}
+
+TEST(PositionTest, ParamConstructorSetsValues) {
+    initLocale();
+    Pos pos(3, 5, 20);
+    EXPECT_EQ(pos.line(), 3);
+    EXPECT_EQ(pos.column(), 5);
+    EXPECT_EQ(pos.offset(), 20u);
+}
+
+TEST(PositionTest, NextIncrementsColumnAndOffset) {
+    initLocale();
+    Pos pos;
+    pos.next();
+    EXPECT_EQ(pos.line(), 1);
+    EXPECT_EQ(pos.column(), 2);
+    EXPECT_EQ(pos.offset(), 1u);
+}
+
+TEST(PositionTest, NewlineResetsColumnIncrementsLine) {
+    initLocale();
+    Pos pos(1, 10, 9);
+    pos.newline();
+    EXPECT_EQ(pos.line(), 2);
+    EXPECT_EQ(pos.column(), 1);
+    EXPECT_EQ(pos.offset(), 10u);
+}
+
+TEST(PositionTest, MoveAdvancesByOffset) {
+    initLocale();
+    Pos pos;
+    pos.move(5);
+    EXPECT_EQ(pos.line(), 1);
+    EXPECT_EQ(pos.column(), 6);
+    EXPECT_EQ(pos.offset(), 5u);
+}
+
+TEST(PositionTest, EndPosCalculatesCorrectly) {
+    initLocale();
+    Pos pos(1, 1, 0);
+    auto end = endPos(pos, 5);
+    EXPECT_EQ(end.line(), 1);
+    EXPECT_EQ(end.column(), 6);
+    EXPECT_EQ(end.offset(), 5u);
+}
+
+TEST(PositionTest, MultipleNextCalls) {
+    initLocale();
+    Pos pos;
+    for (int i = 0; i < 10; ++i) {
+        pos.next();
+    }
+    EXPECT_EQ(pos.line(), 1);
+    EXPECT_EQ(pos.column(), 11);
+    EXPECT_EQ(pos.offset(), 10u);
+}
+
+TEST(PositionTest, NewlineThenNext) {
+    initLocale();
+    Pos pos;
+    pos.newline();
+    pos.next();
+    EXPECT_EQ(pos.line(), 2);
+    EXPECT_EQ(pos.column(), 2);
+    EXPECT_EQ(pos.offset(), 2u);
 }

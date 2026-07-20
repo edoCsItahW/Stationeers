@@ -26,7 +26,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief IC10 quaternary instruction AST definitions
- * @details Defines quaternary instructions (instructions with four operands) in IC10, grouped by operand types:
+ * @details Defines quaternary instructions (instructions with four operands) in IC10, grouped by
+ * operand types:
  *        - RI_RON_RON_RON: clamp, lerp, ext, ins, sap, sna, select
  *        - DR_SI_LS_RI: ss
  *        - RI_RON_LT_BM: lb
@@ -35,7 +36,8 @@
  *        - RON_RON_RON_RON: bap, bapal, bna, bnaal, brap, brna
  *        - RI_DR_SI_LS: ls
  *        - RI_DR_RM_JT: lr
- *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
+ *        Uses template metaprogramming to automatically generate instruction types and TypeMap
+ * mappings.
  * @note Implementation in ast_quaternary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -111,13 +113,14 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
-            template<typename... Ts>
-            [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
+            template<FString... Vs, AstJsonAble... Params>
+                requires(sizeof...(Vs) == sizeof...(Params))
+            [[nodiscard]] std::string jsonBase(Params&&... params) const;
         };
 
     }  // namespace ic10
 
-// 四元指令别名
+    // 四元指令别名
     /**
      * @def DEFINE_QUATERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)
      * @if zh
@@ -132,7 +135,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Define quaternary instruction
-     * @details Defines a quaternary instruction type using QuaternaryInstructionBase and registers it in TypeMap
+     * @details Defines a quaternary instruction type using QuaternaryInstructionBase and registers
+     * it in TypeMap
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name
@@ -159,20 +163,20 @@ namespace stationeers {
 #ifndef IC10_SIMPLE_MODE
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        ext, Ext, EXT, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        ext, Ext, EXT, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_QUATERNARY_INSTRUCTION(
-        ins, Ins, INS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        ins, Ins, INS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_QUATERNARY_INSTRUCTION(
-        sap, Sap, SAP, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        sap, Sap, SAP, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_QUATERNARY_INSTRUCTION(
-        sna, Sna, SNA, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        sna, Sna, SNA, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_QUATERNARY_INSTRUCTION(
         select, Select, SELECT, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
@@ -187,12 +191,12 @@ namespace stationeers {
         /**
          * @if zh
          * @brief RI_RON_RON_RON 操作数类型的四元指令 TypeMap
-         * @details 操作数类型为 (RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)。
-         *        包含指令: clamp, lerp, ext, ins, sap, sna, select。
+         * @details 操作数类型为 (RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber,
+         * RegisterOrNumber)。 包含指令: clamp, lerp, ext, ins, sap, sna, select。
          * @elseif en
          * @brief Quaternary instruction TypeMap for RI_RON_RON_RON operand types
-         * @details Operand types: (RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber).
-         *        Contains instructions: clamp, lerp, ext, ins, sap, sna, select.
+         * @details Operand types: (RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber,
+         * RegisterOrNumber). Contains instructions: clamp, lerp, ext, ins, sap, sna, select.
          * @endif
          */
         using QuaternaryInstructionMap_RI_RON_RON_RON = TypeMap<
@@ -208,8 +212,8 @@ namespace stationeers {
 
     // 四元指令 - 操作数类型 DeviceReference, SlotIndex, LogicSlotType, RegisterOrIdentifier
     DEFINE_QUATERNARY_INSTRUCTION(
-        ss, Ss, SS, ic10::OperandType::DEV_REF, ic10::OperandType::SLOT_IDX, ic10::OperandType::LOGIC_SLOT,
-        ic10::OperandType::REG_IDENT
+        ss, Ss, SS, ic10::OperandType::DEV_REF, ic10::OperandType::SLOT_IDX,
+        ic10::OperandType::LOGIC_SLOT, ic10::OperandType::REG_IDENT
     )
 
     namespace ic10 {
@@ -221,18 +225,18 @@ namespace stationeers {
          *        包含指令: ss。
          * @elseif en
          * @brief Quaternary instruction TypeMap for DR_SI_LS_RI operand types
-         * @details Operand types: (DeviceReference, SlotIndex, LogicSlotType, RegisterOrIdentifier).
-         *        Contains instructions: ss.
+         * @details Operand types: (DeviceReference, SlotIndex, LogicSlotType,
+         * RegisterOrIdentifier). Contains instructions: ss.
          * @endif
          */
         using QuaternaryInstructionMap_DR_SI_LS_RI = TypeMap<TokenType, TokenType::KEYWORD_SS>;
 
-    }
+    }  // namespace ic10
 
     // 四元指令 - 操作数类型 RegisterOrIdentifier, RegisterOrNumber, LogicType, BatchMode
     DEFINE_QUATERNARY_INSTRUCTION(
-        lb, Lb, LB, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::LOGIC_TYPE,
-        ic10::OperandType::BATCH_MODE
+        lb, Lb, LB, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
+        ic10::OperandType::LOGIC_TYPE, ic10::OperandType::BATCH_MODE
     )
 
     namespace ic10 {
@@ -250,12 +254,12 @@ namespace stationeers {
          */
         using QuaternaryInstructionMap_RI_RON_LT_BM = TypeMap<TokenType, TokenType::KEYWORD_LB>;
 
-    }
+    }  // namespace ic10
 
     // 四元指令 - 操作数类型 RegisterOrNumber, RegisterOrNumber, LogicType, RegisterOrIdentifier
     DEFINE_QUATERNARY_INSTRUCTION(
-        sbn, Sbn, SBN, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::LOGIC_TYPE,
-        ic10::OperandType::REG_IDENT
+        sbn, Sbn, SBN, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
+        ic10::OperandType::LOGIC_TYPE, ic10::OperandType::REG_IDENT
     )
 
     namespace ic10 {
@@ -263,22 +267,22 @@ namespace stationeers {
         /**
          * @if zh
          * @brief RON_RON_LT_RI 操作数类型的四元指令 TypeMap
-         * @details 操作数类型为 (RegisterOrNumber, RegisterOrNumber, LogicType, RegisterOrIdentifier)。
-         *        包含指令: sbn。
+         * @details 操作数类型为 (RegisterOrNumber, RegisterOrNumber, LogicType,
+         * RegisterOrIdentifier)。 包含指令: sbn。
          * @elseif en
          * @brief Quaternary instruction TypeMap for RON_RON_LT_RI operand types
-         * @details Operand types: (RegisterOrNumber, RegisterOrNumber, LogicType, RegisterOrIdentifier).
-         *        Contains instructions: sbn.
+         * @details Operand types: (RegisterOrNumber, RegisterOrNumber, LogicType,
+         * RegisterOrIdentifier). Contains instructions: sbn.
          * @endif
          */
         using QuaternaryInstructionMap_RON_RON_LT_RI = TypeMap<TokenType, TokenType::KEYWORD_SBN>;
 
-    }
+    }  // namespace ic10
 
     // 四元指令 - 操作数类型 RegisterOrNumber, SlotIndex, LogicSlotType, RegisterOrIdentifier
     DEFINE_QUATERNARY_INSTRUCTION(
-        sbs, Sbs, SBS, ic10::OperandType::REG_NUM, ic10::OperandType::SLOT_IDX, ic10::OperandType::LOGIC_SLOT,
-        ic10::OperandType::REG_IDENT
+        sbs, Sbs, SBS, ic10::OperandType::REG_NUM, ic10::OperandType::SLOT_IDX,
+        ic10::OperandType::LOGIC_SLOT, ic10::OperandType::REG_IDENT
     )
 
     namespace ic10 {
@@ -286,46 +290,46 @@ namespace stationeers {
         /**
          * @if zh
          * @brief RON_SI_LS_RI 操作数类型的四元指令 TypeMap
-         * @details 操作数类型为 (RegisterOrNumber, SlotIndex, LogicSlotType, RegisterOrIdentifier)。
-         *        包含指令: sbs。
+         * @details 操作数类型为 (RegisterOrNumber, SlotIndex, LogicSlotType,
+         * RegisterOrIdentifier)。 包含指令: sbs。
          * @elseif en
          * @brief Quaternary instruction TypeMap for RON_SI_LS_RI operand types
-         * @details Operand types: (RegisterOrNumber, SlotIndex, LogicSlotType, RegisterOrIdentifier).
-         *        Contains instructions: sbs.
+         * @details Operand types: (RegisterOrNumber, SlotIndex, LogicSlotType,
+         * RegisterOrIdentifier). Contains instructions: sbs.
          * @endif
          */
         using QuaternaryInstructionMap_RON_SI_LS_RI = TypeMap<TokenType, TokenType::KEYWORD_SBS>;
 
-    }
+    }  // namespace ic10
 
     // 四元指令 - 操作数类型 RegisterOrNumber, RegisterOrNumber, RegisterOrNumber,
     // RegisterOrNumber
     DEFINE_QUATERNARY_INSTRUCTION(
-        bap, Bap, BAP, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        bap, Bap, BAP, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
 
 #ifndef IC10_SIMPLE_MODE
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        bapal, Bapal, BAPAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        bapal, Bapal, BAPAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_QUATERNARY_INSTRUCTION(
-        bna, Bna, BNA, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        bna, Bna, BNA, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_QUATERNARY_INSTRUCTION(
-        bnaal, Bnaal, BNAAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        bnaal, Bnaal, BNAAL, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_QUATERNARY_INSTRUCTION(
-        brap, Brap, BRAP, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        brap, Brap, BRAP, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
     DEFINE_QUATERNARY_INSTRUCTION(
-        brna, Brna, BRNA, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM
+        brna, Brna, BRNA, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM
     )
 
 #endif
@@ -335,12 +339,12 @@ namespace stationeers {
         /**
          * @if zh
          * @brief RON_RON_RON_RON 操作数类型的四元指令 TypeMap
-         * @details 操作数类型为 (RegisterOrNumber, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber)。
-         *        包含指令: bap, bapal, bna, bnaal, brap, brna。
+         * @details 操作数类型为 (RegisterOrNumber, RegisterOrNumber, RegisterOrNumber,
+         * RegisterOrNumber)。 包含指令: bap, bapal, bna, bnaal, brap, brna。
          * @elseif en
          * @brief Quaternary instruction TypeMap for RON_RON_RON_RON operand types
-         * @details Operand types: (RegisterOrNumber, RegisterOrNumber, RegisterOrNumber, RegisterOrNumber).
-         *        Contains instructions: bap, bapal, bna, bnaal, brap, brna.
+         * @details Operand types: (RegisterOrNumber, RegisterOrNumber, RegisterOrNumber,
+         * RegisterOrNumber). Contains instructions: bap, bapal, bna, bnaal, brap, brna.
          * @endif
          */
         using QuaternaryInstructionMap_RON_RON_RON_RON = TypeMap<
@@ -356,8 +360,8 @@ namespace stationeers {
 
     // 四元指令 - 操作数类型 RegisterOrIdentifier, DeviceReference, SlotIndex, LogicSlotType
     DEFINE_QUATERNARY_INSTRUCTION(
-        ls, Ls, LS, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF, ic10::OperandType::SLOT_IDX,
-        ic10::OperandType::LOGIC_SLOT
+        ls, Ls, LS, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF,
+        ic10::OperandType::SLOT_IDX, ic10::OperandType::LOGIC_SLOT
     )
 
     namespace ic10 {
@@ -369,8 +373,8 @@ namespace stationeers {
          *        包含指令: ls。
          * @elseif en
          * @brief Quaternary instruction TypeMap for RI_DR_SI_LS operand types
-         * @details Operand types: (RegisterOrIdentifier, DeviceReference, SlotIndex, LogicSlotType).
-         *        Contains instructions: ls.
+         * @details Operand types: (RegisterOrIdentifier, DeviceReference, SlotIndex,
+         * LogicSlotType). Contains instructions: ls.
          * @endif
          */
         using QuaternaryInstructionMap_RI_DR_SI_LS = TypeMap<TokenType, TokenType::KEYWORD_LS>;
@@ -379,8 +383,8 @@ namespace stationeers {
 
     // 四元指令 - 操作数类型 RegisterOrIdentifier, DeviceReference, ReagentMode, JumpTarget
     DEFINE_QUATERNARY_INSTRUCTION(
-        lr, Lr, LR, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF, ic10::OperandType::REAGENT_MODE,
-        ic10::OperandType::JUMP_TARGET
+        lr, Lr, LR, ic10::OperandType::REG_IDENT, ic10::OperandType::DEV_REF,
+        ic10::OperandType::REAGENT_MODE, ic10::OperandType::JUMP_TARGET
     )
 
     namespace ic10 {
