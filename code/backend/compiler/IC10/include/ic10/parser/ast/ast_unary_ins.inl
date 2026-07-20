@@ -53,13 +53,12 @@ namespace stationeers::ic10 {
     }
 
     template<FString K, OperandType V1>
-    template<typename... Ts>
-    std::string UnaryInstructionBase<K, V1>::jsonBase(std::pair<std::string, Ts>... fields) const {
-        return this
-            ->NullaryInstructionBase<K>::template jsonBase<std::string, std::string_view, Ts...>(
-                {"operand1", call(operand1, [](auto&& o) { return o.toJSON(); })},
-                {"type1", enumToStr(type1)}, fields...
-            );
+    template<FString... Vs, AstJsonAble... Params>
+        requires(sizeof...(Vs) == sizeof...(Params))
+    std::string UnaryInstructionBase<K, V1>::jsonBase(Params&&... params) const {
+        return this->NullaryInstructionBase<K>::template jsonBase<"operand1", "type1", Vs...>(
+            operand1, enumToStr(type1), std::forward<Params>(params)...
+        );
     }
 
 }  // namespace stationeers::ic10

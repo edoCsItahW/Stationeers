@@ -44,7 +44,7 @@ namespace stationeers::ic10 {
 
         ss << "]";
 
-        return jsonBase<std::string>({"statements", ss.str()});
+        return jsonBase<"statements">(ss.str());
     }
 
     // LabelDef
@@ -61,9 +61,7 @@ namespace stationeers::ic10 {
         return std::format("{}:", call(identifier, [](auto&& id) { return id.toString(); }));
     }
 
-    std::string LabelDef::toJSON() const {
-        return jsonBase<decltype(identifier)>({"identifier", identifier});
-    }
+    std::string LabelDef::toJSON() const { return jsonBase<"identifier">(identifier); }
 
     // DefineDirective
 
@@ -84,13 +82,8 @@ namespace stationeers::ic10 {
     }
 
     std::string DefineDirective::toJSON() const {
-        return jsonBase<decltype(identifier), decltype(operand), std::string, std::string>(
-            {
-                {"identifier", identifier}
-        },
-            {{"number", operand}},
-            type ? std::optional{std::pair{"typeName", *type}} : std::nullopt,
-            desc ? std::optional{std::pair{"desc", *desc}} : std::nullopt
+        return jsonBase<"identifier", "number", "typeName", "desc">(
+            identifier, operand, type, desc
         );
     }
 
@@ -121,13 +114,8 @@ namespace stationeers::ic10 {
     }
 
     std::string AliasDirective::toJSON() const {
-        return jsonBase<decltype(identifier), decltype(registerOrDevice), std::string, std::string>(
-            {
-                {"identifier", identifier}
-        },
-            {{"registerOrDevice", registerOrDevice}},
-            type ? std::optional{std::pair{"typeName", *type}} : std::nullopt,
-            desc ? std::optional{std::pair{"desc", *desc}} : std::nullopt
+        return jsonBase<"identifier", "registerOrDevice", "typeName", "desc">(
+            identifier, registerOrDevice, type, desc
         );
     }
 
@@ -181,58 +169,50 @@ namespace stationeers::ic10 {
     }
 
     std::string DeviceDocComment::toJSON() const {
-        return jsonBase<
-            std::string, std::string, std::string, std::string, std::string, std::string,
-            std::string>(
-            {"name", name}, {"desc", desc ? desc->value : "null"},
-            {"slots", seqJSON(
-                          slots,
-                          [this](const DeviceSlot& slot) -> std::string {
-                              return fieldsJSON<std::string, std::string, std::string>(
-                                  {"number", slot.index},
-                                  {"direction",
-                                   slot.direction == SlotDirection::INPUT ? "input" : "output"},
-                                  {"desc", slot.desc ? slot.desc->value : "null"}
-                              );
-                          }
-                      )},
-            {"logics", seqJSON(
-                           logics,
-                           [this](const DeviceLogic& logic) -> std::string {
-                               std::string accessStr;
-                               if (logic.access == LogicAccess::R)
-                                   accessStr = "r";
-                               else if (logic.access == LogicAccess::W)
-                                   accessStr = "w";
-                               else
-                                   accessStr = "rw";
+        return jsonBase<"name", "desc", "slots", "logics", "modes", "logicSlots", "connects">(
+            name, desc ? std::optional(desc->value) : std::nullopt,
+            seqJSON(
+                slots,
+                [](const DeviceSlot& slot) -> std::string {
+                    return toJson<"number", "direction", "desc">(
+                        slot.index, slot.direction == SlotDirection::INPUT ? "input" : "output",
+                        slot.desc ? std::optional(slot.desc->value) : std::nullopt
+                    );
+                }
+            ),
+            seqJSON(
+                logics,
+                [](const DeviceLogic& logic) -> std::string {
+                    std::string accessStr;
+                    if (logic.access == LogicAccess::R)
+                        accessStr = "r";
+                    else if (logic.access == LogicAccess::W)
+                        accessStr = "w";
+                    else
+                        accessStr = "rw";
 
-                               return fieldsJSON<std::string, std::string>(
-                                   {"name", logic.name}, {"access", accessStr}
-                               );
-                           }
-                       )},
-            {"modes", seqJSON(
-                          modes,
-                          [this](const DeviceMode& mode) -> std::string {
-                              return fieldsJSON<std::string, std::string>(
-                                  {"number", mode.index},
-                                  {"desc", mode.desc ? mode.desc->value : "null"}
-                              );
-                          }
-                      )},
-            {"logicSlots", seqJSON(
-                               logicSlots,
-                               [](const DeviceLogicSlot& logicSlot) -> std::string {
-                                   return std::format(R"({{ "name": "{}" }})", logicSlot.name);
-                               }
-                           )},
-            {"connects", seqJSON(connects, [this](const DeviceConnect& connect) -> std::string {
-                 return fieldsJSON<std::string, std::string>(
-                     {"number", connect.index},
-                     {"desc", connect.desc ? connect.desc->value : "null"}
-                 );
-             })}
+                    return toJson<"name", "access">(logic.name, accessStr);
+                }
+            ),
+            seqJSON(
+                modes,
+                [](const DeviceMode& mode) -> std::string {
+                    return toJson<"number", "desc">(
+                        mode.index, mode.desc ? std::optional(mode.desc->value) : std::nullopt
+                    );
+                }
+            ),
+            seqJSON(
+                logicSlots,
+                [](const DeviceLogicSlot& logicSlot) -> std::string {
+                    return std::format(R"({{ "name": "{}" }})", logicSlot.name);
+                }
+            ),
+            seqJSON(connects, [](const DeviceConnect& connect) -> std::string {
+                return toJson<"number", "desc">(
+                    connect.index, connect.desc ? std::optional(connect.desc->value) : std::nullopt
+                );
+            })
         );
     }
 
@@ -255,14 +235,13 @@ namespace stationeers::ic10 {
     }
 
     std::string EnumDocComment::toJSON() const {
-        return jsonBase<std::string, std::string, std::string>(
-            {"name", name}, {"desc", desc ? desc->value : "null"},
-            {"values", seqJSON(values, [this](auto&& val) {
-                 return fieldsJSON<std::string, std::string, std::string>(
-                     {"name", val.name}, {"value", val.value},
-                     {"desc", val.desc ? val.desc->value : "null"}
-                 );
-             })}
+        return jsonBase<"name", "desc", "values">(
+            name, desc ? std::optional(desc->value) : std::nullopt,
+            seqJSON(values, [](auto&& val) {
+                return toJson<"name", "value", "desc">(
+                    val.name, val.value, val.desc ? std::optional(val.desc->value) : std::nullopt
+                );
+            })
         );
     }
 
@@ -281,11 +260,7 @@ namespace stationeers::ic10 {
         );
     }
 
-    std::string StrCall::toJSON() const {
-        return jsonBase<std::string>({"value", call(value, [](auto&& val) {
-                                          return val.toJSON();
-                                      })});
-    }
+    std::string StrCall::toJSON() const { return jsonBase<"value">(value); }
 
     // HashCall
 
@@ -304,11 +279,7 @@ namespace stationeers::ic10 {
         );
     }
 
-    std::string HashCall::toJSON() const {
-        return jsonBase<std::string>({"value", call(value, [](auto&& val) {
-                                          return val.toJSON();
-                                      })});
-    }
+    std::string HashCall::toJSON() const { return jsonBase<"value">(value); }
 
     // Constant
 
@@ -320,9 +291,7 @@ namespace stationeers::ic10 {
 
     std::string Constant::toString() const { return keyword; }
 
-    std::string Constant::toJSON() const {
-        return jsonBase<std::string>({"keyword", '"' + keyword + '"'});
-    }
+    std::string Constant::toJSON() const { return jsonBase<"keyword">(keyword); }
 
     // Device
 
@@ -334,9 +303,7 @@ namespace stationeers::ic10 {
 
     std::string Device::toString() const { return value; }
 
-    std::string Device::toJSON() const {
-        return jsonBase<std::string>({"value", '"' + value + '"'});
-    }
+    std::string Device::toJSON() const { return jsonBase<"value">(value); }
 
     // Register
 
@@ -348,9 +315,7 @@ namespace stationeers::ic10 {
 
     std::string Register::toString() const { return value; }
 
-    std::string Register::toJSON() const {
-        return jsonBase<std::string>({"value", '"' + value + '"'});
-    }
+    std::string Register::toJSON() const { return jsonBase<"value">(value); }
 
     // String
 
@@ -362,7 +327,7 @@ namespace stationeers::ic10 {
 
     std::string String::toString() const { return value; }
 
-    std::string String::toJSON() const { return jsonBase<std::string>({"value", value}); }
+    std::string String::toJSON() const { return jsonBase<"value">(value); }
 
     // Identifier
 
@@ -374,9 +339,7 @@ namespace stationeers::ic10 {
 
     std::string Identifier::toString() const { return value; }
 
-    std::string Identifier::toJSON() const {
-        return jsonBase<std::string>({"value", '"' + value + '"'});
-    }
+    std::string Identifier::toJSON() const { return jsonBase<"value">(value); }
 
     // BinaryNumber
 
@@ -388,9 +351,7 @@ namespace stationeers::ic10 {
 
     std::string BinaryNumber::toString() const { return value; }
 
-    std::string BinaryNumber::toJSON() const {
-        return jsonBase<std::string>({"value", '"' + value + '"'});
-    }
+    std::string BinaryNumber::toJSON() const { return jsonBase<"value">(value); }
 
     // HexNumber
 
@@ -402,9 +363,7 @@ namespace stationeers::ic10 {
 
     std::string HexNumber::toString() const { return value; }
 
-    std::string HexNumber::toJSON() const {
-        return jsonBase<std::string>({"value", '"' + value + '"'});
-    }
+    std::string HexNumber::toJSON() const { return jsonBase<"value">(value); }
 
     // Float
 
@@ -416,7 +375,7 @@ namespace stationeers::ic10 {
 
     std::string Float::toString() const { return value; }
 
-    std::string Float::toJSON() const { return jsonBase<std::string>({"value", value}); }
+    std::string Float::toJSON() const { return jsonBase<"value">(value); }
 
     // Integer
 
@@ -428,7 +387,7 @@ namespace stationeers::ic10 {
 
     std::string Integer::toString() const { return value; }
 
-    std::string Integer::toJSON() const { return jsonBase<std::string>({"value", value}); }
+    std::string Integer::toJSON() const { return jsonBase<"value">(value); }
 
     // ErrorNode
 
@@ -441,11 +400,7 @@ namespace stationeers::ic10 {
 
     std::string ErrorNode::toString() const { return token.lexeme; }
 
-    std::string ErrorNode::toJSON() const {
-        return jsonBase<std::string, std::string>(
-            {"token", token.toJSON()}, {"message", '"' + message + '"'}
-        );
-    }
+    std::string ErrorNode::toJSON() const { return jsonBase<"token", "message">(token, message); }
 
     std::string DescValue::toJSON() const {
         return std::format(
@@ -609,40 +564,103 @@ namespace stationeers::ic10 {
 
 #define __4IMP__(lowerCase, ...) __IMP__(QuaternaryInstructionBase, lowerCase, __VA_ARGS__)
 
-    __4IMP__("clamp", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("lerp", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("ext", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("ins", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("sap", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("sna", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("select", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("ss", OperandType::DEV_REF, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT, OperandType::REG_IDENT)
-    __4IMP__("lb", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::LOGIC_TYPE, OperandType::BATCH_MODE)
-    __4IMP__("sbn", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::LOGIC_TYPE, OperandType::REG_IDENT)
-    __4IMP__("sbs", OperandType::REG_NUM, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT, OperandType::REG_IDENT)
-    __4IMP__("bap", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("bapal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("bna", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("bnaal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("brap", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("brna", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM)
-    __4IMP__("ls", OperandType::REG_IDENT, OperandType::DEV_REF, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT)
-    __4IMP__("lr", OperandType::REG_IDENT, OperandType::DEV_REF, OperandType::REAGENT_MODE, OperandType::JUMP_TARGET)
+    __4IMP__(
+        "clamp", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "lerp", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "ext", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "ins", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "sap", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "sna", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "select", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "ss", OperandType::DEV_REF, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT,
+        OperandType::REG_IDENT
+    )
+    __4IMP__(
+        "lb", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::LOGIC_TYPE,
+        OperandType::BATCH_MODE
+    )
+    __4IMP__(
+        "sbn", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::LOGIC_TYPE,
+        OperandType::REG_IDENT
+    )
+    __4IMP__(
+        "sbs", OperandType::REG_NUM, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT,
+        OperandType::REG_IDENT
+    )
+    __4IMP__(
+        "bap", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "bapal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "bna", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "bnaal", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "brap", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "brna", OperandType::REG_NUM, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::REG_NUM
+    )
+    __4IMP__(
+        "ls", OperandType::REG_IDENT, OperandType::DEV_REF, OperandType::SLOT_IDX,
+        OperandType::LOGIC_SLOT
+    )
+    __4IMP__(
+        "lr", OperandType::REG_IDENT, OperandType::DEV_REF, OperandType::REAGENT_MODE,
+        OperandType::JUMP_TARGET
+    )
 
 #undef __4IMP__
 
 #define __5IMP__(lowerCase, ...) __IMP__(QuinaryInstructionBase, lowerCase, __VA_ARGS__)
 
-    __5IMP__("lbn", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::LOGIC_TYPE, OperandType::BATCH_MODE)
-    __5IMP__("lbs", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT, OperandType::BATCH_MODE)
+    __5IMP__(
+        "lbn", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::LOGIC_TYPE, OperandType::BATCH_MODE
+    )
+    __5IMP__(
+        "lbs", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::SLOT_IDX,
+        OperandType::LOGIC_SLOT, OperandType::BATCH_MODE
+    )
 
 #undef __5IMP__
 
 #define __6IMP__(lowerCase, ...) __IMP__(SenaryInstructionBase, lowerCase, __VA_ARGS__)
 
     __6IMP__(
-        "lbns", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT,
-        OperandType::BATCH_MODE
+        "lbns", OperandType::REG_IDENT, OperandType::REG_NUM, OperandType::REG_NUM,
+        OperandType::SLOT_IDX, OperandType::LOGIC_SLOT, OperandType::BATCH_MODE
     )
 
 #undef __6IMP__
