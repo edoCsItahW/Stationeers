@@ -30,17 +30,22 @@
 #pragma once
 
 #include "common/utils/common.hpp"
+#include "common/utils/json.hpp"
 #include "common/utils/position.hpp"
 #include "ic10/lexer/token.hpp"
 #include "pch/utils.hpp"
-#include <vector>
 #include <string>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace stationeers::ic10 {
 
     // AST (实现于ast_node.inl)
+
+    template<typename T>
+    concept AstJsonAble =
+        JsonArgsAble<T> || IsVariant<std::decay_t<T>> || requires(T t) { t.toJSON(); };
 
     /**
      * @if zh
@@ -171,34 +176,9 @@ namespace stationeers::ic10 {
         template<typename T, typename F>
         static std::string seqJSON(const std::vector<T>& datas, F func);
 
-        template<typename... Ts>
-        std::string fieldsJSON(std::pair<std::string, Ts>... fields) const;
-
-        template<typename... Ts>
-        std::string fieldsJSON(std::optional<std::pair<std::string, Ts>>... fields) const;
-
-        /**
-         * @if zh
-         *
-         * @brief JSON基类辅助函数
-         * @tparam ...Ts 字段类型包
-         * @param ... fields 字段名和值的对
-         * @return JSON格式字符串
-         *
-         * @elseif en
-         *
-         * @brief JSON base helper function
-         * @tparam ...Ts Field type pack
-         * @param ... fields Pairs of field names and values
-         * @return JSON format string
-         *
-         * @endif
-         */
-        template<typename... Ts>
-        [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
-
-        template<typename... Ts>
-        [[nodiscard]] std::string jsonBase(std::optional<std::pair<std::string, Ts>>... fields) const;
+        template<FString... Vs, AstJsonAble... Args>
+            requires(sizeof...(Vs) == sizeof...(Args))
+        std::string jsonBase(Args&&... args) const;
     };
 
     // ErrorNode（实现于ast.cpp）
@@ -637,7 +617,8 @@ namespace stationeers::ic10 {
      *
      * @class Constant
      * @brief 常量节点
-     * @details 表示IC10中的关键字常量(如nan、pinf、ninf、pi、tau、deg2rad、rad2deg、epsilon、rgas等)
+     * @details
+     * 表示IC10中的关键字常量(如nan、pinf、ninf、pi、tau、deg2rad、rad2deg、epsilon、rgas等)
      *
      * @elseif en
      *
@@ -649,13 +630,12 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct Constant : AST<Constant> {
-        static constexpr auto nodeName = "Constant"_fs;
-        static constexpr auto startTokens =
-            std::array{TokenType::KEYWORD_NAN,         TokenType::KEYWORD_PINF,
-                       TokenType::KEYWORD_NINF,        TokenType::KEYWORD_PI,
-                       TokenType::KEYWORD_TAU,         TokenType::KEYWORD_DEG2RAD,
-                       TokenType::KEYWORD_RAD2DEG,     TokenType::KEYWORD_EPSILON,
-                       TokenType::KEYWORD_RGAS};
+        static constexpr auto nodeName    = "Constant"_fs;
+        static constexpr auto startTokens = std::array{
+            TokenType::KEYWORD_NAN,     TokenType::KEYWORD_PINF,    TokenType::KEYWORD_NINF,
+            TokenType::KEYWORD_PI,      TokenType::KEYWORD_TAU,     TokenType::KEYWORD_DEG2RAD,
+            TokenType::KEYWORD_RAD2DEG, TokenType::KEYWORD_EPSILON, TokenType::KEYWORD_RGAS
+        };
         std::string keyword;
         Constant() = default;
         using AST::AST;
@@ -688,7 +668,8 @@ namespace stationeers::ic10 {
      * @brief DeviceReference type alias
      * @details Represents a reference to a device, which can be a device literal (Device)
      *          or a register/identifier (RegisterOrIdentifier).
-     *          Device references are used in instructions that require a device operand (such as get/put/l/s, etc.).
+     *          Device references are used in instructions that require a device operand (such as
+     * get/put/l/s, etc.).
      * @note Number is no longer accepted; numeric literals are not valid device references
      * @endif
      */
@@ -791,11 +772,11 @@ namespace stationeers::ic10 {
      *          用于接受寄存器或数字字面量作为操作数的指令场景(如算术、逻辑、移位指令的源操作数)。
      * @elseif en
      * @brief Register or number type alias (syntax: r?|num)
-     * @details Represents an operand that can be a register or a numeric value, including the following
-     *          subtypes: RegisterOrIdentifier (register or identifier), Number (numeric literal),
+     * @details Represents an operand that can be a register or a numeric value, including the
+     * following subtypes: RegisterOrIdentifier (register or identifier), Number (numeric literal),
      *          Constant (keyword constant) and MacroCall (macro call).
-     *          Used in instruction scenarios that accept a register or numeric literal as an operand
-     *          (such as source operands of arithmetic, logical, and shift instructions).
+     *          Used in instruction scenarios that accept a register or numeric literal as an
+     * operand (such as source operands of arithmetic, logical, and shift instructions).
      * @endif
      */
     using RegisterOrNumber = Errorable<RegisterOrIdentifier, Number, Constant, MacroCall>;
@@ -812,9 +793,9 @@ namespace stationeers::ic10 {
      * @brief Device alias reference type alias (syntax: d?)
      * @details Represents a reference to a device, including the following subtypes:
      *          Device (device literal) and Identifier.
-     *          The identifier is typically a device alias defined via the alias preprocessor directive.
-     *          Used in scenarios that require referencing a named device
-     *          (such as the device parameter of the clrd instruction, device alias resolution, etc.).
+     *          The identifier is typically a device alias defined via the alias preprocessor
+     * directive. Used in scenarios that require referencing a named device (such as the device
+     * parameter of the clrd instruction, device alias resolution, etc.).
      * @endif
      */
     using DeviceAliasRef = Errorable<Device, Identifier>;
@@ -936,9 +917,9 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct DeviceSlot {
-        std::string index;           ///< 插槽编号
-        SlotDirection direction;      ///< 插槽方向
-        std::optional<DescValue> desc;///< 描述（文本或链接，互斥）
+        std::string index;              ///< 插槽编号
+        SlotDirection direction;        ///< 插槽方向
+        std::optional<DescValue> desc;  ///< 描述（文本或链接，互斥）
     };
 
     /**
@@ -978,8 +959,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct DeviceLogic {
-        std::string name;      ///< 逻辑名称
-        LogicAccess access;    ///< 访问权限
+        std::string name;    ///< 逻辑名称
+        LogicAccess access;  ///< 访问权限
     };
 
     /**
@@ -998,8 +979,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct DeviceMode {
-        std::string index;           ///< 模式编号
-        std::optional<DescValue> desc;///< 描述（文本或链接，互斥）
+        std::string index;              ///< 模式编号
+        std::optional<DescValue> desc;  ///< 描述（文本或链接，互斥）
     };
 
     /**
@@ -1037,8 +1018,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct DeviceConnect {
-        std::string index;           ///< 连接编号
-        std::optional<DescValue> desc;///< 描述（文本或链接，互斥）
+        std::string index;              ///< 连接编号
+        std::optional<DescValue> desc;  ///< 描述（文本或链接，互斥）
     };
 
     // DeviceDocComment（实现于ast.cpp）
@@ -1226,7 +1207,8 @@ namespace stationeers::ic10 {
      * @brief Internal implementation details for compile-time token set derivation
      * @details Provides utilities for compile-time derivation of valid starting token sets
      *          for variant types from AST node metadata (startTokens).
-     *          Implemented with non-recursive fold expressions to be compatible with MSVC constexpr limits.
+     *          Implemented with non-recursive fold expressions to be compatible with MSVC constexpr
+     * limits.
      * @note External code should not directly use symbols in this namespace
      * @endif
      */
@@ -1252,7 +1234,8 @@ namespace stationeers::ic10 {
          * @brief 概念：类型 T 具有 static constexpr startTokens 成员且为 TokenType 数组
          * @tparam T 待检测类型
          * @elseif en
-         * @brief Concept: type T has a static constexpr startTokens member that is a TokenType array
+         * @brief Concept: type T has a static constexpr startTokens member that is a TokenType
+         * array
          * @tparam T Type to check
          * @endif
          */
@@ -1285,7 +1268,8 @@ namespace stationeers::ic10 {
          * @param arrays 输入数组
          * @return 合并后的数组
          * @elseif en
-         * @brief Compile-time concatenation of multiple arrays into a fixed-size result (non-recursive, direct copy)
+         * @brief Compile-time concatenation of multiple arrays into a fixed-size result
+         * (non-recursive, direct copy)
          * @tparam N Result array size
          * @tparam Arrays Input array type pack
          * @param arrays Input arrays
@@ -1317,7 +1301,8 @@ namespace stationeers::ic10 {
          * @tparam Variant variant 类型
          * @tparam Is 索引序列
          * @elseif en
-         * @brief Variant token set derivation implementation (expand each alternative via index sequence)
+         * @brief Variant token set derivation implementation (expand each alternative via index
+         * sequence)
          * @tparam Variant Variant type
          * @tparam Is Index sequence
          * @endif
@@ -1333,7 +1318,8 @@ namespace stationeers::ic10 {
          * @elseif en
          * @brief Derive starting token set for all members of a variant type
          * @tparam Variant Variant type
-         * @return Array containing starting tokens of all members (nested variants are auto-expanded)
+         * @return Array containing starting tokens of all members (nested variants are
+         * auto-expanded)
          * @endif
          */
         template<IsVariant Variant>
@@ -1409,7 +1395,8 @@ namespace stationeers::ic10 {
      * @return 如果 t 是语句起始 token，返回 true
      * @elseif en
      * @brief Check if a given token type is a valid start of a statement
-     * @details Includes all instruction keywords, labels (IDENTIFIER), and preprocessor directives (ALIAS/DEFINE)
+     * @details Includes all instruction keywords, labels (IDENTIFIER), and preprocessor directives
+     * (ALIAS/DEFINE)
      * @param t The token type to test
      * @return true if t is a statement starting token
      * @endif

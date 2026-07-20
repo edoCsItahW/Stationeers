@@ -22,10 +22,11 @@
  * @elseif en
  * @brief IC10 senary instruction AST definitions
  * @details Defines senary instructions (instructions with six operands) in IC10, such as LBNS, etc.
- *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
- *        Also defines ExecutableInstruction type alias for the union of all executable instruction types.
- *        LBNS operand types use RegisterOrNumber instead of the generic Operand,
- *        removing inappropriate types such as Device, ensuring operands are registers or numbers only.
+ *        Uses template metaprogramming to automatically generate instruction types and TypeMap
+ * mappings. Also defines ExecutableInstruction type alias for the union of all executable
+ * instruction types. LBNS operand types use RegisterOrNumber instead of the generic Operand,
+ *        removing inappropriate types such as Device, ensuring operands are registers or numbers
+ * only.
  * @note Implementation in ast_senary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -76,7 +77,8 @@ namespace stationeers {
          * @endif
          */
         template<
-            FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+            FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4,
+            OperandType V5, OperandType V6>
         struct SenaryInstructionBase : QuinaryInstructionBase<K, V1, V2, V3, V4, V5> {
             static constexpr auto nodeName = fstr_concat_v<K, "Instruction">;
 
@@ -110,8 +112,9 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
-            template<typename... Ts>
-            [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
+            template<FString... Vs, AstJsonAble... Params>
+                requires(sizeof...(Vs) == sizeof...(Params))
+            [[nodiscard]] std::string jsonBase(Params&&... params) const;
         };
 
     }  // namespace ic10
@@ -130,7 +133,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Define senary instruction
-     * @details Defines a senary instruction type using SenaryInstructionBase and registers it in TypeMap
+     * @details Defines a senary instruction type using SenaryInstructionBase and registers it in
+     * TypeMap
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name
@@ -145,12 +149,14 @@ namespace stationeers {
     // LogicSlotType, BatchMode
     DEFINE_SENARY_INSTRUCTION(
         lbns, Lbns, LBNS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
-        ic10::OperandType::REG_NUM, ic10::OperandType::SLOT_IDX, ic10::OperandType::LOGIC_SLOT, ic10::OperandType::BATCH_MODE
+        ic10::OperandType::REG_NUM, ic10::OperandType::SLOT_IDX, ic10::OperandType::LOGIC_SLOT,
+        ic10::OperandType::BATCH_MODE
     )
 
     namespace ic10 {
 
-        using SenaryInstructionMap_RI_RON_RON_SI_LS_BM = TypeMap<TokenType, TokenType::KEYWORD_LBNS>;
+        using SenaryInstructionMap_RI_RON_RON_SI_LS_BM =
+            TypeMap<TokenType, TokenType::KEYWORD_LBNS>;
 
         using SenaryInstruction = ShallowErrorable<LbnsInstruction>;
 

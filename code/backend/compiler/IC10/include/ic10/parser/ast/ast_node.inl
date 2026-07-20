@@ -39,33 +39,16 @@ namespace stationeers::ic10 {
     template<typename Derived>
     template<typename T>
     std::string AST<Derived>::process(T&& arg) {
-        using U = std::remove_cvref_t<T>;
+        using U = std::decay_t<T>;
 
         if constexpr (IsVariant<U>)
             return call(arg, [](auto&& o) { return process(o); });
 
-        else if constexpr (IsOptional<U>)
-            return arg ? process(*arg) : "null";
+        else if constexpr (JsonStringAble<U>)
+            return toJsonString(arg);
 
-        else if constexpr (std::is_arithmetic_v<U>)
-            return std::to_string(arg);
-
-        else if constexpr (std::is_same_v<U, std::string_view>)
-            return process(std::string(arg));
-
-        else if constexpr (std::is_same_v<U, std::string>) {
-            if (arg.size() > 0 && arg[0] != '"' && arg[0] != '\'' && arg[0] != '{' && arg[0] != '[')
-                return '"' + arg + '"';
-
-            return arg;
-        }
-
-        else if constexpr (requires { arg.toJSON(); }) {
+        else if constexpr (requires { arg.toJSON(); })
             return arg.toJSON();
-        }
-
-        else if constexpr (std::is_convertible_v<U, std::string>)
-            return process(std::string(arg));
 
         else
             return arg;
@@ -87,78 +70,24 @@ namespace stationeers::ic10 {
     }
 
     template<typename Derived>
-    template<typename... Ts>
-    std::string AST<Derived>::fieldsJSON(std::pair<std::string, Ts>... fields) const {
-        std::stringstream ss;
-
-        ss << "{";
-
-        bool first = true;
-
-        ((first ? (ss << "\"" << fields.first << "\": " << process(fields.second), first = false,
-                   void())
-                : (ss << ", \"" << fields.first << "\": " << process(fields.second), void())),
-         ...);
-
-        ss << "}";
-
-        return ss.str();
-    }
-
-    template<typename Derived>
-    template<typename... Ts>
-    std::string AST<Derived>::fieldsJSON(
-        std::optional<std::pair<std::string, Ts>>... fields
-    ) const {
-        std::stringstream ss;
-
-        ss << "{";
-
-        bool first = true;
-
-        (( [&]{
-            if (fields.has_value()) {
-                if (!first) ss << ", ";
-                ss << "\"" << fields->first << "\": " << process(fields->second);
-                first = false;
-            }
-        }()), ...);
-
-        ss << "}";
-
-        return ss.str();
-    }
-
-    template<typename Derived>
-    template<typename... Ts>
-    std::string AST<Derived>::jsonBase(std::pair<std::string, Ts>... fields) const {
-        return fieldsJSON<std::string, std::string, Ts...>(
-            {"type", std::string(Derived::nodeName)},
-            {"position",
-             fieldsJSON<int, int>({"line", position.line()}, {"column", position.column()})},
-            std::forward<std::pair<std::string, Ts>>(fields)...
+    template<FString... Vs, AstJsonAble... Args>
+        requires(sizeof...(Vs) == sizeof...(Args))
+    std::string AST<Derived>::jsonBase(Args&&... args) const {
+        return toJson<"type", "position", Vs...>(
+            Derived::nodeName, toJson<"line", "column">(position.line(), position.column()),
+            [](auto&& arg) -> std::optional<std::string> {
+                using U = std::decay_t<decltype(arg)>;
+                if constexpr (std::is_same_v<U, std::nullopt_t>)
+                    return std::nullopt;
+                else if constexpr (IsOptional<U>)
+                    if (!arg.has_value())
+                        return std::nullopt;
+                    else
+                        return process(*arg);
+                else
+                    return process(arg);
+            }(std::forward<Args>(args))...
         );
-    }
-
-    template<typename Derived>
-    template<typename... Ts>
-    std::string AST<Derived>::jsonBase(std::optional<std::pair<std::string, Ts>>... fields) const {
-        std::stringstream ss;
-        ss << "{";
-
-        ss << "\"type\": \"" << std::string(Derived::nodeName) << "\"";
-
-        ss << ", \"position\": "
-           << fieldsJSON<int, int>({"line", position.line()}, {"column", position.column()});
-
-        (( [&]{
-            if (fields.has_value())
-                ss << ", \"" << fields->first << "\": " << process(fields->second);
-        }()), ...);
-
-        ss << "}";
-
-        return ss.str();
     }
 
     namespace detail {

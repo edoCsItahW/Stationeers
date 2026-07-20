@@ -30,9 +30,8 @@
 #pragma once
 
 #include <optional>
-#include <variant>
 #include <string>
-
+#include <variant>
 
 namespace stationeers {
 
@@ -40,7 +39,8 @@ namespace stationeers {
      * @if zh
      *
      * @brief 检查字符是否为ASCII空白字符
-     * @details 判断给定字符是否为ASCII标准空白字符,包括:空格(0x20)、制表符(\\t)、换行符(\\n)、回车符(\\r)、垂直制表符(\\v)、翻页符(\\f)
+     * @details
+     * 判断给定字符是否为ASCII标准空白字符,包括:空格(0x20)、制表符(\\t)、换行符(\\n)、回车符(\\r)、垂直制表符(\\v)、翻页符(\\f)
      * @param c 待检测的字符(通常为unsigned char以避免符号扩展问题)
      * @return 是空白字符返回true,否则返回false
      * @note 该函数不处理Unicode空白字符,仅针对ASCII范围
@@ -48,8 +48,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Check if a character is an ASCII whitespace character
-     * @details Determines if the given character is an ASCII standard whitespace, including: space(0x20),
-     *        tab(\\t), newline(\\n), carriage return(\\r), vertical tab(\\v), form feed(\\f)
+     * @details Determines if the given character is an ASCII standard whitespace, including:
+     * space(0x20), tab(\\t), newline(\\n), carriage return(\\r), vertical tab(\\v), form feed(\\f)
      * @param c Character to check (typically unsigned char to avoid sign extension issues)
      * @return true if whitespace, false otherwise
      * @note This function does not handle Unicode whitespace characters, only ASCII range
@@ -138,7 +138,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Check if a character is an ASCII alphabetic character
-     * @details Determines if the given character is an ASCII alphabetic character ('A'-'Z' or 'a'-'z')
+     * @details Determines if the given character is an ASCII alphabetic character ('A'-'Z' or
+     * 'a'-'z')
      * @param c Character to check
      * @return true if alphabetic, false otherwise
      *
@@ -174,14 +175,15 @@ namespace stationeers {
      * @if zh
      *
      * @brief Variant类型检测特化
-     * @details 当T为std::variant类型时,is_variant<T>特化派生自std::true_type,否则派生自std::false_type
+     * @details
+     * 当T为std::variant类型时,is_variant<T>特化派生自std::true_type,否则派生自std::false_type
      * @tparam T 待检测的类型
      *
      * @elseif en
      *
      * @brief Variant type detection specialization
-     * @details When T is std::variant type, is_variant<T> specialization derives from std::true_type,
-     *        otherwise derives from std::false_type
+     * @details When T is std::variant type, is_variant<T> specialization derives from
+     * std::true_type, otherwise derives from std::false_type
      * @tparam T Type to check
      *
      * @endif
@@ -204,7 +206,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Variable template for cv-ref removed variant type detection
-     * @details Uses is_variant to check if T (after removing cv-qualifiers and references) is a Variant type
+     * @details Uses is_variant to check if T (after removing cv-qualifiers and references) is a
+     * Variant type
      * @tparam T Type to check
      *
      * @endif
@@ -247,11 +250,23 @@ namespace stationeers {
     template<typename T>
     concept IsOptional = is_optional_v<T>;
 
+    template<IsOptional>
+    struct optional_trait;
+
+    template<typename T>
+    struct optional_trait<std::optional<T>> {
+        using value_type = T;
+    };
+
+    template<IsOptional T>
+    using optional_trait_t = optional_trait<std::remove_cvref_t<T>>::value_type;
+
     /**
      * @if zh
      *
      * @brief 窄类型到宽类型的Variant转换
-     * @details 将 NarrowType variant 转换为 WideType variant,要求 WideType 包含 NarrowType 的所有类型
+     * @details 将 NarrowType variant 转换为 WideType variant,要求 WideType 包含 NarrowType
+     * 的所有类型
      * @tparam WideType 目标宽类型(必须为Variant)
      * @tparam NarrowType 源窄类型(必须为Variant)
      * @param value 要转换的variant值
@@ -260,13 +275,15 @@ namespace stationeers {
      * @par 示例:
      * @code
      * std::variant<int, double> narrow = 42;
-     * std::variant<int, double, std::string> wide = wide_cast<std::variant<int, double, std::string>>(std::move(narrow));
+     * std::variant<int, double, std::string> wide = wide_cast<std::variant<int, double,
+     * std::string>>(std::move(narrow));
      * @endcode
      *
      * @elseif en
      *
      * @brief Narrow type to wide type Variant conversion
-     * @details Converts NarrowType variant to WideType variant, requires WideType to contain all types in NarrowType
+     * @details Converts NarrowType variant to WideType variant, requires WideType to contain
+     * all types in NarrowType
      * @tparam WideType Target wide type (must be a Variant)
      * @tparam NarrowType Source narrow type (must be a Variant)
      * @param value The variant value to convert
@@ -275,7 +292,8 @@ namespace stationeers {
      * @par Example:
      * @code
      * std::variant<int, double> narrow = 42;
-     * std::variant<int, double, std::string> wide = wide_cast<std::variant<int, double, std::string>>(std::move(narrow));
+     * std::variant<int, double, std::string> wide = wide_cast<std::variant<int, double,
+     * std::string>>(std::move(narrow));
      * @endcode
      *
      * @endif
