@@ -22,7 +22,8 @@ namespace stationeers::ic10 {
     // SenaryInstructionBase
 
     template<
-        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5,
+        OperandType V6>
     SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::SenaryInstructionBase(
         Pos pos, O1 o1, O2 o2, O3 o3, O4 o4, O5 o5, O6 o6
     )
@@ -31,13 +32,15 @@ namespace stationeers::ic10 {
         , args(o1, o2, o3, o4, o5, o6) {}
 
     template<
-        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5,
+        OperandType V6>
     Pos SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::end() const {
         return call(operand6, [](auto&& o) { return o.end(); });
     }
 
     template<
-        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5,
+        OperandType V6>
     std::string SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::toString() const {
         if constexpr (IsVariant<O6>)
             return std::format(
@@ -52,21 +55,23 @@ namespace stationeers::ic10 {
     }
 
     template<
-        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5,
+        OperandType V6>
     std::string SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::toJSON() const {
         return jsonBase();
     }
 
     template<
-        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5, OperandType V6>
-    template<typename... Ts>
+        FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5,
+        OperandType V6>
+    template<FString... Vs, AstJsonAble... Params>
+        requires(sizeof...(Vs) == sizeof...(Params))
     std::string SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::jsonBase(
-        std::pair<std::string, Ts>... fields
+        Params&&... params
     ) const {
         return this->QuinaryInstructionBase<K, V1, V2, V3, V4, V5>::template jsonBase<
-            std::string, std::string_view, Ts...>(
-            {"operand6", call(operand6, [](auto&& o) { return o.toJSON(); })},
-            {"type6", enumToStr(type6)}, fields...
+            "operand6", "type6", Vs...>(
+            operand6, enumToStr(type6), std::forward<Params>(params)...
         );
     }
 

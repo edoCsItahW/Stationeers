@@ -20,10 +20,10 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief IC10 quinary instruction AST definitions
- * @details Defines quinary instructions (instructions with five operands) in IC10, such as LBN, LBS, etc.
- *        Uses template metaprogramming to automatically generate instruction types and TypeMap mappings.
- *        LBN and LBS operand types use RegisterOrNumber instead of the generic Operand,
- *        removing inappropriate types such as Device, ensuring operands are registers or numbers only.
+ * @details Defines quinary instructions (instructions with five operands) in IC10, such as LBN,
+ * LBS, etc. Uses template metaprogramming to automatically generate instruction types and TypeMap
+ * mappings. LBN and LBS operand types use RegisterOrNumber instead of the generic Operand, removing
+ * inappropriate types such as Device, ensuring operands are registers or numbers only.
  * @note Implementation in ast_quinary_ins.inl
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -71,7 +71,9 @@ namespace stationeers {
          *
          * @endif
          */
-        template<FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5>
+        template<
+            FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4,
+            OperandType V5>
         struct QuinaryInstructionBase : QuaternaryInstructionBase<K, V1, V2, V3, V4> {
             static constexpr auto nodeName = fstr_concat_v<K, "Instruction">;
 
@@ -103,8 +105,9 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
-            template<typename... Ts>
-            [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
+            template<FString... Vs, AstJsonAble... Params>
+                requires(sizeof...(Vs) == sizeof...(Params))
+            [[nodiscard]] std::string jsonBase(Params&&... params) const;
         };
 
     }  // namespace ic10
@@ -123,7 +126,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Define quinary instruction
-     * @details Defines a quinary instruction type using QuinaryInstructionBase and registers it in TypeMap
+     * @details Defines a quinary instruction type using QuinaryInstructionBase and registers it in
+     * TypeMap
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name
@@ -137,8 +141,8 @@ namespace stationeers {
     // 五元指令 - 操作数类型 RegisterOrIdentifier, RegisterOrNumber, RegisterOrNumber, LogicType,
     // BatchMode
     DEFINE_QUINARY_INSTRUCTION(
-        lbn, Lbn, LBN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::REG_NUM,
-        ic10::OperandType::LOGIC_TYPE, ic10::OperandType::BATCH_MODE
+        lbn, Lbn, LBN, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
+        ic10::OperandType::REG_NUM, ic10::OperandType::LOGIC_TYPE, ic10::OperandType::BATCH_MODE
     )
 
     namespace ic10 {
@@ -150,8 +154,8 @@ namespace stationeers {
     // 五元指令 - 操作数类型 RegisterOrIdentifier, RegisterOrNumber, SlotIndex, LogicSlotType,
     // BatchMode
     DEFINE_QUINARY_INSTRUCTION(
-        lbs, Lbs, LBS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM, ic10::OperandType::SLOT_IDX,
-        ic10::OperandType::LOGIC_SLOT, ic10::OperandType::BATCH_MODE
+        lbs, Lbs, LBS, ic10::OperandType::REG_IDENT, ic10::OperandType::REG_NUM,
+        ic10::OperandType::SLOT_IDX, ic10::OperandType::LOGIC_SLOT, ic10::OperandType::BATCH_MODE
     )
 
     namespace ic10 {

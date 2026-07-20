@@ -91,8 +91,9 @@ namespace stationeers {
 
             [[nodiscard]] std::string toJSON() const override;
 
-            template<typename... Ts>
-            [[nodiscard]] std::string jsonBase(std::pair<std::string, Ts>... fields) const;
+            template<FString... Vs, AstJsonAble... Params>
+                requires(sizeof...(Vs) == sizeof...(Params))
+            [[nodiscard]] std::string jsonBase(Params&&... params) const;
         };
 
     }  // namespace ic10
@@ -170,7 +171,7 @@ namespace stationeers {
          */
         using UnaryInstructionMap_DAR = TypeMap<TokenType, TokenType::KEYWORD_CLR>;
 
-    }
+    }  // namespace ic10
 
     DEFINE_UNARY_INSTRUCTION(sleep, Sleep, SLEEP, ic10::OperandType::REG_NUM)
 

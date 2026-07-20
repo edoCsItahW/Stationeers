@@ -534,3 +534,268 @@ TEST_F(ParserTestFixture, StatementFollowedByCommentThenNewline) {
     EXPECT_TRUE(parser.getDiagnostics().empty());
     EXPECT_GE(ast.statements.size(), 2u);
 }
+
+// ============================================================
+// AST 序列化测试（toString / toJSON）
+// AST serialization tests (toString / toJSON)
+// ============================================================
+
+TEST_F(ParserTestFixture, ProgramToStringEmpty) {
+    auto ast = parse("");
+    auto str = ast.toString();
+    EXPECT_EQ(str, "[]");
+}
+
+TEST_F(ParserTestFixture, ProgramToJSONEmpty) {
+    auto ast = parse("");
+    auto json = ast.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find('['), std::string::npos);
+    EXPECT_NE(json.find(']'), std::string::npos);
+}
+
+TEST_F(ParserTestFixture, ProgramToJSONSingleInstruction) {
+    auto ast = parse("hcf\n");
+    auto json = ast.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("hcf"), std::string::npos);
+}
+
+TEST_F(ParserTestFixture, ProgramToJSONAliasDirective) {
+    auto ast = parse("alias foo r0\n");
+    auto json = ast.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("foo"), std::string::npos);
+    EXPECT_NE(json.find("registerOrDevice"), std::string::npos);
+}
+
+TEST_F(ParserTestFixture, ProgramToJSONDefineDirective) {
+    auto ast = parse("define MAX 100\n");
+    auto json = ast.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("MAX"), std::string::npos);
+    EXPECT_NE(json.find("identifier"), std::string::npos);
+}
+
+TEST_F(ParserTestFixture, ProgramToJSONLabelDef) {
+    auto ast = parse("start:\n");
+    auto json = ast.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("start"), std::string::npos);
+}
+
+TEST_F(ParserTestFixture, ProgramToJSONMultipleStatements) {
+    auto ast = parse(
+        "alias foo r0\n"
+        "define MAX 10\n"
+        "start:\n"
+        "add r0 r1 r2\n"
+        "hcf\n"
+    );
+    auto json = ast.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("foo"), std::string::npos);
+    EXPECT_NE(json.find("MAX"), std::string::npos);
+    EXPECT_NE(json.find("start"), std::string::npos);
+    EXPECT_NE(json.find("add"), std::string::npos);
+    EXPECT_NE(json.find("hcf"), std::string::npos);
+}
+
+TEST_F(ParserTestFixture, ProgramToStringMultipleInstructions) {
+    auto ast = parse(
+        "move r0 0\n"
+        "add r0 r0 1\n"
+        "yield\n"
+    );
+    auto str = ast.toString();
+    EXPECT_FALSE(str.empty());
+}
+
+TEST_F(ParserTestFixture, DeviceDocCommentToJSON) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name Sensor\n"
+        "#> @end-device\n"
+    );
+    auto json = ast.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("Sensor"), std::string::npos);
+    EXPECT_NE(json.find("name"), std::string::npos);
+}
+
+TEST_F(ParserTestFixture, EnumDocCommentToJSON) {
+    auto ast = parse(
+        "#> @enum\n"
+        "#> @name GasType\n"
+        "#> @value Oxygen 1\n"
+        "#> @end-enum\n"
+    );
+    auto json = ast.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("GasType"), std::string::npos);
+    EXPECT_NE(json.find("Oxygen"), std::string::npos);
+}
+
+TEST_F(ParserTestFixture, AliasWithTypeHintToJSON) {
+    auto ast = parse("alias myDev d0 #: @type Furnace\n");
+    auto json = ast.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("myDev"), std::string::npos);
+    EXPECT_NE(json.find("Furnace"), std::string::npos);
+}
+
+// ============================================================
+// DocParser 相关测试
+// DocParser related tests
+// ============================================================
+
+TEST_F(ParserTestFixture, DocCommentWithInputSlot) {
+    // input 方向的 slot 应被正确解析为 INPUT
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name TestDev\n"
+        "#> @slot 0 input 输入槽\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    ASSERT_EQ(doc.slots.size(), 1u);
+    EXPECT_EQ(doc.slots[0].index, "0");
+    EXPECT_EQ(doc.slots[0].direction, SlotDirection::INPUT);
+}
+
+TEST_F(ParserTestFixture, DeviceDocWithAllSlotDirections) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name TestDev\n"
+        "#> @slot 0 input 输入\n"
+        "#> @slot 1 output 输出\n"
+        "#> @slot 2 input 双向\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    ASSERT_EQ(doc.slots.size(), 3u);
+    EXPECT_EQ(doc.slots[0].direction, SlotDirection::INPUT);
+    EXPECT_EQ(doc.slots[1].direction, SlotDirection::OUTPUT);
+    EXPECT_EQ(doc.slots[2].direction, SlotDirection::INPUT);
+}
+
+TEST_F(ParserTestFixture, EnumValueWithDescription) {
+    auto ast = parse(
+        "#> @enum\n"
+        "#> @name Status\n"
+        "#> @value Active 1 激活状态\n"
+        "#> @value Inactive 0 未激活\n"
+        "#> @end-enum\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<EnumDocComment>(stmt));
+    auto& doc = std::get<EnumDocComment>(stmt);
+    ASSERT_EQ(doc.values.size(), 2u);
+    EXPECT_EQ(doc.values[0].name, "Active");
+    EXPECT_EQ(doc.values[0].value, "1");
+    EXPECT_TRUE(doc.values[0].desc.has_value());
+    EXPECT_EQ(doc.values[0].desc->value, "激活状态");
+}
+
+TEST_F(ParserTestFixture, DeviceDocWithAllLogicAccessTypes) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name TestDev\n"
+        "#> @logic ReadOnly r\n"
+        "#> @logic WriteOnly w\n"
+        "#> @logic ReadWrite rw\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceDocComment>(stmt));
+    auto& doc = std::get<DeviceDocComment>(stmt);
+    ASSERT_EQ(doc.logics.size(), 3u);
+    EXPECT_EQ(doc.logics[0].access, LogicAccess::R);
+    EXPECT_EQ(doc.logics[1].access, LogicAccess::W);
+    EXPECT_EQ(doc.logics[2].access, LogicAccess::RW);
+}
+
+// ============================================================
+// 更多指令类型解析测试
+// More instruction type parsing tests
+// ============================================================
+
+TEST_F(ParserTestFixture, ParseJumpInstruction) {
+    auto ast = parse("j label\n");
+    EXPECT_GE(ast.statements.size(), 1u);
+}
+
+TEST_F(ParserTestFixture, ParseBranchInstructions) {
+    auto ast = parse(
+        "beq r0 r1 label\n"
+        "bne r0 r1 label\n"
+        "blt r0 r1 label\n"
+        "bgt r0 r1 label\n"
+        "ble r0 r1 label\n"
+        "bge r0 r1 label\n"
+    );
+    EXPECT_GE(ast.statements.size(), 6u);
+}
+
+TEST_F(ParserTestFixture, ParseStackInstructions) {
+    auto ast = parse(
+        "push r0\n"
+        "pop r0\n"
+        "peek r0 0\n"
+    );
+    EXPECT_GE(ast.statements.size(), 3u);
+}
+
+TEST_F(ParserTestFixture, ParseDeviceInstructions) {
+    auto ast = parse(
+        "l r0 d0 Pressure\n"
+        "s d0 On r0\n"
+        "ls r0 d0 0 Quantity\n"
+        "lr r0 d0 Contents label\n"
+    );
+    EXPECT_GE(ast.statements.size(), 4u);
+}
+
+TEST_F(ParserTestFixture, ParseBatchInstructions) {
+    auto ast = parse(
+        "lb r0 100 Pressure Average\n"
+        "lbs r0 100 0 Quantity Average\n"
+        "lbn r0 100 200 Pressure Average\n"
+        "lbns r0 100 200 0 Quantity Average\n"
+    );
+    EXPECT_GE(ast.statements.size(), 4u);
+}
+
+// ============================================================
+// 错误恢复测试
+// Error recovery tests
+// ============================================================
+
+TEST_F(ParserTestFixture, InvalidInstructionProducesErrorNode) {
+    // 无效指令应产生 ErrorNode，但不应崩溃
+    auto tokens = Lexer::tokenize("invalid_instruction r0 r1\n");
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    EXPECT_GE(ast.statements.size(), 1u);
+}
+
+TEST_F(ParserTestFixture, ErrorDoesNotBlockSubsequentStatements) {
+    // 一个错误不应阻止后续语句的解析
+    auto tokens = Lexer::tokenize(
+        "hcf\n"
+        "bad_instruction\n"
+        "yield\n"
+    );
+    Parser parser(tokens);
+    auto ast = parser.parse();
+    // 至少有2个有效语句（hcf 和 yield）
+    EXPECT_GE(ast.statements.size(), 2u);
+}

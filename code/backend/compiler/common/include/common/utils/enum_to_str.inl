@@ -17,9 +17,8 @@
 #define COMPILER_ENUM_TO_STR_INL
 #pragma once
 
-#include <string_view>
 #include <array>
-
+#include <string_view>
 
 namespace stationeers {
 
@@ -30,20 +29,18 @@ namespace stationeers {
 #if __GNUC__ || __clang__
         name              = __PRETTY_FUNCTION__;
         std::size_t start = name.find_first_of('=') + 2;
-        name              = std::string_view(name.data() + start, name.size() - start - 1);
+        name              = name.substr(start, name.size() - start - 1);
         start             = name.rfind("::");
 
 #elif _MSC_VER
         name              = __FUNCSIG__;
         std::size_t start = name.find_first_of('<') + 1;
-        name              = std::string_view(name.data() + start, name.rfind('>') - start);
+        name              = name.substr(start, name.rfind('>') - start);
         start             = name.rfind("::");
 
 #endif
 
-        return start == std::string_view::npos
-                 ? name
-                 : std::string_view{name.data() + start + 2, name.size() - start - 2};
+        return start == std::string_view::npos ? name : name.substr(start + 2);
     }
 
     template<typename T, std::size_t N>

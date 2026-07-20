@@ -41,10 +41,11 @@ namespace stationeers::ic10 {
     }
 
     template<FString K>
-    template<typename... Ts>
-    std::string NullaryInstructionBase<K>::jsonBase(std::pair<std::string, Ts>... fields) const {
-        return this->AST<NullaryInstructionBase>::template jsonBase<std::string, Ts...>(
-            {"keyword", '"' + std::string(keyword.value.data(), keyword.value.size()) + '"'}, fields...
+    template<FString... Vs, AstJsonAble... Params>
+        requires(sizeof...(Vs) == sizeof...(Params))
+    std::string NullaryInstructionBase<K>::jsonBase(Params&&... params) const {
+        return this->AST<NullaryInstructionBase>::template jsonBase<"keyword", Vs...>(
+            keyword, std::forward<Params>(params)...
         );
     }
 

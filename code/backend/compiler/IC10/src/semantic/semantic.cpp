@@ -16,19 +16,14 @@
 #include "ic10/semantic/semantic.hpp"
 #include "common/exception/error.hpp"
 #include "ic10/locals/local.hpp"
-#include <format>
+#include "common/utils/json.hpp"
 #include <ranges>
 #include <sstream>
 
 namespace stationeers::ic10 {
 
     std::string Symbol::toJSON() const {
-        return std::format(
-            R"({{ "name": "{}", "type": "{}", "category": "{}", "typeName": {}, "value": {}, "desc": {} }})",
-            name, enumToStr(type.kind), enumToStr(type.category),
-            type.typeName ? '"' + *type.typeName + '"' : "null",
-            value ? '"' + *value + '"' : "null", desc ? '"' + *desc + '"' : "null"
-        );
+        return toJson<"name", "type", "category", "typeName", "value", "desc">(name, enumToStr(type.kind), enumToStr(type.category), type.typeName, value, desc);
     }
 
     // SymbolTable::Entry
@@ -38,14 +33,10 @@ namespace stationeers::ic10 {
     // SymbolTable
 
     SymbolTable::SymbolTable() {
-        auto pairs =
-            std::views::iota(0, 6) | std::views::transform([](const int x) {
-                auto key = std::string("d") + std::to_string(x);
-                return std::pair(key, Symbol{.name = std::move(key), .type = type_of<Device>});
-            })
-            | std::ranges::to<std::vector<std::pair<std::string, Symbol>>>();
-
-        builtinSymbols = {pairs.begin(), pairs.end()};
+        for (int i = 0; i < 6; ++i) {
+            auto key = std::string("d") + std::to_string(i);
+            builtinSymbols.emplace(key, Symbol{.name = key, .type = type_of<Device>});
+        }
     }
 
     std::expected<void, std::string> SymbolTable::define(
