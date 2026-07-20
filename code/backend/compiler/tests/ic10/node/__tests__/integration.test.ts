@@ -19,7 +19,7 @@
 import IC10NodeAPI = require('ic10-node-api');
 import {setupUTF8Console} from '../utils';
 
-const {IC10Local, TokenType, Lexer, Program, Parser, Analyser, SymbolTable, IncCompiler} = IC10NodeAPI;
+const {IC10Local, TokenType, Lexer, Program, Parser, Analyser, SymbolTable, IncCompiler, BasicType} = IC10NodeAPI;
 
 beforeAll(() => {
     setupUTF8Console();
@@ -632,7 +632,7 @@ describe('Type inference and device context', () => {
         const sensorSym = symbols.find((s: any) => s.name === 'sensor');
 
         expect(sensorSym).toBeDefined();
-        expect(sensorSym.type).toBe('DEVICE');
+        expect(sensorSym.type).toBe(BasicType.DEVICE);
         expect(sensorSym.typeName).toBe('Sensor');
     });
 });
