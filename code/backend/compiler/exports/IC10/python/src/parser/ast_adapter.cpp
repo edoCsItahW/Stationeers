@@ -15,12 +15,28 @@
  * */
 #include "ic10_python/parser/ast_adapter.hpp"
 #include "ic10/parser/ast/ast.hpp"
+#include "ic10/parser/ast/ast_unary_ins.hpp"
 
 #include <variant>
 
 namespace stationeers::ic10 {
 
     void initProgram(py::module_& m) {
+        // 绑定 OperandType 枚举,AST JSON 序列化中使用数值表示
+        // Bind OperandType enum, used in AST JSON serialization as numeric values
+        py::enum_<OperandType>(m, "OperandType")
+            .value("REG_IDENT", OperandType::REG_IDENT)
+            .value("DEV_ALIAS", OperandType::DEV_ALIAS)
+            .value("REG_NUM", OperandType::REG_NUM)
+            .value("DEV_REF", OperandType::DEV_REF)
+            .value("LOGIC_SLOT", OperandType::LOGIC_SLOT)
+            .value("REAGENT_MODE", OperandType::REAGENT_MODE)
+            .value("JUMP_TARGET", OperandType::JUMP_TARGET)
+            .value("LOGIC_TYPE", OperandType::LOGIC_TYPE)
+            .value("SLOT_IDX", OperandType::SLOT_IDX)
+            .value("BATCH_MODE", OperandType::BATCH_MODE)
+            .export_values();
+
         py::class_<Program>(m, "Program")
             .def(py::init<>())
             /**

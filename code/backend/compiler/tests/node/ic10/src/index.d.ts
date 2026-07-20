@@ -5292,6 +5292,38 @@ declare module "ic10-node-api" {
         toJSON(): string;
     }
 
+    /**
+     * IC10 操作数类型枚举。
+     *
+     * 对应 C++ `ic10::OperandType`，值从 0 开始递增。
+     * 运行时由原生模块通过 `enum_to_str` 编译期反射导出，
+     * 用于 AST JSON 序列化中 `type1`/`type2`/... 字段的数值表示。
+     *
+     * @public
+     */
+    export enum OperandType {
+        /** 寄存器或标识符 */
+        REG_IDENT = 0,
+        /** 设备别名引用 */
+        DEV_ALIAS,
+        /** 寄存器或数字 */
+        REG_NUM,
+        /** 设备引用 */
+        DEV_REF,
+        /** 逻辑槽类型 */
+        LOGIC_SLOT,
+        /** 试剂模式 */
+        REAGENT_MODE,
+        /** 跳转目标 */
+        JUMP_TARGET,
+        /** 逻辑类型 */
+        LOGIC_TYPE,
+        /** 槽索引 */
+        SLOT_IDX,
+        /** 批处理模式 */
+        BATCH_MODE
+    }
+
     // -------------------------------------------------------------------------
     // Parser 类
     // -------------------------------------------------------------------------
@@ -5398,6 +5430,78 @@ declare module "ic10-node-api" {
          * @desc 返回包含所有符号信息的 JSON 对象字符串。
          */
         toJSON(): string;
+    }
+
+    /**
+     * IC10 基本类型枚举。
+     *
+     * 对应 C++ `ic10::BasicType`，值从 0 开始递增。
+     * 运行时由原生模块通过 `enum_to_str` 编译期反射导出，
+     * 用于 Symbol JSON 序列化中 `type` 字段的数值表示。
+     *
+     * @public
+     */
+    export enum BasicType {
+        /** 字符串类型 */
+        STRING = 0,
+        /** 整数类型 */
+        INTEGER,
+        /** 浮点数类型 */
+        FLOAT,
+        /** 寄存器类型 */
+        REGISTER,
+        /** 设备类型 */
+        DEVICE,
+        /** 未知类型 */
+        UNKNOWN,
+        /** 枚举类型 */
+        ENUM
+    }
+
+    /**
+     * IC10 类型类别枚举。
+     *
+     * 对应 C++ `ic10::TypeCategory`，值从 0 开始递增。
+     * 运行时由原生模块通过 `enum_to_str` 编译期反射导出，
+     * 用于 Symbol JSON 序列化中 `category` 字段的数值表示。
+     *
+     * @public
+     */
+    export enum TypeCategory {
+        /** 标签 */
+        LABEL = 0,
+        /** 字符串调用 */
+        STR_CALL,
+        /** 哈希调用 */
+        HASH_CALL,
+        /** 常量 */
+        CONSTANT,
+        /** 数字 */
+        NUMBER,
+        /** 基本类型 */
+        BASIC
+    }
+
+    /**
+     * @summary 符号信息
+     *
+     * @desc 表示符号表中的单个符号，由 `SymbolTable.toJSON()` 序列化输出。
+     *
+     * @public
+     */
+    export interface Symbol {
+        /** 符号名称 */
+        name: string;
+        /** 基本类型（BasicType 枚举值） */
+        type: BasicType;
+        /** 类型类别（TypeCategory 枚举值） */
+        category: TypeCategory;
+        /** 类型名称（可选，如设备类型名） */
+        typeName?: string;
+        /** 符号值（可选） */
+        value?: string;
+        /** 描述信息（可选） */
+        desc?: string;
     }
 
     // -------------------------------------------------------------------------

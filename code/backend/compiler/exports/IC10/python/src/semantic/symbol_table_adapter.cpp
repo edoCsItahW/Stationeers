@@ -15,10 +15,34 @@
  * */
 #include "ic10_python/semantic/symbol_table_adapter.hpp"
 #include "ic10/semantic/semantic.hpp"
+#include "ic10/semantic/types.hpp"
 
 namespace stationeers::ic10 {
 
     void initSymbolTable(py::module_& m) {
+        // 绑定 BasicType 枚举,Symbol JSON 序列化中使用数值表示
+        // Bind BasicType enum, used in Symbol JSON serialization as numeric values
+        py::enum_<BasicType>(m, "BasicType")
+            .value("STRING", BasicType::STRING)
+            .value("INTEGER", BasicType::INTEGER)
+            .value("FLOAT", BasicType::FLOAT)
+            .value("REGISTER", BasicType::REGISTER)
+            .value("DEVICE", BasicType::DEVICE)
+            .value("UNKNOWN", BasicType::UNKNOWN)
+            .value("ENUM", BasicType::ENUM)
+            .export_values();
+
+        // 绑定 TypeCategory 枚举,Symbol JSON 序列化中使用数值表示
+        // Bind TypeCategory enum, used in Symbol JSON serialization as numeric values
+        py::enum_<TypeCategory>(m, "TypeCategory")
+            .value("LABEL", TypeCategory::LABEL)
+            .value("STR_CALL", TypeCategory::STR_CALL)
+            .value("HASH_CALL", TypeCategory::HASH_CALL)
+            .value("CONSTANT", TypeCategory::CONSTANT)
+            .value("NUMBER", TypeCategory::NUMBER)
+            .value("BASIC", TypeCategory::BASIC)
+            .export_values();
+
         py::class_<SymbolTable>(m, "SymbolTable")
             .def(py::init<>())
             /**

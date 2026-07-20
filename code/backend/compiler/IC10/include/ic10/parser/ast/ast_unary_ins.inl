@@ -57,7 +57,7 @@ namespace stationeers::ic10 {
         requires(sizeof...(Vs) == sizeof...(Params))
     std::string UnaryInstructionBase<K, V1>::jsonBase(Params&&... params) const {
         return this->NullaryInstructionBase<K>::template jsonBase<"operand1", "type1", Vs...>(
-            operand1, enumToStr(type1), std::forward<Params>(params)...
+            operand1, static_cast<int>(type1), std::forward<Params>(params)...
         );
     }
 

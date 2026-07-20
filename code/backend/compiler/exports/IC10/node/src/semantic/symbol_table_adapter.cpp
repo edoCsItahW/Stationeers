@@ -14,6 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_node/semantic/symbol_table_adapter.hpp"
+#include "common_node/enum_adapter.hpp"
 
 namespace stationeers::ic10 {
 
@@ -32,6 +33,10 @@ namespace stationeers::ic10 {
         constructor.SuppressDestruct();
 
         (void)exports.Set("SymbolTable", func);
+
+        // 导出 BasicType 和 TypeCategory 枚举,Symbol JSON 序列化中使用数值表示
+        (void)exports.Set("BasicType", exportEnum<BasicType>(env));
+        (void)exports.Set("TypeCategory", exportEnum<TypeCategory>(env));
 
         return exports;
     }

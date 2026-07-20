@@ -17,7 +17,6 @@
 #include "ic10_node/lexer/token_adapter.hpp"
 #include "ic10_node/parser/ast_adapter.hpp"
 #include "common_node/diagnostic_adapter.hpp"
-#include <iostream>
 
 
 namespace stationeers::ic10 {

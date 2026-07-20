@@ -34,6 +34,7 @@ from ic10_python import (
     IncCompiler,
     IncCompileResult,
     TokenType,
+    BasicType,
 )
 
 
@@ -579,7 +580,7 @@ class TestTypeInference:
         symbols = json.loads(analyser.symbolTable.toJSON())
         sensor_sym = next((s for s in symbols if s["name"] == "sensor"), None)
         assert sensor_sym is not None
-        assert sensor_sym["type"] == "DEVICE"
+        assert sensor_sym["type"] == int(BasicType.DEVICE)
         assert sensor_sym["typeName"] == "Sensor"
 
     def test_batch_mode_with_enum(self):
