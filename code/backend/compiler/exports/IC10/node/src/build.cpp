@@ -23,6 +23,7 @@
 #include "ic10_node/lexer/lexer_adapter.hpp"
 #include "ic10_node/lexer/token_adapter.hpp"
 #include "ic10_node/parser/ast_adapter.hpp"
+#include "ic10_node/link/linker_adapter.hpp"
 #include "common_node/build.hpp"
 
 
@@ -43,6 +44,7 @@ node::Object Init(node::Env env, node::Object exports) {
 
     ic::SymbolTableAdapter::init(env, exports);
     ic::AnalyserAdapter::init(env, exports);
+    ic::LinkerAdapter::init(env, exports);
     ic::IncLexerAdapter::init(env, exports);
     ic::IncParserAdapter::init(env, exports);
     ic::IncCompilerAdapter::init(env, exports);
