@@ -1,0 +1,230 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for the IC10 compiler
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      description: Which module would this feature belong to?
+      options:
+        - Lexer (tokenization, token types, number parsing)
+        - Parser (syntax parsing, AST construction)
+        - Semantic (type checking, symbol resolution)
+        - Linker (multi-unit symbol merging)
+        - Incremental (inclexer, incparser, incremental compilation)
+        - Node.js Bindings (ic10-node-api)
+        - Python Bindings (ic10-python)
+        - CLI (ic10c command line tool)
+        - CI/CD (build workflows, GitHub Actions)
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature is this?
+      options:
+        - New functionality
+        - Enhancement to existing feature
+        - Performance improvement
+        - Developer experience (DX)
+        - Tooling / Infrastructure
+        - Documentation improvement
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: What problem does this feature solve? Or what use case does it address?
+      placeholder: |
+        I'm currently unable to ... because the compiler doesn't support ...
+        
+        This is frustrating when trying to ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like. Be as specific as possible.
+      placeholder: |
+        Add a new CLI flag `--emit-ir` that outputs the intermediate representation
+        of the compiled program as JSON.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+    validations:
+      required: false
+
+  - type: textarea
+    id: lexer-details
+    attributes:
+      label: Lexer-Specific Details
+      description: Required if requesting a Lexer feature. Include token types, syntax patterns, or parsing scenarios.
+      placeholder: |
+        Proposed new token type: COMPOUND_ASSIGN (=, +=, -=, etc.)
+        
+        Syntax pattern:
+        ```
+        r0 += 10   ; compound assignment
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: parser-details
+    attributes:
+      label: Parser-Specific Details
+      description: Required if requesting a Parser feature. Include grammar rules, AST node types, or syntax extensions.
+      placeholder: |
+        Proposed grammar:
+        ```
+        compound_assign_stmt := REGISTER COMPOUND_ASSIGN (REGISTER | NUMBER)
+        ```
+        
+        New AST node: CompoundAssignNode
+    validations:
+      required: false
+
+  - type: textarea
+    id: semantic-details
+    attributes:
+      label: Semantic-Specific Details
+      description: Required if requesting a Semantic feature. Include type system extensions, scope rules, or inference rules.
+      placeholder: |
+        Proposed type inference rule:
+        - When `alias` has `#: @type` annotation, infer register type from device context
+        - Add BasicType::DEVICE_ALIAS with TypeCategory::REFERENCE
+    validations:
+      required: false
+
+  - type: textarea
+    id: linker-details
+    attributes:
+      label: Linker-Specific Details
+      description: Required if requesting a Linker feature. Include visibility rules, resolution strategies, or multi-unit scenarios.
+      placeholder: |
+        Proposed feature: Support `import` directive for explicit symbol importing.
+        
+        ```ic10
+        import shared from "lib.ic"
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: incremental-details
+    attributes:
+      label: Incremental-Specific Details
+      description: Required if requesting an Incremental feature. Include caching strategy, invalidation rules, or performance targets.
+      placeholder: |
+        Proposed: Add file-level caching that persists across sessions.
+        
+        Cache invalidation strategy:
+        - Hash-based file comparison
+        - Dependency graph for transitive invalidation
+    validations:
+      required: false
+
+  - type: textarea
+    id: node-details
+    attributes:
+      label: Node.js Binding Details
+      description: Required if requesting a Node.js binding feature. Include API signatures, TypeScript types, or usage examples.
+      placeholder: |
+        Proposed API:
+        ```typescript
+        // Streaming tokenization for large files
+        const tokenStream = Lexer.tokenizeStream(source);
+        for await (const token of tokenStream) {
+          // process token
+        }
+        ```
+        
+        TypeScript type additions:
+        ```typescript
+        interface TokenStream extends AsyncIterable<Token> { ... }
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: python-details
+    attributes:
+      label: Python Binding Details
+      description: Required if requesting a Python binding feature. Include API signatures, type stubs, or usage examples.
+      placeholder: |
+        Proposed API:
+        ```python
+        # Context manager for resource cleanup
+        with ic10.Compiler() as compiler:
+            result = compiler.compile(source)
+        ```
+        
+        .pyi stub additions:
+        ```python
+        class Compiler:
+            def __enter__(self) -> "Compiler": ...
+            def __exit__(self, *args) -> None: ...
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: cli-details
+    attributes:
+      label: CLI Details
+      description: Required if requesting a CLI feature. Include command syntax, flags, or output format.
+      placeholder: |
+        Proposed command:
+        ```bash
+        ic10c --watch input.ic    # Watch for file changes and recompile
+        ic10c --format input.ic   # Format source code
+        ic10c --lint input.ic     # Run linter checks
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: ci-details
+    attributes:
+      label: CI/CD Details
+      description: Required if requesting a CI/CD feature. Include workflow changes, automation, or publishing strategy.
+      placeholder: |
+        Proposed: Add automatic npm publish on release.
+        
+        Workflow:
+        - Triggered by release publish
+        - Build Node.js bindings for all platforms
+        - Publish to npm registry
+    validations:
+      required: false
+
+  - type: textarea
+    id: breaking
+    attributes:
+      label: Breaking Changes
+      description: Does this feature introduce breaking changes to existing API or behavior? If yes, describe the migration path.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other context, screenshots, or references.
+    validations:
+      required: false
