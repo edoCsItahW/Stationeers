@@ -157,17 +157,20 @@ namespace stationeers {
         /**
          * @if zh
          *
-         * @brief 相等比较运算符(不同长度)
+         * @brief 相等比较运算符(支持不同长度)
+         * @details 当两字符串长度不同(N!=M)时直接返回false,否则逐字符比较内容
          * @tparam M 其他字符串的长度
          * @param other 要比较的FStr
-         * @return 如果长度和内容都相等返回true
+         * @return 内容相等返回true,长度不同或内容不等返回false
          *
          * @elseif en
          *
-         * @brief Equality comparison operator (different lengths)
+         * @brief Equality comparison operator (supports different lengths)
+         * @details Returns false directly when the two string lengths differ (N!=M), otherwise
+         *        compares content character by character
          * @tparam M Length of other string
          * @param other FStr to compare
-         * @return true if both length and content are equal
+         * @return true if content is equal, false if lengths differ or content is not equal
          *
          * @endif
          *

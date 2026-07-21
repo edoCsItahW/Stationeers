@@ -10,7 +10,8 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/06/02 23:49
- * @brief
+ * @brief IC10 compiler English (US) localization message definitions
+ * @details Defines English (US) translations for all IC10 compiler diagnostic messages
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #ifndef COMPILER_EN_US_HPP
@@ -61,7 +62,7 @@ namespace stationeers::ic10 {
 
     IC10_LOCAL_MSG_EN_US(IWL2, "In IC10 syntax, registers only have r0-r15 - lexical")
 
-    IC10_LOCAL_MSG_EN_US(IWL3, "In IC10 syntax, device only has r0-r5 - lexical")
+    IC10_LOCAL_MSG_EN_US(IWL3, "In IC10 syntax, device only has d0-d5 - lexical")
 
     // Error
 
@@ -223,7 +224,7 @@ namespace stationeers::ic10 {
 
     // Error
 
-    IC10_LOCAL_MSG_EN_US(IEA1_2, "'{}' expected, but found '{}' - syntax analysis.")
+    IC10_LOCAL_MSG_EN_US(IEA1_2, "'{}' expected, but found '{}' - semantic analysis.")
 
     IC10_LOCAL_MSG_EN_US(IEA2_1, "The symbol '{}' has been redefined - semantic analysis.")
 

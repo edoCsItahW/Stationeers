@@ -897,8 +897,8 @@ namespace stationeers::ic10 {
      * @endif
      */
     enum class SlotDirection {
-        INPUT,   ///< @if zh 输入输出 @elseif en Input/output @endif
-        OUTPUT,  ///< @if zh 仅输出 @elseif en Output only @endif
+        INPUT,   ///< @if zh @brief 输入 @elseif en Input @endif
+        OUTPUT,  ///< @if zh @brief 仅输出 @elseif en Output only @endif
     };
 
     /**

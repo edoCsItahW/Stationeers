@@ -7,7 +7,7 @@
     "files": [
         "src/",
         "tsconfig.json",
-        "CNAHGELOG.md"
+        "CHANGELOG.md"
     ],
     "engines": {
         "node": ">=16.0.0"

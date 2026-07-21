@@ -10,8 +10,20 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/06/02 22:13
- * @brief
+ * @if zh
+ * @brief 源代码位置信息管理
+ * @details 提供源代码中令牌位置的管理功能,包括行号、列号和偏移量的追踪。
+ *        支持位置的移动、换行等操作,用于编译器的错误定位和诊断信息输出。
+ * @note 行号和列号从1开始,偏移量从0开始
  * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @elseif en
+ * @brief Source code position information management
+ * @details Provides management functionality for token positions in source code, including tracking of
+ *        line number, column number, and offset. Supports position movement, newline operations,
+ *        used for compiler error location and diagnostic information output.
+ * @note Line and column numbers start from 1, offset starts from 0
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
  * */
 #ifndef COMPILER_POSITION_HPP
 #define COMPILER_POSITION_HPP
@@ -26,7 +38,7 @@ namespace stationeers {
      * @class Pos
      * @if zh
      *
-     * @brief 令牌文本间位置信息类
+     * @brief 令牌文本位置信息类
      * @details 用于记录令牌文本在源代码中的位置信息
      *
      * @note 该位置信息中行号和列号从1开始
@@ -254,18 +266,76 @@ namespace stationeers {
         std::size_t offset_ = 0;
     };
 
+    /**
+     * @if zh
+     *
+     * @brief Pos类型检测特化
+     * @tparam T 待检测的类型
+     *
+     * @elseif en
+     *
+     * @brief Pos type detection specialization
+     * @tparam T Type to check
+     *
+     * @endif
+     */
     template<typename>
     struct is_pos : std::false_type {};
 
     template<>
     struct is_pos<Pos> : std::true_type {};
 
+    /**
+     * @if zh
+     *
+     * @brief Pos类型检测变量模板
+     * @tparam T 待检测的类型
+     *
+     * @elseif en
+     *
+     * @brief Pos type detection variable template
+     * @tparam T Type to check
+     *
+     * @endif
+     */
     template<typename T>
     inline constexpr bool is_pos_v = is_pos<T>::value;
 
+    /**
+     * @if zh
+     *
+     * @brief Pos约束概念
+     * @tparam T 待检测的类型
+     *
+     * @elseif en
+     *
+     * @brief Pos constraint concept
+     * @tparam T Type to check
+     *
+     * @endif
+     */
     template<typename T>
     concept IsPos = is_pos_v<T>;
 
+    /**
+     * @if zh
+     *
+     * @brief 计算结束位置
+     * @details 根据起始位置和长度计算结束位置
+     * @param pos 起始位置
+     * @param length 长度
+     * @return 结束位置
+     *
+     * @elseif en
+     *
+     * @brief Calculate end position
+     * @details Calculates end position based on start position and length
+     * @param pos Start position
+     * @param length Length
+     * @return End position
+     *
+     * @endif
+     */
     Pos endPos(const Pos &pos, std::size_t length);
 
 }  // namespace stationeers

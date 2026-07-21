@@ -10,7 +10,8 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/07/16 16:44
- * @brief
+ * @brief 文档注释解析器
+ * @details 解析IC10代码中的文档注释块，支持@device、@enum等标签，用于提取设备和枚举的元数据信息
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #ifndef COMPILER_DOC_PARSER_HPP
