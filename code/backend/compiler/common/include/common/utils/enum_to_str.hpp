@@ -10,8 +10,21 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/06/02 22:20
- * @brief
+ * @if zh
+ * @brief 枚举值转字符串工具
+ * @details 提供编译期和运行时的枚举值到字符串的转换功能。
+ *        编译期版本使用编译器特定宏(__PRETTY_FUNCTION__或__FUNCSIG__)提取枚举值名称。
+ *        运行时版本通过预生成的字符串数组实现O(1)查找。
+ * @note 要求枚举值从0开始连续编号
  * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @elseif en
+ * @brief Enum to string utilities
+ * @details Provides compile-time and runtime conversion from enum values to strings.
+ *        Compile-time version uses compiler-specific macros (__PRETTY_FUNCTION__ or __FUNCSIG__) to extract enum value names.
+ *        Runtime version achieves O(1) lookup through pre-generated string arrays.
+ * @note Requires enum values to be contiguous starting from 0
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
  * */
 #ifndef COMPILER_ENUM_TO_STR_HPP
 #define COMPILER_ENUM_TO_STR_HPP

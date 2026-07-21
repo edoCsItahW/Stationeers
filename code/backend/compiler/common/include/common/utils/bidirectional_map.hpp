@@ -433,14 +433,14 @@ namespace stationeers {
          * @brief 插入键值对
          * @param key 键
          * @param value 值
-         * @throws std::invalid_argument 如果key或value已存在
+         * @throws std::runtime_error 如果key或value已存在
          *
          * @elseif en
          *
          * @brief Insert a key-value pair
          * @param key The key
          * @param value The value
-         * @throws std::invalid_argument if key or value already exists
+         * @throws std::runtime_error if key or value already exists
          *
          * @endif
          *

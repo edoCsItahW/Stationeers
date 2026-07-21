@@ -37,7 +37,7 @@
  *     K -->|否| M[等待Future]
  * ```
  *
- * @par Type枚举值:
+ * @par BasicType枚举值:
  * | 值 | 说明 | 示例 |
  * |:-----|:-----|:-----|
  * | `UNKNOWN` | 未知类型 | 解析错误时 |
@@ -46,7 +46,7 @@
  * | `STRING` | 字符串类型 | `"Hello"` |
  * | `REGISTER` | 寄存器类型 | `r0`, `r1` |
  * | `DEVICE` | 设备类型 | `@Display` |
- * | `OTHER` | 其他类型 | 宏调用等 |
+ * | `ENUM` | 枚举类型 | 自定义枚举值 |
  *
  * @par 前向引用处理:
  * IC10支持前向引用,例如标签可以在定义之前被引用。SymbolTable使用Future/Promise模式处理这种情况:
@@ -87,7 +87,7 @@
  *     K -->|No| M[Wait for Future]
  * ```
  *
- * @par Type Enum Values:
+ * @par BasicType Enum Values:
  * | Value | Description | Example |
  * |:------|:------------|:--------|
  * | `UNKNOWN` | Unknown type | On parse error |
@@ -96,7 +96,7 @@
  * | `STRING` | String type | `"Hello"` |
  * | `REGISTER` | Register type | `r0`, `r1` |
  * | `DEVICE` | Device type | `@Display` |
- * | `OTHER` | Other type | Macro calls etc. |
+ * | `ENUM` | Enum type | Custom enum values |
  *
  * @par Forward Reference Handling:
  * IC10 supports forward references, e.g. labels can be referenced before definition. SymbolTable uses Future/Promise pattern:
@@ -185,7 +185,10 @@ namespace stationeers::ic10 {
      * @code
      * SymbolTable st;
      * // 定义符号
-     * st.define("x", std::make_shared<Symbol>(Type::INTEGER, "x"));
+     * auto sym = std::make_shared<Symbol>();
+     * sym->name = "x";
+     * sym->type = Type{BasicType::INTEGER, TypeCategory::CONSTANT};
+     * st.define("x", sym);
      * // 查找符号(可前向引用)
      * auto& entry = st.resolve("y", pos);
      * auto sym = co_await entry.future;
@@ -203,7 +206,10 @@ namespace stationeers::ic10 {
      * @code
      * SymbolTable st;
      * // Define symbol
-     * st.define("x", std::make_shared<Symbol>(Type::INTEGER, "x"));
+     * auto sym = std::make_shared<Symbol>();
+     * sym->name = "x";
+     * sym->type = Type{BasicType::INTEGER, TypeCategory::CONSTANT};
+     * st.define("x", sym);
      * // Resolve symbol (supports forward reference)
      * auto& entry = st.resolve("y", pos);
      * auto sym = co_await entry.future;

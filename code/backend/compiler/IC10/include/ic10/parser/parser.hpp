@@ -42,10 +42,10 @@
  * @par 支持的语法结构:
  * | 结构 | 说明 | 示例 |
  * |:-----|:-----|:-----|
- * | 零元指令 | 无操作数的指令 | `yield`, `hcf`, `sleep` |
- * | 一元指令 | 1个操作数 | `move r0 r1` |
- * | 二元指令 | 2个操作数 | `add r0 r1 r2` |
- * | 三元指令 | 3个操作数 | `sap r0 r1 1` |
+ * | 零元指令 | 无操作数的指令 | `yield`, `hcf` |
+ * | 一元指令 | 1个操作数 | `j 10`, `sleep 1` |
+ * | 二元指令 | 2个操作数 | `move r0 r1`, `abs r0 1` |
+ * | 三元指令 | 3个操作数 | `add r0 r1 r2`, `get r0 @Display 0` |
  * | 四元指令 | 4个操作数 | `lerp r0 r1 r2 r3` |
  * | 五元指令 | 5个操作数 | `lbn r0 r1 r2 r3 r4` |
  * | 六元指令 | 6个操作数 | `lbns r0 r1 r2 r3 r4 r5` |
@@ -94,10 +94,10 @@
  * @par Supported Syntax Structures:
  * | Structure | Description | Example |
  * |:----------|:------------|:--------|
- * | Nullary Instruction | No operands | `yield`, `hcf`, `sleep` |
- * | Unary Instruction | 1 operand | `move r0 r1` |
- * | Binary Instruction | 2 operands | `add r0 r1 r2` |
- * | Ternary Instruction | 3 operands | `sap r0 r1 1` |
+ * | Nullary Instruction | No operands | `yield`, `hcf` |
+ * | Unary Instruction | 1 operand | `j 10`, `sleep 1` |
+ * | Binary Instruction | 2 operands | `move r0 r1`, `abs r0 1` |
+ * | Ternary Instruction | 3 operands | `add r0 r1 r2`, `get r0 @Display 0` |
  * | Quaternary Instruction | 4 operands | `lerp r0 r1 r2 r3` |
  * | Quinary Instruction | 5 operands | `lbn r0 r1 r2 r3 r4` |
  * | Senary Instruction | 6 operands | `lbns r0 r1 r2 r3 r4 r5` |

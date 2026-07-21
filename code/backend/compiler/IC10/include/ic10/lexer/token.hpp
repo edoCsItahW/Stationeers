@@ -60,8 +60,8 @@ namespace stationeers::ic10 {
         COLON,   ///< @if zh 冒号 @else Colon @endif
 
         /* 注释 */
-        HEX_COMMENT,    ///< @if zh #号注释 @else Hexadecimal @endif
-        SLASH_COMMENT,  ///< @if zh //号注释 @else Slash @endif
+        HEX_COMMENT,    ///< @if zh #号注释 @else Hash comment @endif
+        SLASH_COMMENT,  ///< @if zh //号注释 @else Slash comment @endif
 
         /* 注解 */
         DOC_COMMENT,  ///< @if zh 文档注释(#>开头) @else Doc comment (#> prefix) @endif

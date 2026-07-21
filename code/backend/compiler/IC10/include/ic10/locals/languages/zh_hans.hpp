@@ -10,7 +10,8 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/06/03 11:45
- * @brief
+ * @brief IC10编译器中文(简体)本地化消息定义
+ * @details 定义IC10编译器所有诊断消息的中文(简体)翻译
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #ifndef COMPILER_ZH_HANS_HPP
@@ -57,7 +58,7 @@ namespace stationeers::ic10 {
 
     IC10_LOCAL_MSG_ZH_HANS(IWL2, "在IC10语法中，寄存器只有r0-r15 - 词法分析器。")
 
-    IC10_LOCAL_MSG_ZH_HANS(IWL3, "在IC10语法中，设备只有r0-r5 - 词法分析器。")
+    IC10_LOCAL_MSG_ZH_HANS(IWL3, "在IC10语法中，设备只有d0-d5 - 词法分析器。")
 
     // Error
 

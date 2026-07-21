@@ -130,18 +130,18 @@ namespace stationeers {
     /**
      * @if zh
      *
-     * @brief 检查字符是否为ASCII字母
-     * @details 判断给定字符是否为ASCII字母字符('A'-'Z'或'a'-'z')
+     * @brief 检查字符是否为ASCII字母或下划线
+     * @details 判断给定字符是否为ASCII字母字符('A'-'Z'、'a'-'z')或下划线('_')
      * @param c 待检测的字符
-     * @return 是字母返回true,否则返回false
+     * @return 是字母或下划线返回true,否则返回false
      *
      * @elseif en
      *
-     * @brief Check if a character is an ASCII alphabetic character
-     * @details Determines if the given character is an ASCII alphabetic character ('A'-'Z' or
-     * 'a'-'z')
+     * @brief Check if a character is an ASCII alphabetic character or underscore
+     * @details Determines if the given character is an ASCII alphabetic character
+     *        ('A'-'Z', 'a'-'z') or underscore ('_')
      * @param c Character to check
-     * @return true if alphabetic, false otherwise
+     * @return true if alphabetic or underscore, false otherwise
      *
      * @endif
      *
