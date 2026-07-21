@@ -11,16 +11,17 @@
  * @version 1.1
  * @date 2026/06/03 11:40
  * @if zh
- * @brief 线程局部存储(TLS)管理工具
- * @details 提供线程局部存储的封装实现,支持线程独立的变量存储和访问。
- *        主要用于编译器中需要线程独立的全局状态管理。
- * @note 依赖于编译器特定的thread_local存储修饰符
+ * @brief 多语言本地化消息管理
+ * @details 提供多语言消息系统的实现,支持语言注册、消息查找、参数格式化输出。
+ *        核心组件包括消息包(MsgPack)、语言基类(LanguageBase)和本地化管理器(Local)。
+ * @note 内部使用静态成员存储已注册语言和当前语言
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
- * @brief Thread Local Storage (TLS) management utilities
- * @details Provides encapsulated implementation of thread local storage, supporting thread-independent
- *        variable storage and access. Mainly used in compilers for thread-independent global state management.
- * @note Depends on compiler-specific thread_local storage modifier
+ * @brief Multilingual localization message management
+ * @details Provides implementation of the multilingual message system, supporting language
+ *        registration, message lookup, and parameter formatting output. Core components include
+ *        message pack (MsgPack), language base class (LanguageBase), and localization manager (Local).
+ * @note Internally uses static members to store registered languages and current language
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
@@ -340,14 +341,16 @@ namespace stationeers {
          * @if zh
          *
          * @brief 查找消息ID对应的索引
+         * @details 使用二分查找从已排序的消息ID列表中查找目标ID对应的索引
          * @param id 消息ID
-         * @return 对应的数组索引
+         * @return 对应的数组索引,未找到返回-1
          *
          * @elseif en
          *
          * @brief Find index corresponding to message ID
+         * @details Uses binary search to find the index of target ID in the sorted message ID list
          * @param id Message ID
-         * @return Corresponding array index
+         * @return Corresponding array index, returns -1 if not found
          *
          * @endif
          */

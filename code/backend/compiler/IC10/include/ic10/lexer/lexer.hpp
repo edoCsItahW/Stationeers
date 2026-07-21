@@ -17,7 +17,7 @@
  *        注释和各类指令关键字的识别。
  *
  * @note 词法分析是编译过程的**第一阶段**,位于解析之前
- * @note 本分析器采用**递归下降**方式实现
+ * @note 本分析器采用**状态机**方式实现
  *
  * @par 词法分析流程:
  * ```mermaid
@@ -44,10 +44,10 @@
  * | 关键字 | 指令名称 | `add`, `move`, `yield` |
  * | 数字 | 整数/浮点/十六进制/二进制 | `42`, `3.14`, `0xFF`, `0b1010` |
  * | 字符串 | 双引号包围的文本 | `"Hello World"` |
- * | 寄存器 | r0-r7 | `r0`, `r1`, `r7` |
+ * | 寄存器 | r0-r15 | `r0`, `r1`, `r15` |
  * | 设备 | @开头 | `@Display`, `@Sensor` |
  * | 标识符 | 字母/下划线开头 | `_temp`, `myVar` |
- * | 符号 | 操作符等 | `+`, `-`, `*`, `/` |
+ * | 符号 | 操作符等 | `(`, `)`, `:` |
  *
  * @warning 十六进制数必须以 `0x` 或 `0X` 开头,否则将被解析为标识符
  * @warning 二进制数必须以 `0b` 或 `0B` 开头
@@ -64,7 +64,7 @@
  *        various instruction keywords.
  *
  * @note Lexical analysis is the **first phase** of the compilation process, before parsing
- * @note This analyzer is implemented using **recursive descent** approach
+ * @note This analyzer is implemented using **state machine** approach
  *
  * @par Lexical Analysis Flow:
  * ```mermaid
@@ -91,10 +91,10 @@
  * | Keyword | Instruction names | `add`, `move`, `yield` |
  * | Number | Integer/Float/Hex/Binary | `42`, `3.14`, `0xFF`, `0b1010` |
  * | String | Text enclosed in quotes | `"Hello World"` |
- * | Register | r0-r7 | `r0`, `r1`, `r7` |
+ * | Register | r0-r15 | `r0`, `r1`, `r15` |
  * | Device | Starts with @ | `@Display`, `@Sensor` |
  * | Identifier | Letter/underscore prefix | `_temp`, `myVar` |
- * | Symbol | Operators etc. | `+`, `-`, `*`, `/` |
+ * | Symbol | Operators etc. | `(`, `)`, `:` |
  *
  * @warning Hex numbers must start with `0x` or `0X`, otherwise will be parsed as identifier
  * @warning Binary numbers must start with `0b` or `0B`
