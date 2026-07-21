@@ -824,7 +824,7 @@ namespace stationeers {
          * @public @memberof stationeers::typelist
          */
         template<typename T>
-        inline constexpr std::size_t size_v = is_type_list_v<T>;
+        inline constexpr std::size_t size_v = type_list_size_v<T>;
 
         /**
          * @if zh

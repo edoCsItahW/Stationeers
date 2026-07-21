@@ -34,7 +34,7 @@ namespace stationeers {
     constexpr bool FStr<N, T>::operator==(const FStr<M, T>& other) const {
         if constexpr (N != M) return false;
 
-        return std::equal(value.begin(), value.end(), other.data.begin());
+        return std::equal(value.begin(), value.end(), other.value.begin());
     }
 
     template<std::size_t N, typename T>

@@ -8,7 +8,7 @@
 /**
  * @file main.cpp
  * @author edocsitahw
- * @version 2.1
+ * @version 2.0
  * @date 2026/07/19
  * @if zh
  * @brief IC10命令行编译器入口
@@ -269,7 +269,7 @@ namespace stationeers::ic10 {
         std::cout << ILoc::msgFormat<IMsgId::IIO0_1>(programName);
     }
 
-    static void printVersion() { std::cout << "ic10c version 2.1.0\n"; }
+    static void printVersion() { std::cout << "ic10c version 2.0.0\n"; }
 
     // -------------------------------------------------------------------------
     //  诊断输出（MSVC 风格）

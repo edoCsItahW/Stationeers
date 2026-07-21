@@ -258,14 +258,15 @@ namespace stationeers {
          *
          * @brief 链式回调
          * @tparam F 回调函数类型
-         * @param f 回调函数,接受T类型参数并返回新Future
+         * @param f 回调函数,接受std::expected<T, std::exception_ptr>类型参数并返回新Future的值
          * @return 新的Future对象
          *
          * @elseif en
          *
          * @brief Chained callback
          * @tparam F Callback function type
-         * @param f Callback function, takes T type parameter and returns new Future
+         * @param f Callback function, takes std::expected<T, std::exception_ptr> type parameter
+         *        and returns the value for the new Future
          * @return New Future object
          *
          * @endif
