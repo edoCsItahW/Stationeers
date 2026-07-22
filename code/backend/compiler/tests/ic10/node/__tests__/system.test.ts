@@ -753,7 +753,7 @@ describe('Type inference and semantic analysis', () => {
         expect(result.analyser.diagnostics).toHaveLength(0);
 
         const symbols = JSON.parse(result.analyser.symbolTable.toJSON());
-        const furnaceSym = symbols.find((s: any) => s.name === 'furnace');
+        const furnaceSym = symbols['furnace'];
         expect(furnaceSym).toBeDefined();
         expect(furnaceSym.type).toBe(BasicType.DEVICE);
         expect(furnaceSym.typeName).toBe('Furnace');

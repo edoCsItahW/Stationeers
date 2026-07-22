@@ -35,7 +35,9 @@
 #include "ic10_python/lexer/lexer_adapter.hpp"
 #include "ic10_python/lexer/token_adapter.hpp"
 #include "ic10_python/parser/ast_adapter.hpp"
+#include "ic10_python/semantic/type_of_node_adapter.hpp"
 #include "common_python/build.hpp"
+#include "common_python/enum_adapter.hpp"
 
 namespace ic = stationeers::ic10;
 
@@ -71,4 +73,7 @@ PYBIND11_MODULE(ic10_python, m) {
     ic::initIncLexer(m);
     ic::initIncParser(m);
     ic::initIncCompiler(m);
+
+    // 导出 TypeOfNode 映射
+    ic::exportTypeOfNode(m);
 }
