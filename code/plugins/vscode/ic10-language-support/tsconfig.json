@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "nodenext",
         "target": "ES2024",
         "lib": ["es2024"],
         "outDir": "out",
