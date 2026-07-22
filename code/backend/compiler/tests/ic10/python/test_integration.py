@@ -578,7 +578,7 @@ class TestTypeInference:
         program, parser, analyser = compile_program(source)
 
         symbols = json.loads(analyser.symbolTable.toJSON())
-        sensor_sym = next((s for s in symbols if s["name"] == "sensor"), None)
+        sensor_sym = next((s for s in symbols.values() if s["name"] == "sensor"), None)
         assert sensor_sym is not None
         assert sensor_sym["type"] == int(BasicType.DEVICE)
         assert sensor_sym["typeName"] == "Sensor"

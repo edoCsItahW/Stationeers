@@ -680,7 +680,7 @@ TEST_F(SymbolTableTestFixture, FailAllPendingDoesNotAffectDefined) {
 TEST_F(SymbolTableTestFixture, EmptyTableToJSONEmptyArray) {
     SymbolTable st;
     auto json = st.toJSON();
-    EXPECT_EQ(json, "[]");
+    EXPECT_EQ(json, "{}");
 }
 
 /// @brief 符号表 toJSON 包含已定义符号 / Symbol table toJSON includes defined symbols

@@ -71,21 +71,25 @@ namespace stationeers::ic10 {
     std::string SymbolTable::toJSON() const {
         std::stringstream ss;
 
-        ss << "[";
+        ss << "{";
 
-        for (const auto& entry : symbols_ | std::views::values)
+        bool first = true;
+
+        for (const auto& [key, entry] : symbols_ )
             if (entry.ready())
-                if (entry.future.get().has_value())
-                    ss << entry.future.get().value()->toJSON() << ", ";
+                if (entry.future.get().has_value()) {
+                    if (!first)
+                        ss << ", ";
+
+                    ss << '\"' << key << "\": " << entry.future.get().value()->toJSON();
+
+                    first = false;
+                }
 
 
-        std::string json = ss.str();
+        ss << "}";
 
-        if (json.size() > 2) json.erase(json.size() - 2);
-
-        json += "]";
-
-        return json;
+        return ss.str();
     }
 
     void SymbolTable::failAllPending() {

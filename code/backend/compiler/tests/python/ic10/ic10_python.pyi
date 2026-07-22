@@ -266,6 +266,23 @@ class TokenCategory(enum.IntEnum):
     INVALID
 
 
+class _TypeOfNodeEntry(TypedDict):
+    """Type of node entry."""
+    kind: int
+    category: int
+
+
+TypeOfNode: Dict[str, _TypeOfNodeEntry]
+"""AST node type mapping.
+
+Maps node type names to their BasicType and TypeCategory.
+
+Example:
+    >>> TypeOfNode['Integer']
+    {'kind': BasicType.INTEGER, 'category': TypeCategory.NUMBER}
+"""
+
+
 class OperandType(enum.IntEnum):
     """IC10 operand type enumeration.
 
