@@ -15,28 +15,27 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+import {Lexer, Parser,  Linker, type SymbolMap} from "ic10-node-api";
+import stdLib from "ic10-node-api/static/stdLib.ic.json"
 import { createHash } from "node:crypto";
+
 import { DocCacheValue } from "../cache";
-import {Analyser, Lexer, Parser, Program, Token} from "ic10-node-api";
 
 
-export interface ParseResult {
+export interface ParseResult extends DocCacheValue {
     changed: boolean;
-    tokens: Token[];
-    ast: Program;
-    errors: Error[];
-    hash: string;
 }
 
 
 export class ParserPipline {
 
-    public async parse(code: string, cache?: DocCacheValue) {
+    public async parse(code: string, cache?: DocCacheValue): Promise<ParseResult> {
         const noop: ParseResult = {
             changed: false,
             tokens: cache?.tokens ?? [],
             ast: cache?.ast!,
-            errors: cache?.errors ?? [],
+            diagnostics: cache?.diagnostics ?? [],
+            symbols: cache?.symbols ?? null,
             hash: cache?.hash ?? ""
         };
 
@@ -51,16 +50,15 @@ export class ParserPipline {
         const parser = new Parser(tokens);
         const ast = parser.parse();
 
-        const analyser = new Analyser();
-        let errors: Error[] = [];
-        try {
-            await analyser.visit(ast);
-            errors = analyser.errors as Error[];
-        } catch (e) {
-            console.error("[IC10 LSP] Analyser error:", e);
-        }
+        const linker = new Linker();
 
-        return { changed: true, tokens, ast, errors, hash };
+        linker.addUnit(stdLib.content);
+        linker.addUnit(ast);
+
+        const symbolJson = linker.link().toJSON();
+
+
+        return { changed: true, tokens, ast, diagnostics: linker.diagnostics, symbols: JSON.parse(symbolJson) as SymbolMap, hash };
     }
 
 }
