@@ -629,7 +629,7 @@ describe('Type inference and device context', () => {
 
         const result = await compile(source);
         const symbols = JSON.parse(result.analyser.symbolTable.toJSON());
-        const sensorSym = symbols.find((s: any) => s.name === 'sensor');
+        const sensorSym = symbols['sensor'];
 
         expect(sensorSym).toBeDefined();
         expect(sensorSym.type).toBe(BasicType.DEVICE);

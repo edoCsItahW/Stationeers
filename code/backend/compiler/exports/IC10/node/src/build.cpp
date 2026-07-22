@@ -24,6 +24,7 @@
 #include "ic10_node/lexer/token_adapter.hpp"
 #include "ic10_node/parser/ast_adapter.hpp"
 #include "ic10_node/link/linker_adapter.hpp"
+#include "ic10_node/semantic/type_of_node_adapter.hpp"
 #include "common_node/build.hpp"
 
 
@@ -48,6 +49,9 @@ node::Object Init(node::Env env, node::Object exports) {
     ic::IncLexerAdapter::init(env, exports);
     ic::IncParserAdapter::init(env, exports);
     ic::IncCompilerAdapter::init(env, exports);
+
+    // 导出 BasicType, TypeCategory 枚举和 TypeOfNode 映射
+    (void)exports.Set("TypeOfNode", ic::exportTypeOfNode(env));
 
     return exports;
 }
