@@ -1,0 +1,2 @@
+minimumReleaseAgeExclude:
+  - ic10-node-api@2.2.0

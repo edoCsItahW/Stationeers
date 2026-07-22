@@ -15,15 +15,16 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import type {Connection} from "vscode-languageserver/node";
-
 import {createConnection, TextDocuments, ProposedFeatures} from "vscode-languageserver/node";
 import {TextDocument} from "vscode-languageserver-textdocument";
+import type {Connection} from "vscode-languageserver/node";
+
 import {SettingsManager} from "./services/settingsManager";
+import {DiagnosticHandler} from "./handlers/diagnostic";
+import {ParserPipline} from "./services/parserPipline";
 import {DocumentCache, GlobalCache} from "./cache";
 import {HoverHandler} from "./handlers/hover";
-import { Lexer } from "ic10-node-api";
-import {ParserPipline} from "./services/parserPipline";
+import {t} from "../locals/locale";
 
 
 type OnInitializeHandlerType = Parameters<Connection["onInitialize"]>[0];
@@ -35,9 +36,10 @@ type OnDidChangeContentHandlerType = Parameters<TextDocuments<TextDocument>["onD
 
 export class Server {
     private settingMgr: SettingsManager;
-    private docCache: DocumentCache;
-    private globalCache: GlobalCache;
-    private hoverHandler: HoverHandler;
+    private readonly docCache: DocumentCache;
+    private readonly globalCache: GlobalCache;
+    private readonly hoverHandler: HoverHandler;
+    private diagHandler: DiagnosticHandler;
     private pipline: ParserPipline;
 
     constructor(
@@ -50,30 +52,36 @@ export class Server {
         this.settingMgr = new SettingsManager(connection, this.docCache, this.globalCache);
 
         this.hoverHandler = new HoverHandler(this.docCache);
+        this.diagHandler = new DiagnosticHandler(this.docCache);
 
         this.pipline = new ParserPipline();
     }
 
     run() {
-        console.log("[IC10 LSP] Server is running");
+        console.log("[IC10 LSP] - Server: ", t("server.info.start"));
 
-        // 初始化
-        this.connection.onInitialize(this.onInitialize.bind(this));
-        this.connection.onInitialized(this.onInitialized.bind(this))
+        try {
+            // 初始化
+            this.connection.onInitialize(this.onInitialize.bind(this));
+            this.connection.onInitialized(this.onInitialized.bind(this))
 
-        // 事件监听
-        this.connection.onDidChangeConfiguration(this.onDidChangeConfiguration.bind(this));
+            // 事件监听
+            this.connection.onDidChangeConfiguration(this.onDidChangeConfiguration.bind(this));
 
-        // LSP功能
-        this.connection.onHover(this.hoverHandler.handle.bind(this.hoverHandler));
+            // LSP功能
+            this.connection.onHover(this.hoverHandler.handle.bind(this.hoverHandler));
+            this.connection.languages.diagnostics.on(this.diagHandler.handle.bind(this.diagHandler))
 
-        // 文档监听
-        this.documents.onDidOpen(this.onDidOpen.bind(this));
-        this.documents.onDidChangeContent(this.onDidChangeContent.bind(this));
+            // 文档监听
+            this.documents.onDidOpen(this.onDidOpen.bind(this));
+            this.documents.onDidChangeContent(this.onDidChangeContent.bind(this));
 
-        // 启动监听
-        this.documents.listen(this.connection);
-        this.connection.listen();
+            // 启动监听
+            this.documents.listen(this.connection);
+            this.connection.listen();
+        } catch (error) {
+            console.error("[IC10 LSP] - Server: ", error);
+        }
     }
 
     private onInitialize(...args: Parameters<OnInitializeHandlerType>): ReturnType<OnInitializeHandlerType> {

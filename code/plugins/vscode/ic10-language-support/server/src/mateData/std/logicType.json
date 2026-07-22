@@ -1,0 +1,1677 @@
+{
+    "Acceleration": {
+        "desc": "./locals/logicSlotType.Acceleration.desc",
+        "type": "LogicType",
+        "value": 216
+    },
+    "Activate": {
+        "desc": "./locals/logicSlotType.Activate.desc",
+        "type": "LogicType",
+        "value": 9
+    },
+    "AirRelease": {
+        "desc": "./locals/logicSlotType.AirRelease.desc",
+        "type": "LogicType",
+        "value": 75
+    },
+    "AlignmentError": {
+        "desc": "./locals/logicSlotType.AlignmentError.desc",
+        "type": "LogicType",
+        "value": 243
+    },
+    "Altitude": {
+        "desc": "./locals/logicSlotType.Altitude.desc",
+        "type": "LogicType",
+        "value": 269
+    },
+    "Apex": {
+        "desc": "./locals/logicSlotType.Apex.desc",
+        "type": "LogicType",
+        "value": 238
+    },
+    "AutoLand": {
+        "desc": "./locals/logicSlotType.AutoLand.desc",
+        "type": "LogicType",
+        "value": 226
+    },
+    "AutoShutOff": {
+        "desc": "./locals/logicSlotType.AutoShutOff.desc",
+        "type": "LogicType",
+        "value": 218
+    },
+    "BestContactFilter": {
+        "desc": "./locals/logicSlotType.BestContactFilter.desc",
+        "type": "LogicType",
+        "value": 267
+    },
+    "Bpm": {
+        "desc": "./locals/logicSlotType.Bpm.desc",
+        "type": "LogicType",
+        "value": 103
+    },
+    "BurnTimeRemaining": {
+        "desc": "./locals/logicSlotType.BurnTimeRemaining.desc",
+        "type": "LogicType",
+        "value": 225
+    },
+    "CelestialHash": {
+        "desc": "./locals/logicSlotType.CelestialHash.desc",
+        "type": "LogicType",
+        "value": 242
+    },
+    "CelestialParentHash": {
+        "desc": "./locals/logicSlotType.CelestialParentHash.desc",
+        "type": "LogicType",
+        "value": 250
+    },
+    "Channel0": {
+        "desc": "./locals/logicSlotType.Channel0.desc",
+        "type": "LogicType",
+        "value": 165
+    },
+    "Channel1": {
+        "desc": "./locals/logicSlotType.Channel1.desc",
+        "type": "LogicType",
+        "value": 166
+    },
+    "Channel2": {
+        "desc": "./locals/logicSlotType.Channel2.desc",
+        "type": "LogicType",
+        "value": 167
+    },
+    "Channel3": {
+        "desc": "./locals/logicSlotType.Channel3.desc",
+        "type": "LogicType",
+        "value": 168
+    },
+    "Channel4": {
+        "desc": "./locals/logicSlotType.Channel4.desc",
+        "type": "LogicType",
+        "value": 169
+    },
+    "Channel5": {
+        "desc": "./locals/logicSlotType.Channel5.desc",
+        "type": "LogicType",
+        "value": 170
+    },
+    "Channel6": {
+        "desc": "./locals/logicSlotType.Channel6.desc",
+        "type": "LogicType",
+        "value": 171
+    },
+    "Channel7": {
+        "desc": "./locals/logicSlotType.Channel7.desc",
+        "type": "LogicType",
+        "value": 172
+    },
+    "Charge": {
+        "desc": "./locals/logicSlotType.Charge.desc",
+        "type": "LogicType",
+        "value": 11
+    },
+    "Chart": {
+        "desc": "./locals/logicSlotType.Chart.desc",
+        "type": "LogicType",
+        "value": 256
+    },
+    "ChartedNavPoints": {
+        "desc": "./locals/logicSlotType.ChartedNavPoints.desc",
+        "type": "LogicType",
+        "value": 259
+    },
+    "ClearMemory": {
+        "desc": "./locals/logicSlotType.ClearMemory.desc",
+        "type": "LogicType",
+        "value": 62
+    },
+    "CollectableGoods": {
+        "desc": "./locals/logicSlotType.CollectableGoods.desc",
+        "type": "LogicType",
+        "value": 101
+    },
+    "Color": {
+        "desc": "./locals/logicSlotType.Color.desc",
+        "type": "LogicType",
+        "value": 38
+    },
+    "Combustion": {
+        "desc": "./locals/logicSlotType.Combustion.desc",
+        "type": "LogicType",
+        "value": 98
+    },
+    "CombustionInput": {
+        "desc": "./locals/logicSlotType.CombustionInput.desc",
+        "type": "LogicType",
+        "value": 146
+    },
+    "CombustionInput2": {
+        "desc": "./locals/logicSlotType.CombustionInput2.desc",
+        "type": "LogicType",
+        "value": 147
+    },
+    "CombustionLimiter": {
+        "desc": "./locals/logicSlotType.CombustionLimiter.desc",
+        "type": "LogicType",
+        "value": 153
+    },
+    "CombustionOutput": {
+        "desc": "./locals/logicSlotType.CombustionOutput.desc",
+        "type": "LogicType",
+        "value": 148
+    },
+    "CombustionOutput2": {
+        "desc": "./locals/logicSlotType.CombustionOutput2.desc",
+        "type": "LogicType",
+        "value": 149
+    },
+    "CompletionRatio": {
+        "desc": "./locals/logicSlotType.CompletionRatio.desc",
+        "type": "LogicType",
+        "value": 61
+    },
+    "ContactSlotIndex": {
+        "desc": "./locals/logicSlotType.ContactSlotIndex.desc",
+        "type": "LogicType",
+        "value": 282
+    },
+    "ContactTypeId": {
+        "desc": "./locals/logicSlotType.ContactTypeId.desc",
+        "type": "LogicType",
+        "value": 198
+    },
+    "CurrentCode": {
+        "desc": "./locals/logicSlotType.CurrentCode.desc",
+        "type": "LogicType",
+        "value": 261
+    },
+    "CurrentNodeType": {
+        "desc": "./locals/logicSlotType.CurrentNodeType.desc",
+        "type": "LogicType",
+        "value": 352
+    },
+    "CurrentResearchPodType": {
+        "desc": "./locals/logicSlotType.CurrentResearchPodType.desc",
+        "type": "LogicType",
+        "value": 93
+    },
+    "Density": {
+        "desc": "./locals/logicSlotType.Density.desc",
+        "type": "LogicType",
+        "value": 262
+    },
+    "DerivativeGain": {
+        "desc": "./locals/logicSlotType.DerivativeGain.desc",
+        "type": "LogicType",
+        "value": 276
+    },
+    "DestinationCode": {
+        "desc": "./locals/logicSlotType.DestinationCode.desc",
+        "type": "LogicType",
+        "value": 215
+    },
+    "Discover": {
+        "desc": "./locals/logicSlotType.Discover.desc",
+        "type": "LogicType",
+        "value": 255
+    },
+    "Dispense": {
+        "desc": "./locals/logicSlotType.Dispense.desc",
+        "type": "LogicType",
+        "value": 356
+    },
+    "DispenseSlot": {
+        "desc": "./locals/logicSlotType.DispenseSlot.desc",
+        "type": "LogicType",
+        "value": 357
+    },
+    "DistanceAu": {
+        "desc": "./locals/logicSlotType.DistanceAu.desc",
+        "type": "LogicType",
+        "value": 244
+    },
+    "DistanceKm": {
+        "desc": "./locals/logicSlotType.DistanceKm.desc",
+        "type": "LogicType",
+        "value": 249
+    },
+    "DrillCondition": {
+        "desc": "./locals/logicSlotType.DrillCondition.desc",
+        "type": "LogicType",
+        "value": 240
+    },
+    "DryMass": {
+        "desc": "./locals/logicSlotType.DryMass.desc",
+        "type": "LogicType",
+        "value": 220
+    },
+    "Eccentricity": {
+        "desc": "./locals/logicSlotType.Eccentricity.desc",
+        "type": "LogicType",
+        "value": 247
+    },
+    "ElevatorLevel": {
+        "desc": "./locals/logicSlotType.ElevatorLevel.desc",
+        "type": "LogicType",
+        "value": 40
+    },
+    "ElevatorSpeed": {
+        "desc": "./locals/logicSlotType.ElevatorSpeed.desc",
+        "type": "LogicType",
+        "value": 39
+    },
+    "EnergyConvected": {
+        "desc": "./locals/logicSlotType.EnergyConvected.desc",
+        "type": "LogicType",
+        "value": 354
+    },
+    "EnergyRadiated": {
+        "desc": "./locals/logicSlotType.EnergyRadiated.desc",
+        "type": "LogicType",
+        "value": 355
+    },
+    "EntityState": {
+        "desc": "./locals/logicSlotType.EntityState.desc",
+        "type": "LogicType",
+        "value": 239
+    },
+    "EnvironmentEfficiency": {
+        "desc": "./locals/logicSlotType.EnvironmentEfficiency.desc",
+        "type": "LogicType",
+        "value": 104
+    },
+    "Error": {
+        "desc": "./locals/logicSlotType.Error.desc",
+        "type": "LogicType",
+        "value": 4
+    },
+    "ExhaustVelocity": {
+        "desc": "./locals/logicSlotType.ExhaustVelocity.desc",
+        "type": "LogicType",
+        "value": 235
+    },
+    "ExportCount": {
+        "desc": "./locals/logicSlotType.ExportCount.desc",
+        "type": "LogicType",
+        "value": 63
+    },
+    "Extended": {
+        "desc": "./locals/logicSlotType.Extended.desc",
+        "type": "LogicType",
+        "value": 272
+    },
+    "Filtration": {
+        "desc": "./locals/logicSlotType.Filtration.desc",
+        "type": "LogicType",
+        "value": 74
+    },
+    "FlightControlRule": {
+        "desc": "./locals/logicSlotType.FlightControlRule.desc",
+        "type": "LogicType",
+        "value": 236
+    },
+    "Flush": {
+        "desc": "./locals/logicSlotType.Flush.desc",
+        "type": "LogicType",
+        "value": 174
+    },
+    "ForceWrite": {
+        "desc": "./locals/logicSlotType.ForceWrite.desc",
+        "type": "LogicType",
+        "value": 85
+    },
+    "ForwardX": {
+        "desc": "./locals/logicSlotType.ForwardX.desc",
+        "type": "LogicType",
+        "value": 227
+    },
+    "ForwardY": {
+        "desc": "./locals/logicSlotType.ForwardY.desc",
+        "type": "LogicType",
+        "value": 228
+    },
+    "ForwardZ": {
+        "desc": "./locals/logicSlotType.ForwardZ.desc",
+        "type": "LogicType",
+        "value": 229
+    },
+    "Fuel": {
+        "desc": "./locals/logicSlotType.Fuel.desc",
+        "type": "LogicType",
+        "value": 99
+    },
+    "Gravity": {
+        "desc": "./locals/logicSlotType.Gravity.desc",
+        "type": "LogicType",
+        "value": 358
+    },
+    "Harvest": {
+        "desc": "./locals/logicSlotType.Harvest.desc",
+        "type": "LogicType",
+        "value": 69
+    },
+    "HealthDamage": {
+        "desc": "./locals/logicSlotType.HealthDamage.desc",
+        "type": "LogicType",
+        "value": 350
+    },
+    "Horizontal": {
+        "desc": "./locals/logicSlotType.Horizontal.desc",
+        "type": "LogicType",
+        "value": 20
+    },
+    "HorizontalRatio": {
+        "desc": "./locals/logicSlotType.HorizontalRatio.desc",
+        "type": "LogicType",
+        "value": 34
+    },
+    "Idle": {
+        "desc": "./locals/logicSlotType.Idle.desc",
+        "type": "LogicType",
+        "value": 37
+    },
+    "ImportCount": {
+        "desc": "./locals/logicSlotType.ImportCount.desc",
+        "type": "LogicType",
+        "value": 64
+    },
+    "Inclination": {
+        "desc": "./locals/logicSlotType.Inclination.desc",
+        "type": "LogicType",
+        "value": 246
+    },
+    "Index": {
+        "desc": "./locals/logicSlotType.Index.desc",
+        "type": "LogicType",
+        "value": 241
+    },
+    "IntegralGain": {
+        "desc": "./locals/logicSlotType.IntegralGain.desc",
+        "type": "LogicType",
+        "value": 275
+    },
+    "InterrogationProgress": {
+        "desc": "./locals/logicSlotType.InterrogationProgress.desc",
+        "type": "LogicType",
+        "value": 157
+    },
+    "LineNumber": {
+        "desc": "./locals/logicSlotType.LineNumber.desc",
+        "type": "LogicType",
+        "value": 173
+    },
+    "Lock": {
+        "desc": "./locals/logicSlotType.Lock.desc",
+        "type": "LogicType",
+        "value": 10
+    },
+    "ManualResearchRequiredPod": {
+        "desc": "./locals/logicSlotType.ManualResearchRequiredPod.desc",
+        "type": "LogicType",
+        "value": 94
+    },
+    "Mass": {
+        "desc": "./locals/logicSlotType.Mass.desc",
+        "type": "LogicType",
+        "value": 219
+    },
+    "Maximum": {
+        "desc": "./locals/logicSlotType.Maximum.desc",
+        "type": "LogicType",
+        "value": 23
+    },
+    "MineablesInQueue": {
+        "desc": "./locals/logicSlotType.MineablesInQueue.desc",
+        "type": "LogicType",
+        "value": 96
+    },
+    "MineablesInVicinity": {
+        "desc": "./locals/logicSlotType.MineablesInVicinity.desc",
+        "type": "LogicType",
+        "value": 95
+    },
+    "MinedQuantity": {
+        "desc": "./locals/logicSlotType.MinedQuantity.desc",
+        "type": "LogicType",
+        "value": 266
+    },
+    "Minimum": {
+        "desc": "./locals/logicSlotType.Minimum.desc",
+        "type": "LogicType",
+        "value": 277
+    },
+    "MinimumWattsToContact": {
+        "desc": "./locals/logicSlotType.MinimumWattsToContact.desc",
+        "type": "LogicType",
+        "value": 163
+    },
+    "Mode": {
+        "desc": "./locals/logicSlotType.Mode.desc",
+        "type": "LogicType",
+        "value": 3
+    },
+    "NameHash": {
+        "desc": "./locals/logicSlotType.NameHash.desc",
+        "type": "LogicType",
+        "value": 268
+    },
+    "NavPoints": {
+        "desc": "./locals/logicSlotType.NavPoints.desc",
+        "type": "LogicType",
+        "value": 258
+    },
+    "NetworkFault": {
+        "desc": "./locals/logicSlotType.NetworkFault.desc",
+        "type": "LogicType",
+        "value": 273
+    },
+    "NextWeatherEventTime": {
+        "desc": "./locals/logicSlotType.NextWeatherEventTime.desc",
+        "type": "LogicType",
+        "value": 97
+    },
+    "NextWeatherHash": {
+        "desc": "./locals/logicSlotType.NextWeatherHash.desc",
+        "type": "LogicType",
+        "value": 281
+    },
+    "true": {
+        "desc": "./locals/logicSlotType.True.desc",
+        "type": "LogicType",
+        "value": 28
+    },
+    "Open": {
+        "desc": "./locals/logicSlotType.Open.desc",
+        "type": "LogicType",
+        "value": 2
+    },
+    "OperationalTemperatureEfficiency": {
+        "desc": "./locals/logicSlotType.OperationalTemperatureEfficiency.desc",
+        "type": "LogicType",
+        "value": 150
+    },
+    "OrbitPeriod": {
+        "desc": "./locals/logicSlotType.OrbitPeriod.desc",
+        "type": "LogicType",
+        "value": 245
+    },
+    "Orientation": {
+        "desc": "./locals/logicSlotType.Orientation.desc",
+        "type": "LogicType",
+        "value": 230
+    },
+    "Output": {
+        "desc": "./locals/logicSlotType.Output.desc",
+        "type": "LogicType",
+        "value": 70
+    },
+    "PassedMoles": {
+        "desc": "./locals/logicSlotType.PassedMoles.desc",
+        "type": "LogicType",
+        "value": 234
+    },
+    "Plant": {
+        "desc": "./locals/logicSlotType.Plant.desc",
+        "type": "LogicType",
+        "value": 68
+    },
+    "PositionX": {
+        "desc": "./locals/logicSlotType.PositionX.desc",
+        "type": "LogicType",
+        "value": 76
+    },
+    "PositionY": {
+        "desc": "./locals/logicSlotType.PositionY.desc",
+        "type": "LogicType",
+        "value": 77
+    },
+    "PositionZ": {
+        "desc": "./locals/logicSlotType.PositionZ.desc",
+        "type": "LogicType",
+        "value": 78
+    },
+    "Power": {
+        "desc": "./locals/logicSlotType.Power.desc",
+        "type": "LogicType",
+        "value": 1
+    },
+    "PowerActual": {
+        "desc": "./locals/logicSlotType.PowerActual.desc",
+        "type": "LogicType",
+        "value": 26
+    },
+    "PowerGeneration": {
+        "desc": "./locals/logicSlotType.PowerGeneration.desc",
+        "type": "LogicType",
+        "value": 65
+    },
+    "PowerPotential": {
+        "desc": "./locals/logicSlotType.PowerPotential.desc",
+        "type": "LogicType",
+        "value": 25
+    },
+    "PowerRequired": {
+        "desc": "./locals/logicSlotType.PowerRequired.desc",
+        "type": "LogicType",
+        "value": 36
+    },
+    "PrefabHash": {
+        "desc": "./locals/logicSlotType.PrefabHash.desc",
+        "type": "LogicType",
+        "value": 84
+    },
+    "Pressure": {
+        "desc": "./locals/logicSlotType.Pressure.desc",
+        "type": "LogicType",
+        "value": 5
+    },
+    "PressureEfficiency": {
+        "desc": "./locals/logicSlotType.PressureEfficiency.desc",
+        "type": "LogicType",
+        "value": 152
+    },
+    "PressureExternal": {
+        "desc": "./locals/logicSlotType.PressureExternal.desc",
+        "type": "LogicType",
+        "value": 7
+    },
+    "PressureInput": {
+        "desc": "./locals/logicSlotType.PressureInput.desc",
+        "type": "LogicType",
+        "value": 106
+    },
+    "PressureInput2": {
+        "desc": "./locals/logicSlotType.PressureInput2.desc",
+        "type": "LogicType",
+        "value": 116
+    },
+    "PressureInternal": {
+        "desc": "./locals/logicSlotType.PressureInternal.desc",
+        "type": "LogicType",
+        "value": 8
+    },
+    "PressureOutput": {
+        "desc": "./locals/logicSlotType.PressureOutput.desc",
+        "type": "LogicType",
+        "value": 126
+    },
+    "PressureOutput2": {
+        "desc": "./locals/logicSlotType.PressureOutput2.desc",
+        "type": "LogicType",
+        "value": 136
+    },
+    "PressureSetting": {
+        "desc": "./locals/logicSlotType.PressureSetting.desc",
+        "type": "LogicType",
+        "value": 71
+    },
+    "Progress": {
+        "desc": "./locals/logicSlotType.Progress.desc",
+        "type": "LogicType",
+        "value": 214
+    },
+    "ProportionalGain": {
+        "desc": "./locals/logicSlotType.ProportionalGain.desc",
+        "type": "LogicType",
+        "value": 274
+    },
+    "Quantity": {
+        "desc": "./locals/logicSlotType.Quantity.desc",
+        "type": "LogicType",
+        "value": 27
+    },
+    "Ratio": {
+        "desc": "./locals/logicSlotType.Ratio.desc",
+        "type": "LogicType",
+        "value": 24
+    },
+    "RatioCarbonDioxide": {
+        "desc": "./locals/logicSlotType.RatioCarbonDioxide.desc",
+        "type": "LogicType",
+        "value": 15
+    },
+    "RatioCarbonDioxideInput": {
+        "desc": "./locals/logicSlotType.RatioCarbonDioxideInput.desc",
+        "type": "LogicType",
+        "value": 109
+    },
+    "RatioCarbonDioxideInput2": {
+        "desc": "./locals/logicSlotType.RatioCarbonDioxideInput2.desc",
+        "type": "LogicType",
+        "value": 119
+    },
+    "RatioCarbonDioxideOutput": {
+        "desc": "./locals/logicSlotType.RatioCarbonDioxideOutput.desc",
+        "type": "LogicType",
+        "value": 129
+    },
+    "RatioCarbonDioxideOutput2": {
+        "desc": "./locals/logicSlotType.RatioCarbonDioxideOutput2.desc",
+        "type": "LogicType",
+        "value": 139
+    },
+    "RatioHelium": {
+        "desc": "./locals/logicSlotType.RatioHelium.desc",
+        "type": "LogicType",
+        "value": 286
+    },
+    "RatioHeliumInput": {
+        "desc": "./locals/logicSlotType.RatioHeliumInput.desc",
+        "type": "LogicType",
+        "value": 318
+    },
+    "RatioHeliumInput2": {
+        "desc": "./locals/logicSlotType.RatioHeliumInput2.desc",
+        "type": "LogicType",
+        "value": 319
+    },
+    "RatioHeliumOutput": {
+        "desc": "./locals/logicSlotType.RatioHeliumOutput.desc",
+        "type": "LogicType",
+        "value": 320
+    },
+    "RatioHeliumOutput2": {
+        "desc": "./locals/logicSlotType.RatioHeliumOutput2.desc",
+        "type": "LogicType",
+        "value": 321
+    },
+    "RatioHydrazine": {
+        "desc": "./locals/logicSlotType.RatioHydrazine.desc",
+        "type": "LogicType",
+        "value": 283
+    },
+    "RatioHydrazineInput": {
+        "desc": "./locals/logicSlotType.RatioHydrazineInput.desc",
+        "type": "LogicType",
+        "value": 306
+    },
+    "RatioHydrazineInput2": {
+        "desc": "./locals/logicSlotType.RatioHydrazineInput2.desc",
+        "type": "LogicType",
+        "value": 307
+    },
+    "RatioHydrazineOutput": {
+        "desc": "./locals/logicSlotType.RatioHydrazineOutput.desc",
+        "type": "LogicType",
+        "value": 308
+    },
+    "RatioHydrazineOutput2": {
+        "desc": "./locals/logicSlotType.RatioHydrazineOutput2.desc",
+        "type": "LogicType",
+        "value": 309
+    },
+    "RatioHydrochloricAcid": {
+        "desc": "./locals/logicSlotType.RatioHydrochloricAcid.desc",
+        "type": "LogicType",
+        "value": 290
+    },
+    "RatioHydrochloricAcidInput": {
+        "desc": "./locals/logicSlotType.RatioHydrochloricAcidInput.desc",
+        "type": "LogicType",
+        "value": 334
+    },
+    "RatioHydrochloricAcidInput2": {
+        "desc": "./locals/logicSlotType.RatioHydrochloricAcidInput2.desc",
+        "type": "LogicType",
+        "value": 335
+    },
+    "RatioHydrochloricAcidOutput": {
+        "desc": "./locals/logicSlotType.RatioHydrochloricAcidOutput.desc",
+        "type": "LogicType",
+        "value": 336
+    },
+    "RatioHydrochloricAcidOutput2": {
+        "desc": "./locals/logicSlotType.RatioHydrochloricAcidOutput2.desc",
+        "type": "LogicType",
+        "value": 337
+    },
+    "RatioHydrogen": {
+        "desc": "./locals/logicSlotType.RatioHydrogen.desc",
+        "type": "LogicType",
+        "value": 252
+    },
+    "RatioHydrogenInput": {
+        "desc": "./locals/logicSlotType.RatioHydrogenInput.desc",
+        "type": "LogicType",
+        "value": 294
+    },
+    "RatioHydrogenInput2": {
+        "desc": "./locals/logicSlotType.RatioHydrogenInput2.desc",
+        "type": "LogicType",
+        "value": 295
+    },
+    "RatioHydrogenOutput": {
+        "desc": "./locals/logicSlotType.RatioHydrogenOutput.desc",
+        "type": "LogicType",
+        "value": 296
+    },
+    "RatioHydrogenOutput2": {
+        "desc": "./locals/logicSlotType.RatioHydrogenOutput2.desc",
+        "type": "LogicType",
+        "value": 297
+    },
+    "RatioLiquidAlcohol": {
+        "desc": "./locals/logicSlotType.RatioLiquidAlcohol.desc",
+        "type": "LogicType",
+        "value": 285
+    },
+    "RatioLiquidAlcoholInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidAlcoholInput.desc",
+        "type": "LogicType",
+        "value": 314
+    },
+    "RatioLiquidAlcoholInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidAlcoholInput2.desc",
+        "type": "LogicType",
+        "value": 315
+    },
+    "RatioLiquidAlcoholOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidAlcoholOutput.desc",
+        "type": "LogicType",
+        "value": 316
+    },
+    "RatioLiquidAlcoholOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidAlcoholOutput2.desc",
+        "type": "LogicType",
+        "value": 317
+    },
+    "RatioLiquidCarbonDioxide": {
+        "desc": "./locals/logicSlotType.RatioLiquidCarbonDioxide.desc",
+        "type": "LogicType",
+        "value": 199
+    },
+    "RatioLiquidCarbonDioxideInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidCarbonDioxideInput.desc",
+        "type": "LogicType",
+        "value": 200
+    },
+    "RatioLiquidCarbonDioxideInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidCarbonDioxideInput2.desc",
+        "type": "LogicType",
+        "value": 201
+    },
+    "RatioLiquidCarbonDioxideOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidCarbonDioxideOutput.desc",
+        "type": "LogicType",
+        "value": 202
+    },
+    "RatioLiquidCarbonDioxideOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidCarbonDioxideOutput2.desc",
+        "type": "LogicType",
+        "value": 203
+    },
+    "RatioLiquidHydrazine": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrazine.desc",
+        "type": "LogicType",
+        "value": 284
+    },
+    "RatioLiquidHydrazineInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrazineInput.desc",
+        "type": "LogicType",
+        "value": 310
+    },
+    "RatioLiquidHydrazineInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrazineInput2.desc",
+        "type": "LogicType",
+        "value": 311
+    },
+    "RatioLiquidHydrazineOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrazineOutput.desc",
+        "type": "LogicType",
+        "value": 312
+    },
+    "RatioLiquidHydrazineOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrazineOutput2.desc",
+        "type": "LogicType",
+        "value": 313
+    },
+    "RatioLiquidHydrochloricAcid": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrochloricAcid.desc",
+        "type": "LogicType",
+        "value": 291
+    },
+    "RatioLiquidHydrochloricAcidInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrochloricAcidInput.desc",
+        "type": "LogicType",
+        "value": 338
+    },
+    "RatioLiquidHydrochloricAcidInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrochloricAcidInput2.desc",
+        "type": "LogicType",
+        "value": 339
+    },
+    "RatioLiquidHydrochloricAcidOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrochloricAcidOutput.desc",
+        "type": "LogicType",
+        "value": 340
+    },
+    "RatioLiquidHydrochloricAcidOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrochloricAcidOutput2.desc",
+        "type": "LogicType",
+        "value": 341
+    },
+    "RatioLiquidHydrogen": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrogen.desc",
+        "type": "LogicType",
+        "value": 253
+    },
+    "RatioLiquidHydrogenInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrogenInput.desc",
+        "type": "LogicType",
+        "value": 298
+    },
+    "RatioLiquidHydrogenInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrogenInput2.desc",
+        "type": "LogicType",
+        "value": 299
+    },
+    "RatioLiquidHydrogenOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrogenOutput.desc",
+        "type": "LogicType",
+        "value": 300
+    },
+    "RatioLiquidHydrogenOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidHydrogenOutput2.desc",
+        "type": "LogicType",
+        "value": 301
+    },
+    "RatioLiquidMethane": {
+        "desc": "./locals/logicSlotType.RatioLiquidMethane.desc",
+        "type": "LogicType",
+        "value": 188
+    },
+    "RatioLiquidMethaneInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidMethaneInput.desc",
+        "type": "LogicType",
+        "value": 189
+    },
+    "RatioLiquidMethaneInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidMethaneInput2.desc",
+        "type": "LogicType",
+        "value": 190
+    },
+    "RatioLiquidMethaneOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidMethaneOutput.desc",
+        "type": "LogicType",
+        "value": 191
+    },
+    "RatioLiquidMethaneOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidMethaneOutput2.desc",
+        "type": "LogicType",
+        "value": 192
+    },
+    "RatioLiquidNitrogen": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrogen.desc",
+        "type": "LogicType",
+        "value": 177
+    },
+    "RatioLiquidNitrogenInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrogenInput.desc",
+        "type": "LogicType",
+        "value": 178
+    },
+    "RatioLiquidNitrogenInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrogenInput2.desc",
+        "type": "LogicType",
+        "value": 179
+    },
+    "RatioLiquidNitrogenOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrogenOutput.desc",
+        "type": "LogicType",
+        "value": 180
+    },
+    "RatioLiquidNitrogenOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrogenOutput2.desc",
+        "type": "LogicType",
+        "value": 181
+    },
+    "RatioLiquidNitrousOxide": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrousOxide.desc",
+        "type": "LogicType",
+        "value": 209
+    },
+    "RatioLiquidNitrousOxideInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrousOxideInput.desc",
+        "type": "LogicType",
+        "value": 210
+    },
+    "RatioLiquidNitrousOxideInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrousOxideInput2.desc",
+        "type": "LogicType",
+        "value": 211
+    },
+    "RatioLiquidNitrousOxideOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrousOxideOutput.desc",
+        "type": "LogicType",
+        "value": 212
+    },
+    "RatioLiquidNitrousOxideOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidNitrousOxideOutput2.desc",
+        "type": "LogicType",
+        "value": 213
+    },
+    "RatioLiquidOxygen": {
+        "desc": "./locals/logicSlotType.RatioLiquidOxygen.desc",
+        "type": "LogicType",
+        "value": 183
+    },
+    "RatioLiquidOxygenInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidOxygenInput.desc",
+        "type": "LogicType",
+        "value": 184
+    },
+    "RatioLiquidOxygenInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidOxygenInput2.desc",
+        "type": "LogicType",
+        "value": 185
+    },
+    "RatioLiquidOxygenOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidOxygenOutput.desc",
+        "type": "LogicType",
+        "value": 186
+    },
+    "RatioLiquidOxygenOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidOxygenOutput2.desc",
+        "type": "LogicType",
+        "value": 187
+    },
+    "RatioLiquidOzone": {
+        "desc": "./locals/logicSlotType.RatioLiquidOzone.desc",
+        "type": "LogicType",
+        "value": 293
+    },
+    "RatioLiquidOzoneInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidOzoneInput.desc",
+        "type": "LogicType",
+        "value": 346
+    },
+    "RatioLiquidOzoneInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidOzoneInput2.desc",
+        "type": "LogicType",
+        "value": 347
+    },
+    "RatioLiquidOzoneOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidOzoneOutput.desc",
+        "type": "LogicType",
+        "value": 348
+    },
+    "RatioLiquidOzoneOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidOzoneOutput2.desc",
+        "type": "LogicType",
+        "value": 349
+    },
+    "RatioLiquidPollutant": {
+        "desc": "./locals/logicSlotType.RatioLiquidPollutant.desc",
+        "type": "LogicType",
+        "value": 204
+    },
+    "RatioLiquidPollutantInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidPollutantInput.desc",
+        "type": "LogicType",
+        "value": 205
+    },
+    "RatioLiquidPollutantInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidPollutantInput2.desc",
+        "type": "LogicType",
+        "value": 206
+    },
+    "RatioLiquidPollutantOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidPollutantOutput.desc",
+        "type": "LogicType",
+        "value": 207
+    },
+    "RatioLiquidPollutantOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidPollutantOutput2.desc",
+        "type": "LogicType",
+        "value": 208
+    },
+    "RatioLiquidSilanol": {
+        "desc": "./locals/logicSlotType.RatioLiquidSilanol.desc",
+        "type": "LogicType",
+        "value": 289
+    },
+    "RatioLiquidSilanolInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidSilanolInput.desc",
+        "type": "LogicType",
+        "value": 330
+    },
+    "RatioLiquidSilanolInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidSilanolInput2.desc",
+        "type": "LogicType",
+        "value": 331
+    },
+    "RatioLiquidSilanolOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidSilanolOutput.desc",
+        "type": "LogicType",
+        "value": 332
+    },
+    "RatioLiquidSilanolOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidSilanolOutput2.desc",
+        "type": "LogicType",
+        "value": 333
+    },
+    "RatioLiquidSodiumChloride": {
+        "desc": "./locals/logicSlotType.RatioLiquidSodiumChloride.desc",
+        "type": "LogicType",
+        "value": 287
+    },
+    "RatioLiquidSodiumChlorideInput": {
+        "desc": "./locals/logicSlotType.RatioLiquidSodiumChlorideInput.desc",
+        "type": "LogicType",
+        "value": 322
+    },
+    "RatioLiquidSodiumChlorideInput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidSodiumChlorideInput2.desc",
+        "type": "LogicType",
+        "value": 323
+    },
+    "RatioLiquidSodiumChlorideOutput": {
+        "desc": "./locals/logicSlotType.RatioLiquidSodiumChlorideOutput.desc",
+        "type": "LogicType",
+        "value": 324
+    },
+    "RatioLiquidSodiumChlorideOutput2": {
+        "desc": "./locals/logicSlotType.RatioLiquidSodiumChlorideOutput2.desc",
+        "type": "LogicType",
+        "value": 325
+    },
+    "RatioMethane": {
+        "desc": "./locals/logicSlotType.RatioMethane.desc",
+        "type": "LogicType",
+        "value": 18
+    },
+    "RatioMethaneInput": {
+        "desc": "./locals/logicSlotType.RatioMethaneInput.desc",
+        "type": "LogicType",
+        "value": 112
+    },
+    "RatioMethaneInput2": {
+        "desc": "./locals/logicSlotType.RatioMethaneInput2.desc",
+        "type": "LogicType",
+        "value": 122
+    },
+    "RatioMethaneOutput": {
+        "desc": "./locals/logicSlotType.RatioMethaneOutput.desc",
+        "type": "LogicType",
+        "value": 132
+    },
+    "RatioMethaneOutput2": {
+        "desc": "./locals/logicSlotType.RatioMethaneOutput2.desc",
+        "type": "LogicType",
+        "value": 142
+    },
+    "RatioNitrogen": {
+        "desc": "./locals/logicSlotType.RatioNitrogen.desc",
+        "type": "LogicType",
+        "value": 16
+    },
+    "RatioNitrogenInput": {
+        "desc": "./locals/logicSlotType.RatioNitrogenInput.desc",
+        "type": "LogicType",
+        "value": 110
+    },
+    "RatioNitrogenInput2": {
+        "desc": "./locals/logicSlotType.RatioNitrogenInput2.desc",
+        "type": "LogicType",
+        "value": 120
+    },
+    "RatioNitrogenOutput": {
+        "desc": "./locals/logicSlotType.RatioNitrogenOutput.desc",
+        "type": "LogicType",
+        "value": 130
+    },
+    "RatioNitrogenOutput2": {
+        "desc": "./locals/logicSlotType.RatioNitrogenOutput2.desc",
+        "type": "LogicType",
+        "value": 140
+    },
+    "RatioNitrousOxide": {
+        "desc": "./locals/logicSlotType.RatioNitrousOxide.desc",
+        "type": "LogicType",
+        "value": 83
+    },
+    "RatioNitrousOxideInput": {
+        "desc": "./locals/logicSlotType.RatioNitrousOxideInput.desc",
+        "type": "LogicType",
+        "value": 114
+    },
+    "RatioNitrousOxideInput2": {
+        "desc": "./locals/logicSlotType.RatioNitrousOxideInput2.desc",
+        "type": "LogicType",
+        "value": 124
+    },
+    "RatioNitrousOxideOutput": {
+        "desc": "./locals/logicSlotType.RatioNitrousOxideOutput.desc",
+        "type": "LogicType",
+        "value": 134
+    },
+    "RatioNitrousOxideOutput2": {
+        "desc": "./locals/logicSlotType.RatioNitrousOxideOutput2.desc",
+        "type": "LogicType",
+        "value": 144
+    },
+    "RatioOxygen": {
+        "desc": "./locals/logicSlotType.RatioOxygen.desc",
+        "type": "LogicType",
+        "value": 14
+    },
+    "RatioOxygenInput": {
+        "desc": "./locals/logicSlotType.RatioOxygenInput.desc",
+        "type": "LogicType",
+        "value": 108
+    },
+    "RatioOxygenInput2": {
+        "desc": "./locals/logicSlotType.RatioOxygenInput2.desc",
+        "type": "LogicType",
+        "value": 118
+    },
+    "RatioOxygenOutput": {
+        "desc": "./locals/logicSlotType.RatioOxygenOutput.desc",
+        "type": "LogicType",
+        "value": 128
+    },
+    "RatioOxygenOutput2": {
+        "desc": "./locals/logicSlotType.RatioOxygenOutput2.desc",
+        "type": "LogicType",
+        "value": 138
+    },
+    "RatioOzone": {
+        "desc": "./locals/logicSlotType.RatioOzone.desc",
+        "type": "LogicType",
+        "value": 292
+    },
+    "RatioOzoneInput": {
+        "desc": "./locals/logicSlotType.RatioOzoneInput.desc",
+        "type": "LogicType",
+        "value": 342
+    },
+    "RatioOzoneInput2": {
+        "desc": "./locals/logicSlotType.RatioOzoneInput2.desc",
+        "type": "LogicType",
+        "value": 343
+    },
+    "RatioOzoneOutput": {
+        "desc": "./locals/logicSlotType.RatioOzoneOutput.desc",
+        "type": "LogicType",
+        "value": 344
+    },
+    "RatioOzoneOutput2": {
+        "desc": "./locals/logicSlotType.RatioOzoneOutput2.desc",
+        "type": "LogicType",
+        "value": 345
+    },
+    "RatioPollutant": {
+        "desc": "./locals/logicSlotType.RatioPollutant.desc",
+        "type": "LogicType",
+        "value": 17
+    },
+    "RatioPollutantInput": {
+        "desc": "./locals/logicSlotType.RatioPollutantInput.desc",
+        "type": "LogicType",
+        "value": 111
+    },
+    "RatioPollutantInput2": {
+        "desc": "./locals/logicSlotType.RatioPollutantInput2.desc",
+        "type": "LogicType",
+        "value": 121
+    },
+    "RatioPollutantOutput": {
+        "desc": "./locals/logicSlotType.RatioPollutantOutput.desc",
+        "type": "LogicType",
+        "value": 131
+    },
+    "RatioPollutantOutput2": {
+        "desc": "./locals/logicSlotType.RatioPollutantOutput2.desc",
+        "type": "LogicType",
+        "value": 141
+    },
+    "RatioPollutedWater": {
+        "desc": "./locals/logicSlotType.RatioPollutedWater.desc",
+        "type": "LogicType",
+        "value": 254
+    },
+    "RatioPollutedWaterInput": {
+        "desc": "./locals/logicSlotType.RatioPollutedWaterInput.desc",
+        "type": "LogicType",
+        "value": 302
+    },
+    "RatioPollutedWaterInput2": {
+        "desc": "./locals/logicSlotType.RatioPollutedWaterInput2.desc",
+        "type": "LogicType",
+        "value": 303
+    },
+    "RatioPollutedWaterOutput": {
+        "desc": "./locals/logicSlotType.RatioPollutedWaterOutput.desc",
+        "type": "LogicType",
+        "value": 304
+    },
+    "RatioPollutedWaterOutput2": {
+        "desc": "./locals/logicSlotType.RatioPollutedWaterOutput2.desc",
+        "type": "LogicType",
+        "value": 305
+    },
+    "RatioSilanol": {
+        "desc": "./locals/logicSlotType.RatioSilanol.desc",
+        "type": "LogicType",
+        "value": 288
+    },
+    "RatioSilanolInput": {
+        "desc": "./locals/logicSlotType.RatioSilanolInput.desc",
+        "type": "LogicType",
+        "value": 326
+    },
+    "RatioSilanolInput2": {
+        "desc": "./locals/logicSlotType.RatioSilanolInput2.desc",
+        "type": "LogicType",
+        "value": 327
+    },
+    "RatioSilanolOutput": {
+        "desc": "./locals/logicSlotType.RatioSilanolOutput.desc",
+        "type": "LogicType",
+        "value": 328
+    },
+    "RatioSilanolOutput2": {
+        "desc": "./locals/logicSlotType.RatioSilanolOutput2.desc",
+        "type": "LogicType",
+        "value": 329
+    },
+    "RatioSteam": {
+        "desc": "./locals/logicSlotType.RatioSteam.desc",
+        "type": "LogicType",
+        "value": 193
+    },
+    "RatioSteamInput": {
+        "desc": "./locals/logicSlotType.RatioSteamInput.desc",
+        "type": "LogicType",
+        "value": 194
+    },
+    "RatioSteamInput2": {
+        "desc": "./locals/logicSlotType.RatioSteamInput2.desc",
+        "type": "LogicType",
+        "value": 195
+    },
+    "RatioSteamOutput": {
+        "desc": "./locals/logicSlotType.RatioSteamOutput.desc",
+        "type": "LogicType",
+        "value": 196
+    },
+    "RatioSteamOutput2": {
+        "desc": "./locals/logicSlotType.RatioSteamOutput2.desc",
+        "type": "LogicType",
+        "value": 197
+    },
+    "RatioWater": {
+        "desc": "./locals/logicSlotType.RatioWater.desc",
+        "type": "LogicType",
+        "value": 19
+    },
+    "RatioWaterInput": {
+        "desc": "./locals/logicSlotType.RatioWaterInput.desc",
+        "type": "LogicType",
+        "value": 113
+    },
+    "RatioWaterInput2": {
+        "desc": "./locals/logicSlotType.RatioWaterInput2.desc",
+        "type": "LogicType",
+        "value": 123
+    },
+    "RatioWaterOutput": {
+        "desc": "./locals/logicSlotType.RatioWaterOutput.desc",
+        "type": "LogicType",
+        "value": 133
+    },
+    "RatioWaterOutput2": {
+        "desc": "./locals/logicSlotType.RatioWaterOutput2.desc",
+        "type": "LogicType",
+        "value": 143
+    },
+    "Reagents": {
+        "desc": "./locals/logicSlotType.Reagents.desc",
+        "type": "LogicType",
+        "value": 13
+    },
+    "RecipeHash": {
+        "desc": "./locals/logicSlotType.RecipeHash.desc",
+        "type": "LogicType",
+        "value": 41
+    },
+    "ReEntryAltitude": {
+        "desc": "./locals/logicSlotType.ReEntryAltitude.desc",
+        "type": "LogicType",
+        "value": 237
+    },
+    "ReferenceId": {
+        "desc": "./locals/logicSlotType.ReferenceId.desc",
+        "type": "LogicType",
+        "value": 217
+    },
+    "RequestHash": {
+        "desc": "./locals/logicSlotType.RequestHash.desc",
+        "type": "LogicType",
+        "value": 60
+    },
+    "RequiredPower": {
+        "desc": "./locals/logicSlotType.RequiredPower.desc",
+        "type": "LogicType",
+        "value": 33
+    },
+    "Reset": {
+        "desc": "./locals/logicSlotType.Reset.desc",
+        "type": "LogicType",
+        "value": 279
+    },
+    "ReturnFuelCost": {
+        "desc": "./locals/logicSlotType.ReturnFuelCost.desc",
+        "type": "LogicType",
+        "value": 100
+    },
+    "Richness": {
+        "desc": "./locals/logicSlotType.Richness.desc",
+        "type": "LogicType",
+        "value": 263
+    },
+    "Rpm": {
+        "desc": "./locals/logicSlotType.Rpm.desc",
+        "type": "LogicType",
+        "value": 155
+    },
+    "SemiMajorAxis": {
+        "desc": "./locals/logicSlotType.SemiMajorAxis.desc",
+        "type": "LogicType",
+        "value": 248
+    },
+    "Setpoint": {
+        "desc": "./locals/logicSlotType.Setpoint.desc",
+        "type": "LogicType",
+        "value": 278
+    },
+    "Setting": {
+        "desc": "./locals/logicSlotType.Setting.desc",
+        "type": "LogicType",
+        "value": 12
+    },
+    "SettingInput": {
+        "desc": "./locals/logicSlotType.SettingInput.desc",
+        "type": "LogicType",
+        "value": 91
+    },
+    "SettingOutput": {
+        "desc": "./locals/logicSlotType.SettingOutput.desc",
+        "type": "LogicType",
+        "value": 92
+    },
+    "SignalID": {
+        "desc": "./locals/logicSlotType.SignalID.desc",
+        "type": "LogicType",
+        "value": 87
+    },
+    "SignalStrength": {
+        "desc": "./locals/logicSlotType.SignalStrength.desc",
+        "type": "LogicType",
+        "value": 86
+    },
+    "Sites": {
+        "desc": "./locals/logicSlotType.Sites.desc",
+        "type": "LogicType",
+        "value": 260
+    },
+    "Size": {
+        "desc": "./locals/logicSlotType.Size.desc",
+        "type": "LogicType",
+        "value": 264
+    },
+    "SizeX": {
+        "desc": "./locals/logicSlotType.SizeX.desc",
+        "type": "LogicType",
+        "value": 160
+    },
+    "SizeY": {
+        "desc": "./locals/logicSlotType.SizeY.desc",
+        "type": "LogicType",
+        "value": 161
+    },
+    "SizeZ": {
+        "desc": "./locals/logicSlotType.SizeZ.desc",
+        "type": "LogicType",
+        "value": 162
+    },
+    "SolarAngle": {
+        "desc": "./locals/logicSlotType.SolarAngle.desc",
+        "type": "LogicType",
+        "value": 22
+    },
+    "SolarIrradiance": {
+        "desc": "./locals/logicSlotType.SolarIrradiance.desc",
+        "type": "LogicType",
+        "value": 176
+    },
+    "SoundAlert": {
+        "desc": "./locals/logicSlotType.SoundAlert.desc",
+        "type": "LogicType",
+        "value": 175
+    },
+    "StackSize": {
+        "desc": "./locals/logicSlotType.StackSize.desc",
+        "type": "LogicType",
+        "value": 280
+    },
+    "Stress": {
+        "desc": "./locals/logicSlotType.Stress.desc",
+        "type": "LogicType",
+        "value": 156
+    },
+    "StunDamage": {
+        "desc": "./locals/logicSlotType.StunDamage.desc",
+        "type": "LogicType",
+        "value": 351
+    },
+    "Survey": {
+        "desc": "./locals/logicSlotType.Survey.desc",
+        "type": "LogicType",
+        "value": 257
+    },
+    "TargetNodeType": {
+        "desc": "./locals/logicSlotType.TargetNodeType.desc",
+        "type": "LogicType",
+        "value": 353
+    },
+    "TargetPadIndex": {
+        "desc": "./locals/logicSlotType.TargetPadIndex.desc",
+        "type": "LogicType",
+        "value": 158
+    },
+    "TargetPrefabHash": {
+        "desc": "./locals/logicSlotType.TargetPrefabHash.desc",
+        "type": "LogicType",
+        "value": 271
+    },
+    "TargetSlotIndex": {
+        "desc": "./locals/logicSlotType.TargetSlotIndex.desc",
+        "type": "LogicType",
+        "value": 270
+    },
+    "TargetX": {
+        "desc": "./locals/logicSlotType.TargetX.desc",
+        "type": "LogicType",
+        "value": 88
+    },
+    "TargetY": {
+        "desc": "./locals/logicSlotType.TargetY.desc",
+        "type": "LogicType",
+        "value": 89
+    },
+    "TargetZ": {
+        "desc": "./locals/logicSlotType.TargetZ.desc",
+        "type": "LogicType",
+        "value": 90
+    },
+    "Temperature": {
+        "desc": "./locals/logicSlotType.Temperature.desc",
+        "type": "LogicType",
+        "value": 6
+    },
+    "TemperatureDifferentialEfficiency": {
+        "desc": "./locals/logicSlotType.TemperatureDifferentialEfficiency.desc",
+        "type": "LogicType",
+        "value": 151
+    },
+    "TemperatureExternal": {
+        "desc": "./locals/logicSlotType.TemperatureExternal.desc",
+        "type": "LogicType",
+        "value": 73
+    },
+    "TemperatureInput": {
+        "desc": "./locals/logicSlotType.TemperatureInput.desc",
+        "type": "LogicType",
+        "value": 107
+    },
+    "TemperatureInput2": {
+        "desc": "./locals/logicSlotType.TemperatureInput2.desc",
+        "type": "LogicType",
+        "value": 117
+    },
+    "TemperatureOutput": {
+        "desc": "./locals/logicSlotType.TemperatureOutput.desc",
+        "type": "LogicType",
+        "value": 127
+    },
+    "TemperatureOutput2": {
+        "desc": "./locals/logicSlotType.TemperatureOutput2.desc",
+        "type": "LogicType",
+        "value": 137
+    },
+    "TemperatureSetting": {
+        "desc": "./locals/logicSlotType.TemperatureSetting.desc",
+        "type": "LogicType",
+        "value": 72
+    },
+    "Throttle": {
+        "desc": "./locals/logicSlotType.Throttle.desc",
+        "type": "LogicType",
+        "value": 154
+    },
+    "Thrust": {
+        "desc": "./locals/logicSlotType.Thrust.desc",
+        "type": "LogicType",
+        "value": 221
+    },
+    "ThrustToWeight": {
+        "desc": "./locals/logicSlotType.ThrustToWeight.desc",
+        "type": "LogicType",
+        "value": 223
+    },
+    "Time": {
+        "desc": "./locals/logicSlotType.Time.desc",
+        "type": "LogicType",
+        "value": 102
+    },
+    "TimeToDestination": {
+        "desc": "./locals/logicSlotType.TimeToDestination.desc",
+        "type": "LogicType",
+        "value": 224
+    },
+    "TotalMoles": {
+        "desc": "./locals/logicSlotType.TotalMoles.desc",
+        "type": "LogicType",
+        "value": 66
+    },
+    "TotalMolesInput": {
+        "desc": "./locals/logicSlotType.TotalMolesInput.desc",
+        "type": "LogicType",
+        "value": 115
+    },
+    "TotalMolesInput2": {
+        "desc": "./locals/logicSlotType.TotalMolesInput2.desc",
+        "type": "LogicType",
+        "value": 125
+    },
+    "TotalMolesOutput": {
+        "desc": "./locals/logicSlotType.TotalMolesOutput.desc",
+        "type": "LogicType",
+        "value": 135
+    },
+    "TotalMolesOutput2": {
+        "desc": "./locals/logicSlotType.TotalMolesOutput2.desc",
+        "type": "LogicType",
+        "value": 145
+    },
+    "TotalQuantity": {
+        "desc": "./locals/logicSlotType.TotalQuantity.desc",
+        "type": "LogicType",
+        "value": 265
+    },
+    "TrueAnomaly": {
+        "desc": "./locals/logicSlotType.TrueAnomaly.desc",
+        "type": "LogicType",
+        "value": 251
+    },
+    "VelocityMagnitude": {
+        "desc": "./locals/logicSlotType.VelocityMagnitude.desc",
+        "type": "LogicType",
+        "value": 79
+    },
+    "VelocityRelativeX": {
+        "desc": "./locals/logicSlotType.VelocityRelativeX.desc",
+        "type": "LogicType",
+        "value": 80
+    },
+    "VelocityRelativeY": {
+        "desc": "./locals/logicSlotType.VelocityRelativeY.desc",
+        "type": "LogicType",
+        "value": 81
+    },
+    "VelocityRelativeZ": {
+        "desc": "./locals/logicSlotType.VelocityRelativeZ.desc",
+        "type": "LogicType",
+        "value": 82
+    },
+    "VelocityX": {
+        "desc": "./locals/logicSlotType.VelocityX.desc",
+        "type": "LogicType",
+        "value": 231
+    },
+    "VelocityY": {
+        "desc": "./locals/logicSlotType.VelocityY.desc",
+        "type": "LogicType",
+        "value": 232
+    },
+    "VelocityZ": {
+        "desc": "./locals/logicSlotType.VelocityZ.desc",
+        "type": "LogicType",
+        "value": 233
+    },
+    "Vertical": {
+        "desc": "./locals/logicSlotType.Vertical.desc",
+        "type": "LogicType",
+        "value": 21
+    },
+    "VerticalRatio": {
+        "desc": "./locals/logicSlotType.VerticalRatio.desc",
+        "type": "LogicType",
+        "value": 35
+    },
+    "Volume": {
+        "desc": "./locals/logicSlotType.Volume.desc",
+        "type": "LogicType",
+        "value": 67
+    },
+    "VolumeOfLiquid": {
+        "desc": "./locals/logicSlotType.VolumeOfLiquid.desc",
+        "type": "LogicType",
+        "value": 182
+    },
+    "WattsReachingContact": {
+        "desc": "./locals/logicSlotType.WattsReachingContact.desc",
+        "type": "LogicType",
+        "value": 164
+    },
+    "Weight": {
+        "desc": "./locals/logicSlotType.Weight.desc",
+        "type": "LogicType",
+        "value": 222
+    },
+    "WorkingGasEfficiency": {
+        "desc": "./locals/logicSlotType.WorkingGasEfficiency.desc",
+        "type": "LogicType",
+        "value": 105
+    }
+}
