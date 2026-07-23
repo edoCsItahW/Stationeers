@@ -251,7 +251,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos StrCall::end() const { return endPos(endPosition, 1); }
+    Pos StrCall::end() const { return endPos(endPosition, 1, 1); }
 
     std::string StrCall::toString() const {
         return std::visit(
@@ -268,7 +268,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos HashCall::end() const { return endPos(endPosition, 1); }
+    Pos HashCall::end() const { return endPos(endPosition, 1, 1); }
 
     std::string HashCall::toString() const {
         return std::visit(
@@ -287,7 +287,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , keyword(std::move(kw)) {}
 
-    Pos Constant::end() const { return endPos(position, keyword.size()); }
+    Pos Constant::end() const { return endPos(position, keyword); }
 
     std::string Constant::toString() const { return keyword; }
 
@@ -299,7 +299,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos Device::end() const { return endPos(position, value.size()); }
+    Pos Device::end() const { return endPos(position, value); }
 
     std::string Device::toString() const { return value; }
 
@@ -311,7 +311,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos Register::end() const { return endPos(position, value.size()); }
+    Pos Register::end() const { return endPos(position, value); }
 
     std::string Register::toString() const { return value; }
 
@@ -323,7 +323,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos String::end() const { return endPos(position, value.size()); }
+    Pos String::end() const { return endPos(position, value); }
 
     std::string String::toString() const { return value; }
 
@@ -335,7 +335,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos Identifier::end() const { return endPos(position, value.size()); }
+    Pos Identifier::end() const { return endPos(position, value); }
 
     std::string Identifier::toString() const { return value; }
 
@@ -347,7 +347,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos BinaryNumber::end() const { return endPos(position, value.size()); }
+    Pos BinaryNumber::end() const { return endPos(position, value); }
 
     std::string BinaryNumber::toString() const { return value; }
 
@@ -359,7 +359,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos HexNumber::end() const { return endPos(position, value.size()); }
+    Pos HexNumber::end() const { return endPos(position, value); }
 
     std::string HexNumber::toString() const { return value; }
 
@@ -371,7 +371,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos Float::end() const { return endPos(position, value.size()); }
+    Pos Float::end() const { return endPos(position, value); }
 
     std::string Float::toString() const { return value; }
 
@@ -383,7 +383,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos Integer::end() const { return endPos(position, value.size()); }
+    Pos Integer::end() const { return endPos(position, value); }
 
     std::string Integer::toString() const { return value; }
 

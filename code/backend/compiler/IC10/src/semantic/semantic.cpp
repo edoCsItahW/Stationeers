@@ -99,7 +99,7 @@ namespace stationeers::ic10 {
                     std::make_exception_ptr(Error(
                         UndefinedSymbolError{
                             ILoc::msgFormat<IMsgId::IEA3_1>(name), entry.pos,
-                            endPos(entry.pos, name.size())
+                            endPos(entry.pos, name)
                         }
                     ))
                 );

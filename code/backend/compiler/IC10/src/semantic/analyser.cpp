@@ -96,7 +96,7 @@ namespace stationeers::ic10 {
             reporter_->errorWith<IMsgId::IE0_1>(e.getStart(), e.getEnd(), e.message());
         } catch (const std::exception& e) {
             reporter_->errorWith<IMsgId::IE0_1>(
-                pos, endPos(pos, name.size()), std::string(e.what())
+                pos, endPos(pos, name), std::string(e.what())
             );
         }
     }

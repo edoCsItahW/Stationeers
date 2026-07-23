@@ -94,7 +94,8 @@ namespace stationeers::ic10 {
     }
 
     void Lexer::skip() const noexcept {
-        while (inScope() && isAsciiSpace(*current()) && *current() != '\n') pos_.next();
+        while (inScope() && isAsciiSpace(*current()) && *current() != '\n')
+            pos_.next(static_cast<unsigned char>(*current()));
     }
 
     Token Lexer::extractIdentifier() const {
@@ -103,7 +104,7 @@ namespace stationeers::ic10 {
 
         while (inScope() && !isAsciiSpace(*current()) && !SYMBOLS.contains(*current())) {
             value += *current();
-            pos_.next();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         if (KEYWORD_MAP.contains(value))
@@ -128,7 +129,7 @@ namespace stationeers::ic10 {
             if (*current() == '.') pointCount++;
 
             value += *current();
-            pos_.next();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         // 处理科学计数法
@@ -138,19 +139,19 @@ namespace stationeers::ic10 {
 
             // e | E
             value += *current();
-            pos_.next();
+            pos_.next(static_cast<unsigned char>(*current()));
 
             // 处理符号
             if (inScope() && (*current() == '+' || *current() == '-')) {
                 value += *current();
-                pos_.next();
+                pos_.next(static_cast<unsigned char>(*current()));
             }
 
             // 处理指数部分
             if (inScope() && isAsciiDigit(*current())) {
                 while (inScope() && isAsciiDigit(*current())) {
                     value += *current();
-                    pos_.next();
+                    pos_.next(static_cast<unsigned char>(*current()));
                 }
 
                 return {TokenType::FLOAT, start, value, TokenCategory::LITERAL};
@@ -168,7 +169,7 @@ namespace stationeers::ic10 {
         // 令牌边界检查：数字后若紧跟字母/数字/下划线，说明缺少空白分隔
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
             reporter_.errorWith<IMsgId::IEL3_2>(
-                pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
+                pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
             );
         }
 
@@ -180,19 +181,19 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractHexNumber() const {
         std::string value = "$";
-        pos_.next();
+        pos_.next(static_cast<unsigned char>('$'));
 
         const auto start = pos_;
 
         while (inScope() && isAsciiHexDigit(*current())) {
             value += *current();
-            pos_.next();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         // 令牌边界检查
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
             reporter_.errorWith<IMsgId::IEL3_2>(
-                pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
+                pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
             );
         }
 
@@ -201,19 +202,19 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractBinaryNumber() const {
         std::string value = "%";
-        pos_.next();
+        pos_.next(static_cast<unsigned char>('%'));
 
         const auto start = pos_;
 
         while (inScope() && isAsciiBinDigit(*current())) {
             value += *current();
-            pos_.next();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         // 令牌边界检查
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
             reporter_.errorWith<IMsgId::IEL3_2>(
-                pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
+                pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
             );
         }
 
@@ -222,7 +223,7 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractString() {
         std::string value = "\"";
-        pos_.next();
+        pos_.next(static_cast<unsigned char>('"'));
 
         const auto start = pos_;
 
@@ -239,13 +240,13 @@ namespace stationeers::ic10 {
             else
                 value += *current();
 
-            pos_.next();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         // 未闭合字符串：到达输入末尾或遇到换行符
         if (!inScope() || *current() == '\n') {
             reporter_.errorWith<IMsgId::IEL2_1>(
-                start, stationeers::endPos(start, value.size()), std::string{1, '\"'}
+                start, stationeers::endPos(start, value), std::string{1, '\"'}
             );
 
             // 不消耗换行符，让lexer从下一行恢复解析（同步点）
@@ -253,12 +254,12 @@ namespace stationeers::ic10 {
         }
 
         value += *current();
-        pos_.next();
+        pos_.next(static_cast<unsigned char>(*current()));
 
         // 令牌边界检查：字符串后若紧跟字母/数字/下划线，说明缺少空白分隔
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
             reporter_.errorWith<IMsgId::IEL3_2>(
-                pos_, stationeers::endPos(pos_, 1), value, std::string(1, *current())
+                pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
             );
         }
 
@@ -267,13 +268,13 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractHashComment() const {
         std::string value = "#";
-        pos_.next();
+        pos_.next(static_cast<unsigned char>('#'));
 
         const auto start = pos_;
 
         while (inScope() && *current() != '\n') {
             value += *current();
-            pos_.next();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         // 尝试型解析：区分 #>(文档注释)、#:(类型提示) 和 #普通注释
@@ -334,13 +335,13 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractSlashComment() const {
         std::string value = "//";
-        pos_.move(2);
+        pos_.move(2, 2);
 
         const auto start = pos_;
 
         while (inScope() && *current() != '\n') {
             value += *current();
-            pos_.next();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         return {TokenType::SLASH_COMMENT, start, std::move(value), TokenCategory::COMMENT};
@@ -360,7 +361,7 @@ namespace stationeers::ic10 {
             token = {TokenType::UNKNOWN, start, std::string(1, *current()), TokenCategory::INVALID};
         }
 
-        pos_.next();
+        pos_.next(static_cast<unsigned char>(*current()));
 
         return token;
     }
@@ -369,14 +370,14 @@ namespace stationeers::ic10 {
         const auto start = pos_;
 
         std::string value = "d";
-        pos_.next();
+        pos_.next(static_cast<unsigned char>('d'));
 
         int deviceIdx = *current() - '0';
         value += *current();
-        pos_.next();
+        pos_.next(static_cast<unsigned char>(*current()));
 
         if (deviceIdx > 5)
-            reporter_.warn<IC10MsgId::IWL3>(start, stationeers::endPos(start, value.size()));
+            reporter_.warn<IC10MsgId::IWL3>(start, stationeers::endPos(start, value));
 
         return {
             deviceIdx > 5 ? TokenType::IDENTIFIER : TokenType::DEVICE, start, std::move(value),
@@ -388,21 +389,21 @@ namespace stationeers::ic10 {
         const auto start = pos_;
 
         std::string value = "r";
-        pos_.next();
+        pos_.next(static_cast<unsigned char>('r'));
 
         int registerIdx = *current() - '0';
         value += *current();
-        pos_.next();
+        pos_.next(static_cast<unsigned char>(*current()));
 
         if (inScope() && isAsciiDigit(*current())) {
             registerIdx *= 10;
             registerIdx += *current() - '0';
             value += *current();
-            pos_.next();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         if (registerIdx > 15)
-            reporter_.warn<IC10MsgId::IWL2>(start, stationeers::endPos(start, value.size()));
+            reporter_.warn<IC10MsgId::IWL2>(start, stationeers::endPos(start, value));
 
         return {
             registerIdx > 15 ? TokenType::IDENTIFIER : TokenType::REGISTER, start, std::move(value),

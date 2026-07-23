@@ -33,20 +33,24 @@ namespace stationeers {
         ++offset_;
     }
 
-    void Pos::next() {
-        ++column_;
+    void Pos::next(unsigned char byte) {
+        // UTF-8 continuation bytes (10xxxxxx) belong to the same character,
+        // so we only increment the column for leading/ASCII bytes
+        if ((byte & 0xC0) != 0x80) {
+            ++column_;
+        }
         ++offset_;
     }
 
-    void Pos::move(const std::size_t offset) {
-        column_ += offset;
-        offset_ += offset;
+    void Pos::move(const std::size_t charOffset, const std::size_t byteOffset) {
+        column_ += static_cast<int>(charOffset);
+        offset_ += byteOffset;
     }
 
-    Pos endPos(const Pos& pos, const std::size_t length) {
+    Pos endPos(const Pos& pos, const std::size_t charLength, const std::size_t byteLength) {
         auto end = pos;
 
-        end.move(length);
+        end.move(charLength, byteLength);
 
         return end;
     }
