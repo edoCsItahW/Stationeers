@@ -29,10 +29,27 @@
 #define COMPILER_POSITION_HPP
 #pragma once
 
+#include "common/utils/utf8string.hpp"
+#include <string>
 #include <type_traits>
 
 
 namespace stationeers {
+
+    /**
+     * @if zh
+     * @brief 计算 std::string 中 Unicode 字符的数量
+     * @param str 待计算的字符串
+     * @return Unicode 字符数量
+     * @elseif en
+     * @brief Count Unicode characters in a std::string
+     * @param str String to count
+     * @return Number of Unicode characters
+     * @endif
+     */
+    inline std::size_t charLength(const std::string& str) {
+        return static_cast<std::size_t>(utf::string_view(str.c_str()).length());
+    }
 
     /**
      * @class Pos
@@ -167,44 +184,43 @@ namespace stationeers {
         /**
          * @if zh
          *
-         * @brief 移动到下一个位置
-         * @details 列号加1，位移量加1
-         *
+         * @brief 移动到下一个字节位置
+         * @details 传入当前字节值，若为 UTF-8 前导字节（非续字节）则列号加1，位移量加1
+         * @param byte 当前字节值
          *
          * @elseif en
          *
-         * @brief Move to next position
-         * @details Increment column number by 1, offset by 1
-         *
+         * @brief Move to next byte position
+         * @details Takes current byte value; increments column by 1 only for UTF-8 leading bytes
+         *          (non-continuation), always increments offset by 1
+         * @param byte Current byte value
          *
          * @endif
          *
          * @public @memberof Pos
          */
-        void next();
+        void next(unsigned char byte);
 
         /**
          * @if zh
          *
-         * @brief 移动指定距离
-         * @details 列号和位移量都加上指定距离
-         *
-         * @param offset 指定距离
-         *
+         * @brief 移动指定字符和字节距离
+         * @details 列号加 charOffset，位移量加 byteOffset
+         * @param charOffset 字符偏移量
+         * @param byteOffset 字节偏移量
          *
          * @elseif en
          *
-         * @brief Move specified distance
-         * @details Increment column number and offset by specified distance
-         *
-         * @param offset Specified distance
-         *
+         * @brief Move by specified character and byte distances
+         * @details Increment column by charOffset, offset by byteOffset
+         * @param charOffset Character offset
+         * @param byteOffset Byte offset
          *
          * @endif
          *
          * @public @memberof Pos
          */
-        void move(std::size_t offset);
+        void move(std::size_t charOffset, std::size_t byteOffset);
 
     private:
         /**
@@ -321,22 +337,45 @@ namespace stationeers {
      * @if zh
      *
      * @brief 计算结束位置
-     * @details 根据起始位置和长度计算结束位置
+     * @details 根据起始位置和字符/字节长度计算结束位置
      * @param pos 起始位置
-     * @param length 长度
+     * @param charLength 字符长度（用于列号计算）
+     * @param byteLength 字节长度（用于偏移量计算）
      * @return 结束位置
      *
      * @elseif en
      *
      * @brief Calculate end position
-     * @details Calculates end position based on start position and length
+     * @details Calculates end position based on start position and char/byte lengths
      * @param pos Start position
-     * @param length Length
+     * @param charLength Character length (for column calculation)
+     * @param byteLength Byte length (for offset calculation)
      * @return End position
      *
      * @endif
      */
-    Pos endPos(const Pos &pos, std::size_t length);
+    Pos endPos(const Pos &pos, std::size_t charLength, std::size_t byteLength);
+
+    /**
+     * @if zh
+     *
+     * @brief 根据字符串内容计算结束位置
+     * @param pos 起始位置
+     * @param lexeme 词素字符串
+     * @return 结束位置
+     *
+     * @elseif en
+     *
+     * @brief Calculate end position from string content
+     * @param pos Start position
+     * @param lexeme Lexeme string
+     * @return End position
+     *
+     * @endif
+     */
+    inline Pos endPos(const Pos &pos, const std::string& lexeme) {
+        return endPos(pos, charLength(lexeme), lexeme.size());
+    }
 
 }  // namespace stationeers
 

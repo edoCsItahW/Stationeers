@@ -44,22 +44,26 @@ namespace stationeers {
             .def("newline", &Pos::newline)
             /**
              * @if zh
-             * @brief 前进一字符,列号和偏移各加1
+             * @brief 前进一个字节,若为 UTF-8 前导字节则列号加1
+             * @param byte 当前字节值(默认为0x00, ASCII)
              * @elseif en
-             * @brief Advance one character, column and offset each increment by 1
+             * @brief Advance one byte; column increments only for UTF-8 leading bytes
+             * @param byte Current byte value (defaults to 0x00, ASCII)
              * @endif
              */
-            .def("next", &Pos::next)
+            .def("next", [](Pos& self, unsigned char byte = 0x00) { self.next(byte); }, py::arg("byte") = 0x00)
             /**
              * @if zh
-             * @brief 移动到指定偏移位置
-             * @param offset 目标偏移量
+             * @brief 移动指定字符和字节距离
+             * @param charOffset 字符偏移量
+             * @param byteOffset 字节偏移量
              * @elseif en
-             * @brief Move to specified offset position
-             * @param offset Target offset
+             * @brief Move by specified character and byte distances
+             * @param charOffset Character offset
+             * @param byteOffset Byte offset
              * @endif
              */
-            .def("move", &Pos::move, py::arg("offset"))
+            .def("move", &Pos::move, py::arg("charOffset"), py::arg("byteOffset"))
             /// @if zh 字符串表示 @elseif en String representation @endif
             .def("__repr__", [](const Pos& self) {
                 return "Pos(line=" + std::to_string(self.line())

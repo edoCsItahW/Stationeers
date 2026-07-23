@@ -79,12 +79,17 @@ namespace stationeers {
 
     void PosAdapter::newline(const node::CallbackInfo& info) { pos_.newline(); }
 
-    void PosAdapter::next(const node::CallbackInfo& info) { pos_.next(); }
+    void PosAdapter::next(const node::CallbackInfo& info) {
+        // Default to ASCII byte (0x00) for backward compatibility;
+        // the binding is used for testing with ASCII-only source code.
+        pos_.next(0x00);
+    }
 
     void PosAdapter::move(const node::CallbackInfo& info) {
         Arguments args(info);
 
-        pos_.move(args.getWithCheck<node::Number>(0).Uint32Value());
+        auto offset = args.getWithCheck<node::Number>(0).Uint32Value();
+        pos_.move(offset, offset);
     }
 
 }  // namespace stationeers

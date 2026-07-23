@@ -23,7 +23,7 @@ option(ENABLE_CCACHE "Enable ccache/sccache if available" ON)
 # 全局编译选项
 if (MSVC)
     string(REPLACE "/O2" "/O1" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-    add_compile_options(/wd4819 /utf-8 /diagnostics:caret /bigobj /MP)
+    add_compile_options(/wd4819 /utf-8 /diagnostics:caret /bigobj /MP /Zc:__cplusplus)
     add_compile_options($<$<CONFIG:Debug>:/Od>)
 
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
