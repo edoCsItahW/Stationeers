@@ -61,7 +61,7 @@ class TestPos:
 
     def test_move(self):
         pos = Pos()
-        pos.move(42)
+        pos.move(42, 42)
         assert pos.offset == 42
 
 

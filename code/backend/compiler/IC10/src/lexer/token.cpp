@@ -237,7 +237,7 @@ namespace stationeers::ic10 {
     Pos endPos(const Token& token) {
         auto end = token.pos;
 
-        end.move(token.lexeme.size());
+        end.move(charLength(token.lexeme), token.lexeme.size());
 
         return end;
     }
