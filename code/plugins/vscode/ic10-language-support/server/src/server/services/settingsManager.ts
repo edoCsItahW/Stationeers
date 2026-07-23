@@ -15,11 +15,14 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import type { Connection, InitializeResult } from "vscode-languageserver";
-import { DocumentCache, GlobalCache } from "../cache";
 import { DidChangeConfigurationNotification } from "vscode-languageserver/node";
-import { CONFIGURATION_SECTION_NAME } from "../../../../common/utils";
+import type { Connection, InitializeResult } from "vscode-languageserver";
 import { IC10Local } from "ic10-node-api";
+
+import { CONFIGURATION_SECTION_NAME } from "../../../../common/utils";
+import { DocumentCache, GlobalCache } from "../cache";
+import { locale } from "../../locals/locale";
+import {Optional} from "../../../../common/types/utils";
 
 
 export interface Settings {
@@ -45,7 +48,8 @@ export class SettingsManager {
     constructor(
         private connection: Connection,
         private docCache: DocumentCache,
-        private globalCache: GlobalCache
+        private globalCache: GlobalCache,
+        private onLocaleChanged?: () => void
     ) {
     }
 
@@ -55,14 +59,20 @@ export class SettingsManager {
         const result: InitializeResult = {
             capabilities: {
                 // 悬停提示
-                hoverProvider: true
+                hoverProvider: true,
+
+                // 文档诊断
+                diagnosticProvider: {
+                    interFileDependencies: false,
+                    workspaceDiagnostics: false
+                }
             }
         };
 
         if (this.globalCache.flag.workspaceCfg)
             result.capabilities.workspace = { workspaceFolders: { supported: true } };
 
-        IC10Local.setLanguage(this.settings.language);
+        this.settingGlobalLocale(this.settings.language);
 
         return result;
     }
@@ -76,7 +86,10 @@ export class SettingsManager {
             this.connection.workspace.getConfiguration(CONFIGURATION_SECTION_NAME).then(cfg => {
                 this.settings = { ...this.settings, ...cfg };
 
-                IC10Local.setLanguage(this.settings.language);
+                this.settingGlobalLocale(this.settings.language);
+
+                // 语言变更后触发重新解析，确保诊断消息使用正确语言
+                this.onLocaleChanged?.();
             });
     }
 
@@ -88,9 +101,19 @@ export class SettingsManager {
         if (change) {
             this.settings = { ...this.settings, ...(change instanceof Promise ? await change : change) };
 
-            IC10Local.setLanguage(this.settings.language);
+            this.settingGlobalLocale(this.settings.language);
 
             this.docCache.invalidateHash(this.globalCache.uri);
+
+            // 语言变更后触发重新解析，确保诊断消息使用正确语言
+            this.onLocaleChanged?.();
         }
     }
+
+    private settingGlobalLocale(lang: Settings["language"]) {
+        IC10Local.setLanguage(lang);
+
+        locale.setLocale(lang);
+    }
+
 }

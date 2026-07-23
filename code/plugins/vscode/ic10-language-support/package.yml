@@ -1,0 +1,100 @@
+# 扩展的机器可读唯一标识符（内部使用）
+name: ic10
+
+# 扩展在市场中显示的名称
+displayName: IC10
+
+# 扩展的简短描述
+description: IC10 language support | IC10语言支持
+
+# 作者名称
+author: edocsitahw
+
+# 许可证（Creative Commons 署名-非商业性使用-相同方式共享 4.0）
+license: CC BY-NC-SA 4.0
+
+# 扩展的版本号（遵循语义化版本）
+version: 1.0.0
+
+# 发布者的 ID（通常用于市场标识）
+publisher: ''
+
+# 代码仓库信息
+repository:
+    type: git
+    url: https://github.com/edoCsItahW/Stationeers.git
+
+# 扩展所属分类（如编程语言）
+categories:
+    - Programming Languages
+
+# 搜索关键字，帮助用户找到此扩展
+keywords:
+    - Stationeers
+    - IC10
+
+# 依赖的 VS Code 引擎版本（^1.99.0 表示兼容 1.99.0 及以上版本）
+engines:
+    vscode: ^1.125.0
+
+# 激活事件（空数组表示由主入口文件自行控制激活时机）
+activationEvents:
+    - onLanguage:ic10
+
+# 扩展的主入口文件（相对于项目根目录）
+main: ./client/out/extension
+
+# 扩展图标文件
+icon: icon.png
+
+# 扩展展示截图列表（用于市场页面）
+screenshots:
+
+# 扩展的贡献点（声明该扩展为 VS Code 提供的功能）
+contributes:
+    # 定义新语言
+    languages:
+        -   id: ic10         # 语言标识符
+            aliases: # 语言别名
+                - IC10
+                - ic10
+            extensions: # 关联的文件扩展名
+                - .ic
+                - .ic10
+            configuration: ./language-configuration.json   # 语言配置文件（括号匹配、注释等）
+
+    # 语法高亮定义（TextMate 语法文件）
+    grammars:
+        -   language: ic10                          # 对应语言 ID
+            scopeName: source.ic10                  # 作用域名称
+            path: ./syntaxes/ic10.tmLanguage.json   # 语法文件路径
+
+    # 扩展的配置项（用户可在设置中修改）
+    configuration:
+        type: object
+        title: IC10 Language Support
+        properties:
+
+            # 语言
+            ic10.language:
+                enum:
+                    - en-us
+                    - zh-hans
+                enumDescriptions:
+                    - English(Default, US)
+                    - 简体中文
+                default: en-us
+                description: The language displayed to users by this plugin also includes the language used by the IC10 compiler core | 该插件向用户展示的语言，也包括IC10编译器核心使用的语言
+
+# 脚本（npm 生命周期钩子和自定义脚本）
+scripts:
+    vscode:prepublish: npm run compile  # 发布前自动执行的编译命令
+    compile: tsc -b                     # 编译 TypeScript
+    watch: tsc -b -w                    # 监视模式编译
+    lint: eslint                        # 运行 ESLint 检查
+    test: sh ./scripts/e2e.sh           # 运行端到端测试
+    postinstall: cd client && pnpm install && cd ../server && pnpm install && cd ..
+
+# 开发依赖（仅在开发时使用）
+devDependencies:
+    '@types/node': ^26.0.1

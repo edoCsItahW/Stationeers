@@ -5,35 +5,27 @@
     "author": "edocsitahw",
     "license": "CC BY-NC-SA 4.0",
     "version": "1.0.0",
+    "publisher": "",
     "repository": {
         "type": "git",
         "url": "https://github.com/edoCsItahW/Stationeers.git"
     },
-    "engines": {
-        "vscode": "^1.125.0"
-    },
-    "main": "./client/out/extension",
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -b",
-        "watch": "tsc -b -w",
-        "lint": "eslint",
-        "postinstall": "cd client && pnpm install && cd ../server && pnpm install && cd ..",
-        "test": "sh ./scripts/e2e.sh"
-    },
-    "devDependencies": {
-        "@types/node": "^26.0.1"
-    },
-    "activationEvents": [
-        "onLanguage:ic10"
+    "categories": [
+        "Programming Languages"
     ],
     "keywords": [
         "Stationeers",
         "IC10"
     ],
-    "categories": [
-        "Programming Languages"
+    "engines": {
+        "vscode": "^1.125.0"
+    },
+    "activationEvents": [
+        "onLanguage:ic10"
     ],
+    "main": "./client/out/extension",
+    "icon": "icon.png",
+    "screenshots": null,
     "contributes": {
         "languages": [
             {
@@ -55,6 +47,35 @@
                 "scopeName": "source.ic10",
                 "path": "./syntaxes/ic10.tmLanguage.json"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "IC10 Language Support",
+            "properties": {
+                "ic10.language": {
+                    "enum": [
+                        "en-us",
+                        "zh-hans"
+                    ],
+                    "enumDescriptions": [
+                        "English(Default, US)",
+                        "简体中文"
+                    ],
+                    "default": "en-us",
+                    "description": "The language displayed to users by this plugin also includes the language used by the IC10 compiler core | 该插件向用户展示的语言，也包括IC10编译器核心使用的语言"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -b",
+        "watch": "tsc -b -w",
+        "lint": "eslint",
+        "test": "sh ./scripts/e2e.sh",
+        "postinstall": "cd client && pnpm install && cd ../server && pnpm install && cd .."
+    },
+    "devDependencies": {
+        "@types/node": "^26.0.1"
     }
 }

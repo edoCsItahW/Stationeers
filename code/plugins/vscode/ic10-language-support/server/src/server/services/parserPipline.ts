@@ -15,7 +15,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {Lexer, Parser,  Linker, type SymbolMap} from "ic10-node-api";
+import {Lexer, Parser, Linker, type SymbolMap, Diagnostic} from "ic10-node-api";
 import stdLib from "ic10-node-api/static/stdLib.ic.json"
 import { createHash } from "node:crypto";
 
@@ -44,11 +44,17 @@ export class ParserPipline {
         const hash = createHash("md5").update(code).digest("hex");
         if (cache?.hash === hash) return noop;
 
+        const diagnostics: Diagnostic[] = []
+
         const lexer = new Lexer(code);
         const tokens = lexer.scan();
 
+        diagnostics.push(...lexer.diagnostics);
+
         const parser = new Parser(tokens);
         const ast = parser.parse();
+
+        diagnostics.push(...parser.diagnostics);
 
         const linker = new Linker();
 
@@ -57,8 +63,9 @@ export class ParserPipline {
 
         const symbolJson = linker.link().toJSON();
 
+        diagnostics.push(...linker.diagnostics);
 
-        return { changed: true, tokens, ast, diagnostics: linker.diagnostics, symbols: JSON.parse(symbolJson) as SymbolMap, hash };
+        return { changed: true, tokens, ast, diagnostics, symbols: JSON.parse(symbolJson) as SymbolMap, hash };
     }
 
 }
