@@ -49,9 +49,9 @@ class Extension {
     }
 
     stop(): Thenable<void> | undefined {
-        if (!this.client) {
-            return undefined;
-        }
+        if (!this.client)
+            return;
+
         return this.client.stop();
     }
 

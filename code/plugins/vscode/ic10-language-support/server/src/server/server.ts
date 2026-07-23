@@ -49,7 +49,8 @@ export class Server {
         this.docCache = new DocumentCache();
 
         this.globalCache = new GlobalCache();
-        this.settingMgr = new SettingsManager(connection, this.docCache, this.globalCache);
+        this.settingMgr = new SettingsManager(connection, this.docCache, this.globalCache,
+            () => this.handleLocaleChanged());
 
         this.hoverHandler = new HoverHandler(this.docCache);
         this.diagHandler = new DiagnosticHandler(this.docCache);
@@ -118,6 +119,14 @@ export class Server {
 
             this.connection.languages.diagnostics.refresh();
         });
+    }
+
+    private handleLocaleChanged() {
+        const doc = this.documents.get(this.globalCache.uri);
+        if (doc) {
+            this.docCache.invalidateHash(this.globalCache.uri);
+            this.parseAndRefresh(doc.getText());
+        }
     }
 
 }
