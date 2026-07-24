@@ -19,6 +19,12 @@ export default {
     server: {
         info: {
             start: "服务器正在运行...",
+        },
+        parser: {
+            info: {
+                LIE1: "增量解析失败，回退至全量解析 {}",
+                LIE2: "全量解析失败 {}"
+            }
         }
     },
     hover: {

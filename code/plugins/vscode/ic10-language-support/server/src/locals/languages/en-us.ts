@@ -19,6 +19,12 @@ export default {
     server: {
         info: {
             start: "Server is running...",
+        },
+        parser: {
+            info: {
+                LIE1: "parseInc failed, falling back to full parse {}",
+                LIE2: "full parse failed {}"
+            }
         }
     },
     hover: {

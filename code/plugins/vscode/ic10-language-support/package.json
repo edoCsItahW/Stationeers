@@ -65,6 +65,90 @@
                     "description": "The language displayed to users by this plugin also includes the language used by the IC10 compiler core | 该插件向用户展示的语言，也包括IC10编译器核心使用的语言"
                 }
             }
+        },
+        "configurationDefaults": {
+            "[ic10]": {
+                "editor.semanticHighlighting.enabled": true
+            },
+            "editor.semanticTokenColorCustomizations": {
+                "rules": {
+                    "Keyword": "#CF8E6D",
+                    "Register": "#B4654A",
+                    "Macro": "#56A8F5",
+                    "Device": "#B267D6",
+                    "Number": "#2AACB8",
+                    "String": "#6AAB73",
+                    "Comment": "#7A7E85",
+                    "Decorator": "#C586C0",
+                    "Label": "#E8BF6A",
+                    "Label.declaration": "#E8BF6A",
+                    "Unknown": "#000000"
+                }
+            }
+        },
+        "semanticTokenTypes": [
+            {
+                "id": "Keyword",
+                "superType": "keyword",
+                "description": "IC10 instruction keywords and preprocessor directives | IC10指令关键字和预处理指令"
+            },
+            {
+                "id": "Register",
+                "superType": "variable",
+                "description": "IC10 register references (r0, r1, ra, sp) | IC10寄存器引用"
+            },
+            {
+                "id": "Macro",
+                "superType": "function",
+                "description": "IC10 macro calls (hash, str) | IC10宏调用"
+            },
+            {
+                "id": "Device",
+                "superType": "type",
+                "description": "IC10 device references (d0, d1, db) | IC10设备引用"
+            },
+            {
+                "id": "Number",
+                "superType": "number",
+                "description": "IC10 numeric literals | IC10数字字面量"
+            },
+            {
+                "id": "String",
+                "superType": "string",
+                "description": "IC10 string literals | IC10字符串字面量"
+            },
+            {
+                "id": "Comment",
+                "superType": "comment",
+                "description": "IC10 comments | IC10注释"
+            },
+            {
+                "id": "Decorator",
+                "superType": "decorator",
+                "description": "IC10 type hint annotations (#: @type) | IC10类型提示注解"
+            },
+            {
+                "id": "Label",
+                "superType": "variable",
+                "description": "IC10 labels, aliases and define constants | IC10标签、别名和define常量"
+            },
+            {
+                "id": "Unknown",
+                "superType": "variable",
+                "description": "Unknown or unresolved tokens | 未知或未解析的令牌"
+            }
+        ],
+        "semanticTokenColors": {
+            "Keyword": "#CF8E6D",
+            "Register": "#B4654A",
+            "Macro": "#56A8F5",
+            "Device": "#B267D6",
+            "Number": "#2AACB8",
+            "String": "#6AAB73",
+            "Comment": "#7A7E85",
+            "Decorator": "#C586C0",
+            "Label": "#E8BF6A",
+            "Unknown": "#000000"
         }
     },
     "scripts": {
@@ -77,5 +161,6 @@
     },
     "devDependencies": {
         "@types/node": "^26.0.1"
-    }
+    },
+    "packageManager": "pnpm@11.14.0+sha512.66c1ac4c7d4762d6d7dde44c7f3e5a73591ed0a0806e751d4ed32d4f004f25b2285a906b1fd8a9e3e621df3b4e2858bf88e50e0cf626bedbe977fe434a5caf85"
 }
