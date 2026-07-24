@@ -15,8 +15,9 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import type { Paths, ParamsForPath } from "./types";
-import { EventEmitter } from "../utils/event";
+import type {Paths, ParamsForPath} from "./types";
+import {EventEmitter} from "../utils/event";
+import {Console} from "../exception/debug";
 
 
 type Resources = Record<string, any>; // 语言键 -> 翻译表
@@ -48,9 +49,10 @@ export class Locale<T extends Resources> extends EventEmitter {
     setLocale(locale: keyof T): void {
         if (locale === this.currentLocale) return;
         if (!this.resources[locale]) {
-            console.warn(`[Locale] Locale "${String(locale)}" not found.`);
+            Console.warning(`Locale "${String(locale)}" not found.`, "Locale");
             return;
         }
+
         this.currentLocale = locale;
         this.emit('localeChange', locale);
     }
@@ -60,9 +62,9 @@ export class Locale<T extends Resources> extends EventEmitter {
     }
 
     extendResources(locale: keyof T, newResources: Partial<T[keyof T]>): void {
-        if (!this.resources[locale]) {
+        if (!this.resources[locale])
             this.resources[locale] = {} as T[keyof T];
-        }
+
         // 深度合并（简易版，生产可调 lodash.merge）
         Object.assign(this.resources[locale], newResources);
     }
@@ -84,12 +86,15 @@ export class Locale<T extends Resources> extends EventEmitter {
                     if (fallbackResult === null || fallbackResult === undefined) break;
                     fallbackResult = fallbackResult[key];
                 }
-                if (fallbackResult !== null && fallbackResult !== undefined) {
+
+                if (fallbackResult !== null && fallbackResult !== undefined)
                     return fallbackResult;
-                }
+
             }
+
             // 终极降级：返回路径本身
             return path;
+
         }
         return result;
     }
@@ -100,33 +105,33 @@ export class Locale<T extends Resources> extends EventEmitter {
         params?: Record<string, string | number> | { count: number }
     ): string {
         // ----- 情况1：字符串（直接插值） -----
-        if (typeof value === 'string') {
+        if (typeof value === 'string')
             return this.interpolate(value, params || {});
-        }
 
         // ----- 情况2：复数对象（{ zero, one, other }） -----
         if (typeof value === 'object' && value !== null && 'other' in value) {
             const count = (params as any)?.count;
             if (typeof count !== 'number') {
-                console.warn(
-                    `[Locale] Plural key "${path}" requires param "count", got ${count}.`
+                Console.warning(
+                    `Plural key "${path}" requires param "count", got ${count}.`, "Locale"
                 );
                 return value.other || path;
             }
+
             return this.pluralize(value, count);
         }
 
         // ----- 情况3：未知类型 -----
-        console.warn(`[Locale] Invalid translation value at "${path}"`);
+        Console.warning(`Invalid translation value at "${path}"`, "Locale");
         return String(value) || path;
     }
 
     private interpolate(text: string, params: Record<string, string | number>): string {
-        return text.replace(/\{([^}]+)\}/g, (_, key: string) => {
+        return text.replace(/\{([^}]+)}/g, (_, key: string) => {
             const val = params[key];
-            if (val === undefined || val === null) {
+            if (val === undefined || val === null)
                 return `{${key}}`; // 保留占位符，便于发现漏传
-            }
+
             return String(val);
         });
     }
@@ -140,9 +145,9 @@ export class Locale<T extends Resources> extends EventEmitter {
         const key = rules.select(count);
         const result = forms[key] || forms.other || forms.one || JSON.stringify(forms);
         // 如果复数模板里也有插值变量（如 {count}），继续处理
-        if (typeof result === 'string') {
-            return this.interpolate(result, { count });
-        }
+        if (typeof result === 'string')
+            return this.interpolate(result, {count});
+
         return String(result);
     }
 }

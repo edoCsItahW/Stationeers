@@ -19,10 +19,10 @@ import { DidChangeConfigurationNotification } from "vscode-languageserver/node";
 import type { Connection, InitializeResult } from "vscode-languageserver";
 import { IC10Local } from "ic10-node-api";
 
+import { TOKEN_TYPES, TOKEN_MODIFIERS } from "../handlers/semanticToken";
 import { CONFIGURATION_SECTION_NAME } from "../../../../common/utils";
 import { DocumentCache, GlobalCache } from "../cache";
 import { locale } from "../../locals/locale";
-import {Optional} from "../../../../common/types/utils";
 
 
 export interface Settings {
@@ -65,6 +65,18 @@ export class SettingsManager {
                 diagnosticProvider: {
                     interFileDependencies: false,
                     workspaceDiagnostics: false
+                },
+
+                // 语义令牌
+                semanticTokensProvider: {
+                    legend: {
+                        tokenTypes: TOKEN_TYPES,
+                        tokenModifiers: TOKEN_MODIFIERS
+                    },
+                    full: {
+                        delta: false
+                    },
+                    range: false
                 }
             }
         };

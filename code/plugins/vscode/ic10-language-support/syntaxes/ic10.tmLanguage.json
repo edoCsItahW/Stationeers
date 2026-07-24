@@ -3,9 +3,6 @@
 	"name": "IC10",
 	"patterns": [
 		{
-			"include": "#annotations"
-		},
-		{
 			"include": "#comments"
 		},
 		{
@@ -40,23 +37,11 @@
 		}
 	],
 	"repository": {
-		"annotations": {
-			"patterns": [
-				{
-					"name": "comment.block.documentation.ic10",
-					"match": "#>.*"
-				},
-				{
-					"name": "keyword.control.annotation.ic10",
-					"match": "#:\\s*@[a-zA-Z_]+"
-				}
-			]
-		},
 		"comments": {
 			"patterns": [
 				{
 					"name": "comment.line.number-sign.ic10",
-					"match": "#[^>:].*"
+					"match": "#.*"
 				},
 				{
 					"name": "comment.line.double-slash.ic10",
@@ -97,11 +82,11 @@
 				},
 				{
 					"name": "keyword.control.unary.ic10",
-					"match": "\\b(peek|pop|push|clr|j|jal|jr|rand|sleep|clrd)\\b"
+					"match": "\\b(peek|pop|push|clr|j|jal|jr|rand|sleep)\\b"
 				},
 				{
 					"name": "keyword.operator.math.unary.ic10",
-					"match": "\\b(abs|acos|asin|atan|ceil|cos|exp|floor|log|round|sin|sqrt|tan|trunc|not|sgn)\\b"
+					"match": "\\b(abs|acos|asin|atan|ceil|cos|exp|floor|log|round|sin|sqrt|tan|trunc|not)\\b"
 				},
 				{
 					"name": "keyword.control.branch.unary.ic10",
@@ -116,12 +101,12 @@
 					"match": "\\b(move|poke)\\b"
 				},
 				{
-					"name": "keyword.operator.math.ternary.ic10",
-					"match": "\\b(add|sub|mul|div|mod|pow|atan2|max|min|lerp|ext|ins)\\b"
+					"name": "keyword.operator.math.binary.ic10",
+					"match": "\\b(add|sub|mul|div|mod|pow|atan2|max|min)\\b"
 				},
 				{
 					"name": "keyword.operator.bitwise.ic10",
-					"match": "\\b(and|nor|or|sla|sll|sra|srl|xor|rol|ror)\\b"
+					"match": "\\b(and|nor|or|sla|sll|sra|srl|xor)\\b"
 				},
 				{
 					"name": "keyword.control.branch.binary.ic10",
@@ -134,6 +119,10 @@
 				{
 					"name": "keyword.operator.device.ic10",
 					"match": "\\b(get|put|l|ls|lr|s|sb|rmap)\\b"
+				},
+				{
+					"name": "keyword.operator.math.tertiary.ic10",
+					"match": "\\b(lerp|ext|ins)\\b"
 				},
 				{
 					"name": "keyword.operator.batch.ic10",
@@ -153,7 +142,7 @@
 			"patterns": [
 				{
 					"name": "constant.language.ic10",
-					"match": "\\b(nan|pinf|ninf|pi|tau|deg2rad|rad2deg|epsilon|rgas)\\b"
+					"match": "\\b(nan|pinf|ninf|pi|tau|deg2rad|rad2deg|epsilon|19as)\\b"
 				}
 			]
 		},
@@ -170,10 +159,6 @@
 				{
 					"name": "variable.language.device.ic10",
 					"match": "\\bd[0-5]\\b"
-				},
-				{
-					"name": "variable.language.device-ref.ic10",
-					"match": "@[a-zA-Z_][a-zA-Z0-9_]*"
 				}
 			]
 		},
@@ -181,11 +166,11 @@
 			"patterns": [
 				{
 					"name": "constant.numeric.hex.ic10",
-					"match": "\\b0x[0-9a-fA-F]+\\b"
+					"match": "\\$[0-9a-fA-F]+"
 				},
 				{
 					"name": "constant.numeric.binary.ic10",
-					"match": "\\b0b[01]+\\b"
+					"match": "%[01_]+"
 				},
 				{
 					"name": "constant.numeric.float.ic10",
