@@ -18,7 +18,7 @@
 export default {
     server: {
         info: {
-            start: "服务器正在运行...",
+            start: "服务器正在运行..."
         },
         parser: {
             info: {
@@ -44,6 +44,13 @@ export default {
             type: '指令',
             signature: '签名',
             details: '详情'
+        },
+        operandType: {
+            register: "寄存器",
+            device: "设备",
+            number: "数值",
+            constant: "内置常量",
+            error: "未知"
         }
     }
 };
