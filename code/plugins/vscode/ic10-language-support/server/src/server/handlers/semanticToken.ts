@@ -34,10 +34,10 @@ import {
     TypeOfNode
 } from "ic10-node-api";
 
+import {Console} from "../../../../common/exception/debug";
 import {upperBound} from "../../../../common/utils";
 import {DocumentCache} from "../cache";
 import {t} from "../../locals/locale";
-import {Console} from "../../../../common/exception/debug";
 
 
 type OnHandlerType = Parameters<Languages["semanticTokens"]["on"]>[0];
@@ -57,20 +57,25 @@ export enum TokenLegend {
     Keyword = 0,
     /** 寄存器（r0, r1, ra, sp 等） */
     Register,
+    RegisterIdentifier,
     /** 函数/宏调用（hash, str） */
     Macro,
     /** 设备引用（d0, d1, db 等） */
     Device,
+    DeviceIdentifier,
     /** 数字字面量（整数、浮点、十六进制、二进制） */
     Number,
+    NumberIdentifier,
     /** 字符串字面量 */
     String,
+    Constant,
     /** 注释 */
     Comment,
     /** 注解/类型提示（#: @type） */
     Decorator,
     /** 标识符（标签名、别名、define 常量名） */
     Label,
+    LabelIdentifier,
     Unknown
 }
 
@@ -280,7 +285,7 @@ export class SemanticTokenHandler {
                 line: gap.line,
                 start: gap.column,
                 length: node.identifier.value.length,
-                type: TokenLegend.Device,
+                type: node.registerOrDevice.type === "Register" ? TokenLegend.RegisterIdentifier : (node.registerOrDevice.type == "Device" ? TokenLegend.DeviceIdentifier : TokenLegend.Unknown),
                 modifier: this.modifierBits(TokenModifier.Declaration)
             });
         }
@@ -310,7 +315,7 @@ export class SemanticTokenHandler {
                 line: gap.line,
                 start: gap.column,
                 length: node.identifier.value.length,
-                type: TokenLegend.Number,
+                type: TokenLegend.NumberIdentifier,
                 modifier: this.modifierBits(TokenModifier.Declaration)
             });
         }
@@ -376,7 +381,7 @@ export class SemanticTokenHandler {
             line: gap.line,
             start: gap.column,
             length: node.keyword.length,
-            type: TokenLegend.Number,
+            type: TokenLegend.Constant,
             modifier: 0
         };
     }
@@ -386,7 +391,7 @@ export class SemanticTokenHandler {
 
         const symbol = context.table[node.value];
 
-        const type = symbol ? this.toLegend(symbol.type, symbol.category) : this.operandTypeToLegend(operandType!);
+        const type = symbol ? this.toLegend(symbol.type, symbol.category, true) : this.operandTypeToLegend(operandType!);
 
         return {
             line: gap.line,
@@ -466,13 +471,13 @@ export class SemanticTokenHandler {
         return bits;
     }
 
-    private toLegend(type: BasicType, category: TypeCategory): TokenLegend {
+    private toLegend(type: BasicType, category: TypeCategory, isIdentifier?: boolean): TokenLegend {
         switch (category) {
             case TypeCategory.LABEL:
-                return TokenLegend.Label;
+                return isIdentifier ? TokenLegend.LabelIdentifier: TokenLegend.Label;
             case TypeCategory.NUMBER:
             case TypeCategory.CONSTANT:
-                return TokenLegend.Number;
+                return isIdentifier ? TokenLegend.NumberIdentifier : TokenLegend.Number;
             case TypeCategory.HASH_CALL:
             case TypeCategory.STR_CALL:
                 return TokenLegend.Macro;
@@ -480,9 +485,9 @@ export class SemanticTokenHandler {
 
         switch (type) {
             case BasicType.DEVICE:
-                return TokenLegend.Device;
+                return isIdentifier ? TokenLegend.DeviceIdentifier : TokenLegend.Device;
             case BasicType.REGISTER:
-                return TokenLegend.Register;
+                return isIdentifier ? TokenLegend.RegisterIdentifier : TokenLegend.Register;
             case BasicType.STRING:
                 return TokenLegend.String;
         }
@@ -497,7 +502,7 @@ export class SemanticTokenHandler {
             case OperandType.REAGENT_MODE:
             case OperandType.BATCH_MODE:
             case OperandType.SLOT_IDX:
-                return TokenLegend.Number;
+                return TokenLegend.Constant;
             case OperandType.JUMP_TARGET:
                 return TokenLegend.Label;
             default:

@@ -3,6 +3,9 @@
 	"name": "IC10",
 	"patterns": [
 		{
+			"include": "#annotations"
+		},
+		{
 			"include": "#comments"
 		},
 		{
@@ -37,6 +40,18 @@
 		}
 	],
 	"repository": {
+		"annotations": {
+			"patterns": [
+				{
+					"name": "comment.block.documentation.ic10",
+					"match": "#>.*"
+				},
+				{
+					"name": "keyword.control.annotation.ic10",
+					"match": "#:\\s*@[a-zA-Z_]+"
+				}
+			]
+		},
 		"comments": {
 			"patterns": [
 				{
@@ -82,15 +97,15 @@
 				},
 				{
 					"name": "keyword.control.unary.ic10",
-					"match": "\\b(peek|pop|push|clr|j|jal|jr|rand|sleep)\\b"
+					"match": "\\b(peek|pop|push|clr|j|jal|jr|rand|sleep|clrd)\\b"
 				},
 				{
 					"name": "keyword.operator.math.unary.ic10",
-					"match": "\\b(abs|acos|asin|atan|ceil|cos|exp|floor|log|round|sin|sqrt|tan|trunc|not)\\b"
+					"match": "\\b(abs|acos|asin|atan|ceil|cos|exp|floor|log|round|sin|sqrt|tan|trunc|not|sgn)\\b"
 				},
 				{
 					"name": "keyword.control.branch.unary.ic10",
-					"match": "\\b(beqz|beqzal|bnez|bnezal|bgez|bgezal|bgtz|bgtzal|blez|blezal|bltz|bltzal|bnan|bnanz|bdns|bdnsal|bdse|bdseal|breqz|brnz|brgez|brgtz|brlez|brltz|brnan|brdns|brdse)\\b"
+					"match": "\\b(beqz|beqzal|bnez|bnezal|bgez|bgezal|bgtz|bgtzal|blez|blezal|bltz|bltzal|bnan|bdns|bdnsal|bdse|bdseal|breqz|brnez|brgez|brgtz|brlez|brltz|brnan|brdns|brdse)\\b"
 				},
 				{
 					"name": "keyword.operator.compare.unary.ic10",
@@ -101,12 +116,12 @@
 					"match": "\\b(move|poke)\\b"
 				},
 				{
-					"name": "keyword.operator.math.binary.ic10",
-					"match": "\\b(add|sub|mul|div|mod|pow|atan2|max|min)\\b"
+					"name": "keyword.operator.math.ternary.ic10",
+					"match": "\\b(add|sub|mul|div|mod|pow|atan2|max|min|lerp|clamp|ext|ins)\\b"
 				},
 				{
 					"name": "keyword.operator.bitwise.ic10",
-					"match": "\\b(and|nor|or|sla|sll|sra|srl|xor)\\b"
+					"match": "\\b(and|nor|or|sla|sll|sra|srl|xor|rol|ror)\\b"
 				},
 				{
 					"name": "keyword.control.branch.binary.ic10",
@@ -119,10 +134,6 @@
 				{
 					"name": "keyword.operator.device.ic10",
 					"match": "\\b(get|put|l|ls|lr|s|sb|rmap)\\b"
-				},
-				{
-					"name": "keyword.operator.math.tertiary.ic10",
-					"match": "\\b(lerp|ext|ins)\\b"
 				},
 				{
 					"name": "keyword.operator.batch.ic10",
@@ -142,7 +153,7 @@
 			"patterns": [
 				{
 					"name": "constant.language.ic10",
-					"match": "\\b(nan|pinf|ninf|pi|tau|deg2rad|rad2deg|epsilon|19as)\\b"
+					"match": "\\b(nan|pinf|ninf|pi|tau|deg2rad|rad2deg|epsilon|rgas)\\b"
 				}
 			]
 		},

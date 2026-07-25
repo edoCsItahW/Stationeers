@@ -130,8 +130,9 @@ export class Server {
 
             this.connection.languages.diagnostics.refresh();
             this.connection.languages.semanticTokens.refresh();
+
         }).catch(err => {
-            console.error("[IC10 LSP] parseInc failed, falling back to full parse:", err);
+            Console.error(t("server.parser.info.LIE1", err.message))
             // 增量解析失败时回退到全量解析
             this.pipline.parse(code, this.docCache.getCache(uri)).then(res => {
                 if (version !== this.parseVersion) return;
@@ -141,8 +142,9 @@ export class Server {
 
                 this.connection.languages.diagnostics.refresh();
                 this.connection.languages.semanticTokens.refresh();
+
             }).catch(err2 => {
-                console.error("[IC10 LSP] full parse also failed:", err2);
+                Console.error(t("server.parser.info.LIE2", err2.message));
             });
         });
     }
