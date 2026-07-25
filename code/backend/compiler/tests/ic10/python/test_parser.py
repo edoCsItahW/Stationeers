@@ -885,3 +885,229 @@ class TestAstSerialization:
         s = program.toString()
         assert s
         assert len(s) > 0
+
+
+# ============================================================
+# 鲁棒性测试 — alias 指令
+# 等价类划分：以词法递增的方式测试解析器对不完整 alias 语句的容错能力
+# ============================================================
+
+class TestAliasRobustness:
+    """Robustness tests for alias directive — incremental lexical inputs."""
+
+    ALIAS_INPUTS = [
+        "alias",
+        "alias test",
+        "alias test r0",
+        "alias test d0",
+        "alias test HASH",
+        "alias test HASH(",
+        'alias test HASH("',
+        'alias test HASH("Something',
+        'alias test HASH("Something"',
+        'alias test HASH("Something")',
+        "alias test STR",
+        "alias test STR(",
+        'alias test STR("',
+        'alias test STR("Equipment',
+        'alias test STR("Equipment"',
+        'alias test STR("Equipment")',
+    ]
+
+    @pytest.mark.parametrize("source", ALIAS_INPUTS)
+    def test_alias_robustness_incremental(self, source):
+        """每一步递增输入都不应导致崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)
+        assert len(program.statements) >= 0
+
+    ALIAS_HINT_INPUTS = [
+        "alias test r0 #:",
+        "alias test r0 #: @",
+        "alias test r0 #: @type",
+        "alias test r0 #: @type ",
+        "alias test r0 #: @type MyDevice",
+        "alias test r0 #: @desc",
+        "alias test r0 #: @desc ",
+        'alias test r0 #: @desc "Some description"',
+        'alias test HASH("Something") #: @type MyDevice',
+    ]
+
+    @pytest.mark.parametrize("source", ALIAS_HINT_INPUTS)
+    def test_alias_robustness_with_hints(self, source):
+        """alias + type hint 的不完整形式不应崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)
+        assert len(program.statements) >= 0
+
+
+# ============================================================
+# 鲁棒性测试 — define 指令
+# ============================================================
+
+class TestDefineRobustness:
+    """Robustness tests for define directive — incremental lexical inputs."""
+
+    DEFINE_INPUTS = [
+        "define",
+        "define X",
+        "define X 1",
+        "define X 1.5",
+        "define X 0x10",
+        "define X STR",
+        "define X STR(",
+        'define X STR("',
+        'define X STR("Structure',
+        'define X STR("Structure"',
+        'define X STR("Structure")',
+        "define X HASH",
+        "define X HASH(",
+        'define X HASH("',
+        'define X HASH("ItemName',
+        'define X HASH("ItemName"',
+        'define X HASH("ItemName")',
+    ]
+
+    @pytest.mark.parametrize("source", DEFINE_INPUTS)
+    def test_define_robustness_incremental(self, source):
+        """每一步递增输入都不应导致崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)
+        assert len(program.statements) >= 0
+
+    DEFINE_HINT_INPUTS = [
+        "define X 1 #:",
+        "define X 1 #: @type",
+        "define X 1 #: @type MyType",
+        'define X STR("Structure") #: @type MyType',
+        'define X 1 #: @desc "Constant value"',
+    ]
+
+    @pytest.mark.parametrize("source", DEFINE_HINT_INPUTS)
+    def test_define_robustness_with_hints(self, source):
+        """define + type hint 的不完整形式不应崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)
+        assert len(program.statements) >= 0
+
+
+# ============================================================
+# 鲁棒性测试 — 指令语句（代表各元数）
+# ============================================================
+
+class TestInstructionRobustness:
+    """Robustness tests for instructions — representative arities."""
+
+    NULLARY_INPUTS = [
+        "hcf",
+        "hcf extra",
+        "yield",
+        "yield extra",
+    ]
+
+    @pytest.mark.parametrize("source", NULLARY_INPUTS)
+    def test_nullary_robustness(self, source):
+        """0元指令的后缀垃圾不应崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)
+
+    UNARY_INPUTS = [
+        "move",
+        "move r0",
+        "move 1",
+        "move r0 extra",
+    ]
+
+    @pytest.mark.parametrize("source", UNARY_INPUTS)
+    def test_unary_robustness(self, source):
+        """1元指令的不完整操作数不应崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)
+
+    BINARY_INPUTS = [
+        "add",
+        "add r0",
+        "add r0 r1",
+        "add r0 1",
+        "add r0 r1 extra",
+    ]
+
+    @pytest.mark.parametrize("source", BINARY_INPUTS)
+    def test_binary_robustness(self, source):
+        """2元指令的不完整操作数不应崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)
+
+    TERNARY_INPUTS = [
+        "sap",
+        "sap r0",
+        "sap r0 d0",
+        "sap r0 d0 0",
+        "sap r0 d0 0 extra",
+    ]
+
+    @pytest.mark.parametrize("source", TERNARY_INPUTS)
+    def test_ternary_robustness(self, source):
+        """3元指令的不完整操作数不应崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)
+
+    MACRO_INPUTS = [
+        "move r0 STR",
+        "move r0 STR(",
+        'move r0 STR("',
+        'move r0 STR("Test"',
+        'move r0 STR("Test")',
+        "move r0 HASH",
+        "move r0 HASH(",
+        'move r0 HASH("',
+        'move r0 HASH("Test"',
+        'move r0 HASH("Test")',
+    ]
+
+    @pytest.mark.parametrize("source", MACRO_INPUTS)
+    def test_instruction_macro_robustness(self, source):
+        """指令中 STR/HASH 宏调用的不完整形式不应崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)
+
+
+# ============================================================
+# 边界值测试 — 字符串 & 混合错误
+# ============================================================
+
+class TestRobustnessBoundaries:
+    """Boundary value and mixed error tests."""
+
+    MIXED_INPUTS = [
+        "alias\nhcf\n",
+        "define\nhcf\n",
+        "alias test STR(\nhcf\n",
+        "define X STR(\nhcf\n",
+        "hcf\nalias\nyield\n",
+        "hcf\ndefine\nyield\n",
+        'alias test HASH("Something")\nalias bad\nyield\n',
+    ]
+
+    @pytest.mark.parametrize("source", MIXED_INPUTS)
+    def test_mixed_errors_not_blocking(self, source):
+        """混合错误场景：部分有效、部分无效，不崩溃且有效语句被解析"""
+        program, _ = parse_with_diags(source)
+        assert isinstance(program, Program)
+        assert len(program.statements) >= 1
+
+    STRING_BOUNDARY_INPUTS = [
+        'alias test HASH("")',
+        'alias test HASH("x")',
+        'alias test HASH("' + "A" * 1000 + '")',
+        'alias test STR("has spaces")',
+        'alias test STR("has_underscores")',
+        'alias test STR("has-dashes")',
+        'alias test STR("has.mixed.content_123")',
+    ]
+
+    @pytest.mark.parametrize("source", STRING_BOUNDARY_INPUTS)
+    def test_string_boundaries(self, source):
+        """字符串边界值（空串、长串、特殊字符）不应崩溃"""
+        program, _ = parse_with_diags(source + "\n")
+        assert isinstance(program, Program)

@@ -135,7 +135,18 @@ namespace stationeers::ic10 {
             auto valueStart = content.find_first_not_of(" \t", tagEnd);
             std::string value;
             if (valueStart != std::string::npos && content[valueStart] != '@') {
-                auto valueEnd = content.find_first_of(" \t", valueStart);
+                size_t valueEnd;
+                if (content[valueStart] == '"') {
+                    // 引号包裹的值：查找匹配的闭合引号（支持空格）
+                    valueEnd = content.find('"', valueStart + 1);
+                    if (valueEnd != std::string::npos) {
+                        ++valueEnd;  // 包含闭合引号
+                    } else {
+                        valueEnd = content.size();  // 未闭合引号，取到末尾
+                    }
+                } else {
+                    valueEnd = content.find_first_of(" \t", valueStart);
+                }
                 if (valueEnd == std::string::npos) valueEnd = content.size();
                 value = content.substr(valueStart, valueEnd - valueStart);
                 // 去除值尾部空白（如 Windows CRLF 残留的 '\r'）
@@ -968,16 +979,13 @@ namespace stationeers::ic10 {
 
         HashCall hashCall{current()->pos};
 
-        expect(TokenType::KEYWORD_HASH);
-
-        expect(TokenType::LPAREN);
-
         try {
+            expect(TokenType::KEYWORD_HASH);
+            expect(TokenType::LPAREN);
             hashCall.value = parseString(++layer);
+            hashCall.endPosition = expect(TokenType::RPAREN)->pos;
 
         } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        hashCall.endPosition = expect(TokenType::RPAREN)->pos;
 
         return hashCall;
     }
@@ -987,17 +995,16 @@ namespace stationeers::ic10 {
 
         StrCall strCall{current()->pos};
 
-        expect(TokenType::KEYWORD_STR);
-
-        expect(TokenType::LPAREN);
-
-        strCall.value = parseString(++layer);
-
         try {
+            expect(TokenType::KEYWORD_STR);
+
+            expect(TokenType::LPAREN);
+
+            strCall.value = parseString(++layer);
+
             strCall.endPosition = expect(TokenType::RPAREN)->pos;
 
         } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
 
         return strCall;
     }

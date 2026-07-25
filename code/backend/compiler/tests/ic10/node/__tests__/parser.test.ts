@@ -928,3 +928,210 @@ describe('AST serialization', () => {
         expect(str.length).toBeGreaterThan(0);
     });
 });
+
+// ============================================================
+// 鲁棒性测试 — alias 指令
+// 等价类划分：以词法递增的方式测试解析器对不完整 alias 语句的容错能力
+// ============================================================
+
+describe('Alias robustness — incremental lexical inputs', () => {
+    const aliasInputs = [
+        'alias',
+        'alias test',
+        'alias test r0',
+        'alias test d0',
+        'alias test HASH',
+        'alias test HASH(',
+        'alias test HASH("',
+        'alias test HASH("Something',
+        'alias test HASH("Something"',
+        'alias test HASH("Something")',
+        'alias test STR',
+        'alias test STR(',
+        'alias test STR("',
+        'alias test STR("Equipment',
+        'alias test STR("Equipment"',
+        'alias test STR("Equipment")',
+    ];
+
+    it.each(aliasInputs)('should not crash on incremental input: %s', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+        expect(program.statements.length).toBeGreaterThanOrEqual(0);
+    });
+
+    const aliasHintInputs = [
+        'alias test r0 #:',
+        'alias test r0 #: @',
+        'alias test r0 #: @type',
+        'alias test r0 #: @type ',
+        'alias test r0 #: @type MyDevice',
+        'alias test r0 #: @desc',
+        'alias test r0 #: @desc ',
+        'alias test r0 #: @desc "Some description"',
+        'alias test HASH("Something") #: @type MyDevice',
+    ];
+
+    it.each(aliasHintInputs)('should not crash on hint input: %s', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+        expect(program.statements.length).toBeGreaterThanOrEqual(0);
+    });
+});
+
+// ============================================================
+// 鲁棒性测试 — define 指令
+// ============================================================
+
+describe('Define robustness — incremental lexical inputs', () => {
+    const defineInputs = [
+        'define',
+        'define X',
+        'define X 1',
+        'define X 1.5',
+        'define X 0x10',
+        'define X STR',
+        'define X STR(',
+        'define X STR("',
+        'define X STR("Structure',
+        'define X STR("Structure"',
+        'define X STR("Structure")',
+        'define X HASH',
+        'define X HASH(',
+        'define X HASH("',
+        'define X HASH("ItemName',
+        'define X HASH("ItemName"',
+        'define X HASH("ItemName")',
+    ];
+
+    it.each(defineInputs)('should not crash on incremental input: %s', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+        expect(program.statements.length).toBeGreaterThanOrEqual(0);
+    });
+
+    const defineHintInputs = [
+        'define X 1 #:',
+        'define X 1 #: @type',
+        'define X 1 #: @type MyType',
+        'define X STR("Structure") #: @type MyType',
+        'define X 1 #: @desc "Constant value"',
+    ];
+
+    it.each(defineHintInputs)('should not crash on hint input: %s', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+        expect(program.statements.length).toBeGreaterThanOrEqual(0);
+    });
+});
+
+// ============================================================
+// 鲁棒性测试 — 指令语句（代表各元数）
+// ============================================================
+
+describe('Instruction robustness — representative arities', () => {
+    const nullaryInputs = [
+        'hcf',
+        'hcf extra',
+        'yield',
+        'yield extra',
+    ];
+
+    it.each(nullaryInputs)('nullary should not crash: %s', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+    });
+
+    const unaryInputs = [
+        'move',
+        'move r0',
+        'move 1',
+        'move r0 extra',
+    ];
+
+    it.each(unaryInputs)('unary should not crash: %s', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+    });
+
+    const binaryInputs = [
+        'add',
+        'add r0',
+        'add r0 r1',
+        'add r0 1',
+        'add r0 r1 extra',
+    ];
+
+    it.each(binaryInputs)('binary should not crash: %s', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+    });
+
+    const ternaryInputs = [
+        'sap',
+        'sap r0',
+        'sap r0 d0',
+        'sap r0 d0 0',
+        'sap r0 d0 0 extra',
+    ];
+
+    it.each(ternaryInputs)('ternary should not crash: %s', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+    });
+
+    const macroInputs = [
+        'move r0 STR',
+        'move r0 STR(',
+        'move r0 STR("',
+        'move r0 STR("Test"',
+        'move r0 STR("Test")',
+        'move r0 HASH',
+        'move r0 HASH(',
+        'move r0 HASH("',
+        'move r0 HASH("Test"',
+        'move r0 HASH("Test")',
+    ];
+
+    it.each(macroInputs)('instruction macro should not crash: %s', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+    });
+});
+
+// ============================================================
+// 边界值测试 — 字符串 & 混合错误
+// ============================================================
+
+describe('Robustness boundaries — mixed errors and string edge cases', () => {
+    const mixedInputs = [
+        'alias\nhcf\n',
+        'define\nhcf\n',
+        'alias test STR(\nhcf\n',
+        'define X STR(\nhcf\n',
+        'hcf\nalias\nyield\n',
+        'hcf\ndefine\nyield\n',
+        'alias test HASH("Something")\nalias bad\nyield\n',
+    ];
+
+    it.each(mixedInputs)('mixed errors should not block valid statements: %s', (input) => {
+        const {program} = parseWithDiags(input);
+        expect(program).toBeInstanceOf(Program);
+        expect(program.statements.length).toBeGreaterThanOrEqual(1);
+    });
+
+    const stringBoundaryInputs = [
+        'alias test HASH("")',
+        'alias test HASH("x")',
+        'alias test HASH("' + 'A'.repeat(1000) + '")',
+        'alias test STR("has spaces")',
+        'alias test STR("has_underscores")',
+        'alias test STR("has-dashes")',
+        'alias test STR("has.mixed.content_123")',
+    ];
+
+    it.each(stringBoundaryInputs)('string boundaries should not crash', (input) => {
+        const {program} = parseWithDiags(input + '\n');
+        expect(program).toBeInstanceOf(Program);
+    });
+});

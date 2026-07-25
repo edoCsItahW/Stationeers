@@ -799,3 +799,292 @@ TEST_F(ParserTestFixture, ErrorDoesNotBlockSubsequentStatements) {
     // 至少有2个有效语句（hcf 和 yield）
     EXPECT_GE(ast.statements.size(), 2u);
 }
+
+// ============================================================
+// 鲁棒性测试 — alias 指令
+// 等价类划分：以词法递增的方式测试解析器对不完整 alias 语句的容错能力
+// Robustness tests — alias directive
+// Equivalence class partitioning: test parser tolerance for incomplete alias statements with lexical increments
+// ============================================================
+
+TEST_F(ParserTestFixture, AliasRobustnessIncremental) {
+    // alias 语句从关键字到完整形式的逐步递增输入，验证每一步都不崩溃
+    const std::vector<std::string> inputs = {
+        "alias",
+        "alias test",
+        "alias test r0",
+        "alias test d0",
+        "alias test HASH",
+        "alias test HASH(",
+        "alias test HASH(\"",
+        "alias test HASH(\"Something",
+        "alias test HASH(\"Something\"",
+        "alias test HASH(\"Something\")",
+        "alias test STR",
+        "alias test STR(",
+        "alias test STR(\"",
+        "alias test STR(\"Equipment",
+        "alias test STR(\"Equipment\"",
+        "alias test STR(\"Equipment\")",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing alias input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
+
+TEST_F(ParserTestFixture, AliasRobustnessWithHints) {
+    // alias + type hint 的不完整形式
+    const std::vector<std::string> inputs = {
+        "alias test r0 #:",
+        "alias test r0 #: @",
+        "alias test r0 #: @type",
+        "alias test r0 #: @type ",
+        "alias test r0 #: @type MyDevice",
+        "alias test r0 #: @desc",
+        "alias test r0 #: @desc ",
+        "alias test r0 #: @desc \"Some description\"",
+        "alias test HASH(\"Something\") #: @type MyDevice",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing alias hint input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
+
+// ============================================================
+// 鲁棒性测试 — define 指令
+// Robustness tests — define directive
+// ============================================================
+
+TEST_F(ParserTestFixture, DefineRobustnessIncremental) {
+    // define 语句从关键字到完整形式的逐步递增输入
+    const std::vector<std::string> inputs = {
+        "define",
+        "define X",
+        "define X 1",
+        "define X 1.5",
+        "define X 0x10",
+        "define X STR",
+        "define X STR(",
+        "define X STR(\"",
+        "define X STR(\"Structure",
+        "define X STR(\"Structure\"",
+        "define X STR(\"Structure\")",
+        "define X HASH",
+        "define X HASH(",
+        "define X HASH(\"",
+        "define X HASH(\"ItemName",
+        "define X HASH(\"ItemName\"",
+        "define X HASH(\"ItemName\")",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing define input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
+
+TEST_F(ParserTestFixture, DefineRobustnessWithHints) {
+    // define + type hint 的不完整形式
+    const std::vector<std::string> inputs = {
+        "define X 1 #:",
+        "define X 1 #: @type",
+        "define X 1 #: @type MyType",
+        "define X STR(\"Structure\") #: @type MyType",
+        "define X 1 #: @desc \"Constant value\"",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing define hint input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
+
+// ============================================================
+// 鲁棒性测试 — 指令语句（代表各元数）
+// 等价类划分：选择0~3元指令的代表，测试不完整形式的容错
+// Robustness tests — instructions (representative arities)
+// Equivalence class partitioning: select representatives of 0~3-ary instructions, test tolerance of incomplete forms
+// ============================================================
+
+TEST_F(ParserTestFixture, InstructionRobustnessNullary) {
+    // 0元指令（hcf / yield）：测试后缀垃圾不崩溃
+    const std::vector<std::string> inputs = {
+        "hcf",
+        "hcf extra",
+        "yield",
+        "yield extra",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing nullary input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
+
+TEST_F(ParserTestFixture, InstructionRobustnessUnary) {
+    // 1元指令（move）：测试操作数不完整形式
+    const std::vector<std::string> inputs = {
+        "move",
+        "move r0",
+        "move 1",
+        "move r0 extra",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing unary input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
+
+TEST_F(ParserTestFixture, InstructionRobustnessBinary) {
+    // 2元指令（add）：测试操作数不完整形式
+    const std::vector<std::string> inputs = {
+        "add",
+        "add r0",
+        "add r0 r1",
+        "add r0 1",
+        "add r0 r1 extra",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing binary input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
+
+TEST_F(ParserTestFixture, InstructionRobustnessTernary) {
+    // 3元指令（sap）：测试操作数不完整形式
+    const std::vector<std::string> inputs = {
+        "sap",
+        "sap r0",
+        "sap r0 d0",
+        "sap r0 d0 0",
+        "sap r0 d0 0 extra",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing ternary input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
+
+TEST_F(ParserTestFixture, InstructionRobustnessWithMacroCalls) {
+    // 指令中使用 STR/HASH 宏调用的不完整形式
+    const std::vector<std::string> inputs = {
+        "move r0 STR",
+        "move r0 STR(",
+        "move r0 STR(\"",
+        "move r0 STR(\"Test\"",
+        "move r0 STR(\"Test\")",
+        "move r0 HASH",
+        "move r0 HASH(",
+        "move r0 HASH(\"",
+        "move r0 HASH(\"Test\"",
+        "move r0 HASH(\"Test\")",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing instruction macro input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
+
+TEST_F(ParserTestFixture, RobustnessMixedErrorsNotBlocking) {
+    // 混合错误场景：多个语句，部分有效、部分无效，验证不崩溃且有效语句被解析
+    const std::vector<std::string> inputs = {
+        "alias\nhcf\n",
+        "define\nhcf\n",
+        "alias test STR(\nhcf\n",
+        "define X STR(\nhcf\n",
+        "hcf\nalias\nyield\n",
+        "hcf\ndefine\nyield\n",
+        "alias test HASH(\"Something\")\nalias bad\nyield\n",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing mixed error input: " + input);
+        auto tokens = Lexer::tokenize(input);
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 1u);
+        });
+    }
+}
+
+// ============================================================
+// 边界值测试 — 字符串边界
+// Boundary value tests — string boundaries
+// ============================================================
+
+TEST_F(ParserTestFixture, RobustnessStringBoundaries) {
+    // 字符串边界值：空字符串、单个字符、超长字符串、特殊字符
+    const std::vector<std::string> inputs = {
+        "alias test HASH(\"\")",
+        "alias test HASH(\"x\")",
+        "alias test HASH(\"" + std::string(1000, 'A') + "\")",
+        "alias test STR(\"has spaces\")",
+        "alias test STR(\"has_underscores\")",
+        "alias test STR(\"has-dashes\")",
+        "alias test STR(\"has.mixed.content_123\")",
+    };
+
+    for (const auto& input : inputs) {
+        SCOPED_TRACE("Testing string boundary input: " + input);
+        auto tokens = Lexer::tokenize(input + "\n");
+        Parser parser(tokens);
+        EXPECT_NO_THROW({
+            auto ast = parser.parse();
+            EXPECT_GE(ast.statements.size(), 0u);
+        });
+    }
+}
