@@ -26,8 +26,8 @@ const resources = {
 } as const;
 
 
-export const locale = new Locale('zh-hans', resources, {
-    fallbackLocale: 'en-us',
+export const locale = new Locale('en-us', resources, {
+    fallbackLocale: 'zh-hans',
 });
 
 

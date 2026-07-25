@@ -33,19 +33,6 @@ export class ParserPipline {
     /** 增量语法分析器（内部维护缓存，用于增量解析） */
     private incParser = new IncParser();
 
-    /**
-     * 过滤 IME 组合态可能触发词法分析器崩溃的字符。
-     *
-     * 中文输入法的拼音分隔符 `'`（如 `shui'beng`）被 IC10 词法分析器
-     * 误认为单引号字符串界定符，组合态下必然产生未闭合的「字符串」，
-     * 导致 Lexer 进入死循环 / 内存溢出。
-     *
-     * IC10 语法不使用单引号，替换为 `_` 保持 1:1 字符宽度，
-     * 不影响后续解析和位置计算。
-     *
-     * @param code 原始源代码
-     * @returns 安全替换后的代码
-     */
     private sanitizeIME(code: string): string {
         return code.replace(/'/g, '_');
     }
@@ -94,22 +81,7 @@ export class ParserPipline {
         return { changed: true, source: code, tokens, ast, diagnostics, symbols: JSON.parse(symbolJson) as SymbolMap, hash };
     }
 
-    /**
-     * 增量解析接口。利用 {@link IncLexer} 和 {@link IncParser} 的增量能力，
-     * 仅重新分析发生变化的行和受影响的语句，避免全量重建 AST。
-     *
-     * 首次调用时内部缓为空，会自动通过 `tokenizeFull` / `parseFull` 建立缓存。
-     * 后续调用使用 `tokenizeInc` / `parseInc` 实现增量更新。
-     *
-     * @note IncLexer / IncParser 不暴露 diagnostics，增量路径仅包含 Linker 诊断信息。
-     *
-     * @param code  当前文档全文
-     * @param cache 文档缓存（用于哈希比对和回退）
-     * @returns 解析结果，`changed: true` 表示 AST 有变化
-     */
     public async parseInc(code: string, cache?: DocCacheValue): Promise<ParseResult> {
-        console.log("[IC10 LSP] parseInc called, hasCache:", this.incLexer.hasCache());
-
         const noop: ParseResult = {
             changed: false,
             source: code,
@@ -129,7 +101,6 @@ export class ParserPipline {
 
         // 首次调用 / 缓存失效：全量词法+语法分析以建立增量基准
         if (!this.incLexer.hasCache() || !this.incParser.hasCache()) {
-            console.log("[IC10 LSP] parseInc: seeding incremental cache (tokenizeFull + parseFull)");
 
             const sanitized = this.sanitizeIME(code);
             const lexResult = this.incLexer.tokenizeFull(sanitized);
@@ -142,7 +113,6 @@ export class ParserPipline {
             const symbolJson = linker.link().toJSON();
             diagnostics.push(...linker.diagnostics);
 
-            console.log("[IC10 LSP] parseInc: cache seeded, statements:", parseResult.ast.statements.length);
             return {
                 changed: true,
                 source: code,
@@ -155,17 +125,11 @@ export class ParserPipline {
         }
 
         // 增量词法分析
-        console.log("[IC10 LSP] parseInc: tokenizeInc start");
         const sanitized = this.sanitizeIME(code);
         const lexResult = this.incLexer.tokenizeInc(sanitized);
-        console.log("[IC10 LSP] parseInc: tokenizeInc done, incremental:", lexResult.incremental,
-            "changedStartLine:", lexResult.changedStartLine);
 
         // 增量语法分析
-        console.log("[IC10 LSP] parseInc: parseInc start");
         const parseResult = this.incParser.parseInc(lexResult.tokens, lexResult.changedStartLine);
-        console.log("[IC10 LSP] parseInc: parseInc done, incremental:", parseResult.incremental,
-            "statements:", parseResult.ast.statements.length);
 
         // 链接器（全量执行，Linker 不支持增量）
         const linker = new Linker();
@@ -175,7 +139,6 @@ export class ParserPipline {
         const symbolJson = linker.link().toJSON();
         diagnostics.push(...linker.diagnostics);
 
-        console.log("[IC10 LSP] parseInc: done, diagnostics:", diagnostics.length);
         return {
             changed: true,
             source: code,

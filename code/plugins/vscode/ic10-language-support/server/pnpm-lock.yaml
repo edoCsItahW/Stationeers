@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       ic10-node-api:
-        specifier: 2.4.0
-        version: 2.4.0
+        specifier: 2.4.1
+        version: 2.4.1
       vscode-languageserver:
         specifier: ^10.0.1
         version: 10.0.1
@@ -33,8 +33,8 @@ packages:
   '@types/vscode@1.125.0':
     resolution: {integrity: sha512-0icm/ZQAaism87P0ekHqi4/Ju9du+Tm0RUW+y7vqRsxY2cY0FNRX1nAnaW7nT6npPt2tfHiheZ55Zm9UhqonFA==}
 
-  ic10-node-api@2.4.0:
-    resolution: {integrity: sha512-nGwoo+xmNanF7fgwSDjNhaP/1nZaHjOi0jx1IZtIRQ1Qjbyu0SiOSSAtYdCCkfo3vXk3VQ+60ozh50dZPf2yYg==}
+  ic10-node-api@2.4.1:
+    resolution: {integrity: sha512-e3XnSHo8hQ7ZliiAoKbYKPM6udi2VbKJ7dH+XLZHFiApACUvW5cIVVUvIKuuvM7ejUaPWtNP0Rr/CsmK2x4IEw==}
     engines: {node: '>=16.0.0'}
 
   undici-types@8.3.0:
@@ -65,7 +65,7 @@ snapshots:
 
   '@types/vscode@1.125.0': {}
 
-  ic10-node-api@2.4.0: {}
+  ic10-node-api@2.4.1: {}
 
   undici-types@8.3.0: {}
 
