@@ -86,6 +86,22 @@ contributes:
                 default: en-us
                 description: The language displayed to users by this plugin also includes the language used by the IC10 compiler core | 该插件向用户展示的语言，也包括IC10编译器核心使用的语言
 
+    # 针对特定语言的默认编辑器设置
+    configurationDefaults:
+        '[ic10]':
+            editor.semanticHighlighting.enabled: true  # 启用语义高亮
+
+    # 语义令牌的颜色映射（覆盖主题默认颜色）
+    semanticTokenColors:
+        keyword: '#CF8E6D'
+        variable: '#AA4926'
+        function: '#56A8F5'
+        type: '#B200B2'
+        number: '#2AACB8'
+        string: '#6AAB73'
+        comment: '#7A7E85'
+        decorator: '#D35FD0'
+
 # 脚本（npm 生命周期钩子和自定义脚本）
 scripts:
     vscode:prepublish: npm run compile  # 发布前自动执行的编译命令

@@ -56,7 +56,7 @@
 			"patterns": [
 				{
 					"name": "comment.line.number-sign.ic10",
-					"match": "#[^>:].*"
+					"match": "#.*"
 				},
 				{
 					"name": "comment.line.double-slash.ic10",
@@ -105,7 +105,7 @@
 				},
 				{
 					"name": "keyword.control.branch.unary.ic10",
-					"match": "\\b(beqz|beqzal|bnez|bnezal|bgez|bgezal|bgtz|bgtzal|blez|blezal|bltz|bltzal|bnan|bnanz|bdns|bdnsal|bdse|bdseal|breqz|brnz|brgez|brgtz|brlez|brltz|brnan|brdns|brdse)\\b"
+					"match": "\\b(beqz|beqzal|bnez|bnezal|bgez|bgezal|bgtz|bgtzal|blez|blezal|bltz|bltzal|bnan|bdns|bdnsal|bdse|bdseal|breqz|brnez|brgez|brgtz|brlez|brltz|brnan|brdns|brdse)\\b"
 				},
 				{
 					"name": "keyword.operator.compare.unary.ic10",
@@ -117,7 +117,7 @@
 				},
 				{
 					"name": "keyword.operator.math.ternary.ic10",
-					"match": "\\b(add|sub|mul|div|mod|pow|atan2|max|min|lerp|ext|ins)\\b"
+					"match": "\\b(add|sub|mul|div|mod|pow|atan2|max|min|lerp|clamp|ext|ins)\\b"
 				},
 				{
 					"name": "keyword.operator.bitwise.ic10",
@@ -170,10 +170,6 @@
 				{
 					"name": "variable.language.device.ic10",
 					"match": "\\bd[0-5]\\b"
-				},
-				{
-					"name": "variable.language.device-ref.ic10",
-					"match": "@[a-zA-Z_][a-zA-Z0-9_]*"
 				}
 			]
 		},
@@ -181,11 +177,11 @@
 			"patterns": [
 				{
 					"name": "constant.numeric.hex.ic10",
-					"match": "\\b0x[0-9a-fA-F]+\\b"
+					"match": "\\$[0-9a-fA-F]+"
 				},
 				{
 					"name": "constant.numeric.binary.ic10",
-					"match": "\\b0b[01]+\\b"
+					"match": "%[01_]+"
 				},
 				{
 					"name": "constant.numeric.float.ic10",
