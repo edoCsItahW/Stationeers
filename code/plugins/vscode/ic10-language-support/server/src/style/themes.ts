@@ -23,15 +23,16 @@ export const themeSchemas = {
         },
         hover: {
             labelDef: {
-                identifier: '#ffffff'
+                identifier: '#E8BF6A',
+                type: '#ffffff'
             },
             aliasDirective: {
-                identifier: '#ffffff',
-                type: '#b0009a'
+                identifier: '#b0009a',
+                type: '#ffffff'
             },
             defineDirective: {
-                identifier: '#ffffff',
-                type: '#b0009a'
+                identifier: '#2AACB8',
+                type: '#ffffff'
             }
         },
     },

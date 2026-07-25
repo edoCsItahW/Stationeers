@@ -44,6 +44,13 @@ export default {
             type: 'Instruction',
             signature: 'signature',
             details: 'details'
+        },
+        operandType: {
+            register: "Register",
+            device: "Device",
+            number: "Number",
+            constant: "Builtin Constant",
+            error: "Unknown"
         }
     }
 };
