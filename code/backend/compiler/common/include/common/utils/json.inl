@@ -19,13 +19,13 @@ namespace stationeers::ic10 {
     template<JsonStringAble T>
     std::string toJsonString(T value) {
         static auto fmt = [](const std::string& str) -> std::string {
-            if (!str.empty())
-                if (str[0] != '"' && str[0] != '[' && str[0] != '{')
-                    return '"' + str + '"';
-                else
+            if (!str.empty()) {
+                // 已经是 JSON 字面量（对象、数组、字符串），直接返回
+                if (str[0] == '"' || str[0] == '[' || str[0] == '{')
                     return str;
-            else
-                return "\"\"";
+                return '"' + str + '"';
+            }
+            return "\"\"";
         };
         using U = std::decay_t<T>;
 
