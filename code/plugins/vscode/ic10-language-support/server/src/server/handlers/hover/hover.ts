@@ -1,11 +1,9 @@
-/*
- * Copyright (c) 2026. All rights reserved.
- * This source code is licensed under the CC BY-NC-SA
- * (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
- * This software is protected by copyright law. Reproduction, distribution, or use for commercial
- * purposes is prohibited without the author's permission. If you have any questions or require
- * permission, please contact the author: edocsitahw@qq.com
- */
+// Copyright (c) 2026. All rights reserved.
+// This source code is licensed under the CC BY-NC-SA
+// (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
+// This software is protected by copyright law. Reproduction, distribution, or use for commercial
+// purposes is prohibited without the author's permission. If you have any questions or require
+// permission, please contact the author: edocsitahw@qq.com
 
 /**
  * @file hover.ts
@@ -18,16 +16,16 @@
 
 import type { Connection } from "vscode-languageserver/node";
 
-import { t, locale } from "../../locals/locale";
-import { DocumentCache } from "../cache";
-import type { HoverContext, HoverProvider } from "./hover/types";
-import { findStatementAtPosition } from "./hover/utils";
+import type { HoverContext, HoverProvider } from "./types";
+import { t, locale } from "../../../locals/locale";
+import { findStatementAtPosition } from "./utils";
+import { DocumentCache } from "../../cache";
 import {
     LabelDefHoverProvider,
     AliasDirectiveHoverProvider,
     DefineDirectiveHoverProvider,
     InstructionHoverProvider,
-} from "./hover/providers";
+} from "./providers";
 
 
 type OnHoverHandlerType = Parameters<Connection["onHover"]>[0];
@@ -64,12 +62,11 @@ export class HoverHandler {
             t: (key, ...args) => t(key as any, ...args),
         };
 
-        for (const provider of this.providers) {
+        for (const provider of this.providers)
             if (provider.canHandle(stmt)) {
                 const result = provider.provideHover(stmt, ctx);
                 if (result) return result;
             }
-        }
 
         return { contents: [] };
     }

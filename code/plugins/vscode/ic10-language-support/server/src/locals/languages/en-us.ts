@@ -50,7 +50,12 @@ export default {
             device: "Device",
             number: "Number",
             constant: "Builtin Constant",
-            error: "Unknown"
+            error: "Unknown",
+            batchMode: "BatchMode",
+            logicSlotType: "LogicSlotType",
+            logicType: "LogicType",
+            reagentMode: "ReagentMode",
+            slotIdx: "SlotIdx"
         }
     }
 };
