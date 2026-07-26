@@ -15,6 +15,7 @@
  * */
 #include "common_node/diagnostic_adapter.hpp"
 #include "ic10_node/semantic/symbol_table_adapter.hpp"
+#include "ic10_node/semantic/type_table_adapter.hpp"
 #include "ic10_node/semantic/analyser_adapter.hpp"
 #include "ic10/semantic/analyser.hpp"
 #include "ic10_node/parser/ast_adapter.hpp"
@@ -32,9 +33,11 @@ namespace stationeers::ic10 {
 // reslove MSVC ICE C1001
 #ifdef _MSC_VER
                 InstanceAccessor("symbolTable", &AnalyserAdapter::getSymbolTable, nullptr),
+                InstanceAccessor("typeTable", &AnalyserAdapter::getTypeTable, nullptr),
                 InstanceAccessor("diagnostics", &AnalyserAdapter::getDiagnostics, nullptr),
 #else
                 InstanceAccessor<&AnalyserAdapter::getSymbolTable>("symbolTable"),
+                InstanceAccessor<&AnalyserAdapter::getTypeTable>("typeTable"),
                 InstanceAccessor<&AnalyserAdapter::getDiagnostics>("diagnostics"),
 #endif
                 StaticMethod<&analyse>("analyse"),
@@ -71,6 +74,10 @@ namespace stationeers::ic10 {
 
     node::Value AnalyserAdapter::getSymbolTable(const node::CallbackInfo& info) {
         return SymbolTableAdapter::to(info.Env(), analyser_.getSymbolTable());
+    }
+
+    node::Value AnalyserAdapter::getTypeTable(const node::CallbackInfo& info) {
+        return TypeTableAdapter::to(info.Env(), analyser_.getTypeTable());
     }
 
     node::Value AnalyserAdapter::getDiagnostics(const node::CallbackInfo& info) {

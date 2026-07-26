@@ -152,6 +152,21 @@ namespace stationeers::ic10 {
         /**
          * @if zh
          *
+         * @brief 获取类型表
+         * @return 类型表引用
+         *
+         * @elseif en
+         *
+         * @brief Get type table
+         * @return Type table reference
+         *
+         * @endif
+         */
+        TypeTable& getTypeTable() const;
+
+        /**
+         * @if zh
+         *
          * @brief 访问程序节点
          * @param program 程序节点
          * @return 协程任务
