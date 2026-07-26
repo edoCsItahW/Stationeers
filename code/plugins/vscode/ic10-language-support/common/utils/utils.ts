@@ -15,6 +15,8 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+import {Optional} from "../types/utils";
+
 
 export interface PropertyOptions<This, Value> {
     setterChecker?: (value: Value) => boolean;
@@ -118,6 +120,61 @@ export function upperBound<T>(arr: T[], pred: (item: T) => boolean): number {
     }
 
     return low - 1; // 最后一个 true 的索引，如果都不满足则返回 -1
+}
+
+
+/**
+ * 在无序数组中，找出满足指定条件的最大元素
+ * @param arr 待搜索的数组（无序）
+ * @param condition 判断元素是否可参与候选
+ * @param compare 比较函数，返回负数表示 a < b，0 相等，正数表示 a > b
+ * @returns 满足条件的最大元素，若无则返回 undefined
+ */
+export function findMaxByCondition<T>(
+    arr: T[],
+    condition: (item: T) => boolean,
+    compare: (a: T, b: T) => number = defaultCompare
+): Optional<T> {
+    let best: T | undefined;
+
+    for (const item of arr) {
+        if (!condition(item)) continue;
+        if (best === undefined || compare(item, best) > 0)
+            best = item;
+
+    }
+
+    return best;
+}
+
+
+/**
+ * 在无序数组中，找出满足指定条件的最小元素
+ * @param arr 待搜索的数组（无序）
+ * @param condition 判断元素是否可参与候选
+ * @param compare 比较函数，返回负数表示 a < b，0 相等，正数表示 a > b
+ * @returns 满足条件的最小元素，若无则返回 undefined
+ */
+export function findMinByCondition<T>(
+    arr: T[],
+    condition: (item: T) => boolean,
+    compare: (a: T, b: T) => number = defaultCompare
+): Optional<T> {
+    let best: T | undefined;
+
+    for (const item of arr) {
+        if (!condition(item)) continue;
+        if (best === undefined || compare(item, best) < 0)
+            best = item;
+
+    }
+
+    return best;
+}
+
+
+function defaultCompare<T>(a: T, b: T): number {
+    return (a as any) - (b as any);
 }
 
 

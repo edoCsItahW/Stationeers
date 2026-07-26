@@ -20,6 +20,7 @@ import {Optional, Nullable} from "../../../../common/types/utils";
 
 
 export interface DocCacheValue {
+    source: string;
     tokens: Token[];
     ast: Optional<Program>;
     diagnostics: Diagnostic[];
@@ -32,6 +33,7 @@ export class DocumentCache {
 
     initDocument(uri: string): void {
         this.caches.set(uri, {
+            source: "",
             tokens: [],
             ast: undefined,
             diagnostics: [],

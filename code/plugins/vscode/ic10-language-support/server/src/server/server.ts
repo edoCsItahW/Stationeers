@@ -21,6 +21,7 @@ import type {Connection} from "vscode-languageserver/node";
 
 import {SemanticTokenHandler} from "./handlers/semanticToken";
 import {SettingsManager} from "./services/settingsManager";
+import {CompletionHandler} from "./handlers/completion";
 import {DiagnosticHandler} from "./handlers/diagnostic";
 import {Console} from "../../../common/exception/debug";
 import {ParserPipline} from "./services/parserPipline";
@@ -37,12 +38,13 @@ type OnDidChangeContentHandlerType = Parameters<TextDocuments<TextDocument>["onD
 
 
 export class Server {
-    private settingMgr: SettingsManager;
-    private readonly docCache: DocumentCache;
-    private readonly globalCache: GlobalCache;
+    private readonly semanticHandler: SemanticTokenHandler;
+    private readonly diagHandler: DiagnosticHandler;
     private readonly hoverHandler: HoverHandler;
-    private diagHandler: DiagnosticHandler;
-    private semanticHandler: SemanticTokenHandler;
+    private readonly globalCache: GlobalCache;
+    private readonly docCache: DocumentCache;
+    private readonly compHandler: CompletionHandler;
+    private settingMgr: SettingsManager;
     private pipline: ParserPipline;
     /** 解析版本号，用于丢弃过期结果 */
     private parseVersion = 0;
@@ -60,6 +62,7 @@ export class Server {
         this.hoverHandler = new HoverHandler(this.docCache);
         this.diagHandler = new DiagnosticHandler(this.docCache);
         this.semanticHandler = new SemanticTokenHandler(this.docCache);
+        this.compHandler = new CompletionHandler(this.docCache);
 
         this.pipline = new ParserPipline();
     }
@@ -80,6 +83,8 @@ export class Server {
             this.connection.languages.diagnostics.on(this.diagHandler.handle.bind(this.diagHandler));
             this.connection.languages.semanticTokens.on(this.semanticHandler.handle.bind(this.semanticHandler));
             this.connection.languages.semanticTokens.onRange(this.semanticHandler.handleRange.bind(this.semanticHandler));
+            this.connection.onCompletion(this.compHandler.handle.bind(this.compHandler));
+            this.connection.onCompletionResolve(this.compHandler.handleResolve.bind(this.compHandler));
 
             // 文档监听
             this.documents.onDidOpen(this.onDidOpen.bind(this));

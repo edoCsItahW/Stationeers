@@ -28,7 +28,7 @@ import type { HoverContext } from "./types";
 /**
  * Find the statement at the given line using binary search.
  */
-export function findStatementAtPosition(statements: StatementNode[], line: number): StatementNode | null {
+export function findStatementAtPosition(statements: StatementNode[], line: number): Nullable<StatementNode> {
     const idx = lowerBound(statements, (item) => item.position.line >= line);
     return (idx >= 0 && idx < statements.length) ? statements[idx] : null;
 }
