@@ -15,14 +15,14 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { DidChangeConfigurationNotification } from "vscode-languageserver/node";
-import type { Connection, InitializeResult } from "vscode-languageserver";
-import { IC10Local } from "ic10-node-api";
+import {DidChangeConfigurationNotification} from "vscode-languageserver/node";
+import type {Connection, InitializeResult} from "vscode-languageserver";
+import {IC10Local} from "ic10-node-api";
 
-import { TOKEN_TYPES, TOKEN_MODIFIERS } from "../handlers/semanticToken";
-import { CONFIGURATION_SECTION_NAME } from "../../../../common/utils";
-import { DocumentCache, GlobalCache } from "../cache";
-import { locale } from "../../locals/locale";
+import {TOKEN_TYPES, TOKEN_MODIFIERS} from "../handlers/semanticToken";
+import {CONFIGURATION_SECTION_NAME} from "../../../../common/utils";
+import {DocumentCache, GlobalCache} from "../cache";
+import {locale} from "../../locals/locale";
 
 
 export interface Settings {
@@ -43,7 +43,7 @@ const DEFAULT_SETTINGS: Settings = {
 
 
 export class SettingsManager {
-    private settings: Settings = { ...DEFAULT_SETTINGS };
+    private settings: Settings = {...DEFAULT_SETTINGS};
 
     constructor(
         private connection: Connection,
@@ -77,12 +77,18 @@ export class SettingsManager {
                         delta: false
                     },
                     range: false
+                },
+
+                // 代码补全
+                completionProvider: {
+                    resolveProvider: true,
+                    triggerCharacters: [" ", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "l", "m", "n", "o", "p", "r", "s", "t", "x", "y"]
                 }
             }
         };
 
         if (this.globalCache.flag.workspaceCfg)
-            result.capabilities.workspace = { workspaceFolders: { supported: true } };
+            result.capabilities.workspace = {workspaceFolders: {supported: true}};
 
         this.settingGlobalLocale(this.settings.language);
 
@@ -96,7 +102,7 @@ export class SettingsManager {
 
         if (this.globalCache.flag.workspaceCfg)
             this.connection.workspace.getConfiguration(CONFIGURATION_SECTION_NAME).then(cfg => {
-                this.settings = { ...this.settings, ...cfg };
+                this.settings = {...this.settings, ...cfg};
 
                 this.settingGlobalLocale(this.settings.language);
 
@@ -111,7 +117,7 @@ export class SettingsManager {
             : params.settings?.[CONFIGURATION_SECTION_NAME] || {};
 
         if (change) {
-            this.settings = { ...this.settings, ...(change instanceof Promise ? await change : change) };
+            this.settings = {...this.settings, ...(change instanceof Promise ? await change : change)};
 
             this.settingGlobalLocale(this.settings.language);
 
