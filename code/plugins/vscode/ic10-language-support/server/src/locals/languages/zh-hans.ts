@@ -50,7 +50,12 @@ export default {
             device: "设备",
             number: "数值",
             constant: "内置常量",
-            error: "未知"
+            error: "未知",
+            batchMode: "批模式",
+            logicSlotType: "逻辑槽类型",
+            logicType: "逻辑类型",
+            reagentMode: "试剂模式",
+            slotIdx: "槽索引"
         }
     }
 };

@@ -33,6 +33,10 @@ export const themeSchemas = {
             defineDirective: {
                 identifier: '#2AACB8',
                 type: '#ffffff'
+            },
+            contant: {
+                identifier: '#ffffff',
+                type: '#C77DBB'
             }
         },
     },
@@ -52,6 +56,10 @@ export const themeSchemas = {
             defineDirective: {
                 identifier: '#1a1a1a',
                 type: '#b0009a'
+            },
+            contant: {
+                identifier: '#1a1a1a',
+                type: '#C77DBB'
             }
         }
     },

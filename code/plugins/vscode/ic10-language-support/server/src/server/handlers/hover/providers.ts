@@ -17,6 +17,7 @@ import {
     IdentifierNode,
     LabelDefNode,
     OperandNode,
+    OperandType,
     StatementNode,
     TypeCategory,
     TypeOfNode,
@@ -24,10 +25,12 @@ import {
 } from "ic10-node-api";
 
 import {INS_LOCAL_MAP, INS_META_MAP} from "../../../mateData";
-import svgBuilder from "../../../utils/svgBuilder";
-import {s} from "../../../style";
 import {operandValueLength} from "../../../utils/astHelper";
+import {Nullable} from "../../../../../common/types/utils";
 import type {HoverContext, HoverProvider} from "./types";
+import svgBuilder from "../../../utils/svgBuilder";
+import {t} from "../../../locals/locale";
+import {s} from "../../../style";
 import {
     findOperand,
     formatBasicType,
@@ -37,7 +40,6 @@ import {
     isInstruction,
     provideOperandHover
 } from "./utils";
-import {Nullable} from "../../../../../common/types/utils";
 
 
 // ==================== LabelDef Provider ====================
@@ -192,13 +194,13 @@ export class InstructionHoverProvider implements HoverProvider {
 
     provideHover(node: StatementNode, ctx: HoverContext): Nullable<Hover> {
         const stmt = node as Exclude<ExecutableInstructionNode, ErrorNode>;
-        const result = findOperand(stmt, ctx.character);
+        const { result, index } = findOperand(stmt, ctx.character);
 
         if (typeof result === "string")
             return this.provideKeywordHover(result, stmt, ctx);
 
         if (result.type === "Identifier")
-            return this.provideIdentifierHover(result, ctx);
+            return this.provideIdentifierHover(result, ctx, index > 0 ? stmt[`type${index}` as keyof typeof stmt] as unknown as OperandType : undefined);
 
         return provideOperandHover(result, ctx);
     }
@@ -228,15 +230,54 @@ export class InstructionHoverProvider implements HoverProvider {
 
     private provideIdentifierHover(
         operand: OperandNode,
-        ctx: HoverContext
+        ctx: HoverContext,
+        type?: OperandType
     ): Nullable<Hover> {
         const ident = operand as IdentifierNode;
         if (!isInsideNode(ident.position.column, ident.value.length, ctx.character))
             return {contents: []};
 
         const symbol = ctx.symbols?.[ident.value];
-        if (!symbol)
+        if (!symbol) {
+            if (type) {
+                let text: string = "";
+                let tp: string = "";
+
+                switch (type) {
+                    case OperandType.BATCH_MODE:
+                        text = t("hover.operandType.batchMode");
+                        tp = "BatchMode";
+                        break;
+                    case OperandType.LOGIC_SLOT:
+                        text = t("hover.operandType.logicSlotType");
+                        tp = "LogicSlotType";
+                        break;
+                    case OperandType.LOGIC_TYPE:
+                        text = t("hover.operandType.logicType");
+                        tp = "LogicType";
+                        break;
+                    case OperandType.REAGENT_MODE:
+                        text = t("hover.operandType.reagentMode");
+                        tp = "ReagentMode";
+                        break;
+                    case OperandType.SLOT_IDX:
+                        text = t("hover.operandType.slotIdx");
+                        tp = "SlotIndex";
+                        break;
+                }
+
+                svgBuilder.addSegments([
+                    {text: `(${text ?? "unknown"}) `},
+                    {text: ident.value, color: s("hover.contant.identifier")},
+                    {text: ": "},
+                    {text: tp, color: s("hover.contant.type")}
+                ]);
+
+                return { contents: { kind: "markdown", value: svgBuilder.build() } };
+            }
+
             return {contents: {kind: "markdown", value: ident.value}};
+        }
 
         let prefix = "";
         let color = "";
