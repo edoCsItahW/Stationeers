@@ -223,6 +223,31 @@ namespace stationeers::ic10 {
          * @private @memberof AnalyserAdapter
          */
         node::Value getSymbolTable(const node::CallbackInfo& info);
+
+        /**
+         * @if zh
+         *
+         * @brief 获取类型表
+         * @details 返回语义分析过程中构建的类型表
+         *
+         * @param info Node.js回调信息对象
+         * @return 类型表的JavaScript对象
+         *
+         *
+         * @elseif en
+         *
+         * @brief Get type table
+         * @details Returns the type table constructed during the semantic analysis process
+         *
+         * @param info Node.js callback information object
+         * @return JavaScript object of the type table
+         *
+         *
+         * @endif
+         *
+         * @private @memberof AnalyserAdapter
+         */
+        node::Value getTypeTable(const node::CallbackInfo& info);
     };
 
 }  // namespace stationeers::ic10

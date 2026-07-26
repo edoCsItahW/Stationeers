@@ -425,6 +425,21 @@ namespace stationeers::ic10 {
          */
         [[nodiscard]] const CustomType* find(const std::string& name) const;
 
+        /**
+         * @if zh
+         *
+         * @brief 转换为JSON格式
+         * @return JSON格式的字符串
+         *
+         * @elseif en
+         *
+         * @brief Convert to JSON format
+         * @return JSON format string
+         *
+         * @endif
+         */
+        [[nodiscard]] std::string toJSON() const;
+
     private:
         /** @if zh @brief 类型存储映射表 @else @brief Type storage map @endif */
         std::unordered_map<std::string, CustomType> types_;

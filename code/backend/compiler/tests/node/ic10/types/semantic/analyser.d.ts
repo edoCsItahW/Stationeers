@@ -17,6 +17,7 @@
 import {Diagnostic} from "../common";
 import {Program} from "../parser";
 import {SymbolTable} from "./semantic";
+import {TypeTable} from "./type_table";
 
 
 /**
@@ -61,6 +62,13 @@ export class Analyser {
      * @desc 分析过程中构建的符号表，包含所有定义的符号信息。
      */
     get symbolTable(): SymbolTable;
+
+    /**
+     * @summary 类型表
+     *
+     * @desc 分析过程中构建的类型表，包含所有自定义类型（设备类型和枚举类型）。
+     */
+    get typeTable(): TypeTable;
 
     /**
      * @summary 诊断列表
