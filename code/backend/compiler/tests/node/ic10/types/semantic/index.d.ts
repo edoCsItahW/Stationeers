@@ -16,3 +16,4 @@
 export * from "./analyser";
 export * from "./semantic";
 export * from "./types";
+export * from "./type_table";

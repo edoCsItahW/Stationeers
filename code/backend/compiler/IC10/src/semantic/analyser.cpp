@@ -55,6 +55,8 @@ namespace stationeers::ic10 {
         return reporter_->getDiagnostics();
     }
 
+    TypeTable& Analyser::getTypeTable() const { return *typeTable_; }
+
     // 访问 Program：逐条遍历语句，结束后清理未决 Future
     Task<> Analyser::visit(const Program& program) {
         for (const auto& stmt : program.statements)
