@@ -18,11 +18,11 @@ import type {
     ErrorNode
 } from "ic10-node-api";
 
+import {Nullable, type Optional} from "../../../../../common/types/utils";
 import {lowerBound, getEnumName} from "../../../../../common/utils";
-import {type Optional} from "../../../../../common/types/utils";
 import {groupHandlers, visit} from "../../../utils/astHelper";
-import svgBuilder from "../../../utils/svgBuilder";
 import { operandValueLength } from "../../../utils/astHelper";
+import svgBuilder from "../../../utils/svgBuilder";
 import type { HoverContext } from "./types";
 
 /**
@@ -45,23 +45,28 @@ export function isInsideNode(col: number, length: number, character: number): bo
 /**
  * Find the operand at a given character position in an instruction, or return the keyword string.
  */
-export function findOperand(node: Exclude<ExecutableInstructionNode, ErrorNode>, a: number): OperandNode | string {
+export function findOperand(node: Exclude<ExecutableInstructionNode, ErrorNode>, a: number): { result: OperandNode | string; index: number; } {
     let maxCol = -Infinity;
-    let foundOperand: OperandNode | null = null;
+    let foundOperand: Nullable<OperandNode> = null;
+    let index = -1;
 
     for (const key in node)
         if (key.startsWith('operand')) {
-            const operand = (node as any)[key] as OperandNode | undefined;
+            const operand: Optional<OperandNode> = (node as any)[key];
             if (operand && operand.position && typeof operand.position.column === 'number') {
                 const col = operand.position.column;
                 if (col <= a && col > maxCol) {
                     maxCol = col;
                     foundOperand = operand;
+                    index = Number(key.replace('operand', ''));
                 }
             }
         }
 
-    return foundOperand !== null ? foundOperand : node.keyword;
+    return {
+        result: foundOperand !== null ? foundOperand : node.keyword,
+        index
+    };
 }
 
 /**

@@ -30,5 +30,5 @@ export interface HoverProvider {
     /** Whether this provider can handle the given statement. */
     canHandle(node: StatementNode): boolean;
     /** Generate hover content. Return null if the cursor is not on a relevant position. */
-    provideHover(node: StatementNode, ctx: HoverContext): Hover | null;
+    provideHover(node: StatementNode, ctx: HoverContext): Nullable<Hover>;
 }
