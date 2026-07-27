@@ -28,6 +28,8 @@ from ic10_python import (
     Program,
     Analyser,
     SymbolTable,
+    Linker,
+    TypeTable,
     TokenType,
     TokenCategory,
 )
@@ -157,3 +159,64 @@ class TestSymbolTable:
         st = SymbolTable()
         json_str = st.toJSON()
         assert isinstance(json_str, str)
+
+
+class TestLinker:
+    """Tests for the Linker class."""
+
+    def test_create_instance(self):
+        linker = Linker()
+        assert isinstance(linker, Linker)
+
+    def test_link_single_unit(self):
+        linker = Linker()
+        linker.addUnit("alias dev d0\nhcf\n")
+        symtab = linker.link()
+        assert isinstance(symtab, SymbolTable)
+
+    def test_diagnostics_after_link(self):
+        linker = Linker()
+        linker.addUnit("alias dev d0\nhcf\n")
+        linker.link()
+        assert isinstance(linker.diagnostics, list)
+
+    def test_units_after_link(self):
+        linker = Linker()
+        linker.addUnit("alias dev d0\nhcf\n")
+        linker.link()
+        assert isinstance(linker.units, list)
+
+    def test_type_table_after_link(self):
+        linker = Linker()
+        linker.addUnit("alias dev d0\nhcf\n")
+        linker.link()
+        type_table = linker.type_table
+        assert isinstance(type_table, TypeTable)
+        assert type_table.toJSON() is not None
+
+    def test_type_table_with_device_type(self):
+        linker = Linker()
+        linker.addUnit(
+            "#> @device\n"
+            "#> @name Sensor\n"
+            "#> @logic Pressure rw\n"
+            "#> @end-device\n"
+        )
+        linker.addUnit("alias s d0 #: @type Sensor\nhcf\n")
+        linker.link()
+        json_str = linker.type_table.toJSON()
+        assert "Sensor" in json_str
+
+    def test_type_table_with_enum_type(self):
+        linker = Linker()
+        linker.addUnit(
+            "#> @enum\n"
+            "#> @name ReagentMode\n"
+            "#> @value Contents 0\n"
+            "#> @value Required 1\n"
+            "#> @end-enum\n"
+        )
+        linker.addUnit("alias f d0\nhcf\n")
+        linker.link()
+        json_str = linker.type_table.toJSON()
+        assert "ReagentMode" in json_str

@@ -16,6 +16,7 @@
 import { Diagnostic } from "./common";
 import { Program } from "./parser";
 import { SymbolTable } from "./semantic";
+import { TypeTable } from "./semantic/type_table";
 
 
 /**
@@ -144,4 +145,12 @@ export class Linker {
      * @desc 所有已添加的编译单元信息，每个单元包含路径和诊断信息。
      */
     get units(): UnitInfo[];
+
+    /**
+     * @summary 全局类型表
+     *
+     * @desc 链接过程中合并的全局类型表，包含所有编译单元通过文档注释定义的设备类型和枚举类型。
+     *       应在调用 {@link Linker.link} 之后访问以获取完整结果。
+     */
+    get typeTable(): TypeTable;
 }

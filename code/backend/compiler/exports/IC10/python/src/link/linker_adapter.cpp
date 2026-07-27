@@ -146,6 +146,19 @@ namespace stationeers::ic10 {
                 @return List of UnitInfo objects
                 @endif
             )"
+            )
+            .def_property_readonly(
+                "type_table",
+                [](Linker& self) -> TypeTable& { return self.getTypeTable(); },
+                R"(
+                @if zh
+                @brief 获取全局类型表
+                @return 链接过程中合并的全局TypeTable对象
+                @elseif en
+                @brief Get global type table
+                @return Merged global TypeTable object from linking
+                @endif
+            )"
             );
     }
 
