@@ -1,32 +1,32 @@
 {
     "Charge": {
         "desc": {
-            "en": "Returns the charge of the item in this slot",
-            "zh": "返回该槽位中的物品的电量"
+            "en-us": "Returns the charge of the item in this slot",
+            "zh-hans": "返回该槽位中的物品的电量"
         }
     },
     "ChargeRatio": {
         "desc": {
-            "en": "Returns the ratio of the current charge to the maximum charge of the item in this slot (0 to 1)",
-            "zh": "返回该槽位中的物品的当前电量与其最大电量的比值(0至1)"
+            "en-us": "Returns the ratio of the current charge to the maximum charge of the item in this slot (0 to 1)",
+            "zh-hans": "返回该槽位中的物品的当前电量与其最大电量的比值(0至1)"
         }
     },
     "Class": {
         "desc": {
-            "en": "Returns the Class value of the item in this slot",
-            "zh": "返回该槽位中的物品的分类(Class)值"
+            "en-us": "Returns the Class value of the item in this slot",
+            "zh-hans": "返回该槽位中的物品的分类(Class)值"
         }
     },
     "Damage": {
         "desc": {
-            "en": "Returns the damage state of the item in this slot",
-            "zh": "返回该槽位中的物品的损坏状态"
+            "en-us": "Returns the damage state of the item in this slot",
+            "zh-hans": "返回该槽位中的物品的损坏状态"
         }
     },
     "Efficiency": {
         "desc": {
-            "en": "Returns the growth rate coefficient of the plant in this slot",
-            "zh": "返回该槽位中的植物的生长率系数"
+            "en-us": "Returns the growth rate coefficient of the plant in this slot",
+            "zh-hans": "返回该槽位中的植物的生长率系数"
         }
     },
     "FilterType": {
@@ -34,14 +34,14 @@
     },
     "FreeSlots": {
         "desc": {
-            "en": "The number of free slots in this object",
-            "zh": "此物体中的空闲槽位数量"
+            "en-us": "The number of free slots in this object",
+            "zh-hans": "此物体中的空闲槽位数量"
         }
     },
     "Growth": {
         "desc": {
-            "en": "Returns the current growth stage of the plant in this slot",
-            "zh": "返回该槽位中的植物的当前生长阶段"
+            "en-us": "Returns the current growth stage of the plant in this slot",
+            "zh-hans": "返回该槽位中的植物的当前生长阶段"
         }
     },
     "HarvestedHash": {
@@ -49,14 +49,14 @@
     },
     "Health": {
         "desc": {
-            "en": "Returns the health status of the plant in this slot",
-            "zh": "返回该槽位中的植物的健康状况"
+            "en-us": "Returns the health status of the plant in this slot",
+            "zh-hans": "返回该槽位中的植物的健康状况"
         }
     },
     "LineNumber": {
         "desc": {
-            "en": "The current line number being executed by the IC chip code running on this device. This value supports writing, but please use it with caution",
-            "zh": "在此设备上运行的IC芯片代码当前执行的行号. 虽然该值支持写入, 但请谨慎使用"
+            "en-us": "The current line number being executed by the IC chip code running on this device. This value supports writing, but please use it with caution",
+            "zh-hans": "在此设备上运行的IC芯片代码当前执行的行号. 虽然该值支持写入, 但请谨慎使用"
         }
     },
     "Lock": {
@@ -64,20 +64,20 @@
     },
     "Mature": {
         "desc": {
-            "en": "Returns the growth state of the plant in this slot, 0 for not growing, 1 for growing",
-            "zh": "返回该槽位中的植物的生长状态, 0为未生长, 1为生长"
+            "en-us": "Returns the growth state of the plant in this slot, 0 for not growing, 1 for growing",
+            "zh-hans": "返回该槽位中的植物的生长状态, 0为未生长, 1为生长"
         }
     },
     "MaturityRatio": {
         "desc": {
-            "en": "The maturity progress of the plant, expressed as a fraction between 0 and 1, 1 means mature and ready for harvest",
-            "zh": "植物成熟的进度, 以0到1之间的分数表示, 1表示成熟并准备收获。"
+            "en-us": "The maturity progress of the plant, expressed as a fraction between 0 and 1, 1 means mature and ready for harvest",
+            "zh-hans": "植物成熟的进度, 以0到1之间的分数表示, 1表示成熟并准备收获。"
         }
     },
     "MaxQuantity": {
         "desc": {
-            "en": "Returns the maximum stackable quantity of the item in this slot",
-            "zh": "返回该槽位中的物品在堆叠时能达到的最大数量"
+            "en-us": "Returns the maximum stackable quantity of the item in this slot",
+            "zh-hans": "返回该槽位中的物品在堆叠时能达到的最大数量"
         }
     },
     "Mode": {
@@ -85,20 +85,20 @@
     },
     "None": {
         "desc": {
-            "en": "No description",
-            "zh": "无说明"
+            "en-us": "No description",
+            "zh-hans": "无说明"
         }
     },
     "OccupantHash": {
         "desc": {
-            "en": "Returns the hash value of the item in this slot",
-            "zh": "返回该槽位中物品的哈希值"
+            "en-us": "Returns the hash value of the item in this slot",
+            "zh-hans": "返回该槽位中物品的哈希值"
         }
     },
     "Occupied": {
         "desc": {
-            "en": "Returns 0 if the slot is unoccupied, 1 if occupied",
-            "zh": "当槽位未被占用返回0, 被占用时返回1"
+            "en-us": "Returns 0 if the slot is unoccupied, 1 if occupied",
+            "zh-hans": "当槽位未被占用返回0, 被占用时返回1"
         }
     },
     "true": {
@@ -109,50 +109,50 @@
     },
     "PrefabHash": {
         "desc": {
-            "en": "Returns the hash value of this slot structure",
-            "zh": "返回该槽位结构的哈希值"
+            "en-us": "Returns the hash value of this slot structure",
+            "zh-hans": "返回该槽位结构的哈希值"
         }
     },
     "Pressure": {
         "desc": {
-            "en": "Returns the internal pressure of the item in this slot",
-            "zh": "返回该槽位中的物品内部的压强"
+            "en-us": "Returns the internal pressure of the item in this slot",
+            "zh-hans": "返回该槽位中的物品内部的压强"
         }
     },
     "PressureAir": {
         "desc": {
-            "en": "Returns the pressure value of the spacesuit oxygen tank in this slot",
-            "zh": "返回该槽位中的太空服氧气罐的压强值"
+            "en-us": "Returns the pressure value of the spacesuit oxygen tank in this slot",
+            "zh-hans": "返回该槽位中的太空服氧气罐的压强值"
         }
     },
     "PressureWaste": {
         "desc": {
-            "en": "Returns the pressure value of the spacesuit waste gas tank in this slot",
-            "zh": "返回该槽位中的太空服废气罐的压强值"
+            "en-us": "Returns the pressure value of the spacesuit waste gas tank in this slot",
+            "zh-hans": "返回该槽位中的太空服废气罐的压强值"
         }
     },
     "Quantity": {
         "desc": {
-            "en": "Returns the quantity of the item in this slot, such as stack quantity",
-            "zh": "返回该槽位中的物品的数量, 比如堆叠数量"
+            "en-us": "Returns the quantity of the item in this slot, such as stack quantity",
+            "zh-hans": "返回该槽位中的物品的数量, 比如堆叠数量"
         }
     },
     "ReferenceId": {
         "desc": {
-            "en": "The unique reference identifier of this object",
-            "zh": "本对象的唯一参考标识符"
+            "en-us": "The unique reference identifier of this object",
+            "zh-hans": "本对象的唯一参考标识符"
         }
     },
     "Seeding": {
         "desc": {
-            "en": "Whether the plant has produced seeds. 1 for seeded, 0 for not seeded",
-            "zh": "植物是否已经结出种子. 1为已结种, 0为未结种"
+            "en-us": "Whether the plant has produced seeds. 1 for seeded, 0 for not seeded",
+            "zh-hans": "植物是否已经结出种子. 1为已结种, 0为未结种"
         }
     },
     "SeedingRatio": {
         "desc": {
-            "en": "The progress of the plant towards seeding, expressed as a fraction between 0 and 1, 1 means seeded and will provide seeds when harvested",
-            "zh": "植物朝向结籽的进度, 以0到1之间的分数表示, 1表示已经结种并在收获时提供种子."
+            "en-us": "The progress of the plant towards seeding, expressed as a fraction between 0 and 1, 1 means seeded and will provide seeds when harvested",
+            "zh-hans": "植物朝向结籽的进度, 以0到1之间的分数表示, 1表示已经结种并在收获时提供种子."
         }
     },
     "SortingClass": {
@@ -160,14 +160,14 @@
     },
     "Temperature": {
         "desc": {
-            "en": "Returns the internal temperature of the item in this slot",
-            "zh": "返回该槽位中的物品内部的的温度"
+            "en-us": "Returns the internal temperature of the item in this slot",
+            "zh-hans": "返回该槽位中的物品内部的的温度"
         }
     },
     "TotalSlots": {
         "desc": {
-            "en": "The total number of slots in this object",
-            "zh": "此物体中的槽位总数"
+            "en-us": "The total number of slots in this object",
+            "zh-hans": "此物体中的槽位总数"
         }
     },
     "Volume": {

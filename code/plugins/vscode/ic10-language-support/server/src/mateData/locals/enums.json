@@ -1,3424 +1,3424 @@
 {
     "AirCon": {
         "desc": {
-            "en": "Air Conditioner Mode",
-            "zh": "空调模式"
+            "en-us": "Air Conditioner Mode",
+            "zh-hans": "空调模式"
         },
         "enums": {
             "Cold": {
                 "desc": {
-                    "en": "Cold",
-                    "zh": "冷"
+                    "en-us": "Cold",
+                    "zh-hans": "冷"
                 }
             },
             "Hot": {
                 "desc": {
-                    "en": "Hot",
-                    "zh": "热"
+                    "en-us": "Hot",
+                    "zh-hans": "热"
                 }
             }
         }
     },
     "AirControl": {
         "desc": {
-            "en": "Air Control",
-            "zh": "空气控制"
+            "en-us": "Air Control",
+            "zh-hans": "空气控制"
         },
         "enums": {
             "Draught": {
                 "desc": {
-                    "en": "Draught",
-                    "zh": "通风"
+                    "en-us": "Draught",
+                    "zh-hans": "通风"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             },
             "Offline": {
                 "desc": {
-                    "en": "Offline",
-                    "zh": "离线"
+                    "en-us": "Offline",
+                    "zh-hans": "离线"
                 }
             },
             "Pressure": {
                 "desc": {
-                    "en": "Pressure",
-                    "zh": "压力"
+                    "en-us": "Pressure",
+                    "zh-hans": "压力"
                 }
             }
         }
     },
     "Color": {
         "desc": {
-            "en": "Color",
-            "zh": "颜色"
+            "en-us": "Color",
+            "zh-hans": "颜色"
         },
         "enums": {
             "Black": {
                 "desc": {
-                    "en": "Black",
-                    "zh": "黑色"
+                    "en-us": "Black",
+                    "zh-hans": "黑色"
                 }
             },
             "Blue": {
                 "desc": {
-                    "en": "Blue",
-                    "zh": "蓝色"
+                    "en-us": "Blue",
+                    "zh-hans": "蓝色"
                 }
             },
             "Brown": {
                 "desc": {
-                    "en": "Brown",
-                    "zh": "棕色"
+                    "en-us": "Brown",
+                    "zh-hans": "棕色"
                 }
             },
             "Gray": {
                 "desc": {
-                    "en": "Gray",
-                    "zh": "灰色"
+                    "en-us": "Gray",
+                    "zh-hans": "灰色"
                 }
             },
             "Green": {
                 "desc": {
-                    "en": "Green",
-                    "zh": "绿色"
+                    "en-us": "Green",
+                    "zh-hans": "绿色"
                 }
             },
             "Khaki": {
                 "desc": {
-                    "en": "Khaki",
-                    "zh": "卡其色"
+                    "en-us": "Khaki",
+                    "zh-hans": "卡其色"
                 }
             },
             "Orange": {
                 "desc": {
-                    "en": "Orange",
-                    "zh": "橙色"
+                    "en-us": "Orange",
+                    "zh-hans": "橙色"
                 }
             },
             "Pink": {
                 "desc": {
-                    "en": "Pink",
-                    "zh": "粉色"
+                    "en-us": "Pink",
+                    "zh-hans": "粉色"
                 }
             },
             "Purple": {
                 "desc": {
-                    "en": "Purple",
-                    "zh": "紫色"
+                    "en-us": "Purple",
+                    "zh-hans": "紫色"
                 }
             },
             "Red": {
                 "desc": {
-                    "en": "Red",
-                    "zh": "红色"
+                    "en-us": "Red",
+                    "zh-hans": "红色"
                 }
             },
             "White": {
                 "desc": {
-                    "en": "White",
-                    "zh": "白色"
+                    "en-us": "White",
+                    "zh-hans": "白色"
                 }
             },
             "Yellow": {
                 "desc": {
-                    "en": "Yellow",
-                    "zh": "黄色"
+                    "en-us": "Yellow",
+                    "zh-hans": "黄色"
                 }
             }
         }
     },
     "CompareOperator": {
         "desc": {
-            "en": "Comparison Operator",
-            "zh": "比较运算符"
+            "en-us": "Comparison Operator",
+            "zh-hans": "比较运算符"
         },
         "enums": {
             "Equals": {
                 "desc": {
-                    "en": "Equals",
-                    "zh": "等于"
+                    "en-us": "Equals",
+                    "zh-hans": "等于"
                 }
             },
             "Greater": {
                 "desc": {
-                    "en": "Greater",
-                    "zh": "大于"
+                    "en-us": "Greater",
+                    "zh-hans": "大于"
                 }
             },
             "Less": {
                 "desc": {
-                    "en": "Less",
-                    "zh": "小于"
+                    "en-us": "Less",
+                    "zh-hans": "小于"
                 }
             },
             "NotEquals": {
                 "desc": {
-                    "en": "Not Equals",
-                    "zh": "不等于"
+                    "en-us": "Not Equals",
+                    "zh-hans": "不等于"
                 }
             }
         }
     },
     "DaylightsensorMode": {
         "desc": {
-            "en": "Daylight Sensor Mode",
-            "zh": "日光传感器模式"
+            "en-us": "Daylight Sensor Mode",
+            "zh-hans": "日光传感器模式"
         },
         "enums": {
             "Default": {
                 "desc": {
-                    "en": "Default",
-                    "zh": "默认"
+                    "en-us": "Default",
+                    "zh-hans": "默认"
                 }
             },
             "Horizontal": {
                 "desc": {
-                    "en": "Horizontal",
-                    "zh": "水平"
+                    "en-us": "Horizontal",
+                    "zh-hans": "水平"
                 }
             },
             "Vertical": {
                 "desc": {
-                    "en": "Vertical",
-                    "zh": "垂直"
+                    "en-us": "Vertical",
+                    "zh-hans": "垂直"
                 }
             }
         }
     },
     "DisplayMode": {
         "desc": {
-            "en": "Display Mode",
-            "zh": "显示模式"
+            "en-us": "Display Mode",
+            "zh-hans": "显示模式"
         },
         "enums": {
             "Celsius": {
                 "desc": {
-                    "en": "Celsius",
-                    "zh": "摄氏度"
+                    "en-us": "Celsius",
+                    "zh-hans": "摄氏度"
                 }
             },
             "Credits": {
                 "desc": {
-                    "en": "Credits",
-                    "zh": "积分"
+                    "en-us": "Credits",
+                    "zh-hans": "积分"
                 }
             },
             "Days": {
                 "desc": {
-                    "en": "Days",
-                    "zh": "天数"
+                    "en-us": "Days",
+                    "zh-hans": "天数"
                 }
             },
             "Default": {
                 "desc": {
-                    "en": "Default",
-                    "zh": "默认"
+                    "en-us": "Default",
+                    "zh-hans": "默认"
                 }
             },
             "Degrees": {
                 "desc": {
-                    "en": "Degrees",
-                    "zh": "角度"
+                    "en-us": "Degrees",
+                    "zh-hans": "角度"
                 }
             },
             "Fahrenheit": {
                 "desc": {
-                    "en": "Fahrenheit",
-                    "zh": "华氏度"
+                    "en-us": "Fahrenheit",
+                    "zh-hans": "华氏度"
                 }
             },
             "Kelvin": {
                 "desc": {
-                    "en": "Kelvin",
-                    "zh": "开尔文"
+                    "en-us": "Kelvin",
+                    "zh-hans": "开尔文"
                 }
             },
             "Litres": {
                 "desc": {
-                    "en": "Litres",
-                    "zh": "升"
+                    "en-us": "Litres",
+                    "zh-hans": "升"
                 }
             },
             "Meters": {
                 "desc": {
-                    "en": "Meters",
-                    "zh": "米"
+                    "en-us": "Meters",
+                    "zh-hans": "米"
                 }
             },
             "Minutes": {
                 "desc": {
-                    "en": "Minutes",
-                    "zh": "分钟"
+                    "en-us": "Minutes",
+                    "zh-hans": "分钟"
                 }
             },
             "Mol": {
                 "desc": {
-                    "en": "Mol",
-                    "zh": "摩尔"
+                    "en-us": "Mol",
+                    "zh-hans": "摩尔"
                 }
             },
             "Newtons": {
                 "desc": {
-                    "en": "Newtons",
-                    "zh": "牛顿"
+                    "en-us": "Newtons",
+                    "zh-hans": "牛顿"
                 }
             },
             "Pa": {
                 "desc": {
-                    "en": "Pa",
-                    "zh": "帕斯卡"
+                    "en-us": "Pa",
+                    "zh-hans": "帕斯卡"
                 }
             },
             "Percent": {
                 "desc": {
-                    "en": "Percent",
-                    "zh": "百分比"
+                    "en-us": "Percent",
+                    "zh-hans": "百分比"
                 }
             },
             "Power": {
                 "desc": {
-                    "en": "Power",
-                    "zh": "功率"
+                    "en-us": "Power",
+                    "zh-hans": "功率"
                 }
             },
             "Seconds": {
                 "desc": {
-                    "en": "Seconds",
-                    "zh": "秒"
+                    "en-us": "Seconds",
+                    "zh-hans": "秒"
                 }
             },
             "String": {
                 "desc": {
-                    "en": "String",
-                    "zh": "字符串"
+                    "en-us": "String",
+                    "zh-hans": "字符串"
                 }
             }
         }
     },
     "ElevatorMode": {
         "desc": {
-            "en": "Elevator Mode",
-            "zh": "电梯模式"
+            "en-us": "Elevator Mode",
+            "zh-hans": "电梯模式"
         },
         "enums": {
             "Downward": {
                 "desc": {
-                    "en": "Downward",
-                    "zh": "向下"
+                    "en-us": "Downward",
+                    "zh-hans": "向下"
                 }
             },
             "Stationary": {
                 "desc": {
-                    "en": "Stationary",
-                    "zh": "静止"
+                    "en-us": "Stationary",
+                    "zh-hans": "静止"
                 }
             },
             "Upward": {
                 "desc": {
-                    "en": "Upward",
-                    "zh": "向上"
+                    "en-us": "Upward",
+                    "zh-hans": "向上"
                 }
             }
         }
     },
     "EntityState": {
         "desc": {
-            "en": "Entity State",
-            "zh": "实体状态"
+            "en-us": "Entity State",
+            "zh-hans": "实体状态"
         },
         "enums": {
             "Alive": {
                 "desc": {
-                    "en": "Alive",
-                    "zh": "存活"
+                    "en-us": "Alive",
+                    "zh-hans": "存活"
                 }
             },
             "Dead": {
                 "desc": {
-                    "en": "Dead",
-                    "zh": "死亡"
+                    "en-us": "Dead",
+                    "zh-hans": "死亡"
                 }
             },
             "Decay": {
                 "desc": {
-                    "en": "Decay",
-                    "zh": "腐烂"
+                    "en-us": "Decay",
+                    "zh-hans": "腐烂"
                 }
             },
             "Unconscious": {
                 "desc": {
-                    "en": "Unconscious",
-                    "zh": "昏迷"
+                    "en-us": "Unconscious",
+                    "zh-hans": "昏迷"
                 }
             }
         }
     },
     "GasType": {
         "desc": {
-            "en": "Gas Type",
-            "zh": "气体类型"
+            "en-us": "Gas Type",
+            "zh-hans": "气体类型"
         },
         "enums": {
             "Air": {
                 "desc": {
-                    "en": "Air",
-                    "zh": "空气"
+                    "en-us": "Air",
+                    "zh-hans": "空气"
                 }
             },
             "CarbonDioxide": {
                 "desc": {
-                    "en": "Carbon Dioxide",
-                    "zh": "二氧化碳"
+                    "en-us": "Carbon Dioxide",
+                    "zh-hans": "二氧化碳"
                 }
             },
             "Fuel": {
                 "desc": {
-                    "en": "Fuel",
-                    "zh": "燃料"
+                    "en-us": "Fuel",
+                    "zh-hans": "燃料"
                 }
             },
             "Hydrogen": {
                 "desc": {
-                    "en": "Hydrogen",
-                    "zh": "氢气"
+                    "en-us": "Hydrogen",
+                    "zh-hans": "氢气"
                 }
             },
             "LiquidCarbonDioxide": {
                 "desc": {
-                    "en": "Liquid Carbon Dioxide",
-                    "zh": "液态二氧化碳"
+                    "en-us": "Liquid Carbon Dioxide",
+                    "zh-hans": "液态二氧化碳"
                 }
             },
             "LiquidHydrogen": {
                 "desc": {
-                    "en": "Liquid Hydrogen",
-                    "zh": "液态氢气"
+                    "en-us": "Liquid Hydrogen",
+                    "zh-hans": "液态氢气"
                 }
             },
             "LiquidNitrogen": {
                 "desc": {
-                    "en": "Liquid Nitrogen",
-                    "zh": "液态氮气"
+                    "en-us": "Liquid Nitrogen",
+                    "zh-hans": "液态氮气"
                 }
             },
             "LiquidNitrousOxide": {
                 "desc": {
-                    "en": "Liquid Nitrous Oxide",
-                    "zh": "液态氧化亚氮"
+                    "en-us": "Liquid Nitrous Oxide",
+                    "zh-hans": "液态氧化亚氮"
                 }
             },
             "LiquidOxygen": {
                 "desc": {
-                    "en": "Liquid Oxygen",
-                    "zh": "液态氧气"
+                    "en-us": "Liquid Oxygen",
+                    "zh-hans": "液态氧气"
                 }
             },
             "LiquidPollutant": {
                 "desc": {
-                    "en": "Liquid Pollutant",
-                    "zh": "液态污染物"
+                    "en-us": "Liquid Pollutant",
+                    "zh-hans": "液态污染物"
                 }
             },
             "LiquidVolatiles": {
                 "desc": {
-                    "en": "Liquid Volatiles",
-                    "zh": "液态挥发物"
+                    "en-us": "Liquid Volatiles",
+                    "zh-hans": "液态挥发物"
                 }
             },
             "Nitrogen": {
                 "desc": {
-                    "en": "Nitrogen",
-                    "zh": "氮气"
+                    "en-us": "Nitrogen",
+                    "zh-hans": "氮气"
                 }
             },
             "NitrousOxide": {
                 "desc": {
-                    "en": "Nitrous Oxide",
-                    "zh": "氧化亚氮"
+                    "en-us": "Nitrous Oxide",
+                    "zh-hans": "氧化亚氮"
                 }
             },
             "Oxygen": {
                 "desc": {
-                    "en": "Oxygen",
-                    "zh": "氧气"
+                    "en-us": "Oxygen",
+                    "zh-hans": "氧气"
                 }
             },
             "Pollutant": {
                 "desc": {
-                    "en": "Pollutant",
-                    "zh": "污染物"
+                    "en-us": "Pollutant",
+                    "zh-hans": "污染物"
                 }
             },
             "PollutedWater": {
                 "desc": {
-                    "en": "Polluted Water",
-                    "zh": "污染水"
+                    "en-us": "Polluted Water",
+                    "zh-hans": "污染水"
                 }
             },
             "Steam": {
                 "desc": {
-                    "en": "Steam",
-                    "zh": "蒸汽"
+                    "en-us": "Steam",
+                    "zh-hans": "蒸汽"
                 }
             },
             "Undefined": {
                 "desc": {
-                    "en": "Undefined",
-                    "zh": "未定义"
+                    "en-us": "Undefined",
+                    "zh-hans": "未定义"
                 }
             },
             "Volatiles": {
                 "desc": {
-                    "en": "Volatiles",
-                    "zh": "挥发物"
+                    "en-us": "Volatiles",
+                    "zh-hans": "挥发物"
                 }
             },
             "Water": {
                 "desc": {
-                    "en": "Water",
-                    "zh": "水"
+                    "en-us": "Water",
+                    "zh-hans": "水"
                 }
             }
         }
     },
     "HashType": {
         "desc": {
-            "en": "Hash Type",
-            "zh": "哈希类型"
+            "en-us": "Hash Type",
+            "zh-hans": "哈希类型"
         },
         "enums": {
             "GasLiquid": {
                 "desc": {
-                    "en": "Gas Liquid",
-                    "zh": "气液"
+                    "en-us": "Gas Liquid",
+                    "zh-hans": "气液"
                 }
             },
             "Prefab": {
                 "desc": {
-                    "en": "Prefab",
-                    "zh": "预制体"
+                    "en-us": "Prefab",
+                    "zh-hans": "预制体"
                 }
             }
         }
     },
     "LogicSlotType": {
         "desc": {
-            "en": "Logic Slot Type",
-            "zh": "逻辑槽类型"
+            "en-us": "Logic Slot Type",
+            "zh-hans": "逻辑槽类型"
         },
         "enums": {
             "Charge": {
                 "desc": {
-                    "en": "Charge",
-                    "zh": "电荷"
+                    "en-us": "Charge",
+                    "zh-hans": "电荷"
                 }
             },
             "ChargeRatio": {
                 "desc": {
-                    "en": "Charge Ratio",
-                    "zh": "电荷比"
+                    "en-us": "Charge Ratio",
+                    "zh-hans": "电荷比"
                 }
             },
             "Class": {
                 "desc": {
-                    "en": "Class",
-                    "zh": "类别"
+                    "en-us": "Class",
+                    "zh-hans": "类别"
                 }
             },
             "Damage": {
                 "desc": {
-                    "en": "Damage",
-                    "zh": "损伤"
+                    "en-us": "Damage",
+                    "zh-hans": "损伤"
                 }
             },
             "Efficiency": {
                 "desc": {
-                    "en": "Efficiency",
-                    "zh": "效率"
+                    "en-us": "Efficiency",
+                    "zh-hans": "效率"
                 }
             },
             "FilterType": {
                 "desc": {
-                    "en": "Filter Type",
-                    "zh": "过滤器类型"
+                    "en-us": "Filter Type",
+                    "zh-hans": "过滤器类型"
                 }
             },
             "FreeSlots": {
                 "desc": {
-                    "en": "Free Slots",
-                    "zh": "空闲槽位"
+                    "en-us": "Free Slots",
+                    "zh-hans": "空闲槽位"
                 }
             },
             "Growth": {
                 "desc": {
-                    "en": "Growth",
-                    "zh": "生长"
+                    "en-us": "Growth",
+                    "zh-hans": "生长"
                 }
             },
             "HarvestedHash": {
                 "desc": {
-                    "en": "Harvested Hash",
-                    "zh": "收获哈希"
+                    "en-us": "Harvested Hash",
+                    "zh-hans": "收获哈希"
                 }
             },
             "Health": {
                 "desc": {
-                    "en": "Health",
-                    "zh": "健康"
+                    "en-us": "Health",
+                    "zh-hans": "健康"
                 }
             },
             "LineNumber": {
                 "desc": {
-                    "en": "Line Number",
-                    "zh": "行号"
+                    "en-us": "Line Number",
+                    "zh-hans": "行号"
                 }
             },
             "Lock": {
                 "desc": {
-                    "en": "Lock",
-                    "zh": "锁定"
+                    "en-us": "Lock",
+                    "zh-hans": "锁定"
                 }
             },
             "Mature": {
                 "desc": {
-                    "en": "Mature",
-                    "zh": "成熟"
+                    "en-us": "Mature",
+                    "zh-hans": "成熟"
                 }
             },
             "MaturityRatio": {
                 "desc": {
-                    "en": "Maturity Ratio",
-                    "zh": "成熟比"
+                    "en-us": "Maturity Ratio",
+                    "zh-hans": "成熟比"
                 }
             },
             "MaxQuantity": {
                 "desc": {
-                    "en": "Max Quantity",
-                    "zh": "最大数量"
+                    "en-us": "Max Quantity",
+                    "zh-hans": "最大数量"
                 }
             },
             "Mode": {
                 "desc": {
-                    "en": "Mode",
-                    "zh": "模式"
+                    "en-us": "Mode",
+                    "zh-hans": "模式"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             },
             "OccupantHash": {
                 "desc": {
-                    "en": "Occupant Hash",
-                    "zh": "占用者哈希"
+                    "en-us": "Occupant Hash",
+                    "zh-hans": "占用者哈希"
                 }
             },
             "Occupled": {
                 "desc": {
-                    "en": "Occupied",
-                    "zh": "已占用"
+                    "en-us": "Occupied",
+                    "zh-hans": "已占用"
                 }
             },
             "true": {
                 "desc": {
-                    "en": true,
-                    "zh": "开启"
+                    "en-us": true,
+                    "zh-hans": "开启"
                 }
             },
             "Open": {
                 "desc": {
-                    "en": "Open",
-                    "zh": "打开"
+                    "en-us": "Open",
+                    "zh-hans": "打开"
                 }
             },
             "PrefabHash": {
                 "desc": {
-                    "en": "Prefab Hash",
-                    "zh": "预制体哈希"
+                    "en-us": "Prefab Hash",
+                    "zh-hans": "预制体哈希"
                 }
             },
             "Pressure": {
                 "desc": {
-                    "en": "Pressure",
-                    "zh": "压力"
+                    "en-us": "Pressure",
+                    "zh-hans": "压力"
                 }
             },
             "PressureAir": {
                 "desc": {
-                    "en": "Air Pressure",
-                    "zh": "空气压力"
+                    "en-us": "Air Pressure",
+                    "zh-hans": "空气压力"
                 }
             },
             "PressureWaste": {
                 "desc": {
-                    "en": "Waste Pressure",
-                    "zh": "废气压力"
+                    "en-us": "Waste Pressure",
+                    "zh-hans": "废气压力"
                 }
             },
             "Quantity": {
                 "desc": {
-                    "en": "Quantity",
-                    "zh": "数量"
+                    "en-us": "Quantity",
+                    "zh-hans": "数量"
                 }
             },
             "Referenced": {
                 "desc": {
-                    "en": "Referenced",
-                    "zh": "已引用"
+                    "en-us": "Referenced",
+                    "zh-hans": "已引用"
                 }
             },
             "Seeding": {
                 "desc": {
-                    "en": "Seeding",
-                    "zh": "播种"
+                    "en-us": "Seeding",
+                    "zh-hans": "播种"
                 }
             },
             "SeedingRatio": {
                 "desc": {
-                    "en": "Seeding Ratio",
-                    "zh": "播种比"
+                    "en-us": "Seeding Ratio",
+                    "zh-hans": "播种比"
                 }
             },
             "SortingClass": {
                 "desc": {
-                    "en": "Sorting Class",
-                    "zh": "分类类别"
+                    "en-us": "Sorting Class",
+                    "zh-hans": "分类类别"
                 }
             },
             "Temperature": {
                 "desc": {
-                    "en": "Temperature",
-                    "zh": "温度"
+                    "en-us": "Temperature",
+                    "zh-hans": "温度"
                 }
             },
             "TotalSlots": {
                 "desc": {
-                    "en": "Total Slots",
-                    "zh": "总槽位"
+                    "en-us": "Total Slots",
+                    "zh-hans": "总槽位"
                 }
             },
             "Volume": {
                 "desc": {
-                    "en": "Volume",
-                    "zh": "体积"
+                    "en-us": "Volume",
+                    "zh-hans": "体积"
                 }
             }
         }
     },
     "LogicType": {
         "desc": {
-            "en": "Logic Type",
-            "zh": "逻辑类型"
+            "en-us": "Logic Type",
+            "zh-hans": "逻辑类型"
         },
         "enums": {
             "Acceleration": {
                 "desc": {
-                    "en": "Acceleration",
-                    "zh": "加速度"
+                    "en-us": "Acceleration",
+                    "zh-hans": "加速度"
                 }
             },
             "Activate": {
                 "desc": {
-                    "en": "Activate",
-                    "zh": "激活"
+                    "en-us": "Activate",
+                    "zh-hans": "激活"
                 }
             },
             "AirRelease": {
                 "desc": {
-                    "en": "Air Release",
-                    "zh": "空气释放"
+                    "en-us": "Air Release",
+                    "zh-hans": "空气释放"
                 }
             },
             "AlignmentError": {
                 "desc": {
-                    "en": "Alignment Error",
-                    "zh": "对齐误差"
+                    "en-us": "Alignment Error",
+                    "zh-hans": "对齐误差"
                 }
             },
             "Altitude": {
                 "desc": {
-                    "en": "Altitude",
-                    "zh": "高度"
+                    "en-us": "Altitude",
+                    "zh-hans": "高度"
                 }
             },
             "Apex": {
                 "desc": {
-                    "en": "Apex",
-                    "zh": "顶点"
+                    "en-us": "Apex",
+                    "zh-hans": "顶点"
                 }
             },
             "AutoLand": {
                 "desc": {
-                    "en": "Auto Land",
-                    "zh": "自动着陆"
+                    "en-us": "Auto Land",
+                    "zh-hans": "自动着陆"
                 }
             },
             "AutoShutOff": {
                 "desc": {
-                    "en": "Auto Shut Off",
-                    "zh": "自动关闭"
+                    "en-us": "Auto Shut Off",
+                    "zh-hans": "自动关闭"
                 }
             },
             "BestContactFilter": {
                 "desc": {
-                    "en": "Best Contact Filter",
-                    "zh": "最佳接触过滤器"
+                    "en-us": "Best Contact Filter",
+                    "zh-hans": "最佳接触过滤器"
                 }
             },
             "Bpm": {
                 "desc": {
-                    "en": "BPM",
-                    "zh": "每分钟心跳"
+                    "en-us": "BPM",
+                    "zh-hans": "每分钟心跳"
                 }
             },
             "BurnTimeRemaining": {
                 "desc": {
-                    "en": "Burn Time Remaining",
-                    "zh": "剩余燃烧时间"
+                    "en-us": "Burn Time Remaining",
+                    "zh-hans": "剩余燃烧时间"
                 }
             },
             "CelestialHash": {
                 "desc": {
-                    "en": "Celestial Hash",
-                    "zh": "天体哈希"
+                    "en-us": "Celestial Hash",
+                    "zh-hans": "天体哈希"
                 }
             },
             "CelestialParentHash": {
                 "desc": {
-                    "en": "Celestial Parent Hash",
-                    "zh": "父天体哈希"
+                    "en-us": "Celestial Parent Hash",
+                    "zh-hans": "父天体哈希"
                 }
             },
             "Channel0": {
                 "desc": {
-                    "en": "Channel 0",
-                    "zh": "通道0"
+                    "en-us": "Channel 0",
+                    "zh-hans": "通道0"
                 }
             },
             "Channel1": {
                 "desc": {
-                    "en": "Channel 1",
-                    "zh": "通道1"
+                    "en-us": "Channel 1",
+                    "zh-hans": "通道1"
                 }
             },
             "Channel2": {
                 "desc": {
-                    "en": "Channel 2",
-                    "zh": "通道2"
+                    "en-us": "Channel 2",
+                    "zh-hans": "通道2"
                 }
             },
             "Channel3": {
                 "desc": {
-                    "en": "Channel 3",
-                    "zh": "通道3"
+                    "en-us": "Channel 3",
+                    "zh-hans": "通道3"
                 }
             },
             "Channel4": {
                 "desc": {
-                    "en": "Channel 4",
-                    "zh": "通道4"
+                    "en-us": "Channel 4",
+                    "zh-hans": "通道4"
                 }
             },
             "Channel5": {
                 "desc": {
-                    "en": "Channel 5",
-                    "zh": "通道5"
+                    "en-us": "Channel 5",
+                    "zh-hans": "通道5"
                 }
             },
             "Channel6": {
                 "desc": {
-                    "en": "Channel 6",
-                    "zh": "通道6"
+                    "en-us": "Channel 6",
+                    "zh-hans": "通道6"
                 }
             },
             "Channel7": {
                 "desc": {
-                    "en": "Channel 7",
-                    "zh": "通道7"
+                    "en-us": "Channel 7",
+                    "zh-hans": "通道7"
                 }
             },
             "Charge": {
                 "desc": {
-                    "en": "Charge",
-                    "zh": "电荷"
+                    "en-us": "Charge",
+                    "zh-hans": "电荷"
                 }
             },
             "Chart": {
                 "desc": {
-                    "en": "Chart",
-                    "zh": "图表"
+                    "en-us": "Chart",
+                    "zh-hans": "图表"
                 }
             },
             "ChartedNavPoints": {
                 "desc": {
-                    "en": "Charted Nav Points",
-                    "zh": "已标记导航点"
+                    "en-us": "Charted Nav Points",
+                    "zh-hans": "已标记导航点"
                 }
             },
             "ClearMemory": {
                 "desc": {
-                    "en": "Clear Memory",
-                    "zh": "清除内存"
+                    "en-us": "Clear Memory",
+                    "zh-hans": "清除内存"
                 }
             },
             "CollectableGoods": {
                 "desc": {
-                    "en": "Collectable Goods",
-                    "zh": "可收集物品"
+                    "en-us": "Collectable Goods",
+                    "zh-hans": "可收集物品"
                 }
             },
             "Color": {
                 "desc": {
-                    "en": "Color",
-                    "zh": "颜色"
+                    "en-us": "Color",
+                    "zh-hans": "颜色"
                 }
             },
             "Combustion": {
                 "desc": {
-                    "en": "Combustion",
-                    "zh": "燃烧"
+                    "en-us": "Combustion",
+                    "zh-hans": "燃烧"
                 }
             },
             "CombustionInput": {
                 "desc": {
-                    "en": "Combustion Input",
-                    "zh": "燃烧输入"
+                    "en-us": "Combustion Input",
+                    "zh-hans": "燃烧输入"
                 }
             },
             "CombustionInput2": {
                 "desc": {
-                    "en": "Combustion Input 2",
-                    "zh": "燃烧输入2"
+                    "en-us": "Combustion Input 2",
+                    "zh-hans": "燃烧输入2"
                 }
             },
             "CombustionLimiter": {
                 "desc": {
-                    "en": "Combustion Limiter",
-                    "zh": "燃烧限制器"
+                    "en-us": "Combustion Limiter",
+                    "zh-hans": "燃烧限制器"
                 }
             },
             "CombustionOutput": {
                 "desc": {
-                    "en": "Combustion Output",
-                    "zh": "燃烧输出"
+                    "en-us": "Combustion Output",
+                    "zh-hans": "燃烧输出"
                 }
             },
             "CombustionOutput2": {
                 "desc": {
-                    "en": "Combustion Output 2",
-                    "zh": "燃烧输出2"
+                    "en-us": "Combustion Output 2",
+                    "zh-hans": "燃烧输出2"
                 }
             },
             "CompletionRatio": {
                 "desc": {
-                    "en": "Completion Ratio",
-                    "zh": "完成比率"
+                    "en-us": "Completion Ratio",
+                    "zh-hans": "完成比率"
                 }
             },
             "ContactTypeId": {
                 "desc": {
-                    "en": "Contact Type ID",
-                    "zh": "接触类型ID"
+                    "en-us": "Contact Type ID",
+                    "zh-hans": "接触类型ID"
                 }
             },
             "CurrentCode": {
                 "desc": {
-                    "en": "Current Code",
-                    "zh": "当前代码"
+                    "en-us": "Current Code",
+                    "zh-hans": "当前代码"
                 }
             },
             "CurrentResearchPodType": {
                 "desc": {
-                    "en": "Current Research Pod Type",
-                    "zh": "当前研究舱类型"
+                    "en-us": "Current Research Pod Type",
+                    "zh-hans": "当前研究舱类型"
                 }
             },
             "Density": {
                 "desc": {
-                    "en": "Density",
-                    "zh": "密度"
+                    "en-us": "Density",
+                    "zh-hans": "密度"
                 }
             },
             "DerivativeGain": {
                 "desc": {
-                    "en": "Derivative Gain",
-                    "zh": "微分增益"
+                    "en-us": "Derivative Gain",
+                    "zh-hans": "微分增益"
                 }
             },
             "DestinationCode": {
                 "desc": {
-                    "en": "Destination Code",
-                    "zh": "目标代码"
+                    "en-us": "Destination Code",
+                    "zh-hans": "目标代码"
                 }
             },
             "Discover": {
                 "desc": {
-                    "en": "Discover",
-                    "zh": "发现"
+                    "en-us": "Discover",
+                    "zh-hans": "发现"
                 }
             },
             "DistanceAu": {
                 "desc": {
-                    "en": "Distance AU",
-                    "zh": "天文单位距离"
+                    "en-us": "Distance AU",
+                    "zh-hans": "天文单位距离"
                 }
             },
             "DistanceKm": {
                 "desc": {
-                    "en": "Distance Km",
-                    "zh": "千米距离"
+                    "en-us": "Distance Km",
+                    "zh-hans": "千米距离"
                 }
             },
             "DrillCondition": {
                 "desc": {
-                    "en": "Drill Condition",
-                    "zh": "钻探条件"
+                    "en-us": "Drill Condition",
+                    "zh-hans": "钻探条件"
                 }
             },
             "DryMass": {
                 "desc": {
-                    "en": "Dry Mass",
-                    "zh": "干质量"
+                    "en-us": "Dry Mass",
+                    "zh-hans": "干质量"
                 }
             },
             "Eccentricity": {
                 "desc": {
-                    "en": "Eccentricity",
-                    "zh": "偏心率"
+                    "en-us": "Eccentricity",
+                    "zh-hans": "偏心率"
                 }
             },
             "ElevatorLevel": {
                 "desc": {
-                    "en": "Elevator Level",
-                    "zh": "电梯层级"
+                    "en-us": "Elevator Level",
+                    "zh-hans": "电梯层级"
                 }
             },
             "ElevatorSpeed": {
                 "desc": {
-                    "en": "Elevator Speed",
-                    "zh": "电梯速度"
+                    "en-us": "Elevator Speed",
+                    "zh-hans": "电梯速度"
                 }
             },
             "EntityState": {
                 "desc": {
-                    "en": "Entity State",
-                    "zh": "实体状态"
+                    "en-us": "Entity State",
+                    "zh-hans": "实体状态"
                 }
             },
             "EnvironmentEfficiency": {
                 "desc": {
-                    "en": "Environment Efficiency",
-                    "zh": "环境效率"
+                    "en-us": "Environment Efficiency",
+                    "zh-hans": "环境效率"
                 }
             },
             "Error": {
                 "desc": {
-                    "en": "Error",
-                    "zh": "错误"
+                    "en-us": "Error",
+                    "zh-hans": "错误"
                 }
             },
             "ExhaustVelocity": {
                 "desc": {
-                    "en": "Exhaust Velocity",
-                    "zh": "排气速度"
+                    "en-us": "Exhaust Velocity",
+                    "zh-hans": "排气速度"
                 }
             },
             "ExportCount": {
                 "desc": {
-                    "en": "Export Count",
-                    "zh": "导出数量"
+                    "en-us": "Export Count",
+                    "zh-hans": "导出数量"
                 }
             },
             "Extended": {
                 "desc": {
-                    "en": "Extended",
-                    "zh": "扩展"
+                    "en-us": "Extended",
+                    "zh-hans": "扩展"
                 }
             },
             "Filtration": {
                 "desc": {
-                    "en": "Filtration",
-                    "zh": "过滤"
+                    "en-us": "Filtration",
+                    "zh-hans": "过滤"
                 }
             },
             "FlightControlRule": {
                 "desc": {
-                    "en": "Flight Control Rule",
-                    "zh": "飞行控制规则"
+                    "en-us": "Flight Control Rule",
+                    "zh-hans": "飞行控制规则"
                 }
             },
             "Flush": {
                 "desc": {
-                    "en": "Flush",
-                    "zh": "冲洗"
+                    "en-us": "Flush",
+                    "zh-hans": "冲洗"
                 }
             },
             "ForceWrite": {
                 "desc": {
-                    "en": "Force Write",
-                    "zh": "强制写入"
+                    "en-us": "Force Write",
+                    "zh-hans": "强制写入"
                 }
             },
             "ForwardX": {
                 "desc": {
-                    "en": "Forward X",
-                    "zh": "前向X"
+                    "en-us": "Forward X",
+                    "zh-hans": "前向X"
                 }
             },
             "ForwardY": {
                 "desc": {
-                    "en": "Forward Y",
-                    "zh": "前向Y"
+                    "en-us": "Forward Y",
+                    "zh-hans": "前向Y"
                 }
             },
             "ForwardZ": {
                 "desc": {
-                    "en": "Forward Z",
-                    "zh": "前向Z"
+                    "en-us": "Forward Z",
+                    "zh-hans": "前向Z"
                 }
             },
             "Fuel": {
                 "desc": {
-                    "en": "Fuel",
-                    "zh": "燃料"
+                    "en-us": "Fuel",
+                    "zh-hans": "燃料"
                 }
             },
             "Harvest": {
                 "desc": {
-                    "en": "Harvest",
-                    "zh": "收获"
+                    "en-us": "Harvest",
+                    "zh-hans": "收获"
                 }
             },
             "Horizontal": {
                 "desc": {
-                    "en": "Horizontal",
-                    "zh": "水平"
+                    "en-us": "Horizontal",
+                    "zh-hans": "水平"
                 }
             },
             "HorizontalRatio": {
                 "desc": {
-                    "en": "Horizontal Ratio",
-                    "zh": "水平比率"
+                    "en-us": "Horizontal Ratio",
+                    "zh-hans": "水平比率"
                 }
             },
             "Idle": {
                 "desc": {
-                    "en": "Idle",
-                    "zh": "空闲"
+                    "en-us": "Idle",
+                    "zh-hans": "空闲"
                 }
             },
             "ImportCount": {
                 "desc": {
-                    "en": "Import Count",
-                    "zh": "导入数量"
+                    "en-us": "Import Count",
+                    "zh-hans": "导入数量"
                 }
             },
             "Inclination": {
                 "desc": {
-                    "en": "Inclination",
-                    "zh": "倾角"
+                    "en-us": "Inclination",
+                    "zh-hans": "倾角"
                 }
             },
             "Index": {
                 "desc": {
-                    "en": "Index",
-                    "zh": "索引"
+                    "en-us": "Index",
+                    "zh-hans": "索引"
                 }
             },
             "IntegralGain": {
                 "desc": {
-                    "en": "Integral Gain",
-                    "zh": "积分增益"
+                    "en-us": "Integral Gain",
+                    "zh-hans": "积分增益"
                 }
             },
             "InterrogationProgress": {
                 "desc": {
-                    "en": "Interrogation Progress",
-                    "zh": "审讯进度"
+                    "en-us": "Interrogation Progress",
+                    "zh-hans": "审讯进度"
                 }
             },
             "LineNumber": {
                 "desc": {
-                    "en": "Line Number",
-                    "zh": "行号"
+                    "en-us": "Line Number",
+                    "zh-hans": "行号"
                 }
             },
             "Lock": {
                 "desc": {
-                    "en": "Lock",
-                    "zh": "锁定"
+                    "en-us": "Lock",
+                    "zh-hans": "锁定"
                 }
             },
             "ManualResearchRequiredPod": {
                 "desc": {
-                    "en": "Manual Research Required Pod",
-                    "zh": "手动研究所需舱"
+                    "en-us": "Manual Research Required Pod",
+                    "zh-hans": "手动研究所需舱"
                 }
             },
             "Mass": {
                 "desc": {
-                    "en": "Mass",
-                    "zh": "质量"
+                    "en-us": "Mass",
+                    "zh-hans": "质量"
                 }
             },
             "Maximum": {
                 "desc": {
-                    "en": "Maximum",
-                    "zh": "最大值"
+                    "en-us": "Maximum",
+                    "zh-hans": "最大值"
                 }
             },
             "MineablesInQueue": {
                 "desc": {
-                    "en": "Mineables In Queue",
-                    "zh": "队列中可采矿"
+                    "en-us": "Mineables In Queue",
+                    "zh-hans": "队列中可采矿"
                 }
             },
             "MineablesInVicinity": {
                 "desc": {
-                    "en": "Mineables In Vicinity",
-                    "zh": "附近可采矿"
+                    "en-us": "Mineables In Vicinity",
+                    "zh-hans": "附近可采矿"
                 }
             },
             "MinedQuantity": {
                 "desc": {
-                    "en": "Mined Quantity",
-                    "zh": "已采矿数量"
+                    "en-us": "Mined Quantity",
+                    "zh-hans": "已采矿数量"
                 }
             },
             "Minimum": {
                 "desc": {
-                    "en": "Minimum",
-                    "zh": "最小值"
+                    "en-us": "Minimum",
+                    "zh-hans": "最小值"
                 }
             },
             "MinimumWattsToContact": {
                 "desc": {
-                    "en": "Minimum Watts To Contact",
-                    "zh": "最小接触功率"
+                    "en-us": "Minimum Watts To Contact",
+                    "zh-hans": "最小接触功率"
                 }
             },
             "Mode": {
                 "desc": {
-                    "en": "Mode",
-                    "zh": "模式"
+                    "en-us": "Mode",
+                    "zh-hans": "模式"
                 }
             },
             "NameHash": {
                 "desc": {
-                    "en": "Name Hash",
-                    "zh": "名称哈希"
+                    "en-us": "Name Hash",
+                    "zh-hans": "名称哈希"
                 }
             },
             "NavPoints": {
                 "desc": {
-                    "en": "Nav Points",
-                    "zh": "导航点"
+                    "en-us": "Nav Points",
+                    "zh-hans": "导航点"
                 }
             },
             "NetworkFault": {
                 "desc": {
-                    "en": "Network Fault",
-                    "zh": "网络故障"
+                    "en-us": "Network Fault",
+                    "zh-hans": "网络故障"
                 }
             },
             "NextWeatherEventTime": {
                 "desc": {
-                    "en": "Next Weather Event Time",
-                    "zh": "下次天气事件时间"
+                    "en-us": "Next Weather Event Time",
+                    "zh-hans": "下次天气事件时间"
                 }
             },
             "NextWeatherHash": {
                 "desc": {
-                    "en": "Next Weather Hash",
-                    "zh": "下次天气哈希"
+                    "en-us": "Next Weather Hash",
+                    "zh-hans": "下次天气哈希"
                 }
             },
             "true": {
                 "desc": {
-                    "en": true,
-                    "zh": "开启"
+                    "en-us": true,
+                    "zh-hans": "开启"
                 }
             },
             "Open": {
                 "desc": {
-                    "en": "Open",
-                    "zh": "打开"
+                    "en-us": "Open",
+                    "zh-hans": "打开"
                 }
             },
             "OperationalTemperatureEfficiency": {
                 "desc": {
-                    "en": "Operational Temperature Efficiency",
-                    "zh": "操作温度效率"
+                    "en-us": "Operational Temperature Efficiency",
+                    "zh-hans": "操作温度效率"
                 }
             },
             "OrbitPeriod": {
                 "desc": {
-                    "en": "Orbit Period",
-                    "zh": "轨道周期"
+                    "en-us": "Orbit Period",
+                    "zh-hans": "轨道周期"
                 }
             },
             "Orientation": {
                 "desc": {
-                    "en": "Orientation",
-                    "zh": "方向"
+                    "en-us": "Orientation",
+                    "zh-hans": "方向"
                 }
             },
             "Output": {
                 "desc": {
-                    "en": "Output",
-                    "zh": "输出"
+                    "en-us": "Output",
+                    "zh-hans": "输出"
                 }
             },
             "PassedMoles": {
                 "desc": {
-                    "en": "Passed Moles",
-                    "zh": "通过摩尔数"
+                    "en-us": "Passed Moles",
+                    "zh-hans": "通过摩尔数"
                 }
             },
             "Plant": {
                 "desc": {
-                    "en": "Plant",
-                    "zh": "植物"
+                    "en-us": "Plant",
+                    "zh-hans": "植物"
                 }
             },
             "PositionX": {
                 "desc": {
-                    "en": "Position X",
-                    "zh": "位置X"
+                    "en-us": "Position X",
+                    "zh-hans": "位置X"
                 }
             },
             "PositionY": {
                 "desc": {
-                    "en": "Position Y",
-                    "zh": "位置Y"
+                    "en-us": "Position Y",
+                    "zh-hans": "位置Y"
                 }
             },
             "PositionZ": {
                 "desc": {
-                    "en": "Position Z",
-                    "zh": "位置Z"
+                    "en-us": "Position Z",
+                    "zh-hans": "位置Z"
                 }
             },
             "Power": {
                 "desc": {
-                    "en": "Power",
-                    "zh": "功率"
+                    "en-us": "Power",
+                    "zh-hans": "功率"
                 }
             },
             "PowerActual": {
                 "desc": {
-                    "en": "Actual Power",
-                    "zh": "实际功率"
+                    "en-us": "Actual Power",
+                    "zh-hans": "实际功率"
                 }
             },
             "PowerGeneration": {
                 "desc": {
-                    "en": "Power Generation",
-                    "zh": "发电功率"
+                    "en-us": "Power Generation",
+                    "zh-hans": "发电功率"
                 }
             },
             "PowerPotential": {
                 "desc": {
-                    "en": "Potential Power",
-                    "zh": "潜在功率"
+                    "en-us": "Potential Power",
+                    "zh-hans": "潜在功率"
                 }
             },
             "PowerRequired": {
                 "desc": {
-                    "en": "Required Power",
-                    "zh": "所需功率"
+                    "en-us": "Required Power",
+                    "zh-hans": "所需功率"
                 }
             },
             "PrefabHash": {
                 "desc": {
-                    "en": "Prefab Hash",
-                    "zh": "预制体哈希"
+                    "en-us": "Prefab Hash",
+                    "zh-hans": "预制体哈希"
                 }
             },
             "Pressure": {
                 "desc": {
-                    "en": "Pressure",
-                    "zh": "压力"
+                    "en-us": "Pressure",
+                    "zh-hans": "压力"
                 }
             },
             "PressureEfficiency": {
                 "desc": {
-                    "en": "Pressure Efficiency",
-                    "zh": "压力效率"
+                    "en-us": "Pressure Efficiency",
+                    "zh-hans": "压力效率"
                 }
             },
             "PressureExternal": {
                 "desc": {
-                    "en": "External Pressure",
-                    "zh": "外部压力"
+                    "en-us": "External Pressure",
+                    "zh-hans": "外部压力"
                 }
             },
             "PressureInput": {
                 "desc": {
-                    "en": "Pressure Input",
-                    "zh": "压力输入"
+                    "en-us": "Pressure Input",
+                    "zh-hans": "压力输入"
                 }
             },
             "PressureInput2": {
                 "desc": {
-                    "en": "Pressure Input 2",
-                    "zh": "压力输入2"
+                    "en-us": "Pressure Input 2",
+                    "zh-hans": "压力输入2"
                 }
             },
             "PressureInternal": {
                 "desc": {
-                    "en": "Internal Pressure",
-                    "zh": "内部压力"
+                    "en-us": "Internal Pressure",
+                    "zh-hans": "内部压力"
                 }
             },
             "PressureOutput": {
                 "desc": {
-                    "en": "Pressure Output",
-                    "zh": "压力输出"
+                    "en-us": "Pressure Output",
+                    "zh-hans": "压力输出"
                 }
             },
             "PressureOutput2": {
                 "desc": {
-                    "en": "Pressure Output 2",
-                    "zh": "压力输出2"
+                    "en-us": "Pressure Output 2",
+                    "zh-hans": "压力输出2"
                 }
             },
             "PressureSetting": {
                 "desc": {
-                    "en": "Pressure Setting",
-                    "zh": "压力设置"
+                    "en-us": "Pressure Setting",
+                    "zh-hans": "压力设置"
                 }
             },
             "Progress": {
                 "desc": {
-                    "en": "Progress",
-                    "zh": "进度"
+                    "en-us": "Progress",
+                    "zh-hans": "进度"
                 }
             },
             "ProportionalGain": {
                 "desc": {
-                    "en": "Proportional Gain",
-                    "zh": "比例增益"
+                    "en-us": "Proportional Gain",
+                    "zh-hans": "比例增益"
                 }
             },
             "Quantity": {
                 "desc": {
-                    "en": "Quantity",
-                    "zh": "数量"
+                    "en-us": "Quantity",
+                    "zh-hans": "数量"
                 }
             },
             "Ratio": {
                 "desc": {
-                    "en": "Ratio",
-                    "zh": "比率"
+                    "en-us": "Ratio",
+                    "zh-hans": "比率"
                 }
             },
             "RatioCarbonDioxide": {
                 "desc": {
-                    "en": "Carbon Dioxide Ratio",
-                    "zh": "二氧化碳比率"
+                    "en-us": "Carbon Dioxide Ratio",
+                    "zh-hans": "二氧化碳比率"
                 }
             },
             "RatioCarbonDioxideInput": {
                 "desc": {
-                    "en": "Carbon Dioxide Input Ratio",
-                    "zh": "二氧化碳输入比率"
+                    "en-us": "Carbon Dioxide Input Ratio",
+                    "zh-hans": "二氧化碳输入比率"
                 }
             },
             "RatioCarbonDioxideInput2": {
                 "desc": {
-                    "en": "Carbon Dioxide Input Ratio 2",
-                    "zh": "二氧化碳输入比率2"
+                    "en-us": "Carbon Dioxide Input Ratio 2",
+                    "zh-hans": "二氧化碳输入比率2"
                 }
             },
             "RatioCarbonDioxideOutput": {
                 "desc": {
-                    "en": "Carbon Dioxide Output Ratio",
-                    "zh": "二氧化碳输出比率"
+                    "en-us": "Carbon Dioxide Output Ratio",
+                    "zh-hans": "二氧化碳输出比率"
                 }
             },
             "RatioCarbonDioxideOutput2": {
                 "desc": {
-                    "en": "Carbon Dioxide Output Ratio 2",
-                    "zh": "二氧化碳输出比率2"
+                    "en-us": "Carbon Dioxide Output Ratio 2",
+                    "zh-hans": "二氧化碳输出比率2"
                 }
             },
             "RatioHydrogen": {
                 "desc": {
-                    "en": "Hydrogen Ratio",
-                    "zh": "氢气比率"
+                    "en-us": "Hydrogen Ratio",
+                    "zh-hans": "氢气比率"
                 }
             },
             "RatioLiquidCarbonDioxide": {
                 "desc": {
-                    "en": "Liquid Carbon Dioxide Ratio",
-                    "zh": "液态二氧化碳比率"
+                    "en-us": "Liquid Carbon Dioxide Ratio",
+                    "zh-hans": "液态二氧化碳比率"
                 }
             },
             "Ratiol.iquidCarbonDioxideInput": {
                 "desc": {
-                    "en": "Liquid Carbon Dioxide Input Ratio",
-                    "zh": "液态二氧化碳输入比率"
+                    "en-us": "Liquid Carbon Dioxide Input Ratio",
+                    "zh-hans": "液态二氧化碳输入比率"
                 }
             },
             "Ratiol.iquidCarbonDioxideInput2": {
                 "desc": {
-                    "en": "Liquid Carbon Dioxide Input Ratio 2",
-                    "zh": "液态二氧化碳输入比率2"
+                    "en-us": "Liquid Carbon Dioxide Input Ratio 2",
+                    "zh-hans": "液态二氧化碳输入比率2"
                 }
             },
             "Ratiol.iquidCarbonDioxideOutput": {
                 "desc": {
-                    "en": "Liquid Carbon Dioxide Output Ratio",
-                    "zh": "液态二氧化碳输出比率"
+                    "en-us": "Liquid Carbon Dioxide Output Ratio",
+                    "zh-hans": "液态二氧化碳输出比率"
                 }
             },
             "Ratiol.iquidCarbonDioxideOutput2": {
                 "desc": {
-                    "en": "Liquid Carbon Dioxide Output Ratio 2",
-                    "zh": "液态二氧化碳输出比率2"
+                    "en-us": "Liquid Carbon Dioxide Output Ratio 2",
+                    "zh-hans": "液态二氧化碳输出比率2"
                 }
             },
             "Ratiol.iquidNitrogen": {
                 "desc": {
-                    "en": "Liquid Nitrogen Ratio",
-                    "zh": "液态氮气比率"
+                    "en-us": "Liquid Nitrogen Ratio",
+                    "zh-hans": "液态氮气比率"
                 }
             },
             "Ratiol.iquidNitrogenInput": {
                 "desc": {
-                    "en": "Liquid Nitrogen Input Ratio",
-                    "zh": "液态氮气输入比率"
+                    "en-us": "Liquid Nitrogen Input Ratio",
+                    "zh-hans": "液态氮气输入比率"
                 }
             },
             "Ratiol.iquidNitrogenInput2": {
                 "desc": {
-                    "en": "Liquid Nitrogen Input Ratio 2",
-                    "zh": "液态氮气输入比率2"
+                    "en-us": "Liquid Nitrogen Input Ratio 2",
+                    "zh-hans": "液态氮气输入比率2"
                 }
             },
             "Ratiol.IquidNitrogenOutput": {
                 "desc": {
-                    "en": "Liquid Nitrogen Output Ratio",
-                    "zh": "液态氮气输出比率"
+                    "en-us": "Liquid Nitrogen Output Ratio",
+                    "zh-hans": "液态氮气输出比率"
                 }
             },
             "Ratiol.IquidNitrogenOutput2": {
                 "desc": {
-                    "en": "Liquid Nitrogen Output Ratio 2",
-                    "zh": "液态氮气输出比率2"
+                    "en-us": "Liquid Nitrogen Output Ratio 2",
+                    "zh-hans": "液态氮气输出比率2"
                 }
             },
             "Ratiol.IquidNitrousOxide": {
                 "desc": {
-                    "en": "Liquid Nitrous Oxide Ratio",
-                    "zh": "液态氧化亚氮比率"
+                    "en-us": "Liquid Nitrous Oxide Ratio",
+                    "zh-hans": "液态氧化亚氮比率"
                 }
             },
             "Ratiol.IquidNitrousOxideInput": {
                 "desc": {
-                    "en": "Liquid Nitrous Oxide Input Ratio",
-                    "zh": "液态氧化亚氮输入比率"
+                    "en-us": "Liquid Nitrous Oxide Input Ratio",
+                    "zh-hans": "液态氧化亚氮输入比率"
                 }
             },
             "Ratiol.IquidNitrousOxideInput2": {
                 "desc": {
-                    "en": "Liquid Nitrous Oxide Input Ratio 2",
-                    "zh": "液态氧化亚氮输入比率2"
+                    "en-us": "Liquid Nitrous Oxide Input Ratio 2",
+                    "zh-hans": "液态氧化亚氮输入比率2"
                 }
             },
             "Ratiol.IquidNitrousOxideOutput": {
                 "desc": {
-                    "en": "Liquid Nitrous Oxide Output Ratio",
-                    "zh": "液态氧化亚氮输出比率"
+                    "en-us": "Liquid Nitrous Oxide Output Ratio",
+                    "zh-hans": "液态氧化亚氮输出比率"
                 }
             },
             "Ratiol.IquidNitrousOxideOutput2": {
                 "desc": {
-                    "en": "Liquid Nitrous Oxide Output Ratio 2",
-                    "zh": "液态氧化亚氮输出比率2"
+                    "en-us": "Liquid Nitrous Oxide Output Ratio 2",
+                    "zh-hans": "液态氧化亚氮输出比率2"
                 }
             },
             "Ratiol.IquidOxygen": {
                 "desc": {
-                    "en": "Liquid Oxygen Ratio",
-                    "zh": "液态氧气比率"
+                    "en-us": "Liquid Oxygen Ratio",
+                    "zh-hans": "液态氧气比率"
                 }
             },
             "RatioLiquidOxygenInput": {
                 "desc": {
-                    "en": "Liquid Oxygen Input Ratio",
-                    "zh": "液态氧气输入比率"
+                    "en-us": "Liquid Oxygen Input Ratio",
+                    "zh-hans": "液态氧气输入比率"
                 }
             },
             "RatioLiquidOxygenInput2": {
                 "desc": {
-                    "en": "Liquid Oxygen Input Ratio 2",
-                    "zh": "液态氧气输入比率2"
+                    "en-us": "Liquid Oxygen Input Ratio 2",
+                    "zh-hans": "液态氧气输入比率2"
                 }
             },
             "RatioLiquidOxygenOutput": {
                 "desc": {
-                    "en": "Liquid Oxygen Output Ratio",
-                    "zh": "液态氧气输出比率"
+                    "en-us": "Liquid Oxygen Output Ratio",
+                    "zh-hans": "液态氧气输出比率"
                 }
             },
             "RatioLiquidOxygenOutput2": {
                 "desc": {
-                    "en": "Liquid Oxygen Output Ratio 2",
-                    "zh": "液态氧气输出比率2"
+                    "en-us": "Liquid Oxygen Output Ratio 2",
+                    "zh-hans": "液态氧气输出比率2"
                 }
             },
             "RatioLiquidPollutant": {
                 "desc": {
-                    "en": "Liquid Pollutant Ratio",
-                    "zh": "液态污染物比率"
+                    "en-us": "Liquid Pollutant Ratio",
+                    "zh-hans": "液态污染物比率"
                 }
             },
             "RatioLiquidPollutantInput": {
                 "desc": {
-                    "en": "Liquid Pollutant Input Ratio",
-                    "zh": "液态污染物输入比率"
+                    "en-us": "Liquid Pollutant Input Ratio",
+                    "zh-hans": "液态污染物输入比率"
                 }
             },
             "RatioLiquidPollutantInput2": {
                 "desc": {
-                    "en": "Liquid Pollutant Input Ratio 2",
-                    "zh": "液态污染物输入比率2"
+                    "en-us": "Liquid Pollutant Input Ratio 2",
+                    "zh-hans": "液态污染物输入比率2"
                 }
             },
             "RatioLiquidPollutantOutput": {
                 "desc": {
-                    "en": "Liquid Pollutant Output Ratio",
-                    "zh": "液态污染物输出比率"
+                    "en-us": "Liquid Pollutant Output Ratio",
+                    "zh-hans": "液态污染物输出比率"
                 }
             },
             "RatioLiquidPollutantOutput2": {
                 "desc": {
-                    "en": "Liquid Pollutant Output Ratio 2",
-                    "zh": "液态污染物输出比率2"
+                    "en-us": "Liquid Pollutant Output Ratio 2",
+                    "zh-hans": "液态污染物输出比率2"
                 }
             },
             "RatioLiquidVolatiles": {
                 "desc": {
-                    "en": "Liquid Volatiles Ratio",
-                    "zh": "液态挥发物比率"
+                    "en-us": "Liquid Volatiles Ratio",
+                    "zh-hans": "液态挥发物比率"
                 }
             },
             "RatioLiquidVolatilesInput": {
                 "desc": {
-                    "en": "Liquid Volatiles Input Ratio",
-                    "zh": "液态挥发物输入比率"
+                    "en-us": "Liquid Volatiles Input Ratio",
+                    "zh-hans": "液态挥发物输入比率"
                 }
             },
             "RatioLiquidVolatilesInput2": {
                 "desc": {
-                    "en": "Liquid Volatiles Input Ratio 2",
-                    "zh": "液态挥发物输入比率2"
+                    "en-us": "Liquid Volatiles Input Ratio 2",
+                    "zh-hans": "液态挥发物输入比率2"
                 }
             },
             "RatioLiquidVolatilesOutput": {
                 "desc": {
-                    "en": "Liquid Volatiles Output Ratio",
-                    "zh": "液态挥发物输出比率"
+                    "en-us": "Liquid Volatiles Output Ratio",
+                    "zh-hans": "液态挥发物输出比率"
                 }
             },
             "RatioLiquidVolatilesOutput2": {
                 "desc": {
-                    "en": "Liquid Volatiles Output Ratio 2",
-                    "zh": "液态挥发物输出比率2"
+                    "en-us": "Liquid Volatiles Output Ratio 2",
+                    "zh-hans": "液态挥发物输出比率2"
                 }
             },
             "RatioNitrogen": {
                 "desc": {
-                    "en": "Nitrogen Ratio",
-                    "zh": "氮气比率"
+                    "en-us": "Nitrogen Ratio",
+                    "zh-hans": "氮气比率"
                 }
             },
             "RatioNitrogenInput": {
                 "desc": {
-                    "en": "Nitrogen Input Ratio",
-                    "zh": "氮气输入比率"
+                    "en-us": "Nitrogen Input Ratio",
+                    "zh-hans": "氮气输入比率"
                 }
             },
             "RatioNitrogenInput2": {
                 "desc": {
-                    "en": "Nitrogen Input Ratio 2",
-                    "zh": "氮气输入比率2"
+                    "en-us": "Nitrogen Input Ratio 2",
+                    "zh-hans": "氮气输入比率2"
                 }
             },
             "RatioNitrogenOutput": {
                 "desc": {
-                    "en": "Nitrogen Output Ratio",
-                    "zh": "氮气输出比率"
+                    "en-us": "Nitrogen Output Ratio",
+                    "zh-hans": "氮气输出比率"
                 }
             },
             "RatioNitrogenOutput2": {
                 "desc": {
-                    "en": "Nitrogen Output Ratio 2",
-                    "zh": "氮气输出比率2"
+                    "en-us": "Nitrogen Output Ratio 2",
+                    "zh-hans": "氮气输出比率2"
                 }
             },
             "RatioNitrousOxide": {
                 "desc": {
-                    "en": "Nitrous Oxide Ratio",
-                    "zh": "氧化亚氮比率"
+                    "en-us": "Nitrous Oxide Ratio",
+                    "zh-hans": "氧化亚氮比率"
                 }
             },
             "RatioNitrousOxideInput": {
                 "desc": {
-                    "en": "Nitrous Oxide Input Ratio",
-                    "zh": "氧化亚氮输入比率"
+                    "en-us": "Nitrous Oxide Input Ratio",
+                    "zh-hans": "氧化亚氮输入比率"
                 }
             },
             "RatioNitrousOxideInput2": {
                 "desc": {
-                    "en": "Nitrous Oxide Input Ratio 2",
-                    "zh": "氧化亚氮输入比率2"
+                    "en-us": "Nitrous Oxide Input Ratio 2",
+                    "zh-hans": "氧化亚氮输入比率2"
                 }
             },
             "RatioNitrousOxideOutput": {
                 "desc": {
-                    "en": "Nitrous Oxide Output Ratio",
-                    "zh": "氧化亚氮输出比率"
+                    "en-us": "Nitrous Oxide Output Ratio",
+                    "zh-hans": "氧化亚氮输出比率"
                 }
             },
             "RatioNitrousOxideOutput2": {
                 "desc": {
-                    "en": "Nitrous Oxide Output Ratio 2",
-                    "zh": "氧化亚氮输出比率2"
+                    "en-us": "Nitrous Oxide Output Ratio 2",
+                    "zh-hans": "氧化亚氮输出比率2"
                 }
             },
             "RatioOxygen": {
                 "desc": {
-                    "en": "Oxygen Ratio",
-                    "zh": "氧气比率"
+                    "en-us": "Oxygen Ratio",
+                    "zh-hans": "氧气比率"
                 }
             },
             "RatioOxygenInput": {
                 "desc": {
-                    "en": "Oxygen Input Ratio",
-                    "zh": "氧气输入比率"
+                    "en-us": "Oxygen Input Ratio",
+                    "zh-hans": "氧气输入比率"
                 }
             },
             "RatioOxygenInput2": {
                 "desc": {
-                    "en": "Oxygen Input Ratio 2",
-                    "zh": "氧气输入比率2"
+                    "en-us": "Oxygen Input Ratio 2",
+                    "zh-hans": "氧气输入比率2"
                 }
             },
             "RatioOxygenOutput": {
                 "desc": {
-                    "en": "Oxygen Output Ratio",
-                    "zh": "氧气输出比率"
+                    "en-us": "Oxygen Output Ratio",
+                    "zh-hans": "氧气输出比率"
                 }
             },
             "RatioOxygenOutput2": {
                 "desc": {
-                    "en": "Oxygen Output Ratio 2",
-                    "zh": "氧气输出比率2"
+                    "en-us": "Oxygen Output Ratio 2",
+                    "zh-hans": "氧气输出比率2"
                 }
             },
             "RatioPollutant": {
                 "desc": {
-                    "en": "Pollutant Ratio",
-                    "zh": "污染物比率"
+                    "en-us": "Pollutant Ratio",
+                    "zh-hans": "污染物比率"
                 }
             },
             "RatioPollutantInput": {
                 "desc": {
-                    "en": "Pollutant Input Ratio",
-                    "zh": "污染物输入比率"
+                    "en-us": "Pollutant Input Ratio",
+                    "zh-hans": "污染物输入比率"
                 }
             },
             "RatioPollutantInput2": {
                 "desc": {
-                    "en": "Pollutant Input Ratio 2",
-                    "zh": "污染物输入比率2"
+                    "en-us": "Pollutant Input Ratio 2",
+                    "zh-hans": "污染物输入比率2"
                 }
             },
             "RatioPollutantOutput": {
                 "desc": {
-                    "en": "Pollutant Output Ratio",
-                    "zh": "污染物输出比率"
+                    "en-us": "Pollutant Output Ratio",
+                    "zh-hans": "污染物输出比率"
                 }
             },
             "RatioPollutantOutput2": {
                 "desc": {
-                    "en": "Pollutant Output Ratio 2",
-                    "zh": "污染物输出比率2"
+                    "en-us": "Pollutant Output Ratio 2",
+                    "zh-hans": "污染物输出比率2"
                 }
             },
             "RatioPollutedWater": {
                 "desc": {
-                    "en": "Polluted Water Ratio",
-                    "zh": "污染水比率"
+                    "en-us": "Polluted Water Ratio",
+                    "zh-hans": "污染水比率"
                 }
             },
             "RatioSteam": {
                 "desc": {
-                    "en": "Steam Ratio",
-                    "zh": "蒸汽比率"
+                    "en-us": "Steam Ratio",
+                    "zh-hans": "蒸汽比率"
                 }
             },
             "RatioSteamInput": {
                 "desc": {
-                    "en": "Steam Input Ratio",
-                    "zh": "蒸汽输入比率"
+                    "en-us": "Steam Input Ratio",
+                    "zh-hans": "蒸汽输入比率"
                 }
             },
             "RatioSteamInput2": {
                 "desc": {
-                    "en": "Steam Input Ratio 2",
-                    "zh": "蒸汽输入比率2"
+                    "en-us": "Steam Input Ratio 2",
+                    "zh-hans": "蒸汽输入比率2"
                 }
             },
             "RatioSteamOutput": {
                 "desc": {
-                    "en": "Steam Output Ratio",
-                    "zh": "蒸汽输出比率"
+                    "en-us": "Steam Output Ratio",
+                    "zh-hans": "蒸汽输出比率"
                 }
             },
             "RatioSteamOutput2": {
                 "desc": {
-                    "en": "Steam Output Ratio 2",
-                    "zh": "蒸汽输出比率2"
+                    "en-us": "Steam Output Ratio 2",
+                    "zh-hans": "蒸汽输出比率2"
                 }
             },
             "RatioVolatiles": {
                 "desc": {
-                    "en": "Volatiles Ratio",
-                    "zh": "挥发物比率"
+                    "en-us": "Volatiles Ratio",
+                    "zh-hans": "挥发物比率"
                 }
             },
             "RatioVolatilesInput": {
                 "desc": {
-                    "en": "Volatiles Input Ratio",
-                    "zh": "挥发物输入比率"
+                    "en-us": "Volatiles Input Ratio",
+                    "zh-hans": "挥发物输入比率"
                 }
             },
             "RatioVolatilesInput2": {
                 "desc": {
-                    "en": "Volatiles Input Ratio 2",
-                    "zh": "挥发物输入比率2"
+                    "en-us": "Volatiles Input Ratio 2",
+                    "zh-hans": "挥发物输入比率2"
                 }
             },
             "RatioVolatilesOutput": {
                 "desc": {
-                    "en": "Volatiles Output Ratio",
-                    "zh": "挥发物输出比率"
+                    "en-us": "Volatiles Output Ratio",
+                    "zh-hans": "挥发物输出比率"
                 }
             },
             "RatioVolatilesOutput2": {
                 "desc": {
-                    "en": "Volatiles Output Ratio 2",
-                    "zh": "挥发物输出比率2"
+                    "en-us": "Volatiles Output Ratio 2",
+                    "zh-hans": "挥发物输出比率2"
                 }
             },
             "RatioWater": {
                 "desc": {
-                    "en": "Water Ratio",
-                    "zh": "水比率"
+                    "en-us": "Water Ratio",
+                    "zh-hans": "水比率"
                 }
             },
             "RatioWaterInput": {
                 "desc": {
-                    "en": "Water Input Ratio",
-                    "zh": "水输入比率"
+                    "en-us": "Water Input Ratio",
+                    "zh-hans": "水输入比率"
                 }
             },
             "RatioWaterInput2": {
                 "desc": {
-                    "en": "Water Input Ratio 2",
-                    "zh": "水输入比率2"
+                    "en-us": "Water Input Ratio 2",
+                    "zh-hans": "水输入比率2"
                 }
             },
             "RatioWaterOutput": {
                 "desc": {
-                    "en": "Water Output Ratio",
-                    "zh": "水输出比率"
+                    "en-us": "Water Output Ratio",
+                    "zh-hans": "水输出比率"
                 }
             },
             "RatioWaterOutput2": {
                 "desc": {
-                    "en": "Water Output Ratio 2",
-                    "zh": "水输出比率2"
+                    "en-us": "Water Output Ratio 2",
+                    "zh-hans": "水输出比率2"
                 }
             },
             "Reagents": {
                 "desc": {
-                    "en": "Reagents",
-                    "zh": "试剂"
+                    "en-us": "Reagents",
+                    "zh-hans": "试剂"
                 }
             },
             "RecipeHash": {
                 "desc": {
-                    "en": "Recipe Hash",
-                    "zh": "配方哈希"
+                    "en-us": "Recipe Hash",
+                    "zh-hans": "配方哈希"
                 }
             },
             "ReEntryAltitude": {
                 "desc": {
-                    "en": "Re-entry Altitude",
-                    "zh": "再入高度"
+                    "en-us": "Re-entry Altitude",
+                    "zh-hans": "再入高度"
                 }
             },
             "ReferenceId": {
                 "desc": {
-                    "en": "Reference ID",
-                    "zh": "参考ID"
+                    "en-us": "Reference ID",
+                    "zh-hans": "参考ID"
                 }
             },
             "RequestHash": {
                 "desc": {
-                    "en": "Request Hash",
-                    "zh": "请求哈希"
+                    "en-us": "Request Hash",
+                    "zh-hans": "请求哈希"
                 }
             },
             "RequiredPower": {
                 "desc": {
-                    "en": "Required Power",
-                    "zh": "所需功率"
+                    "en-us": "Required Power",
+                    "zh-hans": "所需功率"
                 }
             },
             "Reset": {
                 "desc": {
-                    "en": "Reset",
-                    "zh": "重置"
+                    "en-us": "Reset",
+                    "zh-hans": "重置"
                 }
             },
             "ReturnFuelCost": {
                 "desc": {
-                    "en": "Return Fuel Cost",
-                    "zh": "返回燃料成本"
+                    "en-us": "Return Fuel Cost",
+                    "zh-hans": "返回燃料成本"
                 }
             },
             "Richness": {
                 "desc": {
-                    "en": "Richness",
-                    "zh": "丰富度"
+                    "en-us": "Richness",
+                    "zh-hans": "丰富度"
                 }
             },
             "Rpm": {
                 "desc": {
-                    "en": "RPM",
-                    "zh": "每分钟转速"
+                    "en-us": "RPM",
+                    "zh-hans": "每分钟转速"
                 }
             },
             "SemMajorAxis": {
                 "desc": {
-                    "en": "Semi-major Axis",
-                    "zh": "半长轴"
+                    "en-us": "Semi-major Axis",
+                    "zh-hans": "半长轴"
                 }
             },
             "Setpoint": {
                 "desc": {
-                    "en": "Setpoint",
-                    "zh": "设定点"
+                    "en-us": "Setpoint",
+                    "zh-hans": "设定点"
                 }
             },
             "Setting": {
                 "desc": {
-                    "en": "Setting",
-                    "zh": "设置"
+                    "en-us": "Setting",
+                    "zh-hans": "设置"
                 }
             },
             "SettingInput": {
                 "desc": {
-                    "en": "Setting Input",
-                    "zh": "设置输入"
+                    "en-us": "Setting Input",
+                    "zh-hans": "设置输入"
                 }
             },
             "SettingOutput": {
                 "desc": {
-                    "en": "Setting Output",
-                    "zh": "设置输出"
+                    "en-us": "Setting Output",
+                    "zh-hans": "设置输出"
                 }
             },
             "SignalID": {
                 "desc": {
-                    "en": "Signal ID",
-                    "zh": "信号ID"
+                    "en-us": "Signal ID",
+                    "zh-hans": "信号ID"
                 }
             },
             "SignalStrength": {
                 "desc": {
-                    "en": "Signal Strength",
-                    "zh": "信号强度"
+                    "en-us": "Signal Strength",
+                    "zh-hans": "信号强度"
                 }
             },
             "Sites": {
                 "desc": {
-                    "en": "Sites",
-                    "zh": "站点"
+                    "en-us": "Sites",
+                    "zh-hans": "站点"
                 }
             },
             "Size": {
                 "desc": {
-                    "en": "Size",
-                    "zh": "尺寸"
+                    "en-us": "Size",
+                    "zh-hans": "尺寸"
                 }
             },
             "SizeX": {
                 "desc": {
-                    "en": "Size X",
-                    "zh": "尺寸X"
+                    "en-us": "Size X",
+                    "zh-hans": "尺寸X"
                 }
             },
             "SizeY": {
                 "desc": {
-                    "en": "Size Y",
-                    "zh": "尺寸Y"
+                    "en-us": "Size Y",
+                    "zh-hans": "尺寸Y"
                 }
             },
             "SizeZ": {
                 "desc": {
-                    "en": "Size Z",
-                    "zh": "尺寸Z"
+                    "en-us": "Size Z",
+                    "zh-hans": "尺寸Z"
                 }
             },
             "SolarAngle": {
                 "desc": {
-                    "en": "Solar Angle",
-                    "zh": "太阳角度"
+                    "en-us": "Solar Angle",
+                    "zh-hans": "太阳角度"
                 }
             },
             "SolarIrradiance": {
                 "desc": {
-                    "en": "Solar Irradiance",
-                    "zh": "太阳辐照度"
+                    "en-us": "Solar Irradiance",
+                    "zh-hans": "太阳辐照度"
                 }
             },
             "SoundAlert": {
                 "desc": {
-                    "en": "Sound Alert",
-                    "zh": "声音警报"
+                    "en-us": "Sound Alert",
+                    "zh-hans": "声音警报"
                 }
             },
             "StackTrace": {
                 "desc": {
-                    "en": "Stack Trace",
-                    "zh": "堆栈跟踪"
+                    "en-us": "Stack Trace",
+                    "zh-hans": "堆栈跟踪"
                 }
             },
             "Stress": {
                 "desc": {
-                    "en": "Stress",
-                    "zh": "应力"
+                    "en-us": "Stress",
+                    "zh-hans": "应力"
                 }
             },
             "Survey": {
                 "desc": {
-                    "en": "Survey",
-                    "zh": "调查"
+                    "en-us": "Survey",
+                    "zh-hans": "调查"
                 }
             },
             "TargetPadIndex": {
                 "desc": {
-                    "en": "Target Pad Index",
-                    "zh": "目标平台索引"
+                    "en-us": "Target Pad Index",
+                    "zh-hans": "目标平台索引"
                 }
             },
             "TargetPrefabHash": {
                 "desc": {
-                    "en": "Target Prefab Hash",
-                    "zh": "目标预制体哈希"
+                    "en-us": "Target Prefab Hash",
+                    "zh-hans": "目标预制体哈希"
                 }
             },
             "TargetSlotIndex": {
                 "desc": {
-                    "en": "Target Slot Index",
-                    "zh": "目标槽位索引"
+                    "en-us": "Target Slot Index",
+                    "zh-hans": "目标槽位索引"
                 }
             },
             "TargetX": {
                 "desc": {
-                    "en": "Target X",
-                    "zh": "目标X"
+                    "en-us": "Target X",
+                    "zh-hans": "目标X"
                 }
             },
             "TargetY": {
                 "desc": {
-                    "en": "Target Y",
-                    "zh": "目标Y"
+                    "en-us": "Target Y",
+                    "zh-hans": "目标Y"
                 }
             },
             "TargetZ": {
                 "desc": {
-                    "en": "Target Z",
-                    "zh": "目标Z"
+                    "en-us": "Target Z",
+                    "zh-hans": "目标Z"
                 }
             },
             "Temperature": {
                 "desc": {
-                    "en": "Temperature",
-                    "zh": "温度"
+                    "en-us": "Temperature",
+                    "zh-hans": "温度"
                 }
             },
             "TemperatureDifferentialEfficiency": {
                 "desc": {
-                    "en": "Temperature Differential Efficiency",
-                    "zh": "温差效率"
+                    "en-us": "Temperature Differential Efficiency",
+                    "zh-hans": "温差效率"
                 }
             },
             "TemperatureExternal": {
                 "desc": {
-                    "en": "External Temperature",
-                    "zh": "外部温度"
+                    "en-us": "External Temperature",
+                    "zh-hans": "外部温度"
                 }
             },
             "TemperatureInput": {
                 "desc": {
-                    "en": "Temperature Input",
-                    "zh": "温度输入"
+                    "en-us": "Temperature Input",
+                    "zh-hans": "温度输入"
                 }
             },
             "TemperatureInput2": {
                 "desc": {
-                    "en": "Temperature Input 2",
-                    "zh": "温度输入2"
+                    "en-us": "Temperature Input 2",
+                    "zh-hans": "温度输入2"
                 }
             },
             "TemperatureOutput": {
                 "desc": {
-                    "en": "Temperature Output",
-                    "zh": "温度输出"
+                    "en-us": "Temperature Output",
+                    "zh-hans": "温度输出"
                 }
             },
             "TemperatureOutput2": {
                 "desc": {
-                    "en": "Temperature Output 2",
-                    "zh": "温度输出2"
+                    "en-us": "Temperature Output 2",
+                    "zh-hans": "温度输出2"
                 }
             },
             "TemperatureSetting": {
                 "desc": {
-                    "en": "Temperature Setting",
-                    "zh": "温度设置"
+                    "en-us": "Temperature Setting",
+                    "zh-hans": "温度设置"
                 }
             },
             "Throttle": {
                 "desc": {
-                    "en": "Throttle",
-                    "zh": "节流阀"
+                    "en-us": "Throttle",
+                    "zh-hans": "节流阀"
                 }
             },
             "Thrust": {
                 "desc": {
-                    "en": "Thrust",
-                    "zh": "推力"
+                    "en-us": "Thrust",
+                    "zh-hans": "推力"
                 }
             },
             "ThrustToWeight": {
                 "desc": {
-                    "en": "Thrust-to-Weight",
-                    "zh": "推重比"
+                    "en-us": "Thrust-to-Weight",
+                    "zh-hans": "推重比"
                 }
             },
             "Time": {
                 "desc": {
-                    "en": "Time",
-                    "zh": "时间"
+                    "en-us": "Time",
+                    "zh-hans": "时间"
                 }
             },
             "TimeToDestination": {
                 "desc": {
-                    "en": "Time to Destination",
-                    "zh": "到达目的地时间"
+                    "en-us": "Time to Destination",
+                    "zh-hans": "到达目的地时间"
                 }
             },
             "TotalMoles": {
                 "desc": {
-                    "en": "Total Moles",
-                    "zh": "总摩尔数"
+                    "en-us": "Total Moles",
+                    "zh-hans": "总摩尔数"
                 }
             },
             "TotalMolesInput": {
                 "desc": {
-                    "en": "Total Moles Input",
-                    "zh": "总摩尔数输入"
+                    "en-us": "Total Moles Input",
+                    "zh-hans": "总摩尔数输入"
                 }
             },
             "TotalMolesInput2": {
                 "desc": {
-                    "en": "Total Moles Input 2",
-                    "zh": "总摩尔数输入2"
+                    "en-us": "Total Moles Input 2",
+                    "zh-hans": "总摩尔数输入2"
                 }
             },
             "TotalMolesOutput": {
                 "desc": {
-                    "en": "Total Moles Output",
-                    "zh": "总摩尔数输出"
+                    "en-us": "Total Moles Output",
+                    "zh-hans": "总摩尔数输出"
                 }
             },
             "TotalMolesOutput2": {
                 "desc": {
-                    "en": "Total Moles Output 2",
-                    "zh": "总摩尔数输出2"
+                    "en-us": "Total Moles Output 2",
+                    "zh-hans": "总摩尔数输出2"
                 }
             },
             "TotalQuantity": {
                 "desc": {
-                    "en": "Total Quantity",
-                    "zh": "总数量"
+                    "en-us": "Total Quantity",
+                    "zh-hans": "总数量"
                 }
             },
             "TrueAnomaly": {
                 "desc": {
-                    "en": "True Anomaly",
-                    "zh": "真近点角"
+                    "en-us": "True Anomaly",
+                    "zh-hans": "真近点角"
                 }
             },
             "VelocityMagnitude": {
                 "desc": {
-                    "en": "Velocity Magnitude",
-                    "zh": "速度大小"
+                    "en-us": "Velocity Magnitude",
+                    "zh-hans": "速度大小"
                 }
             },
             "VelocityRelativeX": {
                 "desc": {
-                    "en": "Relative Velocity X",
-                    "zh": "相对速度X"
+                    "en-us": "Relative Velocity X",
+                    "zh-hans": "相对速度X"
                 }
             },
             "VelocityRelativeY": {
                 "desc": {
-                    "en": "Relative Velocity Y",
-                    "zh": "相对速度Y"
+                    "en-us": "Relative Velocity Y",
+                    "zh-hans": "相对速度Y"
                 }
             },
             "VelocityRelativeZ": {
                 "desc": {
-                    "en": "Relative Velocity Z",
-                    "zh": "相对速度Z"
+                    "en-us": "Relative Velocity Z",
+                    "zh-hans": "相对速度Z"
                 }
             },
             "VelocityX": {
                 "desc": {
-                    "en": "Velocity X",
-                    "zh": "速度X"
+                    "en-us": "Velocity X",
+                    "zh-hans": "速度X"
                 }
             },
             "VelocityY": {
                 "desc": {
-                    "en": "Velocity Y",
-                    "zh": "速度Y"
+                    "en-us": "Velocity Y",
+                    "zh-hans": "速度Y"
                 }
             },
             "VelocityZ": {
                 "desc": {
-                    "en": "Velocity Z",
-                    "zh": "速度Z"
+                    "en-us": "Velocity Z",
+                    "zh-hans": "速度Z"
                 }
             },
             "Vertical": {
                 "desc": {
-                    "en": "Vertical",
-                    "zh": "垂直"
+                    "en-us": "Vertical",
+                    "zh-hans": "垂直"
                 }
             },
             "VerticalRatio": {
                 "desc": {
-                    "en": "Vertical Ratio",
-                    "zh": "垂直比率"
+                    "en-us": "Vertical Ratio",
+                    "zh-hans": "垂直比率"
                 }
             },
             "Volume": {
                 "desc": {
-                    "en": "Volume",
-                    "zh": "体积"
+                    "en-us": "Volume",
+                    "zh-hans": "体积"
                 }
             },
             "VolumeOfLiquid": {
                 "desc": {
-                    "en": "Volume of Liquid",
-                    "zh": "液体体积"
+                    "en-us": "Volume of Liquid",
+                    "zh-hans": "液体体积"
                 }
             },
             "WattsReachingContact": {
                 "desc": {
-                    "en": "Watts Reaching Contact",
-                    "zh": "到达接触点功率"
+                    "en-us": "Watts Reaching Contact",
+                    "zh-hans": "到达接触点功率"
                 }
             },
             "Weight": {
                 "desc": {
-                    "en": "Weight",
-                    "zh": "重量"
+                    "en-us": "Weight",
+                    "zh-hans": "重量"
                 }
             },
             "WorkingGasEfficiency": {
                 "desc": {
-                    "en": "Working Gas Efficiency",
-                    "zh": "工作气体效率"
+                    "en-us": "Working Gas Efficiency",
+                    "zh-hans": "工作气体效率"
                 }
             }
         }
     },
     "PowerMode": {
         "desc": {
-            "en": "Power Mode",
-            "zh": "电源模式"
+            "en-us": "Power Mode",
+            "zh-hans": "电源模式"
         },
         "enums": {
             "Charged": {
                 "desc": {
-                    "en": "Charged",
-                    "zh": "已充电"
+                    "en-us": "Charged",
+                    "zh-hans": "已充电"
                 }
             },
             "Charging": {
                 "desc": {
-                    "en": "Charging",
-                    "zh": "充电中"
+                    "en-us": "Charging",
+                    "zh-hans": "充电中"
                 }
             },
             "Discharged": {
                 "desc": {
-                    "en": "Discharged",
-                    "zh": "已放电"
+                    "en-us": "Discharged",
+                    "zh-hans": "已放电"
                 }
             },
             "Discharging": {
                 "desc": {
-                    "en": "Discharging",
-                    "zh": "放电中"
+                    "en-us": "Discharging",
+                    "zh-hans": "放电中"
                 }
             },
             "Idle": {
                 "desc": {
-                    "en": "Idle",
-                    "zh": "空闲"
+                    "en-us": "Idle",
+                    "zh-hans": "空闲"
                 }
             }
         }
     },
     "PrinterInstruction": {
         "desc": {
-            "en": "Printer Instruction",
-            "zh": "打印机指令"
+            "en-us": "Printer Instruction",
+            "zh-hans": "打印机指令"
         },
         "enums": {
             "DeviceSetLock": {
                 "desc": {
-                    "en": "Device Set Lock",
-                    "zh": "设备设置锁定"
+                    "en-us": "Device Set Lock",
+                    "zh-hans": "设备设置锁定"
                 }
             },
             "EjectAllReagents": {
                 "desc": {
-                    "en": "Eject All Reagents",
-                    "zh": "弹出所有试剂"
+                    "en-us": "Eject All Reagents",
+                    "zh-hans": "弹出所有试剂"
                 }
             },
             "EjectReagent": {
                 "desc": {
-                    "en": "Eject Reagent",
-                    "zh": "弹出试剂"
+                    "en-us": "Eject Reagent",
+                    "zh-hans": "弹出试剂"
                 }
             },
             "ExecuteRecipe": {
                 "desc": {
-                    "en": "Execute Recipe",
-                    "zh": "执行配方"
+                    "en-us": "Execute Recipe",
+                    "zh-hans": "执行配方"
                 }
             },
             "JumpIfNextInvalid": {
                 "desc": {
-                    "en": "Jump If Next Invalid",
-                    "zh": "如果下一条无效则跳转"
+                    "en-us": "Jump If Next Invalid",
+                    "zh-hans": "如果下一条无效则跳转"
                 }
             },
             "JumpToAddress": {
                 "desc": {
-                    "en": "Jump To Address",
-                    "zh": "跳转到地址"
+                    "en-us": "Jump To Address",
+                    "zh-hans": "跳转到地址"
                 }
             },
             "MissingRecipeReagent": {
                 "desc": {
-                    "en": "Missing Recipe Reagent",
-                    "zh": "缺少配方试剂"
+                    "en-us": "Missing Recipe Reagent",
+                    "zh-hans": "缺少配方试剂"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             },
             "StackPointer": {
                 "desc": {
-                    "en": "Stack Pointer",
-                    "zh": "堆栈指针"
+                    "en-us": "Stack Pointer",
+                    "zh-hans": "堆栈指针"
                 }
             },
             "WaitUntilNextValid": {
                 "desc": {
-                    "en": "Wait Until Next Valid",
-                    "zh": "等待直到下一条有效"
+                    "en-us": "Wait Until Next Valid",
+                    "zh-hans": "等待直到下一条有效"
                 }
             }
         }
     },
     "ReEntryProfile": {
         "desc": {
-            "en": "Re-entry Profile",
-            "zh": "再入剖面"
+            "en-us": "Re-entry Profile",
+            "zh-hans": "再入剖面"
         },
         "enums": {
             "High": {
                 "desc": {
-                    "en": "High",
-                    "zh": "高"
+                    "en-us": "High",
+                    "zh-hans": "高"
                 }
             },
             "Low": {
                 "desc": {
-                    "en": "Low",
-                    "zh": "低"
+                    "en-us": "Low",
+                    "zh-hans": "低"
                 }
             },
             "Max": {
                 "desc": {
-                    "en": "Max",
-                    "zh": "最大"
+                    "en-us": "Max",
+                    "zh-hans": "最大"
                 }
             },
             "Medium": {
                 "desc": {
-                    "en": "Medium",
-                    "zh": "中"
+                    "en-us": "Medium",
+                    "zh-hans": "中"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             }
         }
     },
     "RobotMode": {
         "desc": {
-            "en": "Robot Mode",
-            "zh": "机器人模式"
+            "en-us": "Robot Mode",
+            "zh-hans": "机器人模式"
         },
         "enums": {
             "Follow": {
                 "desc": {
-                    "en": "Follow",
-                    "zh": "跟随"
+                    "en-us": "Follow",
+                    "zh-hans": "跟随"
                 }
             },
             "MoveToTarget": {
                 "desc": {
-                    "en": "Move To Target",
-                    "zh": "移动到目标"
+                    "en-us": "Move To Target",
+                    "zh-hans": "移动到目标"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             },
             "PathToTarget": {
                 "desc": {
-                    "en": "Path To Target",
-                    "zh": "路径到目标"
+                    "en-us": "Path To Target",
+                    "zh-hans": "路径到目标"
                 }
             },
             "Roam": {
                 "desc": {
-                    "en": "Roam",
-                    "zh": "漫游"
+                    "en-us": "Roam",
+                    "zh-hans": "漫游"
                 }
             },
             "StorageFull": {
                 "desc": {
-                    "en": "Storage Full",
-                    "zh": "存储已满"
+                    "en-us": "Storage Full",
+                    "zh-hans": "存储已满"
                 }
             },
             "Unload": {
                 "desc": {
-                    "en": "Unload",
-                    "zh": "卸载"
+                    "en-us": "Unload",
+                    "zh-hans": "卸载"
                 }
             }
         }
     },
     "RocketMode": {
         "desc": {
-            "en": "Rocket Mode",
-            "zh": "火箭模式"
+            "en-us": "Rocket Mode",
+            "zh-hans": "火箭模式"
         },
         "enums": {
             "Chart": {
                 "desc": {
-                    "en": "Chart",
-                    "zh": "制图"
+                    "en-us": "Chart",
+                    "zh-hans": "制图"
                 }
             },
             "Deploy": {
                 "desc": {
-                    "en": "Deploy",
-                    "zh": "部署"
+                    "en-us": "Deploy",
+                    "zh-hans": "部署"
                 }
             },
             "Discover": {
                 "desc": {
-                    "en": "Discover",
-                    "zh": "发现"
+                    "en-us": "Discover",
+                    "zh-hans": "发现"
                 }
             },
             "Invalid": {
                 "desc": {
-                    "en": "Invalid",
-                    "zh": "无效"
+                    "en-us": "Invalid",
+                    "zh-hans": "无效"
                 }
             },
             "Mine": {
                 "desc": {
-                    "en": "Mine",
-                    "zh": "采矿"
+                    "en-us": "Mine",
+                    "zh-hans": "采矿"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             },
             "Survey": {
                 "desc": {
-                    "en": "Survey",
-                    "zh": "调查"
+                    "en-us": "Survey",
+                    "zh-hans": "调查"
                 }
             }
         }
     },
     "SettingDisplayMode": {
         "desc": {
-            "en": "Setting Display Mode",
-            "zh": "设置显示模式"
+            "en-us": "Setting Display Mode",
+            "zh-hans": "设置显示模式"
         },
         "enums": {
             "Number": {
                 "desc": {
-                    "en": "Number",
-                    "zh": "数字"
+                    "en-us": "Number",
+                    "zh-hans": "数字"
                 }
             },
             "String": {
                 "desc": {
-                    "en": "String",
-                    "zh": "字符串"
+                    "en-us": "String",
+                    "zh-hans": "字符串"
                 }
             }
         }
     },
     "ShuttleType": {
         "desc": {
-            "en": "Shuttle Type",
-            "zh": "航天飞机类型"
+            "en-us": "Shuttle Type",
+            "zh-hans": "航天飞机类型"
         },
         "enums": {
             "Large": {
                 "desc": {
-                    "en": "Large",
-                    "zh": "大型"
+                    "en-us": "Large",
+                    "zh-hans": "大型"
                 }
             },
             "LargeGas": {
                 "desc": {
-                    "en": "Large Gas",
-                    "zh": "大型气体"
+                    "en-us": "Large Gas",
+                    "zh-hans": "大型气体"
                 }
             },
             "LargePlane": {
                 "desc": {
-                    "en": "Large Plane",
-                    "zh": "大型飞机"
+                    "en-us": "Large Plane",
+                    "zh-hans": "大型飞机"
                 }
             },
             "Medium": {
                 "desc": {
-                    "en": "Medium",
-                    "zh": "中型"
+                    "en-us": "Medium",
+                    "zh-hans": "中型"
                 }
             },
             "MediumGas": {
                 "desc": {
-                    "en": "Medium Gas",
-                    "zh": "中型气体"
+                    "en-us": "Medium Gas",
+                    "zh-hans": "中型气体"
                 }
             },
             "MediumPlane": {
                 "desc": {
-                    "en": "Medium Plane",
-                    "zh": "中型飞机"
+                    "en-us": "Medium Plane",
+                    "zh-hans": "中型飞机"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             },
             "Small": {
                 "desc": {
-                    "en": "Small",
-                    "zh": "小型"
+                    "en-us": "Small",
+                    "zh-hans": "小型"
                 }
             },
             "SmallGas": {
                 "desc": {
-                    "en": "Small Gas",
-                    "zh": "小型气体"
+                    "en-us": "Small Gas",
+                    "zh-hans": "小型气体"
                 }
             }
         }
     },
     "SlotClass": {
         "desc": {
-            "en": "Slot Class",
-            "zh": "槽位类别"
+            "en-us": "Slot Class",
+            "zh-hans": "槽位类别"
         },
         "enums": {
             "AccessCard": {
                 "desc": {
-                    "en": "Access Card",
-                    "zh": "门禁卡"
+                    "en-us": "Access Card",
+                    "zh-hans": "门禁卡"
                 }
             },
             "Appliance": {
                 "desc": {
-                    "en": "Appliance",
-                    "zh": "设备"
+                    "en-us": "Appliance",
+                    "zh-hans": "设备"
                 }
             },
             "Back": {
                 "desc": {
-                    "en": "Back",
-                    "zh": "背部"
+                    "en-us": "Back",
+                    "zh-hans": "背部"
                 }
             },
             "Battery": {
                 "desc": {
-                    "en": "Battery",
-                    "zh": "电池"
+                    "en-us": "Battery",
+                    "zh-hans": "电池"
                 }
             },
             "Belt": {
                 "desc": {
-                    "en": "Belt",
-                    "zh": "腰带"
+                    "en-us": "Belt",
+                    "zh-hans": "腰带"
                 }
             },
             "Blocked": {
                 "desc": {
-                    "en": "Blocked",
-                    "zh": "已阻挡"
+                    "en-us": "Blocked",
+                    "zh-hans": "已阻挡"
                 }
             },
             "Bottle": {
                 "desc": {
-                    "en": "Bottle",
-                    "zh": "瓶子"
+                    "en-us": "Bottle",
+                    "zh-hans": "瓶子"
                 }
             },
             "Cartridge": {
                 "desc": {
-                    "en": "Cartridge",
-                    "zh": "磁带/卡带"
+                    "en-us": "Cartridge",
+                    "zh-hans": "磁带/卡带"
                 }
             },
             "Circuit": {
                 "desc": {
-                    "en": "Circuit",
-                    "zh": "电路"
+                    "en-us": "Circuit",
+                    "zh-hans": "电路"
                 }
             },
             "Circuitboard": {
                 "desc": {
-                    "en": "Circuitboard",
-                    "zh": "电路板"
+                    "en-us": "Circuitboard",
+                    "zh-hans": "电路板"
                 }
             },
             "Crate": {
                 "desc": {
-                    "en": "Crate",
-                    "zh": "板条箱"
+                    "en-us": "Crate",
+                    "zh-hans": "板条箱"
                 }
             },
             "CreditCard": {
                 "desc": {
-                    "en": "Credit Card",
-                    "zh": "信用卡"
+                    "en-us": "Credit Card",
+                    "zh-hans": "信用卡"
                 }
             },
             "DataDisk": {
                 "desc": {
-                    "en": "Data Disk",
-                    "zh": "数据磁盘"
+                    "en-us": "Data Disk",
+                    "zh-hans": "数据磁盘"
                 }
             },
             "DirtCanister": {
                 "desc": {
-                    "en": "Dirt Canister",
-                    "zh": "土壤罐"
+                    "en-us": "Dirt Canister",
+                    "zh-hans": "土壤罐"
                 }
             },
             "DrillHead": {
                 "desc": {
-                    "en": "Drill Head",
-                    "zh": "钻头"
+                    "en-us": "Drill Head",
+                    "zh-hans": "钻头"
                 }
             },
             "Egg": {
                 "desc": {
-                    "en": "Egg",
-                    "zh": "蛋"
+                    "en-us": "Egg",
+                    "zh-hans": "蛋"
                 }
             },
             "Entity": {
                 "desc": {
-                    "en": "Entity",
-                    "zh": "实体"
+                    "en-us": "Entity",
+                    "zh-hans": "实体"
                 }
             },
             "Flare": {
                 "desc": {
-                    "en": "Flare",
-                    "zh": "信号弹"
+                    "en-us": "Flare",
+                    "zh-hans": "信号弹"
                 }
             },
             "GasCanister": {
                 "desc": {
-                    "en": "Gas Canister",
-                    "zh": "气体罐"
+                    "en-us": "Gas Canister",
+                    "zh-hans": "气体罐"
                 }
             },
             "GasFilter": {
                 "desc": {
-                    "en": "Gas Filter",
-                    "zh": "气体过滤器"
+                    "en-us": "Gas Filter",
+                    "zh-hans": "气体过滤器"
                 }
             },
             "Glasses": {
                 "desc": {
-                    "en": "Glasses",
-                    "zh": "眼镜"
+                    "en-us": "Glasses",
+                    "zh-hans": "眼镜"
                 }
             },
             "Helmet": {
                 "desc": {
-                    "en": "Helmet",
-                    "zh": "头盔"
+                    "en-us": "Helmet",
+                    "zh-hans": "头盔"
                 }
             },
             "Input": {
                 "desc": {
-                    "en": "Input",
-                    "zh": "输入"
+                    "en-us": "Input",
+                    "zh-hans": "输入"
                 }
             },
             "LiquidBottle": {
                 "desc": {
-                    "en": "Liquid Bottle",
-                    "zh": "液体瓶"
+                    "en-us": "Liquid Bottle",
+                    "zh-hans": "液体瓶"
                 }
             },
             "LiquidCanister": {
                 "desc": {
-                    "en": "Liquid Canister",
-                    "zh": "液体罐"
+                    "en-us": "Liquid Canister",
+                    "zh-hans": "液体罐"
                 }
             },
             "Magazine": {
                 "desc": {
-                    "en": "Magazine",
-                    "zh": "弹匣"
+                    "en-us": "Magazine",
+                    "zh-hans": "弹匣"
                 }
             },
             "Motherboard": {
                 "desc": {
-                    "en": "Motherboard",
-                    "zh": "主板"
+                    "en-us": "Motherboard",
+                    "zh-hans": "主板"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             },
             "One": {
                 "desc": {
-                    "en": "One",
-                    "zh": "一"
+                    "en-us": "One",
+                    "zh-hans": "一"
                 }
             },
             "Organ": {
                 "desc": {
-                    "en": "Organ",
-                    "zh": "器官"
+                    "en-us": "Organ",
+                    "zh-hans": "器官"
                 }
             },
             "Plant": {
                 "desc": {
-                    "en": "Plant",
-                    "zh": "植物"
+                    "en-us": "Plant",
+                    "zh-hans": "植物"
                 }
             },
             "Portables": {
                 "desc": {
-                    "en": "Portables",
-                    "zh": "便携设备"
+                    "en-us": "Portables",
+                    "zh-hans": "便携设备"
                 }
             },
             "ProgrammableChip": {
                 "desc": {
-                    "en": "Programmable Chip",
-                    "zh": "可编程芯片"
+                    "en-us": "Programmable Chip",
+                    "zh-hans": "可编程芯片"
                 }
             },
             "RocketPayload": {
                 "desc": {
-                    "en": "Rocket Payload",
-                    "zh": "火箭有效载荷"
+                    "en-us": "Rocket Payload",
+                    "zh-hans": "火箭有效载荷"
                 }
             },
             "ScanningHead": {
                 "desc": {
-                    "en": "Scanning Head",
-                    "zh": "扫描头"
+                    "en-us": "Scanning Head",
+                    "zh-hans": "扫描头"
                 }
             },
             "SensorProcessingUnit": {
                 "desc": {
-                    "en": "Sensor Processing Unit",
-                    "zh": "传感器处理单元"
+                    "en-us": "Sensor Processing Unit",
+                    "zh-hans": "传感器处理单元"
                 }
             },
             "SoundCartridge": {
                 "desc": {
-                    "en": "Sound Cartridge",
-                    "zh": "声音卡带"
+                    "en-us": "Sound Cartridge",
+                    "zh-hans": "声音卡带"
                 }
             },
             "Suit": {
                 "desc": {
-                    "en": "Suit",
-                    "zh": "太空服"
+                    "en-us": "Suit",
+                    "zh-hans": "太空服"
                 }
             },
             "SuitMod": {
                 "desc": {
-                    "en": "Suit Mod",
-                    "zh": "太空服模块"
+                    "en-us": "Suit Mod",
+                    "zh-hans": "太空服模块"
                 }
             },
             "Tool": {
                 "desc": {
-                    "en": "Tool",
-                    "zh": "工具"
+                    "en-us": "Tool",
+                    "zh-hans": "工具"
                 }
             },
             "Torpedo": {
                 "desc": {
-                    "en": "Torpedo",
-                    "zh": "鱼雷"
+                    "en-us": "Torpedo",
+                    "zh-hans": "鱼雷"
                 }
             },
             "Uniform": {
                 "desc": {
-                    "en": "Uniform",
-                    "zh": "制服"
+                    "en-us": "Uniform",
+                    "zh-hans": "制服"
                 }
             },
             "Wreckage": {
                 "desc": {
-                    "en": "Wreckage",
-                    "zh": "残骸"
+                    "en-us": "Wreckage",
+                    "zh-hans": "残骸"
                 }
             }
         }
     },
     "SorterInstruction": {
         "desc": {
-            "en": "Sorter Instruction",
-            "zh": "分拣器指令"
+            "en-us": "Sorter Instruction",
+            "zh-hans": "分拣器指令"
         },
         "enums": {
             "FilterPrefabHashEquals": {
                 "desc": {
-                    "en": "Filter Prefab Hash Equals",
-                    "zh": "过滤预制体哈希等于"
+                    "en-us": "Filter Prefab Hash Equals",
+                    "zh-hans": "过滤预制体哈希等于"
                 }
             },
             "FilterPrefabHashNotEquals": {
                 "desc": {
-                    "en": "Filter Prefab Hash Not Equals",
-                    "zh": "过滤预制体哈希不等于"
+                    "en-us": "Filter Prefab Hash Not Equals",
+                    "zh-hans": "过滤预制体哈希不等于"
                 }
             },
             "FilterQuantityCompare": {
                 "desc": {
-                    "en": "Filter Quantity Compare",
-                    "zh": "过滤数量比较"
+                    "en-us": "Filter Quantity Compare",
+                    "zh-hans": "过滤数量比较"
                 }
             },
             "FilterSlotTypeCompare": {
                 "desc": {
-                    "en": "Filter Slot Type Compare",
-                    "zh": "过滤槽位类型比较"
+                    "en-us": "Filter Slot Type Compare",
+                    "zh-hans": "过滤槽位类型比较"
                 }
             },
             "FilterSortingClassCompare": {
                 "desc": {
-                    "en": "Filter Sorting Class Compare",
-                    "zh": "过滤分类类别比较"
+                    "en-us": "Filter Sorting Class Compare",
+                    "zh-hans": "过滤分类类别比较"
                 }
             },
             "LimitNextExecutionByCount": {
                 "desc": {
-                    "en": "Limit Next Execution By Count",
-                    "zh": "按计数限制下次执行"
+                    "en-us": "Limit Next Execution By Count",
+                    "zh-hans": "按计数限制下次执行"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             }
         }
     },
     "SortingClass": {
         "desc": {
-            "en": "Sorting Class",
-            "zh": "分类类别"
+            "en-us": "Sorting Class",
+            "zh-hans": "分类类别"
         },
         "enums": {
             "Appliances": {
                 "desc": {
-                    "en": "Appliances",
-                    "zh": "设备"
+                    "en-us": "Appliances",
+                    "zh-hans": "设备"
                 }
             },
             "Atmospherics": {
                 "desc": {
-                    "en": "Atmospherics",
-                    "zh": "大气"
+                    "en-us": "Atmospherics",
+                    "zh-hans": "大气"
                 }
             },
             "Clothing": {
                 "desc": {
-                    "en": "Clothing",
-                    "zh": "服装"
+                    "en-us": "Clothing",
+                    "zh-hans": "服装"
                 }
             },
             "Default": {
                 "desc": {
-                    "en": "Default",
-                    "zh": "默认"
+                    "en-us": "Default",
+                    "zh-hans": "默认"
                 }
             },
             "Food": {
                 "desc": {
-                    "en": "Food",
-                    "zh": "食物"
+                    "en-us": "Food",
+                    "zh-hans": "食物"
                 }
             },
             "Ices": {
                 "desc": {
-                    "en": "Ices",
-                    "zh": "冰"
+                    "en-us": "Ices",
+                    "zh-hans": "冰"
                 }
             },
             "Kits": {
                 "desc": {
-                    "en": "Kits",
-                    "zh": "工具包"
+                    "en-us": "Kits",
+                    "zh-hans": "工具包"
                 }
             },
             "Ores": {
                 "desc": {
-                    "en": "Ores",
-                    "zh": "矿石"
+                    "en-us": "Ores",
+                    "zh-hans": "矿石"
                 }
             },
             "Resources": {
                 "desc": {
-                    "en": "Resources",
-                    "zh": "资源"
+                    "en-us": "Resources",
+                    "zh-hans": "资源"
                 }
             },
             "Storage": {
                 "desc": {
-                    "en": "Storage",
-                    "zh": "存储"
+                    "en-us": "Storage",
+                    "zh-hans": "存储"
                 }
             },
             "Tools": {
                 "desc": {
-                    "en": "Tools",
-                    "zh": "工具"
+                    "en-us": "Tools",
+                    "zh-hans": "工具"
                 }
             }
         }
     },
     "Sound": {
         "desc": {
-            "en": "Sound",
-            "zh": "声音"
+            "en-us": "Sound",
+            "zh-hans": "声音"
         },
         "enums": {
             "AirlockCycling": {
                 "desc": {
-                    "en": "Airlock Cycling",
-                    "zh": "气闸循环"
+                    "en-us": "Airlock Cycling",
+                    "zh-hans": "气闸循环"
                 }
             },
             "Alarm1": {
                 "desc": {
-                    "en": "Alarm 1",
-                    "zh": "警报1"
+                    "en-us": "Alarm 1",
+                    "zh-hans": "警报1"
                 }
             },
             "Alarm10": {
                 "desc": {
-                    "en": "Alarm 10",
-                    "zh": "警报10"
+                    "en-us": "Alarm 10",
+                    "zh-hans": "警报10"
                 }
             },
             "Alarm11": {
                 "desc": {
-                    "en": "Alarm 11",
-                    "zh": "警报11"
+                    "en-us": "Alarm 11",
+                    "zh-hans": "警报11"
                 }
             },
             "Alarm12": {
                 "desc": {
-                    "en": "Alarm 12",
-                    "zh": "警报12"
+                    "en-us": "Alarm 12",
+                    "zh-hans": "警报12"
                 }
             },
             "Alarm2": {
                 "desc": {
-                    "en": "Alarm 2",
-                    "zh": "警报2"
+                    "en-us": "Alarm 2",
+                    "zh-hans": "警报2"
                 }
             },
             "Alarm3": {
                 "desc": {
-                    "en": "Alarm 3",
-                    "zh": "警报3"
+                    "en-us": "Alarm 3",
+                    "zh-hans": "警报3"
                 }
             },
             "Alarm4": {
                 "desc": {
-                    "en": "Alarm 4",
-                    "zh": "警报4"
+                    "en-us": "Alarm 4",
+                    "zh-hans": "警报4"
                 }
             },
             "Alarm5": {
                 "desc": {
-                    "en": "Alarm 5",
-                    "zh": "警报5"
+                    "en-us": "Alarm 5",
+                    "zh-hans": "警报5"
                 }
             },
             "Alarm6": {
                 "desc": {
-                    "en": "Alarm 6",
-                    "zh": "警报6"
+                    "en-us": "Alarm 6",
+                    "zh-hans": "警报6"
                 }
             },
             "Alarm7": {
                 "desc": {
-                    "en": "Alarm 7",
-                    "zh": "警报7"
+                    "en-us": "Alarm 7",
+                    "zh-hans": "警报7"
                 }
             },
             "Alarm8": {
                 "desc": {
-                    "en": "Alarm 8",
-                    "zh": "警报8"
+                    "en-us": "Alarm 8",
+                    "zh-hans": "警报8"
                 }
             },
             "Alarm9": {
                 "desc": {
-                    "en": "Alarm 9",
-                    "zh": "警报9"
+                    "en-us": "Alarm 9",
+                    "zh-hans": "警报9"
                 }
             },
             "Alert": {
                 "desc": {
-                    "en": "Alert",
-                    "zh": "警报"
+                    "en-us": "Alert",
+                    "zh-hans": "警报"
                 }
             },
             "Danger": {
                 "desc": {
-                    "en": "Danger",
-                    "zh": "危险"
+                    "en-us": "Danger",
+                    "zh-hans": "危险"
                 }
             },
             "Depressurising": {
                 "desc": {
-                    "en": "Depressurising",
-                    "zh": "减压中"
+                    "en-us": "Depressurising",
+                    "zh-hans": "减压中"
                 }
             },
             "FireFireFire": {
                 "desc": {
-                    "en": "Fire Fire Fire",
-                    "zh": "火警"
+                    "en-us": "Fire Fire Fire",
+                    "zh-hans": "火警"
                 }
             },
             "Five": {
                 "desc": {
-                    "en": "Five",
-                    "zh": "五"
+                    "en-us": "Five",
+                    "zh-hans": "五"
                 }
             },
             "Floor": {
                 "desc": {
-                    "en": "Floor",
-                    "zh": "地面"
+                    "en-us": "Floor",
+                    "zh-hans": "地面"
                 }
             },
             "Four": {
                 "desc": {
-                    "en": "Four",
-                    "zh": "四"
+                    "en-us": "Four",
+                    "zh-hans": "四"
                 }
             },
             "HallWhoGoesThere": {
                 "desc": {
-                    "en": "Hall Who Goes There",
-                    "zh": "大厅来人警报"
+                    "en-us": "Hall Who Goes There",
+                    "zh-hans": "大厅来人警报"
                 }
             },
             "HighCarbonDioxide": {
                 "desc": {
-                    "en": "High Carbon Dioxide",
-                    "zh": "高二氧化碳"
+                    "en-us": "High Carbon Dioxide",
+                    "zh-hans": "高二氧化碳"
                 }
             },
             "IntruderAlert": {
                 "desc": {
-                    "en": "Intruder Alert",
-                    "zh": "入侵者警报"
+                    "en-us": "Intruder Alert",
+                    "zh-hans": "入侵者警报"
                 }
             },
             "LiftOff": {
                 "desc": {
-                    "en": "Lift Off",
-                    "zh": "起飞"
+                    "en-us": "Lift Off",
+                    "zh-hans": "起飞"
                 }
             },
             "MalfunctionDetected": {
                 "desc": {
-                    "en": "Malfunction Detected",
-                    "zh": "检测到故障"
+                    "en-us": "Malfunction Detected",
+                    "zh-hans": "检测到故障"
                 }
             },
             "Music1": {
                 "desc": {
-                    "en": "Music 1",
-                    "zh": "音乐1"
+                    "en-us": "Music 1",
+                    "zh-hans": "音乐1"
                 }
             },
             "Music2": {
                 "desc": {
-                    "en": "Music 2",
-                    "zh": "音乐2"
+                    "en-us": "Music 2",
+                    "zh-hans": "音乐2"
                 }
             },
             "Music3": {
                 "desc": {
-                    "en": "Music 3",
-                    "zh": "音乐3"
+                    "en-us": "Music 3",
+                    "zh-hans": "音乐3"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             },
             "One": {
                 "desc": {
-                    "en": "One",
-                    "zh": "一"
+                    "en-us": "One",
+                    "zh-hans": "一"
                 }
             },
             "PollutantsDetected": {
                 "desc": {
-                    "en": "Pollutants Detected",
-                    "zh": "检测到污染物"
+                    "en-us": "Pollutants Detected",
+                    "zh-hans": "检测到污染物"
                 }
             },
             "PowerLow": {
                 "desc": {
-                    "en": "Power Low",
-                    "zh": "低电量"
+                    "en-us": "Power Low",
+                    "zh-hans": "低电量"
                 }
             },
             "PressureHigh": {
                 "desc": {
-                    "en": "Pressure High",
-                    "zh": "高压"
+                    "en-us": "Pressure High",
+                    "zh-hans": "高压"
                 }
             },
             "PressureLow": {
                 "desc": {
-                    "en": "Pressure Low",
-                    "zh": "低压"
+                    "en-us": "Pressure Low",
+                    "zh-hans": "低压"
                 }
             },
             "Pressurising": {
                 "desc": {
-                    "en": "Pressurising",
-                    "zh": "加压中"
+                    "en-us": "Pressurising",
+                    "zh-hans": "加压中"
                 }
             },
             "RocketLaunching": {
                 "desc": {
-                    "en": "Rocket Launching",
-                    "zh": "火箭发射"
+                    "en-us": "Rocket Launching",
+                    "zh-hans": "火箭发射"
                 }
             },
             "StormIncoming": {
                 "desc": {
-                    "en": "Storm Incoming",
-                    "zh": "风暴来袭"
+                    "en-us": "Storm Incoming",
+                    "zh-hans": "风暴来袭"
                 }
             },
             "SystemFailure": {
                 "desc": {
-                    "en": "System Failure",
-                    "zh": "系统故障"
+                    "en-us": "System Failure",
+                    "zh-hans": "系统故障"
                 }
             },
             "TemperatureHigh": {
                 "desc": {
-                    "en": "Temperature High",
-                    "zh": "高温"
+                    "en-us": "Temperature High",
+                    "zh-hans": "高温"
                 }
             },
             "TemperatureLow": {
                 "desc": {
-                    "en": "Temperature Low",
-                    "zh": "低温"
+                    "en-us": "Temperature Low",
+                    "zh-hans": "低温"
                 }
             },
             "Three": {
                 "desc": {
-                    "en": "Three",
-                    "zh": "三"
+                    "en-us": "Three",
+                    "zh-hans": "三"
                 }
             },
             "TraderIncoming": {
                 "desc": {
-                    "en": "Trader Incoming",
-                    "zh": "交易员到达"
+                    "en-us": "Trader Incoming",
+                    "zh-hans": "交易员到达"
                 }
             },
             "TraderLanded": {
                 "desc": {
-                    "en": "Trader Landed",
-                    "zh": "交易员已着陆"
+                    "en-us": "Trader Landed",
+                    "zh-hans": "交易员已着陆"
                 }
             },
             "Two": {
                 "desc": {
-                    "en": "Two",
-                    "zh": "二"
+                    "en-us": "Two",
+                    "zh-hans": "二"
                 }
             },
             "Warning": {
                 "desc": {
-                    "en": "Warning",
-                    "zh": "警告"
+                    "en-us": "Warning",
+                    "zh-hans": "警告"
                 }
             },
             "Welcome": {
                 "desc": {
-                    "en": "Welcome",
-                    "zh": "欢迎"
+                    "en-us": "Welcome",
+                    "zh-hans": "欢迎"
                 }
             }
         }
     },
     "TraderInstruction": {
         "desc": {
-            "en": "Trader Instruction",
-            "zh": "交易员指令"
+            "en-us": "Trader Instruction",
+            "zh-hans": "交易员指令"
         },
         "enums": {
             "FilterGasContains": {
                 "desc": {
-                    "en": "Filter Gas Contains",
-                    "zh": "过滤气体包含"
+                    "en-us": "Filter Gas Contains",
+                    "zh-hans": "过滤气体包含"
                 }
             },
             "FilterGasNotContains": {
                 "desc": {
-                    "en": "Filter Gas Not Contains",
-                    "zh": "过滤气体不包含"
+                    "en-us": "Filter Gas Not Contains",
+                    "zh-hans": "过滤气体不包含"
                 }
             },
             "FilterPrefabHashEquals": {
                 "desc": {
-                    "en": "Filter Prefab Hash Equals",
-                    "zh": "过滤预制体哈希等于"
+                    "en-us": "Filter Prefab Hash Equals",
+                    "zh-hans": "过滤预制体哈希等于"
                 }
             },
             "FilterPrefabHashNotEquals": {
                 "desc": {
-                    "en": "Filter Prefab Hash Not Equals",
-                    "zh": "过滤预制体哈希不等于"
+                    "en-us": "Filter Prefab Hash Not Equals",
+                    "zh-hans": "过滤预制体哈希不等于"
                 }
             },
             "FilterQuantityCompare": {
                 "desc": {
-                    "en": "Filter Quantity Compare",
-                    "zh": "过滤数量比较"
+                    "en-us": "Filter Quantity Compare",
+                    "zh-hans": "过滤数量比较"
                 }
             },
             "FilterSortingClassCompare": {
                 "desc": {
-                    "en": "Filter Sorting Class Compare",
-                    "zh": "过滤分类类别比较"
+                    "en-us": "Filter Sorting Class Compare",
+                    "zh-hans": "过滤分类类别比较"
                 }
             },
             "None": {
                 "desc": {
-                    "en": "None",
-                    "zh": "无"
+                    "en-us": "None",
+                    "zh-hans": "无"
                 }
             },
             "StrongestContactIdHash": {
                 "desc": {
-                    "en": "Strongest Contact ID Hash",
-                    "zh": "最强联系人ID哈希"
+                    "en-us": "Strongest Contact ID Hash",
+                    "zh-hans": "最强联系人ID哈希"
                 }
             },
             "StrongestContactMetaData": {
                 "desc": {
-                    "en": "Strongest Contact Meta Data",
-                    "zh": "最强联系人元数据"
+                    "en-us": "Strongest Contact Meta Data",
+                    "zh-hans": "最强联系人元数据"
                 }
             },
             "StrongestContactSignalData": {
                 "desc": {
-                    "en": "Strongest Contact Signal Data",
-                    "zh": "最强联系人信号数据"
+                    "en-us": "Strongest Contact Signal Data",
+                    "zh-hans": "最强联系人信号数据"
                 }
             },
             "TraderBuyGasData": {
                 "desc": {
-                    "en": "Trader Buy Gas Data",
-                    "zh": "交易员购买气体数据"
+                    "en-us": "Trader Buy Gas Data",
+                    "zh-hans": "交易员购买气体数据"
                 }
             },
             "TraderBuyThingChildData": {
                 "desc": {
-                    "en": "Trader Buy Thing Child Data",
-                    "zh": "交易员购买物品子数据"
+                    "en-us": "Trader Buy Thing Child Data",
+                    "zh-hans": "交易员购买物品子数据"
                 }
             },
             "TraderBuyThingData": {
                 "desc": {
-                    "en": "Trader Buy Thing Data",
-                    "zh": "交易员购买物品数据"
+                    "en-us": "Trader Buy Thing Data",
+                    "zh-hans": "交易员购买物品数据"
                 }
             },
             "TraderSellGasData": {
                 "desc": {
-                    "en": "Trader Sell Gas Data",
-                    "zh": "交易员出售气体数据"
+                    "en-us": "Trader Sell Gas Data",
+                    "zh-hans": "交易员出售气体数据"
                 }
             },
             "TraderSellThingChildData": {
                 "desc": {
-                    "en": "Trader Sell Thing Child Data",
-                    "zh": "交易员出售物品子数据"
+                    "en-us": "Trader Sell Thing Child Data",
+                    "zh-hans": "交易员出售物品子数据"
                 }
             },
             "TraderSellThingData": {
                 "desc": {
-                    "en": "Trader Sell Thing Data",
-                    "zh": "交易员出售物品数据"
+                    "en-us": "Trader Sell Thing Data",
+                    "zh-hans": "交易员出售物品数据"
                 }
             },
             "WriteTraderBuyData": {
                 "desc": {
-                    "en": "Write Trader Buy Data",
-                    "zh": "写入交易员购买数据"
+                    "en-us": "Write Trader Buy Data",
+                    "zh-hans": "写入交易员购买数据"
                 }
             },
             "WriteTraderData": {
                 "desc": {
-                    "en": "Write Trader Data",
-                    "zh": "写入交易员数据"
+                    "en-us": "Write Trader Data",
+                    "zh-hans": "写入交易员数据"
                 }
             },
             "WriteTraderSellData": {
                 "desc": {
-                    "en": "Write Trader Sell Data",
-                    "zh": "写入交易员出售数据"
+                    "en-us": "Write Trader Sell Data",
+                    "zh-hans": "写入交易员出售数据"
                 }
             }
         }
     },
     "TransmitterMode": {
         "desc": {
-            "en": "Transmitter Mode",
-            "zh": "发射器模式"
+            "en-us": "Transmitter Mode",
+            "zh-hans": "发射器模式"
         },
         "enums": {
             "Active": {
                 "desc": {
-                    "en": "Active",
-                    "zh": "主动"
+                    "en-us": "Active",
+                    "zh-hans": "主动"
                 }
             },
             "Passive": {
                 "desc": {
-                    "en": "Passive",
-                    "zh": "被动"
+                    "en-us": "Passive",
+                    "zh-hans": "被动"
                 }
             }
         }
     },
     "Vent": {
         "desc": {
-            "en": "Vent",
-            "zh": "通风口"
+            "en-us": "Vent",
+            "zh-hans": "通风口"
         },
         "enums": {
             "Inward": {
                 "desc": {
-                    "en": "Inward",
-                    "zh": "向内"
+                    "en-us": "Inward",
+                    "zh-hans": "向内"
                 }
             },
             "Outward": {
                 "desc": {
-                    "en": "Outward",
-                    "zh": "向外"
+                    "en-us": "Outward",
+                    "zh-hans": "向外"
                 }
             }
         }

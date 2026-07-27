@@ -5,18 +5,22 @@
 // purposes is prohibited without the author's permission. If you have any questions or require
 // permission, please contact the author: edocsitahw@qq.com
 
+/**
+ * @file types.ts
+ * @author edocsitahw
+ * @version 1.1
+ * @date 2026/07/25 22:38
+ * @desc
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * */
+
 import type { CompletionItem } from "vscode-languageserver/node";
 import type { CompletionTriggerKind } from "vscode-languageserver/node";
-import type { StatementNode, SymbolMap, Token } from "ic10-node-api";
+import type {StatementNode, SymbolMap, Token, TypeTableMap} from "ic10-node-api";
 
 import type { DocCacheValue } from "../../cache";
 import type {Nullable, Optional} from "../../../../../common/types/utils";
 
-/** 补全场景分类 */
-export type CompletionScenario =
-    | "keyword"       // 正在输入关键字（字母触发）
-    | "operand"       // 关键字后补全操作数（空格触发）
-    | "directive";    // alias / define 等指令特有上下文
 
 /** 传递给每个 Provider 的上下文 */
 export interface CompletionContext {
@@ -36,10 +40,17 @@ export interface CompletionContext {
     cache: DocCacheValue;
     /** 符号表 */
     symbols: Nullable<SymbolMap>;
+    types: Nullable<TypeTableMap>;
     /** 光标左边已输入的文本（当前行光标前部分） */
     prefix: string;
     /** 当前语言 */
     getLocale(): "zh-hans" | "en-us";
+}
+
+export interface CompletionData {
+    local: ReturnType<CompletionContext["getLocale"]>;
+    name: string;
+    key: "Instruction" | "LogicType" | "LogicSlotType" | "BatchMode" | "ReagentMode";
 }
 
 /** 补全项生成器接口 */
