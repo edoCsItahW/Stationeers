@@ -19,6 +19,7 @@
 #include "ic10/link/linker.hpp"
 #include "ic10_node/parser/ast_adapter.hpp"
 #include "ic10_node/semantic/symbol_table_adapter.hpp"
+#include "ic10_node/semantic/type_table_adapter.hpp"
 
 namespace stationeers::ic10 {
 
@@ -32,9 +33,11 @@ namespace stationeers::ic10 {
 #ifdef _MSC_VER
                 InstanceAccessor("diagnostics", &LinkerAdapter::getDiagnostics, nullptr),
                 InstanceAccessor("units", &LinkerAdapter::getUnits, nullptr),
+                InstanceAccessor("typeTable", &LinkerAdapter::getTypeTable, nullptr),
 #else
                 InstanceAccessor<&LinkerAdapter::getDiagnostics>("diagnostics"),
                 InstanceAccessor<&LinkerAdapter::getUnits>("units"),
+                InstanceAccessor<&LinkerAdapter::getTypeTable>("typeTable"),
 #endif
                 InstanceMethod<&LinkerAdapter::addUnit>("addUnit"),
                 InstanceMethod<&LinkerAdapter::link>("link"),
@@ -120,6 +123,10 @@ namespace stationeers::ic10 {
         }
 
         return result;
+    }
+
+    node::Value LinkerAdapter::getTypeTable(const node::CallbackInfo& info) {
+        return TypeTableAdapter::to(info.Env(), linker_.getTypeTable());
     }
 
 }  // namespace stationeers::ic10
