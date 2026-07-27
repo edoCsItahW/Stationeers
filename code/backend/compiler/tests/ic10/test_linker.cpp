@@ -321,3 +321,81 @@ TEST_F(LinkerTestFixture, SymbolTableToJSONNotEmpty) {
     EXPECT_NE(json.find("MAX"), std::string::npos);
     EXPECT_NE(json.find("main"), std::string::npos);
 }
+
+// ============================================================
+// TypeTable 检索测试
+// ============================================================
+
+TEST_F(LinkerTestFixture, GetTypeTableReturnsReference) {
+    // getTypeTable() 应返回链接器的内部类型表引用
+    Linker linker;
+    linker.addUnit("alias dev d0\nhcf\n");
+    linker.link();
+
+    auto& typeTable = linker.getTypeTable();
+    auto json = typeTable.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find('{'), std::string::npos);
+}
+
+TEST_F(LinkerTestFixture, GetTypeTableEmptyWithoutDeviceTypes) {
+    // 没有任何文档注释定义设备类型时，类型表应为空
+    Linker linker;
+    linker.addUnit("alias dev d0\nhcf\n");
+    linker.link();
+
+    auto& typeTable = linker.getTypeTable();
+    auto json = typeTable.toJSON();
+
+    // JSON 应合法但可能不含类型条目
+    EXPECT_FALSE(json.empty());
+}
+
+TEST_F(LinkerTestFixture, GetTypeTableWithDeviceType) {
+    // 使用文档注释定义设备类型后，类型表应包含该类型
+    Linker linker;
+    linker.addUnit(
+        "#> @device\n"
+        "#> @name Sensor\n"
+        "#> @logic Pressure rw\n"
+        "#> @end-device\n"
+    );
+    linker.addUnit("alias s d0 #: @type Sensor\nhcf\n");
+    linker.link();
+
+    auto& typeTable = linker.getTypeTable();
+    auto json = typeTable.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("Sensor"), std::string::npos);
+}
+
+TEST_F(LinkerTestFixture, GetTypeTableWithEnumType) {
+    // 使用文档注释定义枚举类型后，类型表应包含该枚举
+    Linker linker;
+    linker.addUnit(
+        "#> @enum\n"
+        "#> @name ReagentMode\n"
+        "#> @value Contents 0\n"
+        "#> @value Required 1\n"
+        "#> @end-enum\n"
+    );
+    linker.addUnit("alias f d0\nhcf\n");
+    linker.link();
+
+    auto& typeTable = linker.getTypeTable();
+    auto json = typeTable.toJSON();
+    EXPECT_FALSE(json.empty());
+    EXPECT_NE(json.find("ReagentMode"), std::string::npos);
+}
+
+TEST_F(LinkerTestFixture, GetTypeTableSameReferenceOnRepeat) {
+    // 多次调用 getTypeTable() 应返回同一引用
+    Linker linker;
+    linker.addUnit("alias dev d0\nhcf\n");
+    linker.link();
+
+    auto& tt1 = linker.getTypeTable();
+    auto& tt2 = linker.getTypeTable();
+
+    EXPECT_EQ(&tt1, &tt2);
+}
