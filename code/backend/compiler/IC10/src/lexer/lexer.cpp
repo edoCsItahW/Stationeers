@@ -73,7 +73,7 @@ namespace stationeers::ic10 {
 
         if (*c == '/' && peek().value_or(' ') == '/') return extractSlashComment();
 
-        if (SYMBOL_MAP.contains(std::string(1, *c))) return extractSymbol();
+        if (SYMBOLS.contains(*c)) return extractSymbol();
 
         if (*c == 'd' && isAsciiDigit(peek().value_or(' ')) && isAsciiSpace(peek(2).value_or(' ')))
             return extractDevice();
@@ -349,21 +349,16 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractSymbol() {
         const auto start = pos_;
+        const auto ch    = std::string(1, *current());
 
-        Token token;
-
-        if (const auto it = SYMBOL_MAP.find(std::string(1, *current())); it != SYMBOL_MAP.end())
-            token = {it->second, start, std::string(1, *current()), TokenCategory::SYMBOL};
-
-        else {
-            reporter_.errorWith<IMsgId::IEL1_1>(start, endPos(token), std::string{1, *current()});
-
-            token = {TokenType::UNKNOWN, start, std::string(1, *current()), TokenCategory::INVALID};
+        if (const auto it = SYMBOL_MAP.find(ch); it != SYMBOL_MAP.end()) {
+            pos_.next(static_cast<unsigned char>(*current()));
+            return {it->second, start, ch, TokenCategory::SYMBOL};
         }
 
+        reporter_.errorWith<IMsgId::IEL1_1>(start, endPos(start, ch), ch);
         pos_.next(static_cast<unsigned char>(*current()));
-
-        return token;
+        return {TokenType::UNKNOWN, start, ch, TokenCategory::INVALID};
     }
 
     Token Lexer::extractDevice() const {
