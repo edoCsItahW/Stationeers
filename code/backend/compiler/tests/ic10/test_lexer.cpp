@@ -1098,3 +1098,63 @@ TEST(PositionTest, NewlineThenNext) {
     EXPECT_EQ(pos.column(), 2);
     EXPECT_EQ(pos.offset(), 2u);
 }
+
+// ============================================================
+// 符号容错测试（特殊字符不应导致死循环或内存爆炸）
+// ============================================================
+
+TEST(LexerTest, SymbolToleranceBareSpecialChars) {
+    initLocale();
+    Lexer lexer("`~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterAlias) {
+    initLocale();
+    Lexer lexer("alias `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterAliasWithName) {
+    initLocale();
+    Lexer lexer("alias test1 `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterDefine) {
+    initLocale();
+    Lexer lexer("define `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterDefineWithName) {
+    initLocale();
+    Lexer lexer("define test2 `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterJump) {
+    initLocale();
+    Lexer lexer("j `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterJumpWithTarget) {
+    initLocale();
+    Lexer lexer("j xxx `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
