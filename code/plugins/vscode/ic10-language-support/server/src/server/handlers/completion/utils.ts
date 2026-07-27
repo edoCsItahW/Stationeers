@@ -5,6 +5,15 @@
 // purposes is prohibited without the author's permission. If you have any questions or require
 // permission, please contact the author: edocsitahw@qq.com
 
+/**
+ * @file utils.ts
+ * @author edocsitahw
+ * @version 1.1
+ * @date 2026/07/25 22:38
+ * @desc
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * */
+
 import type {StatementNode, Token} from "ic10-node-api";
 import {TokenType} from "ic10-node-api";
 

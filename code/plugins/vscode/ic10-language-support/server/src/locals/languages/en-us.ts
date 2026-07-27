@@ -57,5 +57,19 @@ export default {
             reagentMode: "ReagentMode",
             slotIdx: "SlotIdx"
         }
+    },
+    completion: {
+        common: {
+            noDesc: "No docs available"
+        },
+        access: {
+            r: "Read only",
+            w: "Write only",
+            rw: "Read/Write"
+        },
+        direction: {
+            input: "Input",
+            output: "Output"
+        }
     }
 };

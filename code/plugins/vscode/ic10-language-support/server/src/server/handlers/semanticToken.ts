@@ -37,12 +37,10 @@ import {
 import {Console} from "../../../../common/exception/debug";
 import {upperBound} from "../../../../common/utils";
 import {DocumentCache} from "../cache";
-import {t} from "../../locals/locale";
 
 
 type OnHandlerType = Parameters<Languages["semanticTokens"]["on"]>[0];
 type OnRangeHandlerType = Parameters<Languages["semanticTokens"]["onRange"]>[0];
-type OnDeltaHandlerType = Parameters<Languages["semanticTokens"]["onDelta"]>[0];
 
 
 /**

@@ -16,9 +16,9 @@
  * */
 import type { Connection } from "vscode-languageserver/node";
 
-import type { CompletionContext, CompletionProvider } from "./types";
-import { INS_LOCAL_MAP } from "../../../mateData";
-import { locale } from "../../../locals/locale";
+import type {CompletionContext, CompletionData, CompletionProvider} from "./types";
+import {ENUMS_LOCAL_MAP, INS_LOCAL_MAP, LOGIC_LOCAL_MAP, LOGIC_SLOT_LOCAL_MAP} from "../../../mateData";
+import {locale, t} from "../../../locals/locale";
 import { DocumentCache } from "../../cache";
 import {
     KeywordCompletionProvider,
@@ -30,6 +30,7 @@ import {
     tokensOnLine,
     cursorPrefix,
 } from "./utils";
+import {Optional} from "../../../../../common/types/utils";
 
 
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];
@@ -72,6 +73,7 @@ export class CompletionHandler {
             stmt,
             cache,
             symbols: cache.symbols,
+            types: cache.types,
             prefix,
             getLocale: () => locale.getLocale(),
         };
@@ -85,13 +87,50 @@ export class CompletionHandler {
     }
 
     handleResolve(...[params]: Parameters<OnCompletionResolveHandlerType>): ReturnType<OnCompletionResolveHandlerType> {
-        const key = params.data?.name;
-        const local = params.data?.local;
+        const data: Optional<CompletionData> = params.data;
 
-        if (key && local && INS_LOCAL_MAP.has(key)) {
-            const doc = INS_LOCAL_MAP.get(key)!;
+        if (data) {
+            switch (data.key) {
+                case "Instruction": {
+                    const doc = INS_LOCAL_MAP.get(data.name)!;
 
-            params.documentation = (doc["desc"] as any)[local];
+                    params.documentation = (doc["desc"] as any)[data.local];
+                    break;
+                }
+                case "LogicType": {
+                    const doc = LOGIC_LOCAL_MAP.get(data.name)!;
+
+                    if (doc?.["desc"] && data.local in doc["desc"])
+                        params.documentation = doc["desc"][data.local];
+                    else
+                        params.documentation = t("completion.common.noDesc");
+
+                    break;
+                }
+                case "LogicSlotType": {
+                    const doc = LOGIC_SLOT_LOCAL_MAP.get(data.name)!;
+
+                    if (doc?.["desc"] && data.local in doc["desc"])
+                        params.documentation = doc["desc"][data.local];
+                    else
+                        params.documentation = t("completion.common.noDesc");
+
+                    break;
+                }
+                case "BatchMode":
+                case "ReagentMode": {
+                    const map = ENUMS_LOCAL_MAP.get(data.key)!.enums;
+
+                    const doc = (map as any)[data.name];
+
+                    if (doc?.["desc"] && data.local in doc["desc"])
+                        params.documentation = doc["desc"][data.local];
+                    else
+                        params.documentation = t("completion.common.noDesc");
+
+                    break;
+                }
+            }
         }
 
         return params;

@@ -17,9 +17,9 @@
  * */
 import {Lexer, Parser, Linker, IncLexer, IncParser, type SymbolMap, Diagnostic} from "ic10-node-api";
 import stdLib from "ic10-node-api/static/stdLib.ic.json"
-import { createHash } from "node:crypto";
+import {createHash} from "node:crypto";
 
-import { DocCacheValue } from "../cache";
+import {DocCacheValue} from "../cache";
 
 
 export interface ParseResult extends DocCacheValue {
@@ -45,6 +45,7 @@ export class ParserPipline {
             ast: cache?.ast!,
             diagnostics: cache?.diagnostics ?? [],
             symbols: cache?.symbols ?? null,
+            types: cache?.types ?? null,
             hash: cache?.hash ?? ""
         };
 
@@ -76,9 +77,20 @@ export class ParserPipline {
 
         const symbolJson = linker.link().toJSON();
 
+        const typesJson = linker.typeTable.toJSON();
+
         diagnostics.push(...linker.diagnostics);
 
-        return { changed: true, source: code, tokens, ast, diagnostics, symbols: JSON.parse(symbolJson) as SymbolMap, hash };
+        return {
+            changed: true,
+            source: code,
+            tokens,
+            ast,
+            diagnostics,
+            symbols: JSON.parse(symbolJson),
+            types: JSON.parse(typesJson),
+            hash
+        };
     }
 
     public async parseInc(code: string, cache?: DocCacheValue): Promise<ParseResult> {
@@ -89,6 +101,7 @@ export class ParserPipline {
             ast: cache?.ast!,
             diagnostics: cache?.diagnostics ?? [],
             symbols: cache?.symbols ?? null,
+            types: cache?.types ?? null,
             hash: cache?.hash ?? ""
         };
 
@@ -111,6 +124,8 @@ export class ParserPipline {
             linker.addUnit(parseResult.ast);
 
             const symbolJson = linker.link().toJSON();
+            const typesJson = linker.typeTable.toJSON();
+
             diagnostics.push(...linker.diagnostics);
 
             return {
@@ -119,7 +134,8 @@ export class ParserPipline {
                 tokens: lexResult.tokens,
                 ast: parseResult.ast,
                 diagnostics,
-                symbols: JSON.parse(symbolJson) as SymbolMap,
+                symbols: JSON.parse(symbolJson),
+                types: JSON.parse(typesJson),
                 hash
             };
         }
@@ -133,10 +149,13 @@ export class ParserPipline {
 
         // 链接器（全量执行，Linker 不支持增量）
         const linker = new Linker();
+
         linker.addUnit(stdLib.content);
         linker.addUnit(parseResult.ast);
 
         const symbolJson = linker.link().toJSON();
+        const typesJson = linker.typeTable.toJSON();
+
         diagnostics.push(...linker.diagnostics);
 
         return {
@@ -145,7 +164,8 @@ export class ParserPipline {
             tokens: lexResult.tokens,
             ast: parseResult.ast,
             diagnostics,
-            symbols: JSON.parse(symbolJson) as SymbolMap,
+            symbols: JSON.parse(symbolJson),
+            types: JSON.parse(typesJson),
             hash
         };
     }
