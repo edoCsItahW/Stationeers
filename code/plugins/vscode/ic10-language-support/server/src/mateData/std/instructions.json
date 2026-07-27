@@ -156,7 +156,7 @@
     },
     "binary_number": {
         "desc": "./locals/instructions.binary_number.desc",
-        "signature": "binary_number",
+        "signature": "%...",
         "type": "Macro"
     },
     "ble": {
@@ -406,12 +406,12 @@
     },
     "hash": {
         "desc": "./locals/instructions.hash.desc",
-        "signature": "hash",
+        "signature": "HASH(\"...\")",
         "type": "Macro"
     },
     "hash_number": {
         "desc": "./locals/instructions.hash_number.desc",
-        "signature": "hash_number",
+        "signature": "$...",
         "type": "Macro"
     },
     "hcf": {
@@ -781,7 +781,7 @@
     },
     "str": {
         "desc": "./locals/instructions.str.desc",
-        "signature": "str",
+        "signature": "STR(\"...\")",
         "type": "Macro"
     },
     "sub": {

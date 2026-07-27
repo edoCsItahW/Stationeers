@@ -57,5 +57,19 @@ export default {
             reagentMode: "试剂模式",
             slotIdx: "槽索引"
         }
+    },
+    completion: {
+        common: {
+            noDesc: "暂无文档"
+        },
+        access: {
+            r: "仅读",
+            w: "仅写",
+            rw: "可读/写"
+        },
+        direction: {
+            input: "输入",
+            output: "输出"
+        }
     }
 };

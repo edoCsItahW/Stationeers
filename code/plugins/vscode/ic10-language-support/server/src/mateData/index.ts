@@ -13,12 +13,21 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import insMeteData from "./std/instructions.json"
-import insLocalData from "./locals/instructions.json"
+import logicSlotLocalData from "./locals/logicSlotType.json";
+import insLocalData from "./locals/instructions.json";
+import logicLocalData from "./locals/logicType.json";
+import insMeteData from "./std/instructions.json";
+import enumsLocalData from "./locals/enums.json";
 
 
-export type InsMetaDataType = typeof insMeteData;
+export type LogicSlotLocalDataType = typeof logicSlotLocalData;
 export type InsLocalDataType = typeof insLocalData;
+export type LogicLocalDataType = typeof logicLocalData;
+export type InsMetaDataType = typeof insMeteData;
+export type EnumsLocalDataType = typeof enumsLocalData;
 
+export const LOGIC_SLOT_LOCAL_MAP: Map<string, LogicLocalDataType[keyof LogicLocalDataType]> = new Map(Object.entries(logicSlotLocalData));
 export const INS_META_MAP: Map<string, InsMetaDataType[keyof InsMetaDataType]> = new Map(Object.entries(insMeteData));
+export const LOGIC_LOCAL_MAP: Map<string, LogicSlotLocalDataType[keyof LogicSlotLocalDataType]> = new Map(Object.entries(logicLocalData));
 export const INS_LOCAL_MAP: Map<string, InsLocalDataType[keyof InsLocalDataType]> = new Map(Object.entries(insLocalData));
+export const ENUMS_LOCAL_MAP: Map<string, EnumsLocalDataType[keyof EnumsLocalDataType]> = new Map(Object.entries(enumsLocalData));

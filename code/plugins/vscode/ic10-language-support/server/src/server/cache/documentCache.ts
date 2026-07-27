@@ -15,15 +15,17 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {Token, Program, type Diagnostic, type SymbolMap} from "ic10-node-api";
+import {Token, Program, type Diagnostic, type SymbolMap, type TypeTableMap, TypeTable} from "ic10-node-api";
 import {Optional, Nullable} from "../../../../common/types/utils";
 
 
 export interface DocCacheValue {
+    source: string;
     tokens: Token[];
     ast: Optional<Program>;
     diagnostics: Diagnostic[];
     symbols: Nullable<SymbolMap>;
+    types: Nullable<TypeTableMap>;
     hash: string;
 }
 
@@ -32,10 +34,12 @@ export class DocumentCache {
 
     initDocument(uri: string): void {
         this.caches.set(uri, {
+            source: "",
             tokens: [],
             ast: undefined,
             diagnostics: [],
             symbols: null,
+            types: null,
             hash: ""
         });
     }

@@ -7,6 +7,15 @@
  * permission, please contact the author: edocsitahw@qq.com
  */
 
+/**
+ * @file utils.ts
+ * @author edocsitahw
+ * @version 1.1
+ * @date 2026/07/25 22:38
+ * @desc
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * */
+
 import type { Hover } from "vscode-languageserver/node";
 import {BasicType} from "ic10-node-api";
 import type {
@@ -28,7 +37,7 @@ import type { HoverContext } from "./types";
 /**
  * Find the statement at the given line using binary search.
  */
-export function findStatementAtPosition(statements: StatementNode[], line: number): StatementNode | null {
+export function findStatementAtPosition(statements: StatementNode[], line: number): Nullable<StatementNode> {
     const idx = lowerBound(statements, (item) => item.position.line >= line);
     return (idx >= 0 && idx < statements.length) ? statements[idx] : null;
 }
