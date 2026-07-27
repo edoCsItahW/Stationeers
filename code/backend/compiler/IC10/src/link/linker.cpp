@@ -89,12 +89,11 @@ namespace stationeers::ic10 {
 
         // 合并各 unit 的诊断到主 reporter_，并填充 unitInfos_[i].diagnostics 指针
         // Merge each unit's diagnostics into the main reporter_, and fill unitInfos_[i].diagnostics pointer.
-        for (std::size_t i = 0; i < size; ++i) {
+        for (std::size_t i = 0; i < size; ++i)
             if (unitReporters_[i]) {
                 reporter_.mergeFrom(*unitReporters_[i]);
                 unitInfos_[i].diagnostics = &unitReporters_[i]->getDiagnostics();
             }
-        }
 
         return symbolTable_;
     }
@@ -104,5 +103,7 @@ namespace stationeers::ic10 {
     }
 
     const std::vector<Linker::UnitInfo>& Linker::getUnits() const { return unitInfos_; }
+
+    TypeTable& Linker::getTypeTable() { return typeTable_; }
 
 }  // namespace stationeers::ic10
