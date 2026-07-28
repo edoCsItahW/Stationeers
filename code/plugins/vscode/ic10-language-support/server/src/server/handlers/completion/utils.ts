@@ -15,7 +15,7 @@
  * */
 
 import type {StatementNode, Token} from "ic10-node-api";
-import {TokenType} from "ic10-node-api";
+import {OperandType, TokenType} from "ic10-node-api";
 
 import type {Nullable} from "../../../../../common/types/utils";
 import {findMaxByCondition, findMinByCondition, lowerBound} from "../../../../../common/utils";
