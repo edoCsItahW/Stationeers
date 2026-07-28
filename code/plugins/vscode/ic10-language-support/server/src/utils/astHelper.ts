@@ -49,3 +49,14 @@ export function operandValueLength(node: OperandNode): number {
         Error: node => node.token.lexeme.length
     }, node);
 }
+
+export function operandToString(node: OperandNode): string {
+    return visitOperand({
+        ...groupHandlers(["Device", "Register", "HexNumber", "BinaryNumber", "Identifier"], node => node.value),
+        ...groupHandlers(["Integer", "Float"], node => node.value.toString()),
+        Constant: node => node.keyword,
+        HashCall: node => `HASH("${node.value.value}")`,
+        StrCall: node => `STR("${node.value.value}")`,
+        Error: node => node.token.lexeme
+    }, node);
+}
