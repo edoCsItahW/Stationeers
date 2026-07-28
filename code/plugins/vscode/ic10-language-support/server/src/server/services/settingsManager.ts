@@ -89,7 +89,10 @@ export class SettingsManager {
                 signatureHelpProvider: {
                     triggerCharacters: [" "],
                     retriggerCharacters: [" "]
-                }
+                },
+
+                // 代码格式化
+                documentFormattingProvider: true
             }
         };
 
