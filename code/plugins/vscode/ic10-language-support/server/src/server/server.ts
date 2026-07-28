@@ -25,6 +25,7 @@ import {CompletionHandler} from "./handlers/completion";
 import {DiagnosticHandler} from "./handlers/diagnostic";
 import {Console} from "../../../common/exception/debug";
 import {ParserPipline} from "./services/parserPipline";
+import {SignatureHandler} from "./handlers/signature";
 import {DocumentCache, GlobalCache} from "./cache";
 import {HoverHandler} from "./handlers/hover";
 import {t} from "../locals/locale";
@@ -44,6 +45,7 @@ export class Server {
     private readonly globalCache: GlobalCache;
     private readonly docCache: DocumentCache;
     private readonly compHandler: CompletionHandler;
+    private readonly signatureHandler: SignatureHandler;
     private settingMgr: SettingsManager;
     private pipline: ParserPipline;
     /** 解析版本号，用于丢弃过期结果 */
@@ -63,6 +65,7 @@ export class Server {
         this.diagHandler = new DiagnosticHandler(this.docCache);
         this.semanticHandler = new SemanticTokenHandler(this.docCache);
         this.compHandler = new CompletionHandler(this.docCache);
+        this.signatureHandler = new SignatureHandler(this.docCache);
 
         this.pipline = new ParserPipline();
     }
@@ -85,6 +88,7 @@ export class Server {
             this.connection.languages.semanticTokens.onRange(this.semanticHandler.handleRange.bind(this.semanticHandler));
             this.connection.onCompletion(this.compHandler.handle.bind(this.compHandler));
             this.connection.onCompletionResolve(this.compHandler.handleResolve.bind(this.compHandler));
+            this.connection.onSignatureHelp(this.signatureHandler.handle.bind(this.signatureHandler));
 
             // 文档监听
             this.documents.onDidOpen(this.onDidOpen.bind(this));
