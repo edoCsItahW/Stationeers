@@ -83,6 +83,12 @@ export class SettingsManager {
                 completionProvider: {
                     resolveProvider: true,
                     triggerCharacters: [" ", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "l", "m", "n", "o", "p", "r", "s", "t", "x", "y"]
+                },
+
+                // 签名帮助
+                signatureHelpProvider: {
+                    triggerCharacters: [" "],
+                    retriggerCharacters: [" "]
                 }
             }
         };
