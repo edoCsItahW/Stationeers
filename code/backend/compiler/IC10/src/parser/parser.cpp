@@ -105,13 +105,16 @@ namespace stationeers::ic10 {
         labelDef.identifier = parseIdentifier(++layer);
 
         try {
-            expect(TokenType::COLON);
+            // 只跳过注释，不跳过换行 —— 换行是同步点，跳过会导致错误恢复时吃掉下一行的 token
+            while (inScope() && current()->category == TokenCategory::COMMENT) consume();
+            // skipWs=false: 不跳过换行; errorConsume=false: 出错时不自动消耗 token
+            expect(TokenType::COLON, false, false);
 
         } catch (const Error&) {
             reporter_.error<IMsgId::IEP23>(current()->pos, endPos(*current()));
 
             auto errToken = *current();
-            consume();
+            // 不消耗 token，让 parse() 主循环通过 NEWLINE 同步到下一行
             return ErrorNode{errToken, ILoc::msgStr<IMsgId::IEP23>()};
         }
 
@@ -1136,7 +1139,10 @@ namespace stationeers::ic10 {
         Identifier identifier{current()->pos};
 
         try {
-            identifier.value = expect(TokenType::IDENTIFIER)->lexeme;
+            // 只跳过注释，不跳过换行 —— 换行是同步点，跳过会导致错误恢复时吃掉下一行的 token
+            while (inScope() && current()->category == TokenCategory::COMMENT) consume();
+            // skipWs=false: 不跳过换行; errorConsume=false: 出错时不自动消耗 token
+            identifier.value = expect(TokenType::IDENTIFIER, false, false)->lexeme;
 
         } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 
