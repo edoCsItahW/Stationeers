@@ -47,6 +47,7 @@ import {
 import { operandToString } from "../../utils";
 import { DocumentCache } from "../cache";
 import { t } from "../../locals/locale";
+import { debug, Console } from "common";
 
 type OnDocumentFormattingHandlerType = Parameters<Connection["onDocumentFormatting"]>[0];
 
@@ -670,6 +671,11 @@ export class FormattingHandler {
         return { ...DEFAULT_FORMATTING_CONFIG, ...this.pluginConfigProvider() };
     }
 
+    @debug({
+        message: err => t("server.handler.error", { name: "formatting", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "formatting"),
+        rethrow: false
+    })
     handle(
         ...[{ textDocument }]: Parameters<OnDocumentFormattingHandlerType>
     ): ReturnType<OnDocumentFormattingHandlerType> {

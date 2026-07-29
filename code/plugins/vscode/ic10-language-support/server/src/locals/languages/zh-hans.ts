@@ -25,6 +25,9 @@ export default {
                 LIE1: "增量解析失败，回退至全量解析 {err}",
                 LIE2: "全量解析失败 {err}"
             }
+        },
+        handler: {
+            error: "处理器{name}遇到严重错误: {err}"
         }
     },
     hover: {
