@@ -82,6 +82,30 @@ export class RadixTree<T> {
         return result;
     }
 
+    /**
+     * @summary 查找所有以 prefix 开头的键值对
+     *
+     * @summary Find all key-value pairs starting with prefix
+     *
+     * @desc 与 keysWithPrefix + search 的组合相比，仅需一次树遍历，
+     * 避免对每个匹配键分别从根节点重新查找。
+     *
+     * @desc Compared to composing keysWithPrefix + search, this performs
+     * a single tree traversal instead of re-searching from root for each matching key.
+     *
+     * @param prefix 前缀字符串
+     * @param prefix Prefix string
+     * @returns 匹配的 [key, value] 元组数组
+     * @returns Array of matching [key, value] tuples
+     */
+    entriesWithPrefix(prefix: string): [string, T][] {
+        const result: [string, T][] = [];
+        const node = this._search(this.root, prefix);
+        if (node) this._collectEntries(node, prefix, result);
+
+        return result;
+    }
+
     // ---------- 私有辅助方法 ----------
 
     private _insert(node: RadixNode<T>, key: string, value: T): void {
@@ -176,6 +200,12 @@ export class RadixTree<T> {
         if (node.value !== null) result.push(current);
 
         for (const [edge, child] of node.children) this._collectKeys(child, current + edge, result);
+    }
+
+    private _collectEntries(node: RadixNode<T>, current: string, result: [string, T][]): void {
+        if (node.value !== null) result.push([current, node.value]);
+
+        for (const [edge, child] of node.children) this._collectEntries(child, current + edge, result);
     }
 
     private _lcpLength(a: string, b: string): number {

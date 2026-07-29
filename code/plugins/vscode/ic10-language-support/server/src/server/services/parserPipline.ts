@@ -15,13 +15,44 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic } from "ic10-node-api";
+import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic, StatementNode } from "ic10-node-api";
 import stdLib from "ic10-node-api/static/stdLib.ic.json";
 import { createHash } from "node:crypto";
 
 import { DocCacheValue } from "../cache";
 import { Console, debug } from "common";
 import { t } from "../../locals/locale";
+
+/** 会改变符号表的声明式语句类型集合 */
+const DECLARATIVE_TYPES = new Set(["AliasDirective", "DefineDirective", "LabelDef"]);
+
+/**
+ * @summary 检查语句范围内是否包含声明式节点
+ *
+ * @summary Check if statement range contains declarative nodes
+ *
+ * @desc 遍历指定范围内的语句，检测是否存在会改变符号表的声明式节点
+ * （AliasDirective / DefineDirective / LabelDef）。
+ * 若不存在声明式节点，则可跳过 Linker 并复用缓存的符号表和类型表。
+ *
+ * @desc Scans statements in the given range to detect declarative nodes
+ * (AliasDirective / DefineDirective / LabelDef) that modify the symbol table.
+ * If no declarative nodes found, the Linker can be skipped and cached symbol/type
+ * tables can be reused.
+ *
+ * @param statements - 语句列表
+ * @param statements - Statement list
+ * @param startIdx - 检查起始索引
+ * @param startIdx - Start index for checking
+ * @returns 若包含声明式节点返回 true
+ * @returns true if declarative nodes are present
+ */
+function hasDeclarativeChanges(statements: StatementNode[], startIdx: number): boolean {
+    for (let i = startIdx; i < statements.length; i++) {
+        if (DECLARATIVE_TYPES.has(statements[i].type)) return true;
+    }
+    return false;
+}
 
 /**
  * @summary 解析结果，继承缓存值并附加变更标记
@@ -241,16 +272,34 @@ export class ParserPipline {
         // 增量语法分析
         const parseResult = this.incParser.parseInc(lexResult.tokens, lexResult.changedStartLine);
 
-        // 链接器（全量执行，Linker 不支持增量）
-        const linker = new Linker();
+        // 检测受影响范围内是否包含声明式语句（AliasDirective / DefineDirective / LabelDef）
+        // 若没有声明式变更，可以跳过 Linker 和 JSON 序列化/反序列化，复用缓存的符号表和类型表
+        const canSkipLinker =
+            cache?.symbols != null
+            && cache?.types != null
+            && !hasDeclarativeChanges(parseResult.ast.statements, parseResult.affectedStmtStart);
 
-        linker.addUnit(stdLib.content);
-        linker.addUnit(parseResult.ast);
+        let symbols = cache?.symbols ?? null;
+        let types = cache?.types ?? null;
 
-        const symbolJson = linker.link().toJSON();
-        const typesJson = linker.typeTable.toJSON();
+        if (canSkipLinker)
+            // 跳过 Linker，复用缓存的符号表、类型表和诊断信息
+            diagnostics.push(...(cache?.diagnostics ?? []));
+        else {
+            // 链接器（全量执行，Linker 不支持增量）
+            const linker = new Linker();
 
-        diagnostics.push(...linker.diagnostics);
+            linker.addUnit(stdLib.content);
+            linker.addUnit(parseResult.ast);
+
+            const symbolJson = linker.link().toJSON();
+            const typesJson = linker.typeTable.toJSON();
+
+            symbols = JSON.parse(symbolJson);
+            types = JSON.parse(typesJson);
+
+            diagnostics.push(...linker.diagnostics);
+        }
 
         return {
             changed: true,
@@ -258,8 +307,8 @@ export class ParserPipline {
             tokens: lexResult.tokens,
             ast: parseResult.ast,
             diagnostics,
-            symbols: JSON.parse(symbolJson),
-            types: JSON.parse(typesJson),
+            symbols,
+            types,
             hash
         };
     }
