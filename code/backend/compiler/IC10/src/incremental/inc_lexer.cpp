@@ -192,9 +192,18 @@ namespace stationeers::ic10 {
         // 中间：本次新生成的缓存
         newLineCache.insert_range(newLineCache.end(), newCacheLines);
 
-        // 后缀：复用旧缓存，更新 startOffset
+        // 后缀：复用旧缓存，更新 startOffset 和 Token 位置
+        // 必须同步修正 Token 位置，否则后续增量分析时 Token 位置与 startOffset 不一致，
+        // 导致位置偏移量累加错误
         for (auto cache : lineCache_ | std::views::drop(lastChangedOld)) {
             cache.startOffset += offsetDelta;
+            if (lineDelta != 0 || offsetDelta != 0)
+                for (auto& token : cache.tokens) {
+                    token = std::make_shared<Token>(*token);
+                    token->pos =
+                        Pos(token->pos.line() + lineDelta, token->pos.column(),
+                            token->pos.offset() + static_cast<std::size_t>(offsetDelta));
+                }
             newLineCache.push_back(std::move(cache));
         }
 
