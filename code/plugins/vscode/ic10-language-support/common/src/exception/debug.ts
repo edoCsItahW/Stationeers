@@ -37,18 +37,6 @@ export type ClassMethodDecorator<This = unknown, Args extends unknown[] = unknow
     ...args: ClassMethodDecoratorSignature<This, Args, Return>
 ) => void;
 
-//export function debug<This, Args extends unknown[], Return>(
-//    options: DebugOptions
-//): ClassMethodDecorator<This, Args, Return>;
-//
-//export function debug<This extends object, Args extends unknown[], Return>(
-//    ...args: ClassMethodDecoratorSignature<This, Args, Return>
-//): void;
-//
-//export function debug<Args extends unknown[], Return>(
-//    target: any,
-//    context: ClassMethodDecoratorContext<any, ClassMethodType<any, Args, Return>>
-//): void;
 
 export function debug(options: DebugOptions = {}) {
     const {

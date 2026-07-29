@@ -14,7 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import {Pos} from "../common";
-import {LabelDefNode, PreprocessorDirectiveNode} from "./ast";
+import {LabelDefNode, PreprocessorDirectiveNode, ErrorNode} from "./ast";
 import {
     NullaryInstructionNode,
     UnaryInstructionNode,
@@ -46,6 +46,8 @@ export type ExecutableInstructionNode =
     | QuaternaryInstructionNode
     | QuinaryInstructionNode
     | SenaryInstructionNode;
+
+export type PureExeInstructionNode = Exclude<ExecutableInstructionNode, ErrorNode>;
 
 /**
  * @summary 语句联合类型

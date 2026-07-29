@@ -18,19 +18,18 @@
 
 import type { Hover } from "vscode-languageserver/node";
 import {
-    AliasDirectiveNode,
-    BasicType,
+    PureExeInstructionNode,
     DefineDirectiveNode,
-    ErrorNode,
-    ExecutableInstructionNode,
+    AliasDirectiveNode,
+    TypeOfNodeEntry,
     IdentifierNode,
+    StatementNode,
     LabelDefNode,
+    TypeCategory,
     OperandNode,
     OperandType,
-    StatementNode,
-    TypeCategory,
     TypeOfNode,
-    TypeOfNodeEntry
+    BasicType
 } from "ic10-node-api";
 
 import { INS_LOCAL_MAP, INS_META_MAP } from "../../../mateData";
@@ -41,13 +40,13 @@ import { t } from "../../../locals/locale";
 import { s } from "../../../style";
 import { Nullable } from "common";
 import {
-    findOperand,
+    provideOperandHover,
     formatBasicType,
     formatOperand,
-    formatType,
-    isInsideNode,
     isInstruction,
-    provideOperandHover
+    isInsideNode,
+    findOperand,
+    formatType
 } from "./utils";
 
 // ==================== LabelDef Provider ====================
@@ -196,7 +195,7 @@ export class InstructionHoverProvider implements HoverProvider {
     }
 
     provideHover(node: StatementNode, ctx: HoverContext): Nullable<Hover> {
-        const stmt = node as Exclude<ExecutableInstructionNode, ErrorNode>;
+        const stmt = node as PureExeInstructionNode;
         const { result, index } = findOperand(stmt, ctx.character);
 
         if (typeof result === "string") return this.provideKeywordHover(result, stmt, ctx);
@@ -213,7 +212,7 @@ export class InstructionHoverProvider implements HoverProvider {
 
     private provideKeywordHover(
         keyword: string,
-        stmt: Exclude<ExecutableInstructionNode, ErrorNode>,
+        stmt: PureExeInstructionNode,
         ctx: HoverContext
     ): Nullable<Hover> {
         if (!isInsideNode(stmt.position.column, stmt.keyword.length, ctx.character)) return null;

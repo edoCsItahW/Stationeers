@@ -21,8 +21,8 @@ import { ENUMS_LOCAL_MAP, INS_LOCAL_MAP, LOGIC_LOCAL_MAP, LOGIC_SLOT_LOCAL_MAP }
 import type { CompletionContext, CompletionData, CompletionProvider } from "./types";
 import { locale, t } from "../../../locals/locale";
 import { findStatementAtPosition } from "./utils";
-import { DocumentCache } from "../../cache";
 import { Optional, Console, debug } from "common";
+import { DocumentCache } from "../../cache";
 
 
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];
