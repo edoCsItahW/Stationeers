@@ -20,9 +20,7 @@
     "engines": {
         "vscode": "^1.125.0"
     },
-    "activationEvents": [
-        "onLanguage:ic10"
-    ],
+    "activationEvents": [],
     "main": "./client/out/extension",
     "icon": "icon.png",
     "screenshots": null,
@@ -222,17 +220,16 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
+        "vscode:prepublish": "npm run compile && cd client && npm install --production --ignore-scripts --no-package-lock && cd ../server && npm install --production --ignore-scripts --no-package-lock && cd .. && node -e \"const{rmSync,cpSync}=require('fs');for(const d of['client','server']){const m=d+'/node_modules/common';rmSync(m,{recursive:true,force:true});cpSync('common',m,{recursive:true,filter:s=>!s.includes('node_modules')})}\"",
         "compile": "tsc -b",
         "watch": "tsc -b -w",
         "lint": "eslint",
         "test": "sh ./scripts/e2e.sh",
-        "postinstall": "cd client && pnpm install && cd ../server && pnpm install && cd .."
+        "install:all": "pnpm i && cd common && pnpm i && cd ../client && pnpm i && cd ../server && pnpm i",
+        "install:npm": "npm i && cd ./common && npm i && cd ../client && npm i && cd ../server && npm i"
     },
     "devDependencies": {
         "@types/node": "^26.0.1",
-        "prettier": "^3.9.6",
-        "type-fest": "^5.8.0"
-    },
-    "packageManager": "pnpm@11.14.0+sha512.66c1ac4c7d4762d6d7dde44c7f3e5a73591ed0a0806e751d4ed32d4f004f25b2285a906b1fd8a9e3e621df3b4e2858bf88e50e0cf626bedbe977fe434a5caf85"
+        "prettier": "^3.9.6"
+    }
 }

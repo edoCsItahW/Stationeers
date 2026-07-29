@@ -7,15 +7,14 @@
 			"ES2024", "DOM"
 		],
 		"outDir": "out",
-		"rootDir": "..",
+		"rootDir": "src",
 		"sourceMap": true,
 		"strict": true,
 		"esModuleInterop": true,
-		"types": ["node", "mocha"]
+		"types": ["node"]
 	},
 	"include": [
-		"src",
-		"../common"
+		"src"
 	],
 	"exclude": [
 		"node_modules",

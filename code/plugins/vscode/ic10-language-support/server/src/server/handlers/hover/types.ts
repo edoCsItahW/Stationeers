@@ -19,7 +19,7 @@
 import type { StatementNode, SymbolMap } from "ic10-node-api";
 import type { Hover } from "vscode-languageserver/node";
 
-import { Nullable } from "../../../../../common/types";
+import { Nullable } from "common";
 
 /**
  * Context passed to each hover provider.

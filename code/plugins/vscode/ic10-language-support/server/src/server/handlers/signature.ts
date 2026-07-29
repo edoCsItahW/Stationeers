@@ -14,14 +14,13 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { ErrorNode, ExecutableInstructionNode, StatementNode } from "ic10-node-api";
-import { Connection, SignatureHelp } from "vscode-languageserver";
+import { Connection } from "vscode-languageserver";
 
+import { findCurrentOperand, getOperandIndex } from "./completion/utils";
 import { INS_META_MAP, INS_LOCAL_MAP } from "../../mateData";
-import { findMaxByCondition, findMinByCondition, lowerBound } from "../../../../common/utils";
+import { lowerBound, Optional } from "common";
 import { locale } from "../../locals/locale";
 import { DocumentCache } from "../cache";
-import { findCurrentOperand, getOperandIndex } from "./completion/utils";
-import { Optional } from "../../../../common/types/utils";
 
 type OnSignatureHelpHandlerType = Parameters<Connection["onSignatureHelp"]>[0];
 

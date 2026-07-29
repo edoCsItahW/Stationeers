@@ -13,7 +13,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Nullable } from "../../../common/types";
+import { Nullable } from "common";
 
 interface RadixNode<T> {
     children: Map<string, RadixNode<T>>;

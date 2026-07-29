@@ -20,9 +20,8 @@ import type { Connection, InitializeResult } from "vscode-languageserver";
 import { IC10Local } from "ic10-node-api";
 
 import { TOKEN_TYPES, TOKEN_MODIFIERS } from "../handlers/semanticToken";
-import { CONFIGURATION_SECTION_NAME } from "../../../../common/utils";
+import { CONFIGURATION_SECTION_NAME, Optional } from "common";
 import { DocumentCache, GlobalCache } from "../cache";
-import { Optional } from "../../../../common/types";
 import { locale } from "../../locals/locale";
 import { uriToPath } from "../../utils";
 

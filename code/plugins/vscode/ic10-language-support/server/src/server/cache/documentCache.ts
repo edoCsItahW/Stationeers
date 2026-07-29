@@ -17,7 +17,7 @@
  * */
 import { Token, Program, type Diagnostic, type SymbolMap, type TypeTableMap } from "ic10-node-api";
 
-import { Optional, Nullable } from "../../../../common/types";
+import { Optional, Nullable } from "common";
 
 export interface DocCacheValue {
     source: string;

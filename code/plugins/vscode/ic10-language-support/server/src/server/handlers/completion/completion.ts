@@ -19,10 +19,10 @@ import type { Connection } from "vscode-languageserver/node";
 import { KeywordCompletionProvider, OperandCompletionProvider, DirectiveCompletionProvider } from "./providers";
 import { ENUMS_LOCAL_MAP, INS_LOCAL_MAP, LOGIC_LOCAL_MAP, LOGIC_SLOT_LOCAL_MAP } from "../../../mateData";
 import type { CompletionContext, CompletionData, CompletionProvider } from "./types";
-import { Optional } from "../../../../../common/types";
 import { locale, t } from "../../../locals/locale";
 import { findStatementAtPosition } from "./utils";
 import { DocumentCache } from "../../cache";
+import { Optional } from "common";
 
 
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];
