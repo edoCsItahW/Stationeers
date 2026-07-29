@@ -34,20 +34,21 @@ import { parse as parseYaml } from "yaml";
 import * as path from "path";
 import * as fs from "fs";
 import {
-    AliasDirectiveNode,
-    DefineDirectiveNode,
-    ErrorNode,
     ExecutableInstructionNode,
-    InstructionNode,
-    LabelDefNode,
+    PureExeInstructionNode,
+    DefineDirectiveNode,
+    AliasDirectiveNode,
     StatementNode,
-    OperandNode
+    LabelDefNode,
+    OperandNode,
+    ErrorNode
 } from "ic10-node-api";
 
 import { operandToString } from "../../utils";
 import { DocumentCache } from "../cache";
 import { t } from "../../locals/locale";
-import { debug, Console } from "common";
+import { Console, debug } from "common";
+
 
 type OnDocumentFormattingHandlerType = Parameters<Connection["onDocumentFormatting"]>[0];
 
@@ -185,7 +186,7 @@ type FormatUnit =
 // =========================================================================
 
 /** 判断是否为可执行指令节点 */
-function isInstructionNode(stmt: StatementNode): stmt is ExecutableInstructionNode {
+function isInstructionNode(stmt: StatementNode): stmt is PureExeInstructionNode {
     return stmt.type.endsWith("Instruction");
 }
 
@@ -303,12 +304,10 @@ function buildFormatUnits(
 
         // 可执行指令
         if (isInstructionNode(primaryStmt)) {
-            const instr = primaryStmt as InstructionNode;
-            const execInstr = primaryStmt as ExecutableInstructionNode;
             units.push({
                 kind: "instruction",
-                keyword: instr.keyword,
-                operands: [...extractOperandStrings(execInstr, rawLines), ...errorLexemes],
+                keyword: primaryStmt.keyword,
+                operands: [...extractOperandStrings(primaryStmt, rawLines), ...errorLexemes],
                 comment: pl.comment
             });
             continue;

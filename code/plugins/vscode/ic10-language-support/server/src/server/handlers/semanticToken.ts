@@ -15,24 +15,24 @@
  * */
 import { Languages } from "vscode-languageserver";
 import {
-    AliasDirectiveNode,
-    BasicType,
-    ConstantNode,
+    PureExeInstructionNode,
     DefineDirectiveNode,
-    ErrorNode,
-    ExecutableInstructionNode,
-    HashCallNode,
+    AliasDirectiveNode,
     IdentifierNode,
-    LabelDefNode,
-    OperandNode,
-    OperandType,
-    Position,
-    Program,
     StatementNode,
-    StrCallNode,
-    SymbolMap,
+    ConstantNode,
+    HashCallNode,
+    LabelDefNode,
     TypeCategory,
-    TypeOfNode
+    OperandNode,
+    StrCallNode,
+    OperandType,
+    TypeOfNode,
+    BasicType,
+    ErrorNode,
+    SymbolMap,
+    Position,
+    Program
 } from "ic10-node-api";
 
 import { Console, debug, upperBound } from "common";
@@ -228,7 +228,7 @@ export class SemanticTokenHandler {
     }
 
     private visitInstruction(
-        node: Exclude<ExecutableInstructionNode, ErrorNode>,
+        node: PureExeInstructionNode,
         context: HandlerContext
     ): SemanticToken[] {
         const result: SemanticToken[] = [];
@@ -532,7 +532,7 @@ export class SemanticTokenHandler {
         return result;
     }
 
-    private isInstructionType(node: StatementNode): node is Exclude<ExecutableInstructionNode, ErrorNode> {
+    private isInstructionType(node: StatementNode): node is PureExeInstructionNode {
         return node.type.endsWith("Instruction");
     }
 }

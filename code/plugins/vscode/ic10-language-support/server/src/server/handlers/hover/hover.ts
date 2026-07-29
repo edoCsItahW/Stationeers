@@ -22,10 +22,10 @@ import { findStatementAtPosition } from "./utils";
 import { DocumentCache } from "../../cache";
 import { Console, debug } from "common";
 import {
-    LabelDefHoverProvider,
-    AliasDirectiveHoverProvider,
     DefineDirectiveHoverProvider,
-    InstructionHoverProvider
+    AliasDirectiveHoverProvider,
+    InstructionHoverProvider,
+    LabelDefHoverProvider
 } from "./providers";
 
 type OnHoverHandlerType = Parameters<Connection["onHover"]>[0];
