@@ -27,9 +27,8 @@ import type {
     ErrorNode
 } from "ic10-node-api";
 
+import { lowerBound, getEnumName, type Nullable, type Optional } from "common";
 import { groupHandlers, visit, operandValueLength } from "../../../utils";
-import { lowerBound, getEnumName } from "../../../../../common/utils";
-import { Nullable, type Optional } from "../../../../../common/types";
 import svgBuilder from "../../../utils/svgBuilder";
 import type { HoverContext } from "./types";
 

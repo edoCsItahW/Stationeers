@@ -32,10 +32,10 @@ import {
 
 import { findCurrentOperand, getKeyword, getOperandIndex, getOperandType, isAtKeyword } from "./utils";
 import type { CompletionContext, CompletionData, CompletionProvider } from "./types";
-import { Optional } from "../../../../../common/types";
 import { INS_META_MAP } from "../../../mateData";
 import { RadixTree } from "../../../utils";
 import { t } from "../../../locals/locale";
+import { Optional } from "common";
 
 // ── 内置补全数据 ──
 

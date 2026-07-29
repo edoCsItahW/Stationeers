@@ -7,12 +7,12 @@
  * permission, please contact the author: edocsitahw@qq.com
  */
 
+import { LanguageClient, TransportKind, ServerOptions } from "vscode-languageclient/node";
+import { LanguageClientOptions } from "vscode-languageclient";
 import { workspace, ExtensionContext } from "vscode";
 import * as path from "path";
-import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from "vscode-languageclient/node";
 
-import { COMM_EVENT_NAME } from "../../common/utils";
-import { EventData } from "../../common/types";
+import { COMM_EVENT_NAME, EventData } from "common";
 
 class Extension {
     private readonly serverModule: string;
@@ -21,7 +21,7 @@ class Extension {
     private readonly client: LanguageClient;
 
     constructor(
-        private readonly module: string = path.join("server", "out", "server", "src", "server", "server.js"),
+        private readonly module: string = path.join("server", "out", "server", "server.js"),
         private context: ExtensionContext
     ) {
         this.serverModule = this.context.asAbsolutePath(this.module);
@@ -56,7 +56,7 @@ class Extension {
 let extension: Extension;
 
 export async function activate(context: ExtensionContext) {
-    extension = new Extension(path.join("server", "out", "server", "src", "server", "server.js"), context);
+    extension = new Extension(path.join("server", "out", "server", "server.js"), context);
     extension.run();
 }
 

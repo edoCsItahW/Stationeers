@@ -35,8 +35,7 @@ import {
     TypeOfNode
 } from "ic10-node-api";
 
-import { Console } from "../../../../common/exception/debug";
-import { upperBound } from "../../../../common/utils";
+import { Console, upperBound } from "common";
 import { DocumentCache } from "../cache";
 
 type OnHandlerType = Parameters<Languages["semanticTokens"]["on"]>[0];
