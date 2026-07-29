@@ -10,11 +10,47 @@
 #define COMPILER_JSON_INL
 #pragma once
 
+#include <format>
 #include <sstream>
 #include <utility>
 
 
 namespace stationeers::ic10 {
+
+    /**
+     * @if zh
+     * @brief 对字符串中的特殊字符进行 JSON 转义
+     * @param str 原始字符串
+     * @return 转义后的字符串（不含外层引号）
+     * @elseif en
+     * @brief Escape special characters in a string for JSON
+     * @param str Raw string
+     * @return Escaped string (without outer quotes)
+     * @endif
+     */
+    inline std::string escapeJsonString(const std::string& str) {
+        std::string result;
+        result.reserve(str.size());
+        for (char c : str) {
+            switch (c) {
+                case '"':  result += "\\\""; break;
+                case '\\': result += "\\\\"; break;
+                case '\b': result += "\\b";  break;
+                case '\f': result += "\\f";  break;
+                case '\n': result += "\\n";  break;
+                case '\r': result += "\\r";  break;
+                case '\t': result += "\\t";  break;
+                default:
+                    if (static_cast<unsigned char>(c) < 0x20) {
+                        result += std::format("\\u{:04x}", static_cast<unsigned char>(c));
+                    } else {
+                        result += c;
+                    }
+                    break;
+            }
+        }
+        return result;
+    }
 
     template<JsonStringAble T>
     std::string toJsonString(T value) {
@@ -23,7 +59,7 @@ namespace stationeers::ic10 {
                 // 已经是 JSON 字面量（对象、数组、字符串），直接返回
                 if (str[0] == '"' || str[0] == '[' || str[0] == '{')
                     return str;
-                return '"' + str + '"';
+                return '"' + escapeJsonString(str) + '"';
             }
             return "\"\"";
         };
