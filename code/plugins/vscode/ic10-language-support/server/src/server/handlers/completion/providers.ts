@@ -73,6 +73,20 @@ function filterByPrefix(items: { value: string; sort: string }[], prefix: string
 //  KeywordProvider — 字母触发时补全指令关键字
 // ═══════════════════════════════════════════════════════════════
 
+/**
+ * @summary 关键字补全提供器 — 在字母触发时补全 IC10 指令关键字
+ *
+ * @summary Keyword completion provider — completes IC10 instruction keywords on letter trigger
+ *
+ * @desc 处理三种触发方式：显式字母触发（TriggerCharacter）、补全列表中继续输入
+ *  （TriggerForIncompleteCompletions）以及手动调用（Invoked，仅在关键字位置提供）。
+ *  使用 RadixTree 进行前缀匹配以提高性能。
+ *
+ * @desc Handles three trigger kinds: explicit letter trigger (TriggerCharacter),
+ *  continued typing in completion list (TriggerForIncompleteCompletions),
+ *  and manual invocation (Invoked, only at keyword positions).
+ *  Uses RadixTree for prefix matching to improve performance.
+ * */
 export class KeywordCompletionProvider implements CompletionProvider {
     canHandle(ctx: CompletionContext): boolean {
         // 显式字母触发 — 始终提供关键字补全
@@ -118,6 +132,20 @@ export class KeywordCompletionProvider implements CompletionProvider {
 //  OperandProvider — 空格触发时根据 AST typeN 补全操作数
 // ═══════════════════════════════════════════════════════════════
 
+/**
+ * @summary 操作数补全提供器 — 在空格触发时根据 AST 类型字段补全操作数
+ *
+ * @summary Operand completion provider — completes operands on space trigger based on AST type fields
+ *
+ * @desc 当用户输入空格后，读取当前指令的 AST typeN 字段确定操作数类型，
+ *  然后补全对应的寄存器、设备引用、枚举值、跳转标签等。
+ *  支持根据前置设备节点过滤 LogicType/LogicSlot/BatchMode 等枚举值。
+ *
+ * @desc After a space input, reads the current instruction's AST typeN fields to
+ *  determine operand type, then completes corresponding registers, device references,
+ *  enum values, jump targets, etc. Supports filtering LogicType/LogicSlot/BatchMode
+ *  enums based on the preceding device node.
+ * */
 export class OperandCompletionProvider implements CompletionProvider {
     canHandle(ctx: CompletionContext): boolean {
         return ctx.triggerCharacter === " ";
@@ -391,6 +419,19 @@ export class OperandCompletionProvider implements CompletionProvider {
 //  DirectiveProvider — alias / define 专用的补全
 // ═══════════════════════════════════════════════════════════════
 
+/**
+ * @summary 伪指令补全提供器 — 为 alias 和 define 语句提供专用补全
+ *
+ * @summary Directive completion provider — provides specialized completions for alias and define statements
+ *
+ * @desc 处理 alias 和 define 伪指令的补全需求：
+ *  - alias: 补全寄存器引用（r0-r15, ra, sp）和设备引用（d0-d5, db）
+ *  - define: 补全 % 二进制数、$ 哈希数、HASH() 和 STR() 函数调用
+ *
+ * @desc Handles completion for alias and define directives:
+ *  - alias: completes register references (r0-r15, ra, sp) and device references (d0-d5, db)
+ *  - define: completes % binary numbers, $ hash numbers, HASH(), and STR() function calls
+ * */
 export class DirectiveCompletionProvider implements CompletionProvider {
     canHandle(ctx: CompletionContext): boolean {
         const t = ctx.stmt?.type;

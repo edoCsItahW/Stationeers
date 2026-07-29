@@ -43,12 +43,21 @@ type OnHandlerType = Parameters<Languages["semanticTokens"]["on"]>[0];
 type OnRangeHandlerType = Parameters<Languages["semanticTokens"]["onRange"]>[0];
 
 /**
- * 语义令牌类型枚举，顺序对应 LSP legend 中的 tokenTypes 顺序。
- * 使用 IC10 自定义类型避免与 VS Code 标准类型混淆，并可通过 package.json 中的
- * semanticTokenColors 精确控制颜色。
+ * @summary IC10 语义令牌类型枚举，对应 LSP legend 中的 tokenTypes
+ *
+ * @summary IC10 semantic token type enumeration, corresponding to tokenTypes in LSP legend
+ *
+ * @desc 定义 IC10 语言的所有语义令牌类型，使用自定义类型避免与 VS Code 标准类型混淆，
+ * 并可通过 package.json 中的 semanticTokenColors 精确控制颜色。
+ * 枚举值的顺序即为 LSP legend 中 tokenTypes 的顺序。
+ *
+ * @desc Defines all semantic token types for the IC10 language. Custom types are used to avoid
+ * confusion with VS Code standard types, and colors can be precisely controlled via
+ * semanticTokenColors in package.json. The order of enum values is the order of
+ * tokenTypes in the LSP legend.
  *
  * @see https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide
- */
+ * */
 export enum TokenLegend {
     /** 指令关键字（move, add, sub 等）和预处理指令（alias, define） */
     Keyword = 0,
@@ -77,8 +86,17 @@ export enum TokenLegend {
 }
 
 /**
- * 语义令牌修饰符枚举，顺序对应 LSP legend 中的 tokenModifiers 顺序。
- */
+ * @summary IC10 语义令牌修饰符枚举，对应 LSP legend 中的 tokenModifiers
+ *
+ * @summary IC10 semantic token modifier enumeration, corresponding to tokenModifiers in LSP legend
+ *
+ * @desc 定义语义令牌的修饰符位掩码。枚举值的顺序即为 LSP legend 中 tokenModifiers 的顺序。
+ * 每个修饰符对应一个位，可通过位运算组合多个修饰符。
+ *
+ * @desc Defines bitmask modifiers for semantic tokens. The order of enum values is the order
+ * of tokenModifiers in the LSP legend. Each modifier corresponds to one bit and can be
+ * combined via bitwise operations.
+ * */
 export enum TokenModifier {
     /** 声明（alias、define 引入的新符号） */
     Declaration = 0,
@@ -86,8 +104,30 @@ export enum TokenModifier {
     Readonly
 }
 
+/**
+ * @summary LSP legend 的 tokenTypes 字符串数组
+ *
+ * @summary String array of tokenTypes for the LSP legend
+ *
+ * @desc 从 TokenLegend 枚举中提取的字符串键名数组，用于初始化 LSP 语义令牌 legend。
+ * 过滤掉数字键，仅保留枚举成员名称。
+ *
+ * @desc Array of string keys extracted from the TokenLegend enum, used to initialize the
+ * LSP semantic tokens legend. Numeric keys are filtered out, leaving only enum member names.
+ * */
 export const TOKEN_TYPES = Object.keys(TokenLegend).filter(k => isNaN(Number(k)));
 
+/**
+ * @summary LSP legend 的 tokenModifiers 字符串数组
+ *
+ * @summary String array of tokenModifiers for the LSP legend
+ *
+ * @desc 从 TokenModifier 枚举中提取的字符串键名数组，用于初始化 LSP 语义令牌修饰符 legend。
+ * 过滤掉数字键，仅保留枚举成员名称。
+ *
+ * @desc Array of string keys extracted from the TokenModifier enum, used to initialize the
+ * LSP semantic tokens modifier legend. Numeric keys are filtered out, leaving only enum member names.
+ * */
 export const TOKEN_MODIFIERS = Object.keys(TokenModifier).filter(k => isNaN(Number(k)));
 
 interface SemanticToken {
@@ -132,6 +172,20 @@ interface HandlerContext {
     table: SymbolMap;
 }
 
+/**
+ * @summary IC10 语义令牌处理器
+ *
+ * @summary IC10 semantic token handler
+ *
+ * @desc 负责将 IC10 程序的 AST 转换为 LSP 语义令牌数据。支持全文档和范围级别的语义令牌请求。
+ * 遍历 AST 中的语句节点和操作数节点，根据符号表和类型信息为每个 token 分配
+ * 合适的 TokenLegend 类型和 TokenModifier 修饰符。
+ *
+ * @desc Converts IC10 program AST into LSP semantic token data. Supports both full-document
+ * and range-level semantic token requests. Traverses statement and operand nodes in the AST,
+ * assigning appropriate TokenLegend types and TokenModifier modifiers to each token based
+ * on the symbol table and type information.
+ * */
 export class SemanticTokenHandler {
     constructor(private readonly docCache: DocumentCache) {}
 

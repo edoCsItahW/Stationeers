@@ -17,15 +17,48 @@
  * */
 import { Optional } from "../types";
 
+/**
+ * @summary 属性装饰器的可选配置
+ *
+ * @summary Optional configuration for the property decorator
+ *
+ * @desc 包含 setterChecker（值校验函数）和 initProc（初始化处理函数）。
+ *
+ * @desc Contains setterChecker (value validation function) and initProc
+ * (initialization processing function).
+ * */
 export interface PropertyOptions<This, Value> {
     setterChecker?: (value: Value) => boolean;
     initProc?: (this: This, value: Value) => Value;
 }
 
+/**
+ * @summary 属性装饰器的返回类型
+ *
+ * @summary Return type of the property decorator
+ *
+ * @desc 可能是 ClassAccessorDecoratorResult 或返回它的工厂函数，
+ * 取决于装饰器是否带参数调用。
+ *
+ * @desc Either a ClassAccessorDecoratorResult or a factory returning one,
+ * depending on whether the decorator is called with arguments.
+ * */
 export type PropertyDecoratorResult<This, Value> =
     | ClassAccessorDecoratorResult<This, Value>
     | ((accessor: ClassAccessorDecoratorTarget<This, Value>) => ClassAccessorDecoratorResult<This, Value>);
 
+/**
+ * @summary 类访问器属性装饰器，支持值校验和初始化处理
+ *
+ * @summary Class accessor property decorator with value validation and init processing
+ *
+ * @desc ECMAScript 装饰器，可重载为直接使用或带配置使用。
+ * 支持 setterChecker 拦截非法值、initProc 在初始化时转换值。
+ *
+ * @desc ECMAScript decorator with overloads for direct use or use with options.
+ * Supports setterChecker for intercepting invalid values and initProc for
+ * transforming values during initialization.
+ * */
 export function property<This, Value>(
     accessor: ClassAccessorDecoratorTarget<This, Value>
 ): ClassAccessorDecoratorResult<This, Value>;
@@ -61,11 +94,20 @@ export function property<This, Value>(
 }
 
 /**
- * 在已排序数组中查找目标值，返回其索引，若不存在则返回 -1
+ * @summary 二分查找，在已排序数组中定位目标值
+ *
+ * @summary Binary search for locating a target value in a sorted array
+ *
+ * @desc 在升序排列的数组中查找目标值，返回其索引；若不存在则返回 -1。
+ * 支持自定义比较函数。时间复杂度 O(log n)。
+ *
+ * @desc Finds a target value in an ascending array, returning its index or -1 if absent.
+ * Supports custom comparison function. Time complexity O(log n).
+ *
  * @param arr 已按升序排列的数组
  * @param target 要查找的值
  * @param compare 比较函数，返回负数表示 a < b，0 表示相等，正数表示 a > b
- */
+ * */
 export function binarySearch<T>(
     arr: T[],
     target: T,
@@ -86,8 +128,16 @@ export function binarySearch<T>(
 }
 
 /**
- * 查找第一个满足条件的元素的索引（前提：pred 在数组上呈 [false, ..., false, true, ..., true] 分布）
- */
+ * @summary 二分查找第一个满足条件的元素索引（lower_bound）
+ *
+ * @summary Binary search for the first element satisfying a predicate (lower_bound)
+ *
+ * @desc 前提：pred 在数组上呈 [false, ..., false, true, ..., true] 分布。
+ * 返回第一个使 pred(item) 为 true 的索引。若无满足项则返回 arr.length。
+ *
+ * @desc Requires that pred is monotonic: [false, ..., false, true, ..., true] across the array.
+ * Returns the index of the first element where pred(item) is true, or arr.length if none match.
+ * */
 export function lowerBound<T>(arr: T[], pred: (item: T) => boolean): number {
     let low = 0;
     let high = arr.length; // 注意这里是 length，不是 length - 1
@@ -102,6 +152,17 @@ export function lowerBound<T>(arr: T[], pred: (item: T) => boolean): number {
     return low; // 第一个 true 的索引
 }
 
+/**
+ * @summary 二分查找最后一个满足条件的元素索引（upper_bound）
+ *
+ * @summary Binary search for the last element satisfying a predicate (upper_bound)
+ *
+ * @desc 前提：pred 在数组上呈 [false, ..., false, true, ..., true] 分布。
+ * 返回最后一个使 pred(item) 为 true 的索引。若无满足项则返回 -1。
+ *
+ * @desc Requires that pred is monotonic: [false, ..., false, true, ..., true] across the array.
+ * Returns the index of the last element where pred(item) is true, or -1 if none match.
+ * */
 export function upperBound<T>(arr: T[], pred: (item: T) => boolean): number {
     let low = 0;
     let high = arr.length;
@@ -117,12 +178,21 @@ export function upperBound<T>(arr: T[], pred: (item: T) => boolean): number {
 }
 
 /**
- * 在无序数组中，找出满足指定条件的最大元素
+ * @summary 在无序数组中找出满足条件的最大元素
+ *
+ * @summary Finds the maximum element satisfying a condition in an unsorted array
+ *
+ * @desc 遍历数组，筛选出满足 condition 的元素，再按 compare 比较取最大值。
+ * 时间复杂度 O(n)。
+ *
+ * @desc Scans the array, filters elements by condition, then picks the maximum
+ * via compare. Time complexity O(n).
+ *
  * @param arr 待搜索的数组（无序）
  * @param condition 判断元素是否可参与候选
  * @param compare 比较函数，返回负数表示 a < b，0 相等，正数表示 a > b
  * @returns 满足条件的最大元素，若无则返回 undefined
- */
+ * */
 export function findMaxByCondition<T>(
     arr: T[],
     condition: (item: T) => boolean,
@@ -139,12 +209,21 @@ export function findMaxByCondition<T>(
 }
 
 /**
- * 在无序数组中，找出满足指定条件的最小元素
+ * @summary 在无序数组中找出满足条件的最小元素
+ *
+ * @summary Finds the minimum element satisfying a condition in an unsorted array
+ *
+ * @desc 遍历数组，筛选出满足 condition 的元素，再按 compare 比较取最小值。
+ * 时间复杂度 O(n)。
+ *
+ * @desc Scans the array, filters elements by condition, then picks the minimum
+ * via compare. Time complexity O(n).
+ *
  * @param arr 待搜索的数组（无序）
  * @param condition 判断元素是否可参与候选
  * @param compare 比较函数，返回负数表示 a < b，0 相等，正数表示 a > b
  * @returns 满足条件的最小元素，若无则返回 undefined
- */
+ * */
 export function findMinByCondition<T>(
     arr: T[],
     condition: (item: T) => boolean,
@@ -164,6 +243,17 @@ function defaultCompare<T>(a: T, b: T): number {
     return (a as any) - (b as any);
 }
 
+/**
+ * @summary 根据枚举值反查枚举键名
+ *
+ * @summary Reverse-lookup an enum key by its value
+ *
+ * @desc 在枚举对象中查找给定值对应的键名。适用于数值枚举和字符串枚举。
+ * 若值不存在则返回 undefined。
+ *
+ * @desc Searches an enum object for the key matching a given value.
+ * Works with both numeric and string enums. Returns undefined if not found.
+ * */
 export function getEnumName<T extends Record<string, string | number>>(
     enumObj: T,
     value: string | number

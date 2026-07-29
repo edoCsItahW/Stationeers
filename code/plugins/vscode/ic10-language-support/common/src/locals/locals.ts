@@ -21,6 +21,25 @@ import { EventEmitter } from "../utils";
 
 type Resources = Record<string, any>; // 语言键 -> 翻译表
 
+/**
+ * @summary 国际化（i18n）翻译引擎，支持参数插值和复数规则
+ *
+ * @summary Internationalization (i18n) translation engine with parameter interpolation and pluralization
+ *
+ * @desc 管理多语言资源表，通过点路径查找翻译文本。
+ * 支持 `{name}` 占位符插值、基于 Intl.PluralRules 的复数形式选择、
+ * 以及 fallback 语言降级。继承 EventEmitter，在切换语言时触发 localeChange 事件。
+ *
+ * @desc Manages multilingual resource tables and looks up translations via dot-separated paths.
+ * Supports `{name}` placeholder interpolation, Intl.PluralRules-based plural form selection,
+ * and fallback locale degradation. Extends EventEmitter, firing localeChange on language switch.
+ *
+ * @remarks 复数模板要求 `count` 参数。未找到翻译时降级到 fallbackLocale，
+ * 最终降级为返回路径字符串本身。
+ *
+ * @remarks Plural templates require a `count` parameter. Missing translations
+ * fall back to fallbackLocale, and ultimately return the path string itself.
+ * */
 export class Locale<T extends Resources> extends EventEmitter {
     private currentLocale: keyof T;
     private resources: T;

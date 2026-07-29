@@ -24,6 +24,22 @@ import { DocumentCache } from "../cache";
 
 type OnSignatureHelpHandlerType = Parameters<Connection["onSignatureHelp"]>[0];
 
+/**
+ * @summary IC10 函数签名帮助处理器
+ *
+ * @summary IC10 function signature help handler
+ *
+ * @desc 响应用户输入的触发字符（如空格、逗号）提供指令和预处理指令的函数签名帮助。
+ * 根据当前 AST 上下文识别指令关键字或预处理指令（alias/define），
+ * 从元数据中检索对应的签名信息和本地化描述，标记当前活跃参数，
+ * 并计算各操作数在签名中的位置范围。
+ *
+ * @desc Provides function signature help for instructions and preprocessor directives
+ * when trigger characters (e.g., space, comma) are entered. Identifies the instruction
+ * keyword or preprocessor directive (alias/define) from the current AST context,
+ * retrieves the corresponding signature and localized description from metadata,
+ * marks the active parameter, and computes operand position ranges within the signature.
+ * */
 export class SignatureHandler {
     constructor(private readonly docCache: DocumentCache) {}
 

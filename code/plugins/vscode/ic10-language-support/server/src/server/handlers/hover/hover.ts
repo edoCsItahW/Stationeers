@@ -30,6 +30,17 @@ import {
 
 type OnHoverHandlerType = Parameters<Connection["onHover"]>[0];
 
+/**
+ * @summary 悬停处理器 — 根据语句类型将请求分发给对应的 HoverProvider
+ *
+ * @summary Hover handler — dispatches requests to the appropriate HoverProvider based on statement type
+ *
+ * @desc 管理一组 HoverProvider（LabelDef、AliasDirective、DefineDirective、Instruction），
+ *  遍历查找能处理当前语句的提供器，由其生成 Markdown 格式的悬停提示。
+ *
+ * @desc Manages a set of HoverProviders (LabelDef, AliasDirective, DefineDirective, Instruction),
+ *  iterates to find the one that can handle the current statement, and generates Markdown hover tooltips.
+ * */
 export class HoverHandler {
     private providers: HoverProvider[];
 
@@ -42,6 +53,17 @@ export class HoverHandler {
         ];
     }
 
+    /**
+     * @summary 处理悬停事件 — 定位光标所在语句并生成悬停提示
+     *
+     * @summary Handle hover event — locate the statement at cursor and generate hover tooltip
+     *
+     * @param params LSP hover 参数，包含 textDocument URI 和光标位置
+     * @param params LSP hover parameters, including textDocument URI and cursor position
+     *
+     * @returns 悬停内容（Markdown 格式），若无相关内容返回空
+     * @returns Hover content (Markdown format), or empty if nothing relevant
+     * */
     @debug({
         message: err => t("server.handler.error", { name: "hover", err: (err as Error).message }),
         logger: msg => Console.error(msg, "hover"),
