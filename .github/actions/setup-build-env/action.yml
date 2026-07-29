@@ -64,9 +64,9 @@ runs:
             uses: ilammy/msvc-dev-cmd@v1.13.0
 
         -   name: Install CMake
-            uses: jwlawson/actions-setup-cmake@v2.2.0
+            uses: lukka/get-cmake@latest
             with:
-                cmake-version: ${{ inputs.cmake-version }}
+                cmakeVersion: ${{ inputs.cmake-version }}
 
         -   name: Setup Node.js
             if: inputs.node-version != ''
