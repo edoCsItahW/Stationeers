@@ -15,6 +15,7 @@
  * */
 #include "ic10/lexer/token.hpp"
 #include "common/utils/enum_to_str.hpp"
+#include "common/utils/json.hpp"
 
 #include <iostream>  // 避免`std::ostream& operator<<(std::ostream& os, const Token& token)`中出现错误
 #include <format>
@@ -227,7 +228,12 @@ namespace stationeers::ic10 {
     }
 
     std::string Token::toJSON() const {
-        return std::format(R"({{"type": "{}", "lexeme": "{}"}})", enumToStr(type), lexeme);
+        return toJson<"type", "pos", "lexeme", "category">(
+            static_cast<int>(type),
+            toJson<"line", "column">(pos.line(), pos.column()),
+            lexeme,
+            static_cast<int>(category)
+        );
     }
 
     std::ostream& operator<<(std::ostream& os, const Token& token) {
