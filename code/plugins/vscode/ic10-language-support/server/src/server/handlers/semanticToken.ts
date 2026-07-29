@@ -187,6 +187,9 @@ interface HandlerContext {
  * on the symbol table and type information.
  * */
 export class SemanticTokenHandler {
+    /** 语义令牌缓存：按 URI 索引，通过 hash 判断是否过期 */
+    private tokenCache: Map<string, { hash: string; data: number[] }> = new Map();
+
     constructor(private readonly docCache: DocumentCache) {}
 
     @debug({
@@ -196,16 +199,24 @@ export class SemanticTokenHandler {
     })
     handle(...[params]: Parameters<OnHandlerType>): ReturnType<OnHandlerType> {
         try {
-            const cache = this.docCache.getCache(params.textDocument.uri);
+            const uri = params.textDocument.uri;
+            const cache = this.docCache.getCache(uri);
 
             if (!cache || !cache.ast || !cache.symbols) return { data: [] };
+
+            // 命中令牌缓存则直接返回，避免重复遍历 AST
+            const cached = this.tokenCache.get(uri);
+            if (cached && cached.hash === cache.hash) return { data: cached.data };
 
             const context: HandlerContext = {
                 prev: { line: 1, column: 1 },
                 table: cache.symbols
             };
 
-            return { data: this.visitProgram(cache.ast, context) };
+            const data = this.visitProgram(cache.ast, context);
+            this.tokenCache.set(uri, { hash: cache.hash, data });
+
+            return { data };
         } catch (error) {}
     }
 
