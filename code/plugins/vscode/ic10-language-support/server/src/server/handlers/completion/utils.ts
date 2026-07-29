@@ -14,52 +14,18 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import type {StatementNode, Token} from "ic10-node-api";
-import {OperandType, TokenType} from "ic10-node-api";
+import type { StatementNode, Token } from "ic10-node-api";
+import { TokenType } from "ic10-node-api";
 
-import type {Nullable} from "../../../../../common/types/utils";
-import {findMaxByCondition, findMinByCondition, lowerBound} from "../../../../../common/utils";
-
+import { findMaxByCondition, findMinByCondition, lowerBound } from "../../../../../common/utils";
+import type { Nullable } from "../../../../../common/types";
 
 /**
  * 在语句列表中二分查找光标所在行的语句。
  */
-export function findStatementAtPosition(
-    statements: StatementNode[],
-    line: number
-): Nullable<StatementNode> {
-    const idx = lowerBound(statements, (item) => item.position.line >= line);
-    return (idx >= 0 && idx < statements.length) ? statements[idx] : null;
-}
-
-/**
- * 从 tokens 中筛选指定行的 token。
- */
-export function tokensOnLine(tokens: Token[], line: number): Token[] {
-    return tokens.filter(t => t.pos.line === line);
-}
-
-/**
- * 用 token 定位光标前最后一个有意义的单词。
- * 用于 ErrorNode 场景下判断用户正在输入什么。
- */
-export function lastTokenBeforeCursor(
-    lineTokens: Token[],
-    character: number
-): Nullable<Token> {
-    return lineTokens
-        .filter(t => t.pos.column < character)
-        .reverse()
-        .find(t => t.type !== TokenType.NEWLINE && t.type !== TokenType.END) ?? null;
-}
-
-/**
- * 获取光标处所在行的前缀文本（光标前部分）。
- */
-export function cursorPrefix(source: string, line: number, character: number): string {
-    const lines = source.split("\n");
-    const currentLine = lines[line - 1] ?? "";
-    return currentLine.substring(0, character - 1);
+export function findStatementAtPosition(statements: StatementNode[], line: number): Nullable<StatementNode> {
+    const idx = lowerBound(statements, item => item.position.line >= line);
+    return idx >= 0 && idx < statements.length ? statements[idx] : null;
 }
 
 /**
@@ -68,8 +34,7 @@ export function cursorPrefix(source: string, line: number, character: number): s
 export function isAtKeyword(stmt: StatementNode, character: number): boolean {
     const keywordLen = (stmt as any).keyword?.length ?? 0;
     if (!keywordLen) return false;
-    return character >= stmt.position.column
-        && character <= stmt.position.column + keywordLen;
+    return character >= stmt.position.column && character <= stmt.position.column + keywordLen;
 }
 
 /**
@@ -98,16 +63,15 @@ export function findCurrentOperand(stmt: StatementNode, character?: string) {
     const lastErr = findMinByCondition(
         values,
         ([, value]) => value.type === "Error",
-        ([k1, ], [k2,]) => getOperandIndex(k1) - getOperandIndex(k2)
-    )
+        ([k1], [k2]) => getOperandIndex(k1) - getOperandIndex(k2)
+    );
 
-    if (character || !lastErr)
-        return lastErr;
+    if (character || !lastErr) return lastErr;
 
     return findMaxByCondition(
         values,
-        ([k,]) => getOperandIndex(k) < getOperandIndex(lastErr[0]),
-        ([k1,], [k2,]) => getOperandIndex(k1) - getOperandIndex(k2)
+        ([k]) => getOperandIndex(k) < getOperandIndex(lastErr[0]),
+        ([k1], [k2]) => getOperandIndex(k1) - getOperandIndex(k2)
     );
 }
 

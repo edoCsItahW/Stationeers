@@ -24,12 +24,10 @@ import {
     LabelDefHoverProvider,
     AliasDirectiveHoverProvider,
     DefineDirectiveHoverProvider,
-    InstructionHoverProvider,
+    InstructionHoverProvider
 } from "./providers";
 
-
 type OnHoverHandlerType = Parameters<Connection["onHover"]>[0];
-
 
 export class HoverHandler {
     private providers: HoverProvider[];
@@ -39,7 +37,7 @@ export class HoverHandler {
             new LabelDefHoverProvider(),
             new AliasDirectiveHoverProvider(),
             new DefineDirectiveHoverProvider(),
-            new InstructionHoverProvider(),
+            new InstructionHoverProvider()
         ];
     }
 
@@ -59,7 +57,7 @@ export class HoverHandler {
             symbols: cache.symbols,
             statements: cache.ast.statements,
             getLocale: () => locale.getLocale(),
-            t: (key, ...args) => t(key as any, ...args),
+            t: (key, ...args) => t(key as any, ...args)
         };
 
         for (const provider of this.providers)

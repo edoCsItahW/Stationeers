@@ -13,29 +13,24 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {Nullable} from "../../../common/types/utils";
-
+import { Nullable } from "../../../common/types";
 
 interface RadixNode<T> {
     children: Map<string, RadixNode<T>>;
     value: Nullable<T>;
 }
 
-
 export class RadixTree<T> {
     private root: RadixNode<T> = { children: new Map(), value: null };
 
     constructor(entries?: Record<string, T>) {
-        if (entries)
-            for (const [key, value] of Object.entries(entries))
-                this.insert(key, value);
+        if (entries) for (const [key, value] of Object.entries(entries)) this.insert(key, value);
     }
 
     static fromObject<T>(obj: Record<string, T>): RadixTree<T> {
         const tree = new RadixTree<T>();
 
-        for (const [key, value] of Object.entries(obj))
-            tree.insert(key, value);
+        for (const [key, value] of Object.entries(obj)) tree.insert(key, value);
 
         return tree;
     }
@@ -43,8 +38,7 @@ export class RadixTree<T> {
     static fromMap<T>(map: Map<string, T>): RadixTree<T> {
         const tree = new RadixTree<T>();
 
-        for (const [key, value] of map)
-            tree.insert(key, value);
+        for (const [key, value] of map) tree.insert(key, value);
 
         return tree;
     }
@@ -66,8 +60,7 @@ export class RadixTree<T> {
     keysWithPrefix(prefix: string): string[] {
         const result: string[] = [];
         const node = this._search(this.root, prefix);
-        if (node)
-            this._collectKeys(node, prefix, result);
+        if (node) this._collectKeys(node, prefix, result);
 
         return result;
     }
@@ -75,7 +68,7 @@ export class RadixTree<T> {
     // ---------- 私有辅助方法 ----------
 
     private _insert(node: RadixNode<T>, key: string, value: T): void {
-        if (key === '') {
+        if (key === "") {
             node.value = value;
             return;
         }
@@ -88,8 +81,7 @@ export class RadixTree<T> {
                 // 边完全匹配
                 if (lcp === key.length)
                     child.value = value; // 完全命中，更新值
-                else
-                    this._insert(child, key.slice(lcp), value); // 递归进入子节点
+                else this._insert(child, key.slice(lcp), value); // 递归进入子节点
 
                 return;
             } else {
@@ -99,7 +91,7 @@ export class RadixTree<T> {
 
                 const mid: RadixNode<T> = {
                     children: new Map(),
-                    value: null,
+                    value: null
                 };
 
                 // 将原子节点移到中间节点下
@@ -110,10 +102,8 @@ export class RadixTree<T> {
                 node.children.set(common, mid);
 
                 // 插入剩余部分
-                if (lcp === key.length)
-                    mid.value = value;
-                else
-                    this._insert(mid, key.slice(lcp), value);
+                if (lcp === key.length) mid.value = value;
+                else this._insert(mid, key.slice(lcp), value);
 
                 return;
             }
@@ -124,17 +114,16 @@ export class RadixTree<T> {
     }
 
     private _search(node: RadixNode<T>, key: string): Nullable<RadixNode<T>> {
-        if (key === '') return node;
+        if (key === "") return node;
 
         for (const [edge, child] of node.children)
-            if (key.startsWith(edge))
-                return this._search(child, key.slice(edge.length));
+            if (key.startsWith(edge)) return this._search(child, key.slice(edge.length));
 
         return null;
     }
 
     private _delete(node: RadixNode<T>, key: string): boolean {
-        if (key === '') {
+        if (key === "") {
             if (node.value !== null) {
                 node.value = null;
                 return true;
@@ -153,7 +142,6 @@ export class RadixTree<T> {
                         const [[onlyEdge, onlyChild]] = [...child.children.entries()];
                         node.children.delete(edge);
                         node.children.set(edge + onlyEdge, onlyChild);
-
                     } else if (child.value === null && child.children.size === 0)
                         // 没有子节点且无值，移除
                         node.children.delete(edge);
@@ -168,11 +156,9 @@ export class RadixTree<T> {
     }
 
     private _collectKeys(node: RadixNode<T>, current: string, result: string[]): void {
-        if (node.value !== null)
-            result.push(current);
+        if (node.value !== null) result.push(current);
 
-        for (const [edge, child] of node.children)
-            this._collectKeys(child, current + edge, result);
+        for (const [edge, child] of node.children) this._collectKeys(child, current + edge, result);
     }
 
     private _lcpLength(a: string, b: string): number {
@@ -182,4 +168,8 @@ export class RadixTree<T> {
         while (i < len && a[i] === b[i]) i++;
         return i;
     }
+}
+
+export function uriToPath(uri: string): string {
+    return uri.replace("file:///", "").replace("%3A", ":");
 }

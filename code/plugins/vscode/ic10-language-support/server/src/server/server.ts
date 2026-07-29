@@ -15,29 +15,27 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {createConnection, TextDocuments, ProposedFeatures} from "vscode-languageserver/node";
-import {TextDocument} from "vscode-languageserver-textdocument";
-import type {Connection} from "vscode-languageserver/node";
+import { createConnection, TextDocuments, ProposedFeatures, MessageType } from "vscode-languageserver/node";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import type { Connection } from "vscode-languageserver/node";
 
-import {SemanticTokenHandler} from "./handlers/semanticToken";
-import {SettingsManager} from "./services/settingsManager";
-import {CompletionHandler} from "./handlers/completion";
-import {DiagnosticHandler} from "./handlers/diagnostic";
-import {Console} from "../../../common/exception/debug";
-import {ParserPipline} from "./services/parserPipline";
-import {SignatureHandler} from "./handlers/signature";
-import {FormattingHandler} from "./handlers/formatting";
-import {DocumentCache, GlobalCache} from "./cache";
-import {HoverHandler} from "./handlers/hover";
-import {t} from "../locals/locale";
-
+import { SemanticTokenHandler } from "./handlers/semanticToken";
+import { SettingsManager } from "./services/settingsManager";
+import { CompletionHandler } from "./handlers/completion";
+import { DiagnosticHandler } from "./handlers/diagnostic";
+import { Console } from "../../../common/exception/debug";
+import { ParserPipline } from "./services/parserPipline";
+import { SignatureHandler } from "./handlers/signature";
+import { FormattingHandler } from "./handlers/formatting";
+import { DocumentCache, GlobalCache } from "./cache";
+import { HoverHandler } from "./handlers/hover";
+import { t } from "../locals/locale";
 
 type OnInitializeHandlerType = Parameters<Connection["onInitialize"]>[0];
 type OnInitializedHandlerType = Parameters<Connection["onInitialized"]>[0];
 type OnDidChangeConfigurationHandlerType = Parameters<Connection["onDidChangeConfiguration"]>[0];
 type OnDidOpenHandlerType = Parameters<TextDocuments<TextDocument>["onDidOpen"]>[0];
 type OnDidChangeContentHandlerType = Parameters<TextDocuments<TextDocument>["onDidChangeContent"]>[0];
-
 
 export class Server {
     private readonly semanticHandler: SemanticTokenHandler;
@@ -60,15 +58,25 @@ export class Server {
         this.docCache = new DocumentCache();
 
         this.globalCache = new GlobalCache();
-        this.settingMgr = new SettingsManager(connection, this.docCache, this.globalCache,
-            () => this.handleLocaleChanged());
+        this.settingMgr = new SettingsManager(connection, this.docCache, this.globalCache, () =>
+            this.handleLocaleChanged()
+        );
 
         this.hoverHandler = new HoverHandler(this.docCache);
         this.diagHandler = new DiagnosticHandler(this.docCache);
         this.semanticHandler = new SemanticTokenHandler(this.docCache);
         this.compHandler = new CompletionHandler(this.docCache);
         this.signatureHandler = new SignatureHandler(this.docCache);
-        this.fmtHandler = new FormattingHandler(this.docCache);
+        this.fmtHandler = new FormattingHandler(this.docCache, {
+            pluginConfigProvider: () => this.settingMgr.getFormatConfig(),
+            projectRootDirProvider: () => this.settingMgr.getProjectRootDir(),
+            onConfigError: message => {
+                this.connection.sendNotification("window/showMessage", {
+                    type: MessageType.Warning,
+                    message
+                });
+            }
+        });
 
         this.pipline = new ParserPipline();
     }
@@ -88,7 +96,9 @@ export class Server {
             this.connection.onHover(this.hoverHandler.handle.bind(this.hoverHandler));
             this.connection.languages.diagnostics.on(this.diagHandler.handle.bind(this.diagHandler));
             this.connection.languages.semanticTokens.on(this.semanticHandler.handle.bind(this.semanticHandler));
-            this.connection.languages.semanticTokens.onRange(this.semanticHandler.handleRange.bind(this.semanticHandler));
+            this.connection.languages.semanticTokens.onRange(
+                this.semanticHandler.handleRange.bind(this.semanticHandler)
+            );
             this.connection.onCompletion(this.compHandler.handle.bind(this.compHandler));
             this.connection.onCompletionResolve(this.compHandler.handleResolve.bind(this.compHandler));
             this.connection.onSignatureHelp(this.signatureHandler.handle.bind(this.signatureHandler));
@@ -114,18 +124,22 @@ export class Server {
         return this.settingMgr.onInitialized(...args);
     }
 
-    private onDidChangeConfiguration(...args: Parameters<OnDidChangeConfigurationHandlerType>): ReturnType<OnDidChangeConfigurationHandlerType> {
+    private onDidChangeConfiguration(
+        ...args: Parameters<OnDidChangeConfigurationHandlerType>
+    ): ReturnType<OnDidChangeConfigurationHandlerType> {
         return this.settingMgr.onDidChangeConfiguration(...args);
     }
 
-    private onDidOpen(...[{document}]: Parameters<OnDidOpenHandlerType>) {
+    private onDidOpen(...[{ document }]: Parameters<OnDidOpenHandlerType>) {
         this.docCache.initDocument(document.uri);
         this.globalCache.uri = document.uri;
 
         this.parseAndRefresh(document.getText());
     }
 
-    private onDidChangeContent(...[{document}]: Parameters<OnDidChangeContentHandlerType>): ReturnType<OnDidChangeContentHandlerType> {
+    private onDidChangeContent(
+        ...[{ document }]: Parameters<OnDidChangeContentHandlerType>
+    ): ReturnType<OnDidChangeContentHandlerType> {
         this.globalCache.uri = document.uri;
 
         this.parseAndRefresh(document.getText());
@@ -135,31 +149,35 @@ export class Server {
         const uri = this.globalCache.uri;
         const version = ++this.parseVersion;
 
-        this.pipline.parseInc(code, this.docCache.getCache(uri)).then(res => {
-            if (version !== this.parseVersion) return; // 过期结果，丢弃
-            if (!res.changed) return;
-
-            this.docCache.updateAfterParse(uri, res);
-
-            this.connection.languages.diagnostics.refresh();
-            this.connection.languages.semanticTokens.refresh();
-
-        }).catch(err => {
-            Console.error(t("server.parser.info.LIE1", err.message))
-            // 增量解析失败时回退到全量解析
-            this.pipline.parse(code, this.docCache.getCache(uri)).then(res => {
-                if (version !== this.parseVersion) return;
+        this.pipline
+            .parseInc(code, this.docCache.getCache(uri))
+            .then(res => {
+                if (version !== this.parseVersion) return; // 过期结果，丢弃
                 if (!res.changed) return;
 
                 this.docCache.updateAfterParse(uri, res);
 
                 this.connection.languages.diagnostics.refresh();
                 this.connection.languages.semanticTokens.refresh();
+            })
+            .catch(err => {
+                Console.error(t("server.parser.info.LIE1", { err: err.message }));
+                // 增量解析失败时回退到全量解析
+                this.pipline
+                    .parse(code, this.docCache.getCache(uri))
+                    .then(res => {
+                        if (version !== this.parseVersion) return;
+                        if (!res.changed) return;
 
-            }).catch(err2 => {
-                Console.error(t("server.parser.info.LIE2", err2.message));
+                        this.docCache.updateAfterParse(uri, res);
+
+                        this.connection.languages.diagnostics.refresh();
+                        this.connection.languages.semanticTokens.refresh();
+                    })
+                    .catch(err2 => {
+                        Console.error(t("server.parser.info.LIE2", { err: err2.message }));
+                    });
             });
-        });
     }
 
     private handleLocaleChanged() {
@@ -169,9 +187,7 @@ export class Server {
             this.parseAndRefresh(doc.getText());
         }
     }
-
 }
-
 
 const server = new Server();
 server.run();

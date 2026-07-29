@@ -14,8 +14,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import {CompletionItemKind, CompletionTriggerKind, InsertTextFormat} from "vscode-languageserver/node";
-import type {CompletionItem} from "vscode-languageserver/node";
+import { CompletionItemKind, CompletionTriggerKind, InsertTextFormat } from "vscode-languageserver/node";
+import type { CompletionItem } from "vscode-languageserver/node";
 import {
     AliasDirectiveNode,
     BasicType,
@@ -30,25 +30,31 @@ import {
     TypeCategory
 } from "ic10-node-api";
 
-import {findCurrentOperand, getKeyword, getOperandIndex, getOperandType, isAtKeyword} from "./utils";
-import type {CompletionContext, CompletionData, CompletionProvider} from "./types";
-import {Optional} from "../../../../../common/types/utils";
-import {INS_META_MAP} from "../../../mateData";
-import {RadixTree} from "../../../utils/utils";
-import {t} from "../../../locals/locale";
+import { findCurrentOperand, getKeyword, getOperandIndex, getOperandType, isAtKeyword } from "./utils";
+import type { CompletionContext, CompletionData, CompletionProvider } from "./types";
+import { Optional } from "../../../../../common/types";
+import { INS_META_MAP } from "../../../mateData";
+import { RadixTree } from "../../../utils";
+import { t } from "../../../locals/locale";
 
 // ── 内置补全数据 ──
 
-const REGISTERS = [...Array.from({length: 16}).map((_, i) => ({
-    value: `r${i}`,
-    sort: "r" + String(i).padStart(2, '0')
-})), {value: "ra", sort: "ra"}, {value: "sp", sort: "sp"}];
+const REGISTERS = [
+    ...Array.from({ length: 16 }).map((_, i) => ({
+        value: `r${i}`,
+        sort: "r" + String(i).padStart(2, "0")
+    })),
+    { value: "ra", sort: "ra" },
+    { value: "sp", sort: "sp" }
+];
 
-const DEVICE_REFS = [...Array.from({length: 6}).map((_, i) => ({
-    value: `d${i}`,
-    sort: "d" + String(i).padStart(2, '0')
-})), {value: "db", sort: "db"}];
-
+const DEVICE_REFS = [
+    ...Array.from({ length: 6 }).map((_, i) => ({
+        value: `d${i}`,
+        sort: "d" + String(i).padStart(2, "0")
+    })),
+    { value: "db", sort: "db" }
+];
 
 const insTree = RadixTree.fromMap(INS_META_MAP);
 
@@ -58,11 +64,10 @@ function label(text: string): string {
     return text.toLowerCase();
 }
 
-function filterByPrefix(items: { value: string, sort: string; }[], prefix: string) {
+function filterByPrefix(items: { value: string; sort: string }[], prefix: string) {
     const p = prefix.toLowerCase();
-    return items.filter(({value}) => value.toLowerCase().startsWith(p));
+    return items.filter(({ value }) => value.toLowerCase().startsWith(p));
 }
-
 
 // ═══════════════════════════════════════════════════════════════
 //  KeywordProvider — 字母触发时补全指令关键字
@@ -71,14 +76,12 @@ function filterByPrefix(items: { value: string, sort: string; }[], prefix: strin
 export class KeywordCompletionProvider implements CompletionProvider {
     canHandle(ctx: CompletionContext): boolean {
         // 显式字母触发 — 始终提供关键字补全
-        if (ctx.triggerKind === CompletionTriggerKind.TriggerCharacter
-            && ctx.triggerCharacter !== " ") {
+        if (ctx.triggerKind === CompletionTriggerKind.TriggerCharacter && ctx.triggerCharacter !== " ") {
             return true;
         }
 
         // 补全列表显示中继续输入 — 始终提供关键字补全
-        if (ctx.triggerKind === CompletionTriggerKind.TriggerForIncompleteCompletions)
-            return true;
+        if (ctx.triggerKind === CompletionTriggerKind.TriggerForIncompleteCompletions) return true;
 
         // 手动调用（Ctrl+Space 或补全被关闭后继续输入）
         // 仅在光标处于「关键字位置」时提供补全，避免干扰操作数补全
@@ -95,21 +98,21 @@ export class KeywordCompletionProvider implements CompletionProvider {
         let prefix = ctx.prefix;
 
         // 对于 ErrorNode，尝试用 token 精确定位用户正在输入的单词
-        if (ctx.stmt?.type === "Error")
-            if (ctx.token) prefix = ctx.token.lexeme;
+        if (ctx.stmt?.type === "Error") if (ctx.token) prefix = ctx.token.lexeme;
 
-        return insTree.keysWithPrefix(prefix).map(key => [key, insTree.search(key)!] as const)
+        return insTree
+            .keysWithPrefix(prefix)
+            .map(key => [key, insTree.search(key)!] as const)
             .filter(([_, v]) => v.type === "Instruction")
             .map(([key, value]) => ({
                 label: key,
                 kind: CompletionItemKind.Keyword,
                 insertText: key,
                 detail: value.signature,
-                data: {local: ctx.getLocale(), name: key, key: "Instruction"} satisfies CompletionData
-        }));
+                data: { local: ctx.getLocale(), name: key, key: "Instruction" } satisfies CompletionData
+            }));
     }
 }
-
 
 // ═══════════════════════════════════════════════════════════════
 //  OperandProvider — 空格触发时根据 AST typeN 补全操作数
@@ -128,7 +131,7 @@ export class OperandCompletionProvider implements CompletionProvider {
 
         if (!opItem) return [];
 
-        const [key, value] = opItem;
+        const [key,] = opItem;
 
         const opType = getOperandType(ctx.stmt, key);
 
@@ -140,16 +143,13 @@ export class OperandCompletionProvider implements CompletionProvider {
         return this.completeForOperandType(ctx, opType);
     }
 
-    private completeForOperandType(
-        ctx: CompletionContext,
-        opType: number
-    ): CompletionItem[] {
+    private completeForOperandType(ctx: CompletionContext, opType: number): CompletionItem[] {
         switch (opType) {
             case OperandType.REG_IDENT:
             case OperandType.REG_NUM: {
                 // 寄存器 + 数字（具体补数字留给用户自行输入）
                 const matching = filterByPrefix(REGISTERS, ctx.prefix);
-                const builtin = matching.map(({value, sort}) => ({
+                const builtin = matching.map(({ value, sort }) => ({
                     label: value,
                     kind: CompletionItemKind.Variable,
                     insertText: value,
@@ -157,16 +157,21 @@ export class OperandCompletionProvider implements CompletionProvider {
                     sortText: sort
                 }));
 
-                const userAliases: CompletionItem[] = ctx.symbols ?
-                    Object.entries(ctx.symbols).filter(([name, sym]) => sym.type === BasicType.REGISTER && name.startsWith(ctx.prefix))
-                        .map(([name, symbol]) => ({
-                            label: name,
-                            kind: CompletionItemKind.Variable,
-                            insertText: name,
-                            detail: t("hover.operandType.register"),
-                            labelDetails: { detail: `: ${symbol.value}`, description: t("hover.operandType.register") },
-                            documentation: symbol.desc
-                        })) : [];
+                const userAliases: CompletionItem[] = ctx.symbols
+                    ? Object.entries(ctx.symbols)
+                          .filter(([name, sym]) => sym.type === BasicType.REGISTER && name.startsWith(ctx.prefix))
+                          .map(([name, symbol]) => ({
+                              label: name,
+                              kind: CompletionItemKind.Variable,
+                              insertText: name,
+                              detail: t("hover.operandType.register"),
+                              labelDetails: {
+                                  detail: `: ${symbol.value}`,
+                                  description: t("hover.operandType.register")
+                              },
+                              documentation: symbol.desc
+                          }))
+                    : [];
 
                 return [...builtin, ...userAliases];
             }
@@ -174,28 +179,26 @@ export class OperandCompletionProvider implements CompletionProvider {
             case OperandType.DEV_ALIAS:
             case OperandType.DEV_REF: {
                 // 设备引用: d0-d5, db  + 用户别名
-                const builtin = filterByPrefix(DEVICE_REFS, ctx.prefix).map(
-                    ({value, sort}) => ({
-                        label: value,
-                        kind: CompletionItemKind.Reference,
-                        insertText: value,
-                        detail: t("hover.operandType.device"),
-                        sortText: sort
-                    })
-                );
+                const builtin = filterByPrefix(DEVICE_REFS, ctx.prefix).map(({ value, sort }) => ({
+                    label: value,
+                    kind: CompletionItemKind.Reference,
+                    insertText: value,
+                    detail: t("hover.operandType.device"),
+                    sortText: sort
+                }));
                 // 用户定义的别名（从符号表）
 
                 const userAliases: CompletionItem[] = ctx.symbols
                     ? Object.entries(ctx.symbols)
-                        .filter(([name, sym]) => sym.type === BasicType.DEVICE && name.startsWith(ctx.prefix)) // BasicType.DEVICE = 4
-                        .map(([name, sym]) => ({
-                            label: name,
-                            kind: CompletionItemKind.Reference,
-                            insertText: name,
-                            detail: t("hover.operandType.device"),
-                            labelDetails: { detail: `: ${sym.value}`, description: t("hover.operandType.device") },
-                            documentation: sym.desc
-                        }))
+                          .filter(([name, sym]) => sym.type === BasicType.DEVICE && name.startsWith(ctx.prefix)) // BasicType.DEVICE = 4
+                          .map(([name, sym]) => ({
+                              label: name,
+                              kind: CompletionItemKind.Reference,
+                              insertText: name,
+                              detail: t("hover.operandType.device"),
+                              labelDetails: { detail: `: ${sym.value}`, description: t("hover.operandType.device") },
+                              documentation: sym.desc
+                          }))
                     : [];
                 return [...builtin, ...userAliases];
             }
@@ -212,18 +215,17 @@ export class OperandCompletionProvider implements CompletionProvider {
                 const prefix = ctx.prefix;
                 return ctx.symbols
                     ? Object.entries(ctx.symbols)
-                        .filter(([, sym]) => sym.category === TypeCategory.LABEL) // TypeCategory.LABEL = 0
-                        .map(([name]) => name)
-                        .filter(n => label(n).startsWith(label(prefix)))
-                        .map(l => ({
-                            label: l,
-                            kind: CompletionItemKind.Variable,
-                            insertText: l,
-                            detail: t("hover.labelDef.type")
-                        }))
+                          .filter(([, sym]) => sym.category === TypeCategory.LABEL) // TypeCategory.LABEL = 0
+                          .map(([name]) => name)
+                          .filter(n => label(n).startsWith(label(prefix)))
+                          .map(l => ({
+                              label: l,
+                              kind: CompletionItemKind.Variable,
+                              insertText: l,
+                              detail: t("hover.labelDef.type")
+                          }))
                     : [];
             }
-
 
             default:
                 return [];
@@ -262,7 +264,11 @@ export class OperandCompletionProvider implements CompletionProvider {
                             detail: `: ${entry.value}`,
                             description: t("hover.operandType.logicSlotType")
                         },
-                        data: { local: ctx.getLocale(), name: entry.name, key: "LogicSlotType" } satisfies CompletionData
+                        data: {
+                            local: ctx.getLocale(),
+                            name: entry.name,
+                            key: "LogicSlotType"
+                        } satisfies CompletionData
                     }));
 
                 break;
@@ -327,7 +333,6 @@ export class OperandCompletionProvider implements CompletionProvider {
     }
 
     private deviceCompletions(ctx: CompletionContext, type: DeviceType, opType: OperandType): CompletionItem[] {
-
         switch (opType) {
             case OperandType.LOGIC_SLOT:
                 return type.logicSlots.map(s => ({
@@ -343,7 +348,9 @@ export class OperandCompletionProvider implements CompletionProvider {
                     label: l.name,
                     kind: CompletionItemKind.Constant,
                     insertText: l.name,
-                    detail: t("hover.operandType.logicType") + `(${t(`completion.access.${l.access.toLowerCase()}` as any)})`,
+                    detail:
+                        t("hover.operandType.logicType") +
+                        `(${t(`completion.access.${l.access.toLowerCase()}` as any)})`,
                     data: { local: ctx.getLocale(), name: l.name, key: "LogicSlotType" } satisfies CompletionData
                 }));
 
@@ -364,21 +371,21 @@ export class OperandCompletionProvider implements CompletionProvider {
                     detail: t("hover.operandType.slotIdx") + `(${t(`completion.direction.${s.direction}`) as any})`,
                     data: { local: ctx.getLocale(), name: s.index, key: "LogicSlotType" } satisfies CompletionData
                 }));
-
         }
 
         return [];
     }
 
     private findPrevDevice(stmt: StatementNode): Optional<DeviceNode | RegisterNode | IdentifierNode | ErrorNode> {
-        const deviceItem = Object.entries(stmt).find(([, v]) => v === OperandType.DEV_REF || v === OperandType.DEV_ALIAS);
+        const deviceItem = Object.entries(stmt).find(
+            ([, v]) => v === OperandType.DEV_REF || v === OperandType.DEV_ALIAS
+        );
 
         if (!deviceItem) return deviceItem;
 
         return (stmt as any)[`operand${getOperandIndex(deviceItem[0])}`];
     }
 }
-
 
 // ═══════════════════════════════════════════════════════════════
 //  DirectiveProvider — alias / define 专用的补全
@@ -393,10 +400,8 @@ export class DirectiveCompletionProvider implements CompletionProvider {
     provide(ctx: CompletionContext): CompletionItem[] {
         if (!ctx.stmt) return [];
 
-        if (ctx.stmt.type === "AliasDirective")
-            return this.completeAlias(ctx);
-        if (ctx.stmt.type === "DefineDirective")
-            return this.completeDefine(ctx);
+        if (ctx.stmt.type === "AliasDirective") return this.completeAlias(ctx);
+        if (ctx.stmt.type === "DefineDirective") return this.completeDefine(ctx);
 
         return [];
     }
@@ -425,8 +430,7 @@ export class DirectiveCompletionProvider implements CompletionProvider {
         // define关键字区 → 不补全
         if (ctx.character <= keywordCol + 6) return [];
 
-        if (stmt.identifier.type === "Identifier" && stmt.number.type === "Error")
-            return this.completeDefineValue(ctx);
+        if (stmt.identifier.type === "Identifier" && stmt.number.type === "Error") return this.completeDefineValue(ctx);
 
         return [];
     }
@@ -435,22 +439,20 @@ export class DirectiveCompletionProvider implements CompletionProvider {
 
     /** alias xxx_ → 寄存器 + 设备引用 */
     private completeRegOrDev(ctx: CompletionContext): CompletionItem[] {
-        const regItems: CompletionItem[] = filterByPrefix(REGISTERS, ctx.prefix)
-            .map(({value, sort}) => ({
-                label: value,
-                kind: CompletionItemKind.Variable,
-                insertText: value,
-                detail: t("hover.operandType.register"),
-                sortText: sort
-            }));
-        const devItems = filterByPrefix(DEVICE_REFS, ctx.prefix)
-            .map(({value, sort}) => ({
-                label: value,
-                kind: CompletionItemKind.Reference,
-                insertText: value,
-                detail: t("hover.operandType.device"),
-                sortText: sort
-            }));
+        const regItems: CompletionItem[] = filterByPrefix(REGISTERS, ctx.prefix).map(({ value, sort }) => ({
+            label: value,
+            kind: CompletionItemKind.Variable,
+            insertText: value,
+            detail: t("hover.operandType.register"),
+            sortText: sort
+        }));
+        const devItems = filterByPrefix(DEVICE_REFS, ctx.prefix).map(({ value, sort }) => ({
+            label: value,
+            kind: CompletionItemKind.Reference,
+            insertText: value,
+            detail: t("hover.operandType.device"),
+            sortText: sort
+        }));
 
         return [...regItems, ...devItems];
     }
@@ -462,45 +464,47 @@ export class DirectiveCompletionProvider implements CompletionProvider {
                 value: INS_META_MAP.get("binary_number")!,
                 name: "binary_number"
             },
-            "$": {
+            $: {
                 value: INS_META_MAP.get("hash_number")!,
                 name: "hash_number"
             },
-            "HASH": {
+            HASH: {
                 value: INS_META_MAP.get("hash")!,
                 name: "hash"
             },
-            "STR": {
+            STR: {
                 value: INS_META_MAP.get("str")!,
                 name: "str"
             }
-        }
+        };
 
         const items: CompletionItem[] = [
-            {label: "%", kind: CompletionItemKind.Operator, insertText: "%"},
-            {label: "$", kind: CompletionItemKind.Operator, insertText: "$"},
+            { label: "%", kind: CompletionItemKind.Operator, insertText: "%" },
+            { label: "$", kind: CompletionItemKind.Operator, insertText: "$" },
             {
                 label: "HASH",
                 kind: CompletionItemKind.Function,
-                insertText: "HASH(\"$0\")",
+                insertText: 'HASH("$0")',
                 insertTextFormat: InsertTextFormat.Snippet
             },
             {
                 label: "STR",
                 kind: CompletionItemKind.Function,
-                insertText: "STR(\"$0\")",
+                insertText: 'STR("$0")',
                 insertTextFormat: InsertTextFormat.Snippet
             }
         ];
 
-        return items.filter(i => i.label.toLowerCase().startsWith(ctx.prefix)).map(i => {
-            const metaData = meta[i.label as keyof typeof meta];
+        return items
+            .filter(i => i.label.toLowerCase().startsWith(ctx.prefix))
+            .map(i => {
+                const metaData = meta[i.label as keyof typeof meta];
 
-            return {
-                ...i,
-                detail: metaData.value.signature,
-                data: { local: ctx.getLocale(), name: metaData.name, key: "Instruction" } satisfies CompletionData
-            };
-        });
+                return {
+                    ...i,
+                    detail: metaData.value.signature,
+                    data: { local: ctx.getLocale(), name: metaData.name, key: "Instruction" } satisfies CompletionData
+                };
+            });
     }
 }

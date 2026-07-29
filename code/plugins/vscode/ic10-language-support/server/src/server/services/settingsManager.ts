@@ -15,46 +15,84 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {DidChangeConfigurationNotification} from "vscode-languageserver/node";
-import type {Connection, InitializeResult} from "vscode-languageserver";
-import {IC10Local} from "ic10-node-api";
+import { DidChangeConfigurationNotification } from "vscode-languageserver/node";
+import type { Connection, InitializeResult } from "vscode-languageserver";
+import { IC10Local } from "ic10-node-api";
 
-import {TOKEN_TYPES, TOKEN_MODIFIERS} from "../handlers/semanticToken";
-import {CONFIGURATION_SECTION_NAME} from "../../../../common/utils";
-import {DocumentCache, GlobalCache} from "../cache";
-import {locale} from "../../locals/locale";
+import { TOKEN_TYPES, TOKEN_MODIFIERS } from "../handlers/semanticToken";
+import { CONFIGURATION_SECTION_NAME } from "../../../../common/utils";
+import { DocumentCache, GlobalCache } from "../cache";
+import { Optional } from "../../../../common/types";
+import { locale } from "../../locals/locale";
+import { uriToPath } from "../../utils";
 
+export interface FormatSettings {
+    useTab: boolean;
+    indentWidth: number;
+    spacesBeforeTrailingComments: number;
+    maxEmptyLinesToKeep: number;
+    minEmptyLinesBeforeLabels: number;
+    alignConsecutiveStatements: boolean;
+    alignTrailingComments: boolean;
+}
 
 export interface Settings {
     language: "zh-hans" | "en-us";
     maxNumberOfProblems: number;
+    projectRootDir: Optional<string>;
+    format: FormatSettings;
 }
-
 
 type OnInitializeHandlerType = Parameters<Connection["onInitialize"]>[0];
 type OnInitializedHandlerType = Parameters<Connection["onInitialized"]>[0];
 type OnDidChangeConfigurationHandlerType = Parameters<Connection["onDidChangeConfiguration"]>[0];
 
-
 const DEFAULT_SETTINGS: Settings = {
     language: "en-us",
-    maxNumberOfProblems: 100
+    maxNumberOfProblems: 100,
+    projectRootDir: undefined,
+    format: {
+        useTab: false,
+        indentWidth: 4,
+        spacesBeforeTrailingComments: 2,
+        maxEmptyLinesToKeep: 1,
+        minEmptyLinesBeforeLabels: 0,
+        alignConsecutiveStatements: true,
+        alignTrailingComments: true
+    }
 };
 
-
 export class SettingsManager {
-    private settings: Settings = {...DEFAULT_SETTINGS};
+    private settings: Settings = { ...DEFAULT_SETTINGS };
 
     constructor(
         private connection: Connection,
         private docCache: DocumentCache,
         private globalCache: GlobalCache,
         private onLocaleChanged?: () => void
-    ) {
+    ) {}
+
+    public getProjectRootDir(): string | undefined {
+        return this.settings.projectRootDir;
     }
 
-    public onInitialize(...[params]: Parameters<OnInitializeHandlerType>) {
-        this.globalCache.flag.workspaceCfg = !!params.capabilities.workspace?.configuration;
+    /**
+     * 将插件格式化设置转换为 FormattingHandler 所需的 Partial<FormatConfig>。
+     */
+    public getFormatConfig() {
+        const f = this.settings.format;
+        return {
+            indent: f.useTab ? { useTab: true as const } : { useTab: false as const, width: f.indentWidth },
+            spacesBeforeTrailingComments: f.spacesBeforeTrailingComments,
+            maxEmptyLinesToKeep: f.maxEmptyLinesToKeep,
+            minEmptyLinesBeforeLabels: f.minEmptyLinesBeforeLabels,
+            alignConsecutiveStatements: f.alignConsecutiveStatements,
+            alignTrailingComments: f.alignTrailingComments
+        };
+    }
+
+    public onInitialize(...[{ capabilities }]: Parameters<OnInitializeHandlerType>) {
+        this.globalCache.flag.workspaceCfg = !!capabilities.workspace?.configuration;
 
         const result: InitializeResult = {
             capabilities: {
@@ -82,7 +120,13 @@ export class SettingsManager {
                 // 代码补全
                 completionProvider: {
                     resolveProvider: true,
-                    triggerCharacters: [" ", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "l", "m", "n", "o", "p", "r", "s", "t", "x", "y"]
+                    triggerCharacters: [
+                        " ", "a", "b", "c", "d",
+                        "e", "f", "g", "h", "i",
+                        "j", "l", "m", "n", "o",
+                        "p", "r", "s", "t", "x",
+                        "y"
+                    ]
                 },
 
                 // 签名帮助
@@ -97,36 +141,40 @@ export class SettingsManager {
         };
 
         if (this.globalCache.flag.workspaceCfg)
-            result.capabilities.workspace = {workspaceFolders: {supported: true}};
+            result.capabilities.workspace = { workspaceFolders: { supported: true } };
 
         this.settingGlobalLocale(this.settings.language);
 
         return result;
     }
 
-    public async onInitialized(...[params]: Parameters<OnInitializedHandlerType>) {
+    public async onInitialized(...[]: Parameters<OnInitializedHandlerType>) {
         this.connection.client.register(DidChangeConfigurationNotification.type);
         this.connection.workspace.onDidChangeWorkspaceFolders(e => {
+            if (e.added.length > 0) this.settings.projectRootDir = uriToPath(e.added[0].uri);
         });
 
         if (this.globalCache.flag.workspaceCfg)
             this.connection.workspace.getConfiguration(CONFIGURATION_SECTION_NAME).then(cfg => {
-                this.settings = {...this.settings, ...cfg};
+                this.settings = { ...this.settings, ...cfg };
 
                 this.settingGlobalLocale(this.settings.language);
 
                 // 语言变更后触发重新解析，确保诊断消息使用正确语言
                 this.onLocaleChanged?.();
             });
+
+        const workspaceFolders = await this.connection.workspace.getWorkspaceFolders();
+        if (workspaceFolders) this.settings.projectRootDir = uriToPath(workspaceFolders[0].uri);
     }
 
-    public async onDidChangeConfiguration(...[params]: Parameters<OnDidChangeConfigurationHandlerType>) {
+    public async onDidChangeConfiguration(...[{ settings }]: Parameters<OnDidChangeConfigurationHandlerType>) {
         const change: Promise<Settings> | Settings = this.globalCache.flag.workspaceCfg
             ? this.connection.workspace.getConfiguration(CONFIGURATION_SECTION_NAME)
-            : params.settings?.[CONFIGURATION_SECTION_NAME] || {};
+            : settings?.[CONFIGURATION_SECTION_NAME] || {};
 
         if (change) {
-            this.settings = {...this.settings, ...(change instanceof Promise ? await change : change)};
+            this.settings = { ...this.settings, ...(change instanceof Promise ? await change : change) };
 
             this.settingGlobalLocale(this.settings.language);
 
@@ -142,5 +190,4 @@ export class SettingsManager {
 
         locale.setLocale(lang);
     }
-
 }

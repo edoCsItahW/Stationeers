@@ -13,10 +13,11 @@
  * @desc IC10 语义令牌处理器
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {Languages} from "vscode-languageserver";
+import { Languages } from "vscode-languageserver";
 import {
     AliasDirectiveNode,
-    BasicType, ConstantNode,
+    BasicType,
+    ConstantNode,
     DefineDirectiveNode,
     ErrorNode,
     ExecutableInstructionNode,
@@ -34,14 +35,12 @@ import {
     TypeOfNode
 } from "ic10-node-api";
 
-import {Console} from "../../../../common/exception/debug";
-import {upperBound} from "../../../../common/utils";
-import {DocumentCache} from "../cache";
-
+import { Console } from "../../../../common/exception/debug";
+import { upperBound } from "../../../../common/utils";
+import { DocumentCache } from "../cache";
 
 type OnHandlerType = Parameters<Languages["semanticTokens"]["on"]>[0];
 type OnRangeHandlerType = Parameters<Languages["semanticTokens"]["onRange"]>[0];
-
 
 /**
  * 语义令牌类型枚举，顺序对应 LSP legend 中的 tokenTypes 顺序。
@@ -77,7 +76,6 @@ export enum TokenLegend {
     Unknown
 }
 
-
 /**
  * 语义令牌修饰符枚举，顺序对应 LSP legend 中的 tokenModifiers 顺序。
  */
@@ -85,14 +83,12 @@ export enum TokenModifier {
     /** 声明（alias、define 引入的新符号） */
     Declaration = 0,
     /** 只读（数学常量：nan, pi, tau 等） */
-    Readonly,
+    Readonly
 }
-
 
 export const TOKEN_TYPES = Object.keys(TokenLegend).filter(k => isNaN(Number(k)));
 
 export const TOKEN_MODIFIERS = Object.keys(TokenModifier).filter(k => isNaN(Number(k)));
-
 
 interface SemanticToken {
     /**
@@ -131,51 +127,49 @@ interface SemanticToken {
     modifier: TokenModifier;
 }
 
-
 interface HandlerContext {
     prev: Position;
     table: SymbolMap;
 }
 
-
 export class SemanticTokenHandler {
-    constructor(private readonly docCache: DocumentCache) {
-    }
+    constructor(private readonly docCache: DocumentCache) {}
 
     handle(...[params]: Parameters<OnHandlerType>): ReturnType<OnHandlerType> {
         try {
             const cache = this.docCache.getCache(params.textDocument.uri);
 
-            if (!cache || !cache.ast || !cache.symbols)
-                return {data: []};
+            if (!cache || !cache.ast || !cache.symbols) return { data: [] };
 
             const context: HandlerContext = {
-                prev: {line: 1, column: 1},
+                prev: { line: 1, column: 1 },
                 table: cache.symbols
-            }
+            };
 
-            return {data: this.visitProgram(cache.ast, context)};
-        } catch (error) {
-        }
+            return { data: this.visitProgram(cache.ast, context) };
+        } catch (error) {}
     }
 
-    handleRange(...[{
-        textDocument,
-        range: {start, end}
-    }]: Parameters<OnRangeHandlerType>): ReturnType<OnRangeHandlerType> {
+    handleRange(
+        ...[
+            {
+                textDocument,
+                range: { start, end }
+            }
+        ]: Parameters<OnRangeHandlerType>
+    ): ReturnType<OnRangeHandlerType> {
         try {
             const cache = this.docCache.getCache(textDocument.uri);
 
-            if (!cache || !cache.ast || !cache.symbols)
-                return {data: []};
+            if (!cache || !cache.ast || !cache.symbols) return { data: [] };
 
             const compPos = (a: Position, b: Position): number => a.line - b.line || a.column - b.column;
 
             const lastLE = (target: Position) =>
                 upperBound(cache.ast!.statements, stmt => compPos(stmt.position, target) <= 0);
 
-            let startIdx = lastLE({line: start.line + 1, column: start.character + 1});
-            let endIdx = lastLE({line: end.line + 1, column: end.character + 1});
+            let startIdx = lastLE({ line: start.line + 1, column: start.character + 1 });
+            let endIdx = lastLE({ line: end.line + 1, column: end.character + 1 });
 
             if (startIdx === -1) startIdx = 0;
             if (endIdx === -1) endIdx = 0;
@@ -188,9 +182,9 @@ export class SemanticTokenHandler {
             const rangs = cache.ast.statements.slice(startIdx, endIdx + 1);
 
             const context: HandlerContext = {
-                prev: {line: 1, column: 1},
+                prev: { line: 1, column: 1 },
                 table: cache.symbols
-            }
+            };
 
             return {
                 data: rangs.flatMap(n => {
@@ -213,19 +207,20 @@ export class SemanticTokenHandler {
     }
 
     private visitStatement(node: StatementNode, context: HandlerContext): SemanticToken[] {
-        if (this.isInstructionType(node))
-            return this.visitInstruction(node, context);
+        if (this.isInstructionType(node)) return this.visitInstruction(node, context);
 
         const mthName = `visit${node.type}` as const;
 
-        if (mthName in this)
-            return (this as any)[mthName](node, context);
+        if (mthName in this) return (this as any)[mthName](node, context);
 
-        Console.warning(`Unknown statement type: ${node.type}`, "SemanticToken")
+        Console.warning(`Unknown statement type: ${node.type}`, "SemanticToken");
         return [];
     }
 
-    private visitInstruction(node: Exclude<ExecutableInstructionNode, ErrorNode>, context: HandlerContext): SemanticToken[] {
+    private visitInstruction(
+        node: Exclude<ExecutableInstructionNode, ErrorNode>,
+        context: HandlerContext
+    ): SemanticToken[] {
         const result: SemanticToken[] = [];
 
         const gap = this.getGap(context, node.position);
@@ -283,7 +278,12 @@ export class SemanticTokenHandler {
                 line: gap.line,
                 start: gap.column,
                 length: node.identifier.value.length,
-                type: node.registerOrDevice.type === "Register" ? TokenLegend.RegisterIdentifier : (node.registerOrDevice.type == "Device" ? TokenLegend.DeviceIdentifier : TokenLegend.Unknown),
+                type:
+                    node.registerOrDevice.type === "Register"
+                        ? TokenLegend.RegisterIdentifier
+                        : node.registerOrDevice.type == "Device"
+                          ? TokenLegend.DeviceIdentifier
+                          : TokenLegend.Unknown,
                 modifier: this.modifierBits(TokenModifier.Declaration)
             });
         }
@@ -330,19 +330,20 @@ export class SemanticTokenHandler {
     private handleError(node: ErrorNode, context: HandlerContext): SemanticToken[] {
         const gap = this.getGap(context, node.position);
 
-        return [{
-            line: gap.line,
-            start: gap.column,
-            length: node.token.lexeme.length,
-            type: TokenLegend.Unknown,
-            modifier: 0
-        }];
+        return [
+            {
+                line: gap.line,
+                start: gap.column,
+                length: node.token.lexeme.length,
+                type: TokenLegend.Unknown,
+                modifier: 0
+            }
+        ];
     }
 
     private handleOperand(node: OperandNode, context: HandlerContext, operandType?: OperandType): SemanticToken[] {
         // Identifier 需要 operandType 参数，优先处理
-        if (node.type === 'Identifier')
-            return [this.handleIdentifier(node, context, operandType)];
+        if (node.type === "Identifier") return [this.handleIdentifier(node, context, operandType)];
 
         // 派发到专用 handler（HashCall / StrCall / Constant 等），
         // 避免被下面泛化的 "value" in node 检查误匹配
@@ -359,13 +360,15 @@ export class SemanticTokenHandler {
 
             const type = TypeOfNode[node.type];
 
-            return [{
-                line: gap.line,
-                start: gap.column,
-                length: typeof node.value === "string" ? node.value.length : node.value.toString().length,
-                type: this.toLegend(type.kind, type.category),
-                modifier: 0
-            }];
+            return [
+                {
+                    line: gap.line,
+                    start: gap.column,
+                    length: typeof node.value === "string" ? node.value.length : node.value.toString().length,
+                    type: this.toLegend(type.kind, type.category),
+                    modifier: 0
+                }
+            ];
         }
 
         Console.warning(`Unknown operand type: ${node.type}`, "SemanticToken");
@@ -389,7 +392,9 @@ export class SemanticTokenHandler {
 
         const symbol = context.table[node.value];
 
-        const type = symbol ? this.toLegend(symbol.type, symbol.category, true) : this.operandTypeToLegend(operandType!);
+        const type = symbol
+            ? this.toLegend(symbol.type, symbol.category, true)
+            : this.operandTypeToLegend(operandType!);
 
         return {
             line: gap.line,
@@ -463,8 +468,7 @@ export class SemanticTokenHandler {
 
     private modifierBits(...modifiers: TokenModifier[]): number {
         let bits = 0;
-        for (const m of modifiers)
-            bits |= 1 << m;
+        for (const m of modifiers) bits |= 1 << m;
 
         return bits;
     }
@@ -472,7 +476,7 @@ export class SemanticTokenHandler {
     private toLegend(type: BasicType, category: TypeCategory, isIdentifier?: boolean): TokenLegend {
         switch (category) {
             case TypeCategory.LABEL:
-                return isIdentifier ? TokenLegend.LabelIdentifier: TokenLegend.Label;
+                return isIdentifier ? TokenLegend.LabelIdentifier : TokenLegend.Label;
             case TypeCategory.NUMBER:
             case TypeCategory.CONSTANT:
                 return isIdentifier ? TokenLegend.NumberIdentifier : TokenLegend.Number;
@@ -511,7 +515,7 @@ export class SemanticTokenHandler {
     private getGap(context: HandlerContext, pos: Position): Position {
         const lineGap = pos.line - context.prev.line;
 
-        const result = {line: lineGap, column: lineGap <= 0 ? pos.column - context.prev.column : pos.column - 1};
+        const result = { line: lineGap, column: lineGap <= 0 ? pos.column - context.prev.column : pos.column - 1 };
 
         context.prev = pos;
 
@@ -521,5 +525,4 @@ export class SemanticTokenHandler {
     private isInstructionType(node: StatementNode): node is Exclude<ExecutableInstructionNode, ErrorNode> {
         return node.type.endsWith("Instruction");
     }
-
 }
