@@ -8,7 +8,7 @@
  * */
 import { themeSchemas, type ThemeName } from "./themes";
 import type { StylePaths, ValueAtPath } from "./type";
-import { EventEmitter } from "../../../common/utils";
+import { EventEmitter } from "common";
 
 type ThemeSchemas = typeof themeSchemas;
 type AllPaths = StylePaths<ThemeSchemas>; // 'dark.common.bg' | 'dark.button.bg' | 'light.common.bg' ...

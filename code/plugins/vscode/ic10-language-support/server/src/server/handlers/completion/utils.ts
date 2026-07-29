@@ -14,11 +14,9 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import type { StatementNode, Token } from "ic10-node-api";
-import { TokenType } from "ic10-node-api";
+import type { StatementNode } from "ic10-node-api";
 
-import { findMaxByCondition, findMinByCondition, lowerBound } from "../../../../../common/utils";
-import type { Nullable } from "../../../../../common/types";
+import { findMaxByCondition, findMinByCondition, lowerBound, Nullable } from "common";
 
 /**
  * 在语句列表中二分查找光标所在行的语句。

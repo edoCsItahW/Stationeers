@@ -35,11 +35,11 @@ import {
 
 import { INS_LOCAL_MAP, INS_META_MAP } from "../../../mateData";
 import type { HoverContext, HoverProvider } from "./types";
-import { Nullable } from "../../../../../common/types";
 import { operandValueLength } from "../../../utils";
 import svgBuilder from "../../../utils/svgBuilder";
 import { t } from "../../../locals/locale";
 import { s } from "../../../style";
+import { Nullable } from "common";
 import {
     findOperand,
     formatBasicType,

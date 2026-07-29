@@ -7,6 +7,10 @@
 **/node_modules/
 *.node
 **/out/
+**/package-lock.json
+**/tsconfig.tsbuildinfo
+**/pnpm-lock.yaml
+**/pnpm-workspace.yaml
 
 # python
 **/.pytest_cache/
@@ -16,8 +20,10 @@
 # IDE
 **/.idea/
 **/.vscode/
+**/.vscode-test/
 
 # other file
 *.zip
+*.vsix
 /docs/compiler/
 /docs/exports/

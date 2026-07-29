@@ -4,22 +4,15 @@
         "target": "ES2024",
         "lib": ["es2024"],
         "outDir": "out",
-        "rootDir": ".",
+        "rootDir": "src",
         "sourceMap": true,
-        "types": ["node", "vscode"],
+        "types": ["node"],
         "allowArbitraryExtensions": true,
         "moduleResolution": "NodeNext",
         "esModuleInterop": true
     },
     "include": [
+        "src"
     ],
-    "exclude": [
-        "node_modules",
-        ".vscode-test"
-    ],
-    "references": [
-        { "path": "./client" },
-        { "path": "./server" },
-        { "path": "./common" }
-    ]
+    "exclude": ["node_modules", ]
 }

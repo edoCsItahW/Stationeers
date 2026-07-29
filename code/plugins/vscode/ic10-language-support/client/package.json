@@ -11,7 +11,11 @@
     "engines": {
         "vscode": "^1.125.0"
     },
+    "scripts": {
+        "build": "tsc"
+    },
     "dependencies": {
+        "common": "file:../common",
         "vscode-languageclient": "^10.0.1"
     },
     "devDependencies": {
