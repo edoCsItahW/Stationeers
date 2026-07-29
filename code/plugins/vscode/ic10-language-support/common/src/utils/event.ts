@@ -18,6 +18,18 @@
 
 type Listener = (...args: any[]) => void;
 
+/**
+ * @summary 轻量级发布/订阅事件发射器
+ *
+ * @summary Lightweight pub/sub event emitter
+ *
+ * @desc 提供 on（订阅）、off（取消订阅）、emit（触发）和 clear（清理）功能。
+ * on() 返回取消订阅函数，避免持有 listener 引用。emit 时复制监听器列表后再遍历，防止回调中修改导致漏触发。
+ *
+ * @desc Provides on (subscribe), off (unsubscribe), emit (fire), and clear.
+ * on() returns an unsubscribe function to avoid holding listener references.
+ * emit copies the listener list before iterating to prevent skipped callbacks during mutation.
+ * */
 export class EventEmitter {
     private events = new Map<string, Listener[]>();
 

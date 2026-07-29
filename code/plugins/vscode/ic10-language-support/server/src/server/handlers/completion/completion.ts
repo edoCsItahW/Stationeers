@@ -28,6 +28,19 @@ import { DocumentCache } from "../../cache";
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];
 type OnCompletionResolveHandlerType = Parameters<Connection["onCompletionResolve"]>[0];
 
+/**
+ * @summary 补全处理器 — 根据触发上下文将请求分发给对应的 CompletionProvider
+ *
+ * @summary Completion handler — dispatches requests to the appropriate CompletionProvider based on trigger context
+ *
+ * @desc 管理 Keyword、Operand、Directive 三个补全提供器，按优先级遍历，
+ *  第一个 canHandle 返回 true 的提供器独占响应。同时负责补全项选中后的
+ *  文档异步加载（handleResolve）。
+ *
+ * @desc Manages three completion providers (Keyword, Operand, Directive), iterating
+ *  by priority. The first provider whose canHandle returns true takes exclusive response.
+ *  Also handles async documentation loading when a completion item is selected (handleResolve).
+ * */
 export class CompletionHandler {
     private readonly providers: CompletionProvider[];
 
@@ -40,6 +53,17 @@ export class CompletionHandler {
         ];
     }
 
+    /**
+     * @summary 处理补全请求 — 构建上下文并分发给各补全提供器
+     *
+     * @summary Handle completion request — build context and dispatch to completion providers
+     *
+     * @param params LSP completion 参数，包含 textDocument、position 和 context
+     * @param params LSP completion parameters, including textDocument, position, and context
+     *
+     * @returns 补全项列表，无可用的补全项则返回空数组
+     * @returns List of completion items, or empty array if none available
+     * */
     @debug({
         message: err => t("server.handler.error", { name: "completion", err: (err as Error).message }),
         logger: msg => Console.error(msg, "completion"),
@@ -89,6 +113,23 @@ export class CompletionHandler {
         return [];
     }
 
+    /**
+     * @summary 处理补全项解析 — 为选中的补全项异步加载详细文档
+     *
+     * @summary Handle completion resolve — asynchronously load detailed documentation for the selected item
+     *
+     * @param params 待解析的 CompletionItem，包含 data 字段
+     * @param params CompletionItem to resolve, containing a data field
+     *
+     * @returns 补充了 documentation 字段的补全项
+     * @returns Completion item with documentation field populated
+     *
+     * @remarks 根据 data.key 从 INS_LOCAL_MAP、LOGIC_LOCAL_MAP、
+     *  LOGIC_SLOT_LOCAL_MAP 或 ENUMS_LOCAL_MAP 中查找对应语言版本的描述。
+     *
+     * @remarks Based on data.key, looks up the locale-appropriate description from
+     *  INS_LOCAL_MAP, LOGIC_LOCAL_MAP, LOGIC_SLOT_LOCAL_MAP, or ENUMS_LOCAL_MAP.
+     * */
     handleResolve(...[params]: Parameters<OnCompletionResolveHandlerType>): ReturnType<OnCompletionResolveHandlerType> {
         const data: Optional<CompletionData> = params.data;
 

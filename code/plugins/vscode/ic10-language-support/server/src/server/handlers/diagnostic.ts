@@ -22,6 +22,19 @@ import { Console, debug } from "common";
 
 type OnHandlerType = Parameters<Languages["diagnostics"]["on"]>[0];
 
+/**
+ * @summary 诊断处理器 — 将 IC10 AST 诊断转换为 LSP Diagnostic 格式
+ *
+ * @summary Diagnostic handler — converts IC10 AST diagnostics into LSP Diagnostic format
+ *
+ * @desc 从 DocumentCache 中获取当前文档的 AST 诊断信息，将其映射为 VSCode
+ *  Languages Server Protocol 的 Diagnostic 对象，包括严重级别转换和坐标映射
+ *  （IC10 使用 1-based 坐标，LSP 使用 0-based 坐标）。
+ *
+ * @desc Retrieves AST diagnostics from the DocumentCache for the current document and
+ *  maps them to LSP Diagnostic objects, including severity level translation and
+ *  coordinate mapping (IC10 uses 1-based, LSP uses 0-based).
+ * */
 export class DiagnosticHandler {
     constructor(private readonly docCache: DocumentCache) {}
 
@@ -38,6 +51,17 @@ export class DiagnosticHandler {
         }
     }
 
+    /**
+     * @summary 处理诊断请求 — 从缓存返回当前文档的所有诊断信息
+     *
+     * @summary Handle diagnostic request — return all diagnostics for the current document from cache
+     *
+     * @param params LSP 诊断参数，包含 textDocument URI
+     * @param params LSP diagnostic parameters, including textDocument URI
+     *
+     * @returns 包含诊断项列表的 full diagnostic report
+     * @returns Full diagnostic report containing the list of diagnostic items
+     * */
     @debug({
         message: err => t("server.handler.error", { name: "diagnostic", err: (err as Error).message }),
         logger: msg => Console.error(msg, "diagnostic"),

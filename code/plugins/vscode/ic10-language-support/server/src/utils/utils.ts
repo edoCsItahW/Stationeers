@@ -20,6 +20,23 @@ interface RadixNode<T> {
     value: Nullable<T>;
 }
 
+/**
+ * @summary 基数树（压缩前缀树），用于高效的字符串键存储和前缀查找
+ *
+ * @summary Radix tree (compressed prefix tree) for efficient string-keyed storage and prefix lookup
+ *
+ * @desc 一种空间优化的 Trie 变体，通过合并单子节点路径压缩存储空间。
+ * 支持 insert、search、delete、keysWithPrefix 操作。
+ * 适用于 LSP 场景中的符号名快速查找和补全。
+ *
+ * @desc A space-optimized Trie variant that compresses paths with single-child nodes.
+ * Supports insert, search, delete, and keysWithPrefix operations.
+ * Ideal for symbol name lookup and completion in LSP contexts.
+ *
+ * @remarks 通过静态工厂方法 fromObject / fromMap 批量构建。内部使用递归实现。
+ *
+ * @remarks Bulk construction via static factory methods fromObject / fromMap. Internally recursive.
+ * */
 export class RadixTree<T> {
     private root: RadixNode<T> = { children: new Map(), value: null };
 
@@ -170,6 +187,17 @@ export class RadixTree<T> {
     }
 }
 
+/**
+ * @summary 将 file:// URI 转换为本地文件系统路径
+ *
+ * @summary Converts file:// URI to local filesystem path
+ *
+ * @desc 移除 `file:///` 前缀并将 `%3A` 还原为冒号 `:`。
+ * 用于 LSP 服务端接收客户端 URI 后获取磁盘路径。
+ *
+ * @desc Strips the `file:///` prefix and decodes `%3A` back to `:`.
+ * Used by the LSP server to resolve disk paths from client URIs.
+ * */
 export function uriToPath(uri: string): string {
     return uri.replace("file:///", "").replace("%3A", ":");
 }

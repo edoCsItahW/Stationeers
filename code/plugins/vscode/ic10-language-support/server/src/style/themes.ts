@@ -15,6 +15,22 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+/**
+ * @summary 主题配色方案定义（深色 / 浅色）
+ *
+ * @summary Theme color schema definitions (dark / light)
+ *
+ * @desc 包含深色和浅色两套主题的配色映射，涵盖通用色（背景、文字）和
+ * hover 提示中各语法元素（标签、别名、定义、常量）的标识符及类型颜色。
+ *
+ * @desc Defines dark and light theme color palettes including common colors
+ * (background, text) and hover tooltip colors for syntax elements
+ * (labels, aliases, defines, constants) with identifier and type styling.
+ *
+ * @remarks 使用 `as const` 确保类型推导为字面量类型，便于 StylePaths 工具类型提取路径。
+ *
+ * @remarks Uses `as const` to preserve literal types for path extraction by StylePaths utility type.
+ * */
 export const themeSchemas = {
     dark: {
         common: {
@@ -65,5 +81,14 @@ export const themeSchemas = {
     },
 } as const;
 
+/**
+ * @summary 可用主题名称的联合类型
+ *
+ * @summary Union type of available theme names
+ *
+ * @desc 从 themeSchemas 的键自动推导，目前为 `'dark' | 'light'`。
+ *
+ * @desc Auto-derived from themeSchemas keys, currently `'dark' | 'light'`.
+ * */
 // 提取主题名称类型
 export type ThemeName = keyof typeof themeSchemas; // 'dark' | 'light'

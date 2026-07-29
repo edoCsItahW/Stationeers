@@ -51,6 +51,15 @@ import {
 
 // ==================== LabelDef Provider ====================
 
+/**
+ * @summary 标签定义悬停提供器 — 为 LabelDef 语句生成悬停提示
+ *
+ * @summary LabelDef hover provider — generates hover tooltips for LabelDef statements
+ *
+ * @desc 当光标悬停在标签定义行时，显示标签名及其所在行号。
+ *
+ * @desc When hovering over a label definition line, displays the label name and its line number.
+ * */
 export class LabelDefHoverProvider implements HoverProvider {
     canHandle(node: StatementNode): boolean {
         return node.type === "LabelDef";
@@ -77,6 +86,17 @@ export class LabelDefHoverProvider implements HoverProvider {
 
 // ==================== AliasDirective Provider ====================
 
+/**
+ * @summary Alias 指令悬停提供器 — 为 alias 语句生成悬停提示
+ *
+ * @summary Alias directive hover provider — generates hover tooltips for alias statements
+ *
+ * @desc 识别光标在 alias 关键字、标识符或操作数上的位置，分别显示
+ *  指令签名与描述、别名类型信息或操作数值。
+ *
+ * @desc Identifies the cursor position on alias keyword, identifier, or operand,
+ *  displaying instruction signature/description, alias type info, or operand value respectively.
+ * */
 export class AliasDirectiveHoverProvider implements HoverProvider {
     canHandle(node: StatementNode): boolean {
         return node.type === "AliasDirective";
@@ -141,6 +161,17 @@ export class AliasDirectiveHoverProvider implements HoverProvider {
 
 // ==================== DefineDirective Provider ====================
 
+/**
+ * @summary Define 指令悬停提供器 — 为 define 语句生成悬停提示
+ *
+ * @summary Define directive hover provider — generates hover tooltips for define statements
+ *
+ * @desc 识别光标在 define 关键字、标识符或数值上的位置，分别显示
+ *  指令签名与描述、常量类型信息或具体数值。
+ *
+ * @desc Identifies the cursor position on define keyword, identifier, or value,
+ *  displaying instruction signature/description, constant type info, or the value itself.
+ * */
 export class DefineDirectiveHoverProvider implements HoverProvider {
     canHandle(node: StatementNode): boolean {
         return node.type === "DefineDirective";
@@ -189,6 +220,20 @@ export class DefineDirectiveHoverProvider implements HoverProvider {
 
 // ==================== Instruction Provider ====================
 
+/**
+ * @summary 指令悬停提供器 — 为可执行指令语句生成悬停提示
+ *
+ * @summary Instruction hover provider — generates hover tooltips for executable instruction statements
+ *
+ * @desc 处理各类 IC10 可执行指令（以 "Instruction" 结尾的语句类型）。
+ *  对关键字位置显示签名与描述，对标识符操作数从符号表解析类型并显式其定义信息，
+ *  对其他操作数委托给 provideOperandHover。
+ *
+ * @desc Handles various IC10 executable instructions (statement types ending with "Instruction").
+ *  For keyword positions, displays signature and description; for identifier operands,
+ *  resolves types from the symbol table and shows definition info;
+ *  other operands are delegated to provideOperandHover.
+ * */
 export class InstructionHoverProvider implements HoverProvider {
     canHandle(node: StatementNode): boolean {
         return isInstruction(node);
