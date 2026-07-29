@@ -14,17 +14,13 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Diagnostic } from "ic10-node-api";
-import {Languages, DiagnosticSeverity} from "vscode-languageserver"
-import {DocumentCache} from "../cache";
-
+import { Languages, DiagnosticSeverity } from "vscode-languageserver";
+import { DocumentCache } from "../cache";
 
 type OnHandlerType = Parameters<Languages["diagnostics"]["on"]>[0];
 
-
 export class DiagnosticHandler {
-
-    constructor(private readonly docCache: DocumentCache) {
-    }
+    constructor(private readonly docCache: DocumentCache) {}
 
     private levelTrans(level: Diagnostic["level"]): DiagnosticSeverity {
         switch (level) {
@@ -52,9 +48,9 @@ export class DiagnosticHandler {
                         end: { line: d.end.line - 1, character: d.end.column - 1 }
                     },
                     message: d.message,
-                    source: d.id.split('_')[0]
+                    source: d.id.split("_")[0]
                 }))
-            }
+            };
 
         return { kind: "full", items: [] };
     }

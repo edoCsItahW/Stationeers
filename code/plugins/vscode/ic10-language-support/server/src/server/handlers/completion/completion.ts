@@ -16,26 +16,17 @@
  * */
 import type { Connection } from "vscode-languageserver/node";
 
-import type {CompletionContext, CompletionData, CompletionProvider} from "./types";
-import {ENUMS_LOCAL_MAP, INS_LOCAL_MAP, LOGIC_LOCAL_MAP, LOGIC_SLOT_LOCAL_MAP} from "../../../mateData";
-import {locale, t} from "../../../locals/locale";
+import { KeywordCompletionProvider, OperandCompletionProvider, DirectiveCompletionProvider } from "./providers";
+import { ENUMS_LOCAL_MAP, INS_LOCAL_MAP, LOGIC_LOCAL_MAP, LOGIC_SLOT_LOCAL_MAP } from "../../../mateData";
+import type { CompletionContext, CompletionData, CompletionProvider } from "./types";
+import { Optional } from "../../../../../common/types";
+import { locale, t } from "../../../locals/locale";
+import { findStatementAtPosition } from "./utils";
 import { DocumentCache } from "../../cache";
-import {
-    KeywordCompletionProvider,
-    OperandCompletionProvider,
-    DirectiveCompletionProvider,
-} from "./providers";
-import {
-    findStatementAtPosition,
-    tokensOnLine,
-    cursorPrefix,
-} from "./utils";
-import {Optional} from "../../../../../common/types/utils";
 
 
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];
 type OnCompletionResolveHandlerType = Parameters<Connection["onCompletionResolve"]>[0];
-
 
 export class CompletionHandler {
     private readonly providers: CompletionProvider[];
@@ -45,13 +36,19 @@ export class CompletionHandler {
         this.providers = [
             new DirectiveCompletionProvider(),
             new OperandCompletionProvider(),
-            new KeywordCompletionProvider(),
+            new KeywordCompletionProvider()
         ];
-
     }
 
-    handle(...[{ textDocument, position: { line, character }, context }]: Parameters<OnCompletionHandlerType>): ReturnType<OnCompletionHandlerType> {
-
+    handle(
+        ...[
+            {
+                textDocument,
+                position: { line, character },
+                context
+            }
+        ]: Parameters<OnCompletionHandlerType>
+    ): ReturnType<OnCompletionHandlerType> {
         // 转换为 1-based 坐标
         const L = line + 1;
         const C = character + 1;
@@ -59,10 +56,13 @@ export class CompletionHandler {
         const cache = this.docCache.getCache(textDocument.uri);
         if (!cache?.ast || !cache.tokens) return [];
 
-        const stmt  = findStatementAtPosition(cache.ast.statements, L);
+        const stmt = findStatementAtPosition(cache.ast.statements, L);
 
-        const token = cache.tokens.filter(t => t.pos.line === line).reverse().find(t => t.pos.column < character);
-        const prefix = context?.triggerCharacter ? "" : token?.lexeme ?? "";
+        const token = cache.tokens
+            .filter(t => t.pos.line === line)
+            .reverse()
+            .find(t => t.pos.column < character);
+        const prefix = context?.triggerCharacter ? "" : (token?.lexeme ?? "");
 
         const ctx: CompletionContext = {
             line: L,
@@ -75,13 +75,11 @@ export class CompletionHandler {
             symbols: cache.symbols,
             types: cache.types,
             prefix,
-            getLocale: () => locale.getLocale(),
+            getLocale: () => locale.getLocale()
         };
 
         // 遍历 provider，第一个 canHandle 的独占响应（包括空结果）
-        for (const provider of this.providers)
-            if (provider.canHandle(ctx))
-                return provider.provide(ctx);
+        for (const provider of this.providers) if (provider.canHandle(ctx)) return provider.provide(ctx);
 
         return [];
     }
@@ -100,20 +98,16 @@ export class CompletionHandler {
                 case "LogicType": {
                     const doc = LOGIC_LOCAL_MAP.get(data.name)!;
 
-                    if (doc?.["desc"] && data.local in doc["desc"])
-                        params.documentation = doc["desc"][data.local];
-                    else
-                        params.documentation = t("completion.common.noDesc");
+                    if (doc?.["desc"] && data.local in doc["desc"]) params.documentation = doc["desc"][data.local];
+                    else params.documentation = t("completion.common.noDesc");
 
                     break;
                 }
                 case "LogicSlotType": {
                     const doc = LOGIC_SLOT_LOCAL_MAP.get(data.name)!;
 
-                    if (doc?.["desc"] && data.local in doc["desc"])
-                        params.documentation = doc["desc"][data.local];
-                    else
-                        params.documentation = t("completion.common.noDesc");
+                    if (doc?.["desc"] && data.local in doc["desc"]) params.documentation = doc["desc"][data.local];
+                    else params.documentation = t("completion.common.noDesc");
 
                     break;
                 }
@@ -123,10 +117,8 @@ export class CompletionHandler {
 
                     const doc = (map as any)[data.name];
 
-                    if (doc?.["desc"] && data.local in doc["desc"])
-                        params.documentation = doc["desc"][data.local];
-                    else
-                        params.documentation = t("completion.common.noDesc");
+                    if (doc?.["desc"] && data.local in doc["desc"]) params.documentation = doc["desc"][data.local];
+                    else params.documentation = t("completion.common.noDesc");
 
                     break;
                 }

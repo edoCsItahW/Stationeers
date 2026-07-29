@@ -17,7 +17,7 @@
  * */
 
 import type { Hover } from "vscode-languageserver/node";
-import {BasicType} from "ic10-node-api";
+import { BasicType } from "ic10-node-api";
 import type {
     StatementNode,
     OperandNode,
@@ -27,10 +27,9 @@ import type {
     ErrorNode
 } from "ic10-node-api";
 
-import {Nullable, type Optional} from "../../../../../common/types/utils";
-import {lowerBound, getEnumName} from "../../../../../common/utils";
-import {groupHandlers, visit} from "../../../utils/astHelper";
-import { operandValueLength } from "../../../utils/astHelper";
+import { groupHandlers, visit, operandValueLength } from "../../../utils";
+import { lowerBound, getEnumName } from "../../../../../common/utils";
+import { Nullable, type Optional } from "../../../../../common/types";
 import svgBuilder from "../../../utils/svgBuilder";
 import type { HoverContext } from "./types";
 
@@ -38,8 +37,8 @@ import type { HoverContext } from "./types";
  * Find the statement at the given line using binary search.
  */
 export function findStatementAtPosition(statements: StatementNode[], line: number): Nullable<StatementNode> {
-    const idx = lowerBound(statements, (item) => item.position.line >= line);
-    return (idx >= 0 && idx < statements.length) ? statements[idx] : null;
+    const idx = lowerBound(statements, item => item.position.line >= line);
+    return idx >= 0 && idx < statements.length ? statements[idx] : null;
 }
 
 /**
@@ -54,20 +53,23 @@ export function isInsideNode(col: number, length: number, character: number): bo
 /**
  * Find the operand at a given character position in an instruction, or return the keyword string.
  */
-export function findOperand(node: Exclude<ExecutableInstructionNode, ErrorNode>, a: number): { result: OperandNode | string; index: number; } {
+export function findOperand(
+    node: Exclude<ExecutableInstructionNode, ErrorNode>,
+    a: number
+): { result: OperandNode | string; index: number } {
     let maxCol = -Infinity;
     let foundOperand: Nullable<OperandNode> = null;
     let index = -1;
 
     for (const key in node)
-        if (key.startsWith('operand')) {
+        if (key.startsWith("operand")) {
             const operand: Optional<OperandNode> = (node as any)[key];
-            if (operand && operand.position && typeof operand.position.column === 'number') {
+            if (operand && operand.position && typeof operand.position.column === "number") {
                 const col = operand.position.column;
                 if (col <= a && col > maxCol) {
                     maxCol = col;
                     foundOperand = operand;
-                    index = Number(key.replace('operand', ''));
+                    index = Number(key.replace("operand", ""));
                 }
             }
         }
@@ -82,14 +84,17 @@ export function findOperand(node: Exclude<ExecutableInstructionNode, ErrorNode>,
  * Format an operand node into a readable string representation.
  */
 export function formatOperand(op: OperandNode): string {
-    return visit({
-        Error: node => node.message,
-        Constant: node => node.keyword,
-        HashCall: node => `HASH("${node.value.value}")`,
-        StrCall: node => `STR("${node.value.value}")`,
-        ...groupHandlers(["BinaryNumber", "HexNumber", "Identifier", "Register", "Device"], node => node.value),
-        ...groupHandlers(["Integer", "Float"], node => node.value.toString()),
-    }, op);
+    return visit(
+        {
+            Error: node => node.message,
+            Constant: node => node.keyword,
+            HashCall: node => `HASH("${node.value.value}")`,
+            StrCall: node => `STR("${node.value.value}")`,
+            ...groupHandlers(["BinaryNumber", "HexNumber", "Identifier", "Register", "Device"], node => node.value),
+            ...groupHandlers(["Integer", "Float"], node => node.value.toString())
+        },
+        op
+    );
 }
 
 /**
@@ -105,8 +110,7 @@ export function formatBasicType(type: BasicType): string {
 export function formatType(identifier: IdentifierNode, symbols: SymbolMap): Optional<string> {
     const symbol = symbols[identifier.value];
     if (symbol) {
-        if (symbol.typeName)
-            return symbol.typeName;
+        if (symbol.typeName) return symbol.typeName;
         return formatBasicType(symbol.type);
     }
 }
@@ -121,12 +125,8 @@ export function isInstruction(node: StatementNode): node is Exclude<ExecutableIn
 /**
  * Shared hover provider for operand nodes (used by directive and instruction providers).
  */
-export function provideOperandHover(
-    operand: OperandNode,
-    ctx: HoverContext
-): Hover | null {
-    if (!isInsideNode(operand.position.column, operandValueLength(operand), ctx.character))
-        return { contents: [] };
+export function provideOperandHover(operand: OperandNode, ctx: HoverContext): Hover | null {
+    if (!isInsideNode(operand.position.column, operandValueLength(operand), ctx.character)) return { contents: [] };
 
     let type: string;
     switch (operand.type) {
@@ -144,13 +144,13 @@ export function provideOperandHover(
         { text: `(${type}) ` },
         { text: formatOperand(operand) },
         { text: ": " },
-        { text: operand.type.toLowerCase() },
+        { text: operand.type.toLowerCase() }
     ]);
 
     return {
         contents: {
             kind: "markdown",
-            value: svgBuilder.build(),
-        },
+            value: svgBuilder.build()
+        }
     };
 }

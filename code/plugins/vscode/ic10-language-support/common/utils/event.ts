@@ -45,10 +45,7 @@ export class EventEmitter {
 
     // 清空所有监听（用于测试或卸载）
     clear(event?: string): void {
-        if (event)
-            this.events.delete(event);
-        else
-            this.events.clear();
-
+        if (event) this.events.delete(event);
+        else this.events.clear();
     }
 }

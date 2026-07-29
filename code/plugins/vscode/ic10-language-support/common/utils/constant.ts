@@ -17,3 +17,5 @@
  * */
 
 export const CONFIGURATION_SECTION_NAME = "ic10" as const;
+
+export const COMM_EVENT_NAME = "event" as const;

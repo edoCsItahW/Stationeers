@@ -16,19 +16,16 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Locale } from "../../../common/locals";
-import zhHans from './languages/zh-hans';
-import enUS from './languages/en-us';
-
+import zhHans from "./languages/zh-hans";
+import enUS from "./languages/en-us";
 
 const resources = {
-    'zh-hans': zhHans,
-    'en-us': enUS,
+    "zh-hans": zhHans,
+    "en-us": enUS
 } as const;
 
-
-export const locale = new Locale('en-us', resources, {
-    fallbackLocale: 'zh-hans',
+export const locale = new Locale("en-us", resources, {
+    fallbackLocale: "zh-hans"
 });
-
 
 export const t = locale.t.bind(locale) as typeof locale.t;

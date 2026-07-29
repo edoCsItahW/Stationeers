@@ -13,30 +13,33 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {ErrorNode, ExecutableInstructionNode, StatementNode} from "ic10-node-api";
+import { ErrorNode, ExecutableInstructionNode, StatementNode } from "ic10-node-api";
 import { Connection, SignatureHelp } from "vscode-languageserver";
 
-import {INS_META_MAP, INS_LOCAL_MAP} from "../../mateData";
-import {findMaxByCondition, findMinByCondition, lowerBound} from "../../../../common/utils";
-import {locale} from "../../locals/locale";
-import {DocumentCache} from "../cache";
-import {findCurrentOperand, getOperandIndex} from "./completion/utils";
-import {Optional} from "../../../../common/types/utils";
-
+import { INS_META_MAP, INS_LOCAL_MAP } from "../../mateData";
+import { findMaxByCondition, findMinByCondition, lowerBound } from "../../../../common/utils";
+import { locale } from "../../locals/locale";
+import { DocumentCache } from "../cache";
+import { findCurrentOperand, getOperandIndex } from "./completion/utils";
+import { Optional } from "../../../../common/types/utils";
 
 type OnSignatureHelpHandlerType = Parameters<Connection["onSignatureHelp"]>[0];
 
-
 export class SignatureHandler {
+    constructor(private readonly docCache: DocumentCache) {}
 
-    constructor(private readonly docCache: DocumentCache) {
-    }
-
-    handle(...[{ textDocument, context: ctx, position: { line, character } }]: Parameters<OnSignatureHelpHandlerType>): ReturnType<OnSignatureHelpHandlerType> {
+    handle(
+        ...[
+            {
+                textDocument,
+                context: ctx,
+                position: { line, character }
+            }
+        ]: Parameters<OnSignatureHelpHandlerType>
+    ): ReturnType<OnSignatureHelpHandlerType> {
         const cache = this.docCache.getCache(textDocument.uri);
 
-        if (!cache || !cache.ast || !cache.symbols)
-            return;
+        if (!cache || !cache.ast || !cache.symbols) return;
 
         const L = line + 1;
         const C = character + 1;
@@ -44,17 +47,13 @@ export class SignatureHandler {
         const stmtIdx = lowerBound(cache.ast.statements, stmt => stmt.position.line >= L);
         const stmt = cache.ast.statements[stmtIdx];
 
-        if (!stmt)
-            return;
+        if (!stmt) return;
 
         let keyword: Optional<string> = undefined;
 
-        if (this.isInstruction(stmt))
-            keyword = stmt.keyword;
-        else if (stmt.type === "AliasDirective")
-            keyword = "alias";
-        else if (stmt.type === "DefineDirective")
-            keyword = "define";
+        if (this.isInstruction(stmt)) keyword = stmt.keyword;
+        else if (stmt.type === "AliasDirective") keyword = "alias";
+        else if (stmt.type === "DefineDirective") keyword = "define";
 
         if (!keyword) return;
 
@@ -80,16 +79,13 @@ export class SignatureHandler {
                             activeParameter: idx - 1
                         }
                     ]
-                }
+                };
             }
-
-        }
-        else if (stmt.type === "AliasDirective" || stmt.type === "DefineDirective") {
+        } else if (stmt.type === "AliasDirective" || stmt.type === "DefineDirective") {
             if (ctx && ctx.triggerCharacter) {
                 let idx = 0;
 
-                if (stmt.identifier.type === "Identifier")
-                    idx = 1;
+                if (stmt.identifier.type === "Identifier") idx = 1;
 
                 return {
                     signatures: [
@@ -105,7 +101,6 @@ export class SignatureHandler {
                 };
             }
         }
-
     }
 
     private getOperandPositions(input: string): [number, number][] {
@@ -117,11 +112,10 @@ export class SignatureHandler {
             tokens.push({ value: match[0], start: match.index, end: match.index + match[0].length });
 
         // 若只有 keyword 或完全为空，则返回空数组
-        if (tokens.length < 2)
-            return [];
+        if (tokens.length < 2) return [];
 
         // 跳过第一个 token（keyword），返回后续所有 token 的位置
-        return tokens.slice(1).map((t) => [t.start, t.end]);
+        return tokens.slice(1).map(t => [t.start, t.end]);
     }
 
     private isInstruction(stmt: StatementNode): stmt is Exclude<ExecutableInstructionNode, ErrorNode> {

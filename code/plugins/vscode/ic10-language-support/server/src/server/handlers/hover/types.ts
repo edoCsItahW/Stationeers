@@ -16,9 +16,10 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import type { Hover } from "vscode-languageserver/node";
 import type { StatementNode, SymbolMap } from "ic10-node-api";
-import {Nullable} from "../../../../../common/types/utils";
+import type { Hover } from "vscode-languageserver/node";
+
+import { Nullable } from "../../../../../common/types";
 
 /**
  * Context passed to each hover provider.

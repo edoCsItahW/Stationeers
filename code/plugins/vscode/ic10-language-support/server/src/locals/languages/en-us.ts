@@ -18,32 +18,32 @@
 export default {
     server: {
         info: {
-            start: "Server is running...",
+            start: "Server is running..."
         },
         parser: {
             info: {
-                LIE1: "parseInc failed, falling back to full parse {}",
-                LIE2: "full parse failed {}"
+                LIE1: "parseInc failed, falling back to full parse {err}",
+                LIE2: "full parse failed {err}"
             }
         }
     },
     hover: {
         common: {
-            description: 'description'
+            description: "description"
         },
         labelDef: {
-            type: 'Label'
+            type: "Label"
         },
         aliasDirective: {
-            type: 'Alias'
+            type: "Alias"
         },
         defineDirective: {
             type: "Constant"
         },
         instruction: {
-            type: 'Instruction',
-            signature: 'signature',
-            details: 'details'
+            type: "Instruction",
+            signature: "signature",
+            details: "details"
         },
         operandType: {
             register: "Register",
@@ -71,5 +71,8 @@ export default {
             input: "Input",
             output: "Output"
         }
+    },
+    formatting: {
+        parseError: "Configuration file {filename} parsing failed: {err}. Use the default configuration of the plugin."
     }
 };

@@ -14,12 +14,11 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import type { CompletionItem } from "vscode-languageserver/node";
-import type { CompletionTriggerKind } from "vscode-languageserver/node";
+import type { CompletionTriggerKind, CompletionItem } from "vscode-languageserver/node";
 import type {StatementNode, SymbolMap, Token, TypeTableMap} from "ic10-node-api";
 
+import type {Nullable, Optional} from "../../../../../common/types";
 import type { DocCacheValue } from "../../cache";
-import type {Nullable, Optional} from "../../../../../common/types/utils";
 
 
 /** 传递给每个 Provider 的上下文 */

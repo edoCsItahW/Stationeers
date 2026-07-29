@@ -15,17 +15,15 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {Lexer, Parser, Linker, IncLexer, IncParser, type SymbolMap, Diagnostic} from "ic10-node-api";
-import stdLib from "ic10-node-api/static/stdLib.ic.json"
-import {createHash} from "node:crypto";
+import { Lexer, Parser, Linker, IncLexer, IncParser, type SymbolMap, Diagnostic } from "ic10-node-api";
+import stdLib from "ic10-node-api/static/stdLib.ic.json";
+import { createHash } from "node:crypto";
 
-import {DocCacheValue} from "../cache";
-
+import { DocCacheValue } from "../cache";
 
 export interface ParseResult extends DocCacheValue {
     changed: boolean;
 }
-
 
 export class ParserPipline {
     /** 增量词法分析器（内部维护缓存，用于增量解析） */
@@ -34,7 +32,7 @@ export class ParserPipline {
     private incParser = new IncParser();
 
     private sanitizeIME(code: string): string {
-        return code.replace(/'/g, '_');
+        return code.replace(/'/g, "_");
     }
 
     public async parse(code: string, cache?: DocCacheValue): Promise<ParseResult> {
@@ -54,7 +52,7 @@ export class ParserPipline {
         const hash = createHash("md5").update(code).digest("hex");
         if (cache?.hash === hash) return noop;
 
-        const diagnostics: Diagnostic[] = []
+        const diagnostics: Diagnostic[] = [];
 
         // IME 输入法拼音分隔符 ' 会触发词法分析器崩溃，替换为 _ 后再词法分析
         // 原始 code 保留用于 hash 和 source，确保位置不变
@@ -114,7 +112,6 @@ export class ParserPipline {
 
         // 首次调用 / 缓存失效：全量词法+语法分析以建立增量基准
         if (!this.incLexer.hasCache() || !this.incParser.hasCache()) {
-
             const sanitized = this.sanitizeIME(code);
             const lexResult = this.incLexer.tokenizeFull(sanitized);
             const parseResult = this.incParser.parseFull(lexResult.tokens);
@@ -169,5 +166,4 @@ export class ParserPipline {
             hash
         };
     }
-
 }
