@@ -23,6 +23,7 @@ import { locale, t } from "../../../locals/locale";
 import { findStatementAtPosition } from "./utils";
 import { Optional, Console, debug } from "common";
 import { DocumentCache } from "../../cache";
+import { Token } from "ic10-node-api";
 
 
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];
@@ -87,10 +88,15 @@ export class CompletionHandler {
 
         const stmt = findStatementAtPosition(cache.ast.statements, L);
 
-        const token = cache.tokens
-            .filter(t => t.pos.line === line)
-            .reverse()
-            .find(t => t.pos.column < character);
+        // 反向查找光标前最近的同行动词，避免 filter+reverse+find 的三趟扫描
+        let token: Optional<Token>;
+        for (let i = cache.tokens.length - 1; i >= 0; i--) {
+            const t = cache.tokens[i];
+            if (t.pos.line === line && t.pos.column < character) {
+                token = t;
+                break;
+            }
+        }
         const prefix = context?.triggerCharacter ? "" : (token?.lexeme ?? "");
 
         const ctx: CompletionContext = {

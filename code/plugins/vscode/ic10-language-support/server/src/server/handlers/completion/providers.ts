@@ -14,23 +14,23 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import { CompletionItemKind, CompletionTriggerKind, InsertTextFormat } from "vscode-languageserver/node";
 import type { CompletionItem } from "vscode-languageserver/node";
+import { CompletionItemKind, CompletionTriggerKind, InsertTextFormat } from "vscode-languageserver/node";
 import {
-    DefineDirectiveNode,
     AliasDirectiveNode,
-    IdentifierNode,
-    StatementNode,
-    RegisterNode,
-    TypeCategory,
-    OperandType,
+    BasicType,
+    DefineDirectiveNode,
     DeviceNode,
     DeviceType,
-    BasicType,
-    ErrorNode
+    ErrorNode,
+    IdentifierNode,
+    OperandType,
+    RegisterNode,
+    StatementNode,
+    TypeCategory
 } from "ic10-node-api";
 
-import { findCurrentOperand, getKeyword, getOperandIndex, getOperandType, isAtKeyword } from "./utils";
+import { findCurrentOperand, getKeyword, getOperandType, isAtKeyword } from "./utils";
 import type { CompletionContext, CompletionData, CompletionProvider } from "./types";
 import { INS_META_MAP } from "../../../mateData";
 import { RadixTree } from "../../../utils";
@@ -39,22 +39,15 @@ import { Optional } from "common";
 
 // ── 内置补全数据 ──
 
-const REGISTERS = [
-    ...Array.from({ length: 16 }).map((_, i) => ({
-        value: `r${i}`,
-        sort: "r" + String(i).padStart(2, "0")
-    })),
-    { value: "ra", sort: "ra" },
-    { value: "sp", sort: "sp" }
-];
+const REGISTERS = Array.from({ length: 16 }).map((_, i) => ({
+    value: `r${i}`,
+    sort: "r" + String(i).padStart(2, "0")
+}));
 
-const DEVICE_REFS = [
-    ...Array.from({ length: 6 }).map((_, i) => ({
-        value: `d${i}`,
-        sort: "d" + String(i).padStart(2, "0")
-    })),
-    { value: "db", sort: "db" }
-];
+const DEVICE_REFS = Array.from({ length: 6 }).map((_, i) => ({
+    value: `d${i}`,
+    sort: "d" + String(i).padStart(2, "0")
+}));
 
 const insTree = RadixTree.fromMap(INS_META_MAP);
 
@@ -115,9 +108,8 @@ export class KeywordCompletionProvider implements CompletionProvider {
         if (ctx.stmt?.type === "Error") if (ctx.token) prefix = ctx.token.lexeme;
 
         return insTree
-            .keysWithPrefix(prefix)
-            .map(key => [key, insTree.search(key)!] as const)
-            .filter(([_, v]) => v.type === "Instruction")
+            .entriesWithPrefix(prefix)
+            .filter(([, v]) => v.type === "Instruction")
             .map(([key, value]) => ({
                 label: key,
                 kind: CompletionItemKind.Keyword,
@@ -159,7 +151,7 @@ export class OperandCompletionProvider implements CompletionProvider {
 
         if (!opItem) return [];
 
-        const [key,] = opItem;
+        const [key] = opItem;
 
         const opType = getOperandType(ctx.stmt, key);
 
@@ -185,21 +177,30 @@ export class OperandCompletionProvider implements CompletionProvider {
                     sortText: sort
                 }));
 
-                const userAliases: CompletionItem[] = ctx.symbols
-                    ? Object.entries(ctx.symbols)
-                          .filter(([name, sym]) => sym.type === BasicType.REGISTER && name.startsWith(ctx.prefix))
-                          .map(([name, symbol]) => ({
-                              label: name,
-                              kind: CompletionItemKind.Variable,
-                              insertText: name,
-                              detail: t("hover.operandType.register"),
-                              labelDetails: {
-                                  detail: `: ${symbol.value}`,
-                                  description: t("hover.operandType.register")
-                              },
-                              documentation: symbol.desc
-                          }))
-                    : [];
+                // 用户定义的别名（从符号表，单次 for...in 避免 Object.entries 中间数组分配）
+                const userAliases: CompletionItem[] = [];
+                if (ctx.symbols) {
+                    for (const name in ctx.symbols) {
+                        const sym = ctx.symbols[name];
+                        if (
+                            (sym.type === BasicType.REGISTER ||
+                                ((opType as OperandType) === OperandType.REG_NUM &&
+                                    sym.category === TypeCategory.NUMBER)) &&
+                            name.startsWith(ctx.prefix)
+                        )
+                            userAliases.push({
+                                label: name,
+                                kind: CompletionItemKind.Variable,
+                                insertText: name,
+                                detail: t("hover.operandType.register"),
+                                labelDetails: {
+                                    detail: `: ${sym.value}`,
+                                    description: t("hover.operandType.register")
+                                },
+                                documentation: sym.desc
+                            });
+                    }
+                }
 
                 return [...builtin, ...userAliases];
             }
@@ -214,20 +215,22 @@ export class OperandCompletionProvider implements CompletionProvider {
                     detail: t("hover.operandType.device"),
                     sortText: sort
                 }));
-                // 用户定义的别名（从符号表）
-
-                const userAliases: CompletionItem[] = ctx.symbols
-                    ? Object.entries(ctx.symbols)
-                          .filter(([name, sym]) => sym.type === BasicType.DEVICE && name.startsWith(ctx.prefix)) // BasicType.DEVICE = 4
-                          .map(([name, sym]) => ({
-                              label: name,
-                              kind: CompletionItemKind.Reference,
-                              insertText: name,
-                              detail: t("hover.operandType.device"),
-                              labelDetails: { detail: `: ${sym.value}`, description: t("hover.operandType.device") },
-                              documentation: sym.desc
-                          }))
-                    : [];
+                // 用户定义的别名（从符号表，单次 for...in 避免 Object.entries 中间数组分配）
+                const userAliases: CompletionItem[] = [];
+                if (ctx.symbols) {
+                    for (const name in ctx.symbols) {
+                        const sym = ctx.symbols[name];
+                        if (sym.type === BasicType.DEVICE && name.startsWith(ctx.prefix))
+                            userAliases.push({
+                                label: name,
+                                kind: CompletionItemKind.Reference,
+                                insertText: name,
+                                detail: t("hover.operandType.device"),
+                                labelDetails: { detail: `: ${sym.value}`, description: t("hover.operandType.device") },
+                                documentation: sym.desc
+                            });
+                    }
+                }
                 return [...builtin, ...userAliases];
             }
 
@@ -239,20 +242,22 @@ export class OperandCompletionProvider implements CompletionProvider {
                 return this.enumCompletions(ctx, opType);
 
             case OperandType.JUMP_TARGET: {
-                // 标签（从符号表）
-                const prefix = ctx.prefix;
-                return ctx.symbols
-                    ? Object.entries(ctx.symbols)
-                          .filter(([, sym]) => sym.category === TypeCategory.LABEL) // TypeCategory.LABEL = 0
-                          .map(([name]) => name)
-                          .filter(n => label(n).startsWith(label(prefix)))
-                          .map(l => ({
-                              label: l,
-                              kind: CompletionItemKind.Variable,
-                              insertText: l,
-                              detail: t("hover.labelDef.type")
-                          }))
-                    : [];
+                // 标签（从符号表，单次 for...in 避免链式中间数组分配）
+                const result: CompletionItem[] = [];
+                if (ctx.symbols) {
+                    const lowerPrefix = label(ctx.prefix);
+                    for (const name in ctx.symbols) {
+                        const sym = ctx.symbols[name];
+                        if (sym.category === TypeCategory.LABEL && label(name).startsWith(lowerPrefix))
+                            result.push({
+                                label: name,
+                                kind: CompletionItemKind.Variable,
+                                insertText: name,
+                                detail: t("hover.labelDef.type")
+                            });
+                    }
+                }
+                return result;
             }
 
             default:
@@ -405,13 +410,15 @@ export class OperandCompletionProvider implements CompletionProvider {
     }
 
     private findPrevDevice(stmt: StatementNode): Optional<DeviceNode | RegisterNode | IdentifierNode | ErrorNode> {
-        const deviceItem = Object.entries(stmt).find(
-            ([, v]) => v === OperandType.DEV_REF || v === OperandType.DEV_ALIAS
-        );
-
-        if (!deviceItem) return deviceItem;
-
-        return (stmt as any)[`operand${getOperandIndex(deviceItem[0])}`];
+        // 用 for...in 代替 Object.entries 避免中间数组分配
+        for (const k in stmt) {
+            if (!k.startsWith("type")) continue;
+            const v = (stmt as any)[k];
+            if (v === OperandType.DEV_REF || v === OperandType.DEV_ALIAS) {
+                const idx = Number.parseInt(k.replace("type", ""), 10);
+                return (stmt as any)[`operand${idx}`];
+            }
+        }
     }
 }
 

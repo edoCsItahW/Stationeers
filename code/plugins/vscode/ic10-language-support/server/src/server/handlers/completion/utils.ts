@@ -116,7 +116,11 @@ export function getOperandIndex(key: string | `operand${number}`) {
  *  otherwise returns the position after the last parsed operand.
  */
 export function findCurrentOperand(stmt: StatementNode, character?: string) {
-    const values = Object.entries(stmt).filter(([key]) => key.startsWith("operand"));
+    // 用 for...in 代替 Object.entries + filter 避免中间数组分配
+    const values: [string, any][] = [];
+    for (const key in stmt) {
+        if (key.startsWith("operand")) values.push([key, (stmt as any)[key]]);
+    }
 
     const lastErr = findMinByCondition(
         values,
