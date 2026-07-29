@@ -29,7 +29,10 @@
  *
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {Connection, Range} from "vscode-languageserver/node";
+import { Connection, Range } from "vscode-languageserver/node";
+import { parse as parseYaml } from "yaml";
+import * as path from "path";
+import * as fs from "fs";
 import {
     AliasDirectiveNode,
     DefineDirectiveNode,
@@ -42,18 +45,20 @@ import {
 } from "ic10-node-api";
 
 import { operandToString } from "../../utils";
-import {DocumentCache} from "../cache";
-
+import { DocumentCache } from "../cache";
+import { t } from "../../locals/locale";
 
 type OnDocumentFormattingHandlerType = Parameters<Connection["onDocumentFormatting"]>[0];
 
 interface FormatConfig {
-    indent: {
-        useTab: false;
-        width: number;
-    } | {
-        useTab: true;
-    };
+    indent:
+        | {
+              useTab: false;
+              width: number;
+          }
+        | {
+              useTab: true;
+          };
 
     spacesBeforeTrailingComments: number;
 
@@ -91,24 +96,25 @@ function visualWidth(str: string): number {
     let width = 0;
     for (const ch of str) {
         const cp = ch.codePointAt(0)!;
-        if ((cp >= 0x1100 && cp <= 0x115F) ||
-            cp === 0x2329 || cp === 0x232A ||
-            (cp >= 0x2E80 && cp <= 0x303E) ||
-            (cp >= 0x3040 && cp <= 0x33BF) ||
-            (cp >= 0x3400 && cp <= 0x4DBF) ||
-            (cp >= 0x4E00 && cp <= 0xA4CF) ||
-            (cp >= 0xAC00 && cp <= 0xD7AF) ||
-            (cp >= 0xF900 && cp <= 0xFAFF) ||
-            (cp >= 0xFE10 && cp <= 0xFE19) ||
-            (cp >= 0xFE30 && cp <= 0xFE6F) ||
-            (cp >= 0xFF01 && cp <= 0xFF60) ||
-            (cp >= 0xFFE0 && cp <= 0xFFE6) ||
-            (cp >= 0x20000 && cp <= 0x2FFFD) ||
-            (cp >= 0x30000 && cp <= 0x3FFFD)) {
+        if (
+            (cp >= 0x1100 && cp <= 0x115f) ||
+            cp === 0x2329 ||
+            cp === 0x232a ||
+            (cp >= 0x2e80 && cp <= 0x303e) ||
+            (cp >= 0x3040 && cp <= 0x33bf) ||
+            (cp >= 0x3400 && cp <= 0x4dbf) ||
+            (cp >= 0x4e00 && cp <= 0xa4cf) ||
+            (cp >= 0xac00 && cp <= 0xd7af) ||
+            (cp >= 0xf900 && cp <= 0xfaff) ||
+            (cp >= 0xfe10 && cp <= 0xfe19) ||
+            (cp >= 0xfe30 && cp <= 0xfe6f) ||
+            (cp >= 0xff01 && cp <= 0xff60) ||
+            (cp >= 0xffe0 && cp <= 0xffe6) ||
+            (cp >= 0x20000 && cp <= 0x2fffd) ||
+            (cp >= 0x30000 && cp <= 0x3fffd)
+        )
             width += 2;
-        } else {
-            width += 1;
-        }
+        else width += 1;
     }
     return width;
 }
@@ -129,24 +135,25 @@ interface ParsedLine {
 
 function parseSourceLine(line: string, index: number): ParsedLine {
     const trimmed = line.trimStart();
-    if (trimmed === "") {
-        return { index, text: line, code: "", isEmpty: true, isCommentOnly: false };
-    }
-    if (trimmed.startsWith("#")) {
+    if (trimmed === "") return { index, text: line, code: "", isEmpty: true, isCommentOnly: false };
+
+    if (trimmed.startsWith("#"))
         return { index, text: line, code: "", comment: trimmed.slice(1), isCommentOnly: true, isEmpty: false };
-    }
+
     let inString = false;
     for (let i = 0; i < line.length; i++) {
         if (line[i] === '"') inString = !inString;
-        if (line[i] === '#' && !inString) {
+        if (line[i] === "#" && !inString)
             return {
-                index, text: line,
+                index,
+                text: line,
                 code: line.substring(0, i).trimEnd(),
                 comment: line.substring(i + 1),
-                isCommentOnly: false, isEmpty: false
+                isCommentOnly: false,
+                isEmpty: false
             };
-        }
     }
+
     return { index, text: line, code: line.trimEnd(), isEmpty: false, isCommentOnly: false };
 }
 
@@ -164,7 +171,12 @@ type FormatUnit =
     | { readonly kind: "label"; readonly name: string; readonly suffix?: string }
     | { readonly kind: "alias"; readonly name: string; readonly target: string; readonly comment?: string }
     | { readonly kind: "define"; readonly name: string; readonly value: string; readonly comment?: string }
-    | { readonly kind: "instruction"; readonly keyword: string; readonly operands: readonly string[]; readonly comment?: string }
+    | {
+          readonly kind: "instruction";
+          readonly keyword: string;
+          readonly operands: readonly string[];
+          readonly comment?: string;
+      }
     | { readonly kind: "raw"; readonly text: string };
 
 // =========================================================================
@@ -187,9 +199,9 @@ function extractOperandStrings(instr: ExecutableInstructionNode, rawLines: strin
 
     return entries.map(([, v], idx) => {
         const op = v as OperandNode;
-        if (op.type === "Error") {
+        if (op.type === "Error")
             return extractErrorOperandSource(op, entries as [string, OperandNode][], idx, rawLines);
-        }
+
         return operandToString(op);
     });
 }
@@ -210,9 +222,7 @@ function extractErrorOperandSource(
         const prevOp = allEntries[errorIdx - 1][1];
         const prevEnd = prevOp.position.column + operandToString(prevOp).length;
         startCol = prevEnd - 1;
-    } else {
-        startCol = errorOp.position.column - 1;
-    }
+    } else startCol = errorOp.position.column - 1;
 
     const text = line.substring(startCol);
     const hashIdx = text.indexOf("#");
@@ -249,17 +259,13 @@ function buildFormatUnits(
 
         // 同行多节点：找出主语句（非 Error）和 ErrorNode 词素
         const primaryStmt = stmts?.find(s => s.type !== "Error");
-        const errorLexemes = (stmts ?? [])
-            .filter(s => s.type === "Error")
-            .map(s => (s as ErrorNode).token.lexeme);
+        const errorLexemes = (stmts ?? []).filter(s => s.type === "Error").map(s => (s as ErrorNode).token.lexeme);
 
         // 纯 ErrorNode 或无法识别 — 保留原文
         if (!primaryStmt) {
-            if (stmts && stmts.length > 0) {
-                units.push({ kind: "raw", text: errorLexemes.join(" ") });
-            } else {
-                units.push({ kind: "raw", text: pl.text });
-            }
+            if (stmts && stmts.length > 0) units.push({ kind: "raw", text: errorLexemes.join(" ") });
+            else units.push({ kind: "raw", text: pl.text });
+
             continue;
         }
 
@@ -362,9 +368,9 @@ function groupToSegments(units: readonly FormatUnit[]): FormatSegment[] {
     };
 
     const flushGroup = () => {
-        if (currentGroup && currentEntries.length > 0) {
+        if (currentGroup && currentEntries.length > 0)
             segments.push({ kind: "group", groupType: currentGroup, entries: currentEntries });
-        }
+
         currentGroup = null;
         currentEntries = [];
     };
@@ -395,12 +401,7 @@ function groupToSegments(units: readonly FormatUnit[]): FormatSegment[] {
  * 格式化组内的列对齐逻辑。
  * 提取自原 FormatGroup 类，保持与之前一致的格式化行为。
  */
-function formatGroup(
-    entries: GroupEntry[],
-    groupType: GroupType,
-    cfg: FormatConfig,
-    indent: string
-): string[] {
+function formatGroup(entries: GroupEntry[], groupType: GroupType, cfg: FormatConfig, indent: string): string[] {
     if (entries.length === 0) return [];
 
     const minForAlign = groupType === "instruction" ? 3 : 2;
@@ -411,9 +412,8 @@ function formatGroup(
     const colWidths: number[] = [];
     for (const entry of entries) {
         updateColWidth(colWidths, 0, visualWidth(entry.keyword));
-        for (let i = 0; i < entry.operandStrings.length; i++) {
+        for (let i = 0; i < entry.operandStrings.length; i++)
             updateColWidth(colWidths, i + 1, visualWidth(entry.operandStrings[i]));
-        }
     }
 
     // 生成每行代码（不含注释），跟踪最大视觉宽度
@@ -437,11 +437,11 @@ function formatGroup(
             if (alignComments) {
                 const padding = commentCol - visualWidth(line);
                 line += padding > 0 ? " ".repeat(padding) : " ".repeat(cfg.spacesBeforeTrailingComments);
-            } else {
-                line += " ".repeat(cfg.spacesBeforeTrailingComments);
-            }
+            } else line += " ".repeat(cfg.spacesBeforeTrailingComments);
+
             line += "#" + entries[i].comment;
         }
+
         result.push(line);
     }
 
@@ -449,24 +449,15 @@ function formatGroup(
 }
 
 function updateColWidth(widths: number[], col: number, val: number): void {
-    if (col >= widths.length) {
-        widths[col] = val;
-    } else if (val > widths[col]) {
-        widths[col] = val;
-    }
+    if (col >= widths.length) widths[col] = val;
+    else if (val > widths[col]) widths[col] = val;
 }
 
-function buildCodeLine(
-    entry: GroupEntry,
-    colWidths: number[],
-    align: boolean,
-    indent: string
-): string {
+function buildCodeLine(entry: GroupEntry, colWidths: number[], align: boolean, indent: string): string {
     let line = indent + entry.keyword;
 
-    if (align && colWidths.length > 0 && colWidths[0] > visualWidth(entry.keyword)) {
+    if (align && colWidths.length > 0 && colWidths[0] > visualWidth(entry.keyword))
         line += " ".repeat(colWidths[0] - visualWidth(entry.keyword));
-    }
 
     for (let i = 0; i < entry.operandStrings.length; i++) {
         line += " " + entry.operandStrings[i];
@@ -485,15 +476,11 @@ function buildCodeLine(
  * 维护标签作用域状态（insideLabel），指令组在标签作用域内自动缩进。
  * alias/define 组会退出标签作用域（不缩进）。
  */
-function formatSegments(
-    segments: readonly FormatSegment[],
-    cfg: FormatConfig,
-    indentStr: string
-): string[] {
+function formatSegments(segments: readonly FormatSegment[], cfg: FormatConfig, indentStr: string): string[] {
     const output: string[] = [];
     let insideLabel = false;
 
-    for (const seg of segments) {
+    for (const seg of segments)
         if (seg.kind === "unit") {
             const u = seg.unit;
             switch (u.kind) {
@@ -504,17 +491,6 @@ function formatSegments(
                     output.push((insideLabel ? indentStr : "") + "#" + u.content);
                     break;
                 case "label": {
-                    // 标签前最小空行补齐
-                    if (cfg.minEmptyLinesBeforeLabels > 0 && output.length > 0) {
-                        let trailingEmpty = 0;
-                        for (let j = output.length - 1; j >= 0 && output[j] === ""; j--) {
-                            trailingEmpty++;
-                        }
-                        const pad = cfg.minEmptyLinesBeforeLabels - trailingEmpty;
-                        for (let j = 0; j < pad; j++) {
-                            output.push("");
-                        }
-                    }
                     let line = u.name + ":";
                     if (u.suffix) line += " " + u.suffix;
                     output.push(line);
@@ -525,14 +501,10 @@ function formatSegments(
                 case "define":
                     // alias/define 退出标签作用域（不缩进）
                     insideLabel = false;
-                    output.push(
-                        formatGroup([toGroupEntry(u)], u.kind, cfg, "")[0]
-                    );
+                    output.push(formatGroup([toGroupEntry(u)], u.kind, cfg, "")[0]);
                     break;
                 case "instruction":
-                    output.push(
-                        formatGroup([toGroupEntry(u)], u.kind, cfg, insideLabel ? indentStr : "")[0]
-                    );
+                    output.push(formatGroup([toGroupEntry(u)], u.kind, cfg, insideLabel ? indentStr : "")[0]);
                     break;
                 case "raw":
                     output.push((insideLabel ? indentStr : "") + u.text);
@@ -541,14 +513,10 @@ function formatSegments(
         } else {
             // 格式化组
             const indent = seg.groupType === "instruction" && insideLabel ? indentStr : "";
-            if (seg.groupType === "alias" || seg.groupType === "define") {
-                insideLabel = false;
-            }
-            for (const line of formatGroup(seg.entries, seg.groupType, cfg, indent)) {
-                output.push(line);
-            }
+            if (seg.groupType === "alias" || seg.groupType === "define") insideLabel = false;
+
+            for (const line of formatGroup(seg.entries, seg.groupType, cfg, indent)) output.push(line);
         }
-    }
 
     return output;
 }
@@ -568,9 +536,8 @@ function compressEmptyLines(lines: readonly string[], maxKeep: number): string[]
     let emptyCount = 0;
 
     for (const line of lines) {
-        if (line === "") {
-            emptyCount++;
-        } else {
+        if (line === "") emptyCount++;
+        else {
             // 输出缓冲的连续空行（受 maxKeep 限制）
             const keep = Math.min(emptyCount, maxKeep);
             for (let i = 0; i < keep; i++) result.push("");
@@ -589,22 +556,127 @@ function compressEmptyLines(lines: readonly string[], maxKeep: number): string[]
 }
 
 // =========================================================================
-// 阶段 E — FormattingHandler
+// 配置文件加载
 // =========================================================================
 
+/** 配置文件缓存条目 */
+interface ConfigFileCache {
+    filePath: string;
+    mtimeMs: number;
+    config: Partial<FormatConfig>;
+}
+
+const CONFIG_FILE_NAMES = [".ic.json", ".ic.yml", ".ic.yaml"] as const;
+
+/** 将原始解析结果转换为 FormatConfig 格式 */
+function normalizeRawConfig(raw: Record<string, unknown>): Partial<FormatConfig> {
+    const result: Partial<FormatConfig> = {};
+
+    for (const [key, value] of Object.entries(raw)) {
+        switch (key) {
+            case "indent":
+                if (typeof value === "object" && value !== null) {
+                    const v = value as Record<string, unknown>;
+                    result.indent =
+                        v.useTab === true
+                            ? { useTab: true }
+                            : { useTab: false, width: typeof v.width === "number" ? v.width : 4 };
+                }
+                break;
+            case "spacesBeforeTrailingComments":
+                if (typeof value === "number") result.spacesBeforeTrailingComments = value;
+                break;
+            case "maxEmptyLinesToKeep":
+                if (typeof value === "number") result.maxEmptyLinesToKeep = value;
+                break;
+            case "minEmptyLinesBeforeLabels":
+                if (typeof value === "number") result.minEmptyLinesBeforeLabels = value;
+                break;
+            case "alignConsecutiveStatements":
+                if (typeof value === "boolean") result.alignConsecutiveStatements = value;
+                break;
+            case "alignTrailingComments":
+                if (typeof value === "boolean") result.alignTrailingComments = value;
+                break;
+        }
+    }
+
+    return result;
+}
+
+// =========================================================================
+// 阶段 E — 标签前空行补齐
+// =========================================================================
+
+/**
+ * 阶段 E：确保每个标签前至少有 minKeep 个空行。
+ * 在 compressEmptyLines 之后执行，保证补齐不被压缩。
+ */
+function padEmptyLinesBeforeLabels(lines: readonly string[], minKeep: number): string[] {
+    if (minKeep <= 0) return [...lines];
+
+    const result: string[] = [];
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const isLabel = line !== "" && !line.startsWith("#") && /^\w+:/.test(line);
+
+        if (isLabel && result.length > 0) {
+            let trailingEmpty = 0;
+            for (let j = result.length - 1; j >= 0 && result[j] === ""; j--) trailingEmpty++;
+
+            const pad = minKeep - trailingEmpty;
+            for (let j = 0; j < pad; j++) result.push("");
+        }
+        result.push(line);
+    }
+    return result;
+}
+
+// =========================================================================
+// 阶段 F — FormattingHandler
+// =========================================================================
+
+/**
+ * 格式化处理器。
+ *
+ * 配置加载优先级（惰性）：
+ * 1. 项目根目录下的 .ic.json / .ic.yml / .ic.yaml 配置文件
+ * 2. 构造时传入的 config（来自插件设置）
+ * 3. DEFAULT_FORMATTING_CONFIG 硬编码默认值
+ *
+ * 配置文件加载失败时，通过 onConfigError 回调向客户端发送消息。
+ */
 export class FormattingHandler {
-    private readonly cfg: FormatConfig;
+    private readonly pluginConfigProvider: () => Partial<FormatConfig>;
+    private readonly projectRootDirProvider: () => string | undefined;
+    private readonly onConfigError?: (message: string) => void;
+    private configCache: ConfigFileCache | null = null;
 
     constructor(
         private readonly docCache: DocumentCache,
-        config: Partial<FormatConfig> = DEFAULT_FORMATTING_CONFIG
+        options: {
+            pluginConfigProvider?: () => Partial<FormatConfig>;
+            projectRootDirProvider: () => string | undefined;
+            onConfigError?: (message: string) => void;
+        }
     ) {
-        this.cfg = { ...DEFAULT_FORMATTING_CONFIG, ...config };
+        this.pluginConfigProvider = options.pluginConfigProvider ?? (() => ({}));
+        this.projectRootDirProvider = options.projectRootDirProvider;
+        this.onConfigError = options.onConfigError;
     }
 
-    handle(...[{textDocument}]: Parameters<OnDocumentFormattingHandlerType>): ReturnType<OnDocumentFormattingHandlerType> {
+    /** 获取基础配置（默认值合并当前插件设置） */
+    private getBaseConfig(): FormatConfig {
+        return { ...DEFAULT_FORMATTING_CONFIG, ...this.pluginConfigProvider() };
+    }
+
+    handle(
+        ...[{ textDocument }]: Parameters<OnDocumentFormattingHandlerType>
+    ): ReturnType<OnDocumentFormattingHandlerType> {
         const cache = this.docCache.getCache(textDocument.uri);
         if (!cache || !cache.ast || !cache.ast.statements.length) return;
+        // 惰性检查项目配置文件
+        const cfg = this.resolveConfig(textDocument.uri);
 
         const source = cache.source;
         const rawLines = source.split("\n");
@@ -618,23 +690,116 @@ export class FormattingHandler {
         const segments = groupToSegments(units);
 
         // 阶段 C — 格式化
-        const indentStr = this.cfg.indent.useTab ? "\t" : " ".repeat(this.cfg.indent.width);
-        const formatted = formatSegments(segments, this.cfg, indentStr);
+        const indentStr = cfg.indent.useTab ? "\t" : " ".repeat(cfg.indent.width);
+        const formatted = formatSegments(segments, cfg, indentStr);
 
         // 阶段 D — 压缩空行
-        const compressed = compressEmptyLines(formatted, this.cfg.maxEmptyLinesToKeep);
+        const compressed = compressEmptyLines(formatted, cfg.maxEmptyLinesToKeep);
+
+        // 阶段 E — 标签前空行补齐
+        const padded = padEmptyLinesBeforeLabels(compressed, cfg.minEmptyLinesBeforeLabels);
 
         // 生成 TextEdit
-        const newText = compressed.join("\n");
+        const newText = padded.join("\n");
         if (newText === source) return;
 
         const lineCount = rawLines.length;
         const lastLineLength = rawLines[lineCount - 1].length;
 
-        return [{
-            range: Range.create(0, 0, lineCount - 1, lastLineLength),
-            newText
-        }];
+        return [
+            {
+                range: Range.create(0, 0, lineCount - 1, lastLineLength),
+                newText
+            }
+        ];
+    }
+
+    /**
+     * 惰性解析格式化配置。
+     *
+     * 按优先级检查项目根目录下的 .ic.json / .ic.yml / .ic.yaml 文件，
+     * 利用 mtime 缓存避免重复读取。若找不到配置文件或读取失败，
+     * 回退到构造时传入的插件配置。
+     *
+     * @param docUri - 文档 URI，当 projectRootDirProvider 返回 undefined 时用于 fallback
+     */
+    private resolveConfig(docUri: string): FormatConfig {
+        let projectRootDir = this.projectRootDirProvider();
+
+        if (!projectRootDir) projectRootDir = this.deriveProjectRoot(docUri);
+
+        const baseCfg = this.getBaseConfig();
+
+        if (!projectRootDir) return baseCfg;
+
+        for (const fileName of CONFIG_FILE_NAMES) {
+            const filePath = path.join(projectRootDir, fileName);
+            let stat: fs.Stats;
+            try {
+                stat = fs.statSync(filePath);
+            } catch {
+                continue; // 文件不存在，尝试下一个
+            }
+            // 缓存命中：文件未修改则直接返回合并结果
+            if (
+                this.configCache &&
+                this.configCache.filePath === filePath &&
+                this.configCache.mtimeMs === stat.mtimeMs
+            ) {
+                return { ...baseCfg, ...this.configCache.config };
+            }
+
+            // 读取并解析配置文件
+            try {
+                const content = fs.readFileSync(filePath, "utf-8");
+                const loaded = fileName.endsWith(".json") ? JSON.parse(content) : parseYaml(content);
+                const partial = normalizeRawConfig(loaded);
+
+                this.configCache = { filePath, mtimeMs: stat.mtimeMs, config: partial };
+                return { ...baseCfg, ...partial };
+            } catch (err) {
+                this.notifyConfigError(t("formatting.parseError", { filename: fileName, err: (err as Error).message }));
+                this.configCache = null;
+                return baseCfg;
+            }
+        }
+
+        // 未找到任何配置文件，使用插件配置
+        this.configCache = null;
+        return baseCfg;
+    }
+
+    /**
+     * 从文档 URI 推导项目根目录作为 fallback。
+     * 向上遍历目录树，查找包含 .ic.json / .ic.yml / .ic.yaml 的目录；
+     * 若找不到，返回文档所在目录。
+     */
+    private deriveProjectRoot(docUri: string): string | undefined {
+        const fsPath = docUri.startsWith("file://") ? docUri.slice("file://".length).replace("%3A", ":") : docUri;
+        let dir = path.dirname(fsPath);
+
+        // 向上最多查找 5 层
+        for (let i = 0; i < 5; i++) {
+            for (const name of CONFIG_FILE_NAMES) {
+                try {
+                    fs.statSync(path.join(dir, name));
+                    return dir;
+                } catch {
+                    /* 不存在，继续 */
+                }
+            }
+            const parent = path.dirname(dir);
+            if (parent === dir) break;
+            dir = parent;
+        }
+
+        // 回退到文档所在目录
+        return path.dirname(fsPath);
+    }
+
+    /** 向客户端发送配置加载错误消息 */
+    private notifyConfigError(message: string): void {
+        this.onConfigError?.(`[IC10 Formatting] ${message}`);
     }
 }
 

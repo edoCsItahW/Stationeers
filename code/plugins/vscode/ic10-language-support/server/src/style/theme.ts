@@ -6,10 +6,9 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {EventEmitter} from "../../../common/utils/event";
-import type {StylePaths, ValueAtPath} from "./type";
-import {themeSchemas, type ThemeName} from "./themes";
-
+import { themeSchemas, type ThemeName } from "./themes";
+import type { StylePaths, ValueAtPath } from "./type";
+import { EventEmitter } from "../../../common/utils";
 
 type ThemeSchemas = typeof themeSchemas;
 type AllPaths = StylePaths<ThemeSchemas>; // 'dark.common.bg' | 'dark.button.bg' | 'light.common.bg' ...
@@ -19,11 +18,7 @@ class ThemeController<T extends Record<ThemeName, any>> extends EventEmitter {
     private schemas: T;
     private fallbackTheme: ThemeName | null = null;
 
-    constructor(
-        schemas: T,
-        initialTheme: ThemeName,
-        options?: { fallback?: ThemeName; }
-    ) {
+    constructor(schemas: T, initialTheme: ThemeName, options?: { fallback?: ThemeName }) {
         super();
         this.schemas = schemas;
         this.currentTheme = initialTheme;
@@ -31,7 +26,7 @@ class ThemeController<T extends Record<ThemeName, any>> extends EventEmitter {
     }
 
     get<P extends AllPaths>(path: P): ValueAtPath<T, P> {
-        const keys = path.split('.');
+        const keys = path.split(".");
         let result: any = this.schemas;
 
         for (const key of keys) {
@@ -48,9 +43,7 @@ class ThemeController<T extends Record<ThemeName, any>> extends EventEmitter {
                     if (fallbackResult === null || fallbackResult === undefined) break;
                     fallbackResult = fallbackResult[keys[i]];
                 }
-                if (fallbackResult !== null && fallbackResult !== undefined) {
-                    return fallbackResult;
-                }
+                if (fallbackResult !== null && fallbackResult !== undefined) return fallbackResult;
             }
             // 终极降级：返回路径本身（方便调试）
             console.warn(`[Theme] Missing style: ${path}`);
@@ -60,10 +53,8 @@ class ThemeController<T extends Record<ThemeName, any>> extends EventEmitter {
     }
 
     // ---------- 获取当前主题下的路径（无需写 dark/light） ----------
-    getCurrent<P extends StylePaths<T[ThemeName]>>(
-        path: P
-    ): ValueAtPath<T[ThemeName], P> {
-        return this.get(`${this.currentTheme}.${path}` as AllPaths);
+    getCurrent<P extends StylePaths<T[ThemeName]>>(path: P): ValueAtPath<T[ThemeName], P> {
+        return this.get(`${this.currentTheme}.${path}` as AllPaths) as ValueAtPath<T[ThemeName], P>;
     }
 
     // ---------- 切换主题 ----------
@@ -74,7 +65,7 @@ class ThemeController<T extends Record<ThemeName, any>> extends EventEmitter {
             return;
         }
         this.currentTheme = theme;
-        this.emit('themeChange', theme);
+        this.emit("themeChange", theme);
         // 自动注入 CSS 变量（如果想自动生效，可放开注释）
         // this.injectCSSVariables();
     }
@@ -85,18 +76,16 @@ class ThemeController<T extends Record<ThemeName, any>> extends EventEmitter {
 
     // ---------- 动态扩展主题（模块懒加载） ----------
     extendTheme(theme: ThemeName, newStyles: Partial<T[ThemeName]>): void {
-        if (!this.schemas[theme]) {
-            (this.schemas as any)[theme] = {};
-        }
+        if (!this.schemas[theme]) (this.schemas as any)[theme] = {};
+
         Object.assign(this.schemas[theme], newStyles);
     }
 }
 
-
 export const themeController = new ThemeController(
     themeSchemas,
-    'dark', // 初始主题
-    { fallback: 'light' }
+    "dark", // 初始主题
+    { fallback: "light" }
 );
 
 // 快捷调用（自动使用当前主题）

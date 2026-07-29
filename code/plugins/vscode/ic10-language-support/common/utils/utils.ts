@@ -15,40 +15,38 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {Optional} from "../types/utils";
-
+import { Optional } from "../types";
 
 export interface PropertyOptions<This, Value> {
     setterChecker?: (value: Value) => boolean;
     initProc?: (this: This, value: Value) => Value;
 }
 
-
 export type PropertyDecoratorResult<This, Value> =
-    ClassAccessorDecoratorResult<This, Value>
+    | ClassAccessorDecoratorResult<This, Value>
     | ((accessor: ClassAccessorDecoratorTarget<This, Value>) => ClassAccessorDecoratorResult<This, Value>);
 
-export function property<This, Value>(accessor: ClassAccessorDecoratorTarget<This, Value>): ClassAccessorDecoratorResult<This, Value>;
+export function property<This, Value>(
+    accessor: ClassAccessorDecoratorTarget<This, Value>
+): ClassAccessorDecoratorResult<This, Value>;
 
-export function property<This, Value>(options: PropertyOptions<This, Value>): (accessor: ClassAccessorDecoratorTarget<This, Value>) => ClassAccessorDecoratorResult<This, Value>;
+export function property<This, Value>(
+    options: PropertyOptions<This, Value>
+): (accessor: ClassAccessorDecoratorTarget<This, Value>) => ClassAccessorDecoratorResult<This, Value>;
 
 export function property<This, Value>(
     arg: ClassAccessorDecoratorTarget<This, Value> | PropertyOptions<This, Value>
 ): PropertyDecoratorResult<This, Value> {
-    function decorate({
-                          get,
-                          set
-                      }: ClassAccessorDecoratorTarget<This, Value>, {
-                          setterChecker,
-                          initProc
-                      }: PropertyOptions<This, Value>): ClassAccessorDecoratorResult<This, Value> {
+    function decorate(
+        { get, set }: ClassAccessorDecoratorTarget<This, Value>,
+        { setterChecker, initProc }: PropertyOptions<This, Value>
+    ): ClassAccessorDecoratorResult<This, Value> {
         return {
             get(this: This): Value {
                 return get.call(this);
             },
             set(this: This, value: Value): void {
-                if (setterChecker?.(value) || !setterChecker)
-                    set.call(this, value);
+                if (setterChecker?.(value) || !setterChecker) set.call(this, value);
             },
             init(this: This, value: Value): Value {
                 return initProc ? initProc.call(this, value) : value;
@@ -56,10 +54,10 @@ export function property<This, Value>(
         };
     }
 
-    if (arg && typeof arg === 'object' && 'get' in arg && 'set' in arg)
+    if (arg && typeof arg === "object" && "get" in arg && "set" in arg)
         return decorate(arg as ClassAccessorDecoratorTarget<This, Value>, {});
 
-    return (accessor: ClassAccessorDecoratorTarget<This, Value>) => decorate(accessor, arg)
+    return (accessor: ClassAccessorDecoratorTarget<This, Value>) => decorate(accessor, arg);
 }
 
 /**
@@ -98,9 +96,7 @@ export function lowerBound<T>(arr: T[], pred: (item: T) => boolean): number {
         const mid = (low + high) >> 1; // 等价于 Math.floor((low+high)/2)
         if (pred(arr[mid]))
             high = mid; // 满足条件，向左收缩
-        else
-            low = mid + 1; // 不满足条件，向右收缩
-
+        else low = mid + 1; // 不满足条件，向右收缩
     }
 
     return low; // 第一个 true 的索引
@@ -114,14 +110,11 @@ export function upperBound<T>(arr: T[], pred: (item: T) => boolean): number {
         const mid = (low + high) >> 1;
         if (pred(arr[mid]))
             low = mid + 1; // 满足条件，向右收缩
-        else
-            high = mid;
-
+        else high = mid;
     }
 
     return low - 1; // 最后一个 true 的索引，如果都不满足则返回 -1
 }
-
 
 /**
  * 在无序数组中，找出满足指定条件的最大元素
@@ -139,14 +132,11 @@ export function findMaxByCondition<T>(
 
     for (const item of arr) {
         if (!condition(item)) continue;
-        if (best === undefined || compare(item, best) > 0)
-            best = item;
-
+        if (best === undefined || compare(item, best) > 0) best = item;
     }
 
     return best;
 }
-
 
 /**
  * 在无序数组中，找出满足指定条件的最小元素
@@ -164,19 +154,15 @@ export function findMinByCondition<T>(
 
     for (const item of arr) {
         if (!condition(item)) continue;
-        if (best === undefined || compare(item, best) < 0)
-            best = item;
-
+        if (best === undefined || compare(item, best) < 0) best = item;
     }
 
     return best;
 }
 
-
 function defaultCompare<T>(a: T, b: T): number {
     return (a as any) - (b as any);
 }
-
 
 export function getEnumName<T extends Record<string, string | number>>(
     enumObj: T,

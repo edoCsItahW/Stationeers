@@ -63,6 +63,41 @@
                     ],
                     "default": "en-us",
                     "description": "The language displayed to users by this plugin also includes the language used by the IC10 compiler core | 该插件向用户展示的语言，也包括IC10编译器核心使用的语言"
+                },
+                "ic10.format.useTab": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use tabs for indentation. When true, indentWidth is ignored. | 使用 Tab 缩进。为 true 时忽略 indentWidth。"
+                },
+                "ic10.format.indentWidth": {
+                    "type": "number",
+                    "default": 4,
+                    "description": "Number of spaces per indentation level. | 每级缩进的空格数。"
+                },
+                "ic10.format.spacesBeforeTrailingComments": {
+                    "type": "number",
+                    "default": 2,
+                    "description": "Number of spaces before trailing comments. | 行尾注释前的空格数。"
+                },
+                "ic10.format.maxEmptyLinesToKeep": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Maximum number of consecutive empty lines to keep. | 保留的最大连续空行数。"
+                },
+                "ic10.format.minEmptyLinesBeforeLabels": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Minimum empty lines before labels. 0 means no restriction. | 标签前的最小空行数。0 表示无限制。"
+                },
+                "ic10.format.alignConsecutiveStatements": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Align consecutive statements of the same type by column. | 按列对齐连续的同类语句。"
+                },
+                "ic10.format.alignTrailingComments": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Align trailing comments within the same group. | 对齐同组内的行尾注释。"
                 }
             }
         },
@@ -105,7 +140,7 @@
             {
                 "id": "RegisterIdentifier",
                 "superType": "variable",
-                "description": "IC10"
+                "description": "IC10 user-defined register identifiers (alias names) | IC10用户定义的寄存器标识符（别名名称）"
             },
             {
                 "id": "Macro",
@@ -120,7 +155,7 @@
             {
                 "id": "DeviceIdentifier",
                 "superType": "variable",
-                "description": ""
+                "description": "IC10 user-defined device identifiers (alias names) | IC10用户定义的设备标识符（别名名称）"
             },
             {
                 "id": "Number",
@@ -130,7 +165,7 @@
             {
                 "id": "NumberIdentifier",
                 "superType": "variable",
-                "description": ""
+                "description": "IC10 user-defined constant identifiers (define names) | IC10用户定义的常量标识符（define名称）"
             },
             {
                 "id": "String",
@@ -160,7 +195,7 @@
             {
                 "id": "LabelIdentifier",
                 "superType": "variable",
-                "description": ""
+                "description": "IC10 user-defined label identifiers | IC10用户定义的标签标识符"
             },
             {
                 "id": "Unknown",
@@ -195,7 +230,9 @@
         "postinstall": "cd client && pnpm install && cd ../server && pnpm install && cd .."
     },
     "devDependencies": {
-        "@types/node": "^26.0.1"
+        "@types/node": "^26.0.1",
+        "prettier": "^3.9.6",
+        "type-fest": "^5.8.0"
     },
     "packageManager": "pnpm@11.14.0+sha512.66c1ac4c7d4762d6d7dde44c7f3e5a73591ed0a0806e751d4ed32d4f004f25b2285a906b1fd8a9e3e621df3b4e2858bf88e50e0cf626bedbe977fe434a5caf85"
 }

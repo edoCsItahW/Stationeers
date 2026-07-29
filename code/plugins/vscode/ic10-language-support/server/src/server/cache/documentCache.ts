@@ -15,9 +15,9 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {Token, Program, type Diagnostic, type SymbolMap, type TypeTableMap, TypeTable} from "ic10-node-api";
-import {Optional, Nullable} from "../../../../common/types/utils";
+import { Token, Program, type Diagnostic, type SymbolMap, type TypeTableMap } from "ic10-node-api";
 
+import { Optional, Nullable } from "../../../../common/types";
 
 export interface DocCacheValue {
     source: string;
@@ -60,5 +60,4 @@ export class DocumentCache {
 
         Object.assign(cache, result);
     }
-
 }

@@ -22,28 +22,28 @@ export default {
         },
         parser: {
             info: {
-                LIE1: "增量解析失败，回退至全量解析 {}",
-                LIE2: "全量解析失败 {}"
+                LIE1: "增量解析失败，回退至全量解析 {err}",
+                LIE2: "全量解析失败 {err}"
             }
         }
     },
     hover: {
         common: {
-            description: '描述'
+            description: "描述"
         },
         labelDef: {
-            type: '标签'
+            type: "标签"
         },
         aliasDirective: {
-            type: '别名'
+            type: "别名"
         },
         defineDirective: {
-            type: '常量'
+            type: "常量"
         },
         instruction: {
-            type: '指令',
-            signature: '签名',
-            details: '详情'
+            type: "指令",
+            signature: "签名",
+            details: "详情"
         },
         operandType: {
             register: "寄存器",
@@ -71,5 +71,8 @@ export default {
             input: "输入",
             output: "输出"
         }
+    },
+    formatting: {
+        parseError: "配置文件 {filename} 解析失败: {err}。使用插件默认配置。"
     }
 };

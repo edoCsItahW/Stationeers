@@ -7,16 +7,12 @@
  * permission, please contact the author: edocsitahw@qq.com
  */
 
-import * as path from 'path';
-import {workspace, ExtensionContext} from 'vscode';
+import { workspace, ExtensionContext } from "vscode";
+import * as path from "path";
+import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from "vscode-languageclient/node";
 
-import {
-    LanguageClient,
-    LanguageClientOptions,
-    ServerOptions,
-    TransportKind
-} from 'vscode-languageclient/node';
-
+import { COMM_EVENT_NAME } from "../../common/utils";
+import { EventData } from "../../common/types";
 
 class Extension {
     private readonly serverModule: string;
@@ -25,57 +21,47 @@ class Extension {
     private readonly client: LanguageClient;
 
     constructor(
-        private readonly module: string = path.join('server', 'out', 'server', 'src', 'server', 'server.js'),
+        private readonly module: string = path.join("server", "out", "server", "src", "server", "server.js"),
         private context: ExtensionContext
     ) {
         this.serverModule = this.context.asAbsolutePath(this.module);
 
         this.serverOpt = {
-            run: {module: this.serverModule, transport: TransportKind.ipc},
-            debug: {module: this.serverModule, transport: TransportKind.ipc}
+            run: { module: this.serverModule, transport: TransportKind.ipc },
+            debug: { module: this.serverModule, transport: TransportKind.ipc }
         };
         this.clientOpt = {
-            documentSelector: [{scheme: 'file', language: 'ic10'}],
+            documentSelector: [{ scheme: "file", language: "ic10" }],
             synchronize: {
-                fileEvents: workspace.createFileSystemWatcher('**/*.ic')
+                fileEvents: workspace.createFileSystemWatcher("**/*.ic")
             }
         };
-        this.client = new LanguageClient(
-            'ic10',
-            'IC10 Language Client',
-            this.serverOpt,
-            this.clientOpt
-        );
+        this.client = new LanguageClient("ic10", "IC10 Language Client", this.serverOpt, this.clientOpt);
     }
 
     stop(): Thenable<void> | undefined {
-        if (!this.client)
-            return;
+        if (!this.client) return;
 
         return this.client.stop();
     }
 
-
     run() {
+        this.client.onRequest(COMM_EVENT_NAME, this.handle.bind(this));
         this.client.start();
     }
-}
 
+    private handle({ type, data }: EventData) {}
+}
 
 let extension: Extension;
 
-
 export async function activate(context: ExtensionContext) {
-    extension = new Extension(
-        path.join('server', 'out', 'server', 'src', 'server', 'server.js'),
-        context
-    );
+    extension = new Extension(path.join("server", "out", "server", "src", "server", "server.js"), context);
     extension.run();
 }
 
 export async function deactivate() {
-    if (extension)
-        return extension.stop();
+    if (extension) return extension.stop();
 
     return undefined;
 }
