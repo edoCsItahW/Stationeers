@@ -17,6 +17,17 @@
  * */
 import { s } from "../style";
 
+/**
+ * @summary 富文本片段描述，用于构建 SVG 中的多色文本
+ *
+ * @summary Rich text segment descriptor for building multi-styled SVG text
+ *
+ * @desc 描述一段带有颜色、下划线、粗体、斜体、字体和字号等样式的文本片段。
+ * 所有样式属性均为可选，未指定时使用 SvgBuilder 的默认值。
+ *
+ * @desc Describes a text segment with optional styling such as color, underline,
+ * bold, italic, font family, and font size. Defaults to SvgBuilder globals when omitted.
+ * */
 export interface TextSegment {
     text: string; // 要显示的文本
     color?: string; // CSS 颜色值，如 'red'、'#ff0000'
@@ -27,6 +38,23 @@ export interface TextSegment {
     fontSize?: number; // 字号，默认 16
 }
 
+/**
+ * @summary SVG 富文本构建器（单例），将样式化文本渲染为内联 SVG 图片
+ *
+ * @summary Singleton SVG rich-text builder that renders styled text as inline SVG images
+ *
+ * @desc 通过链式调用添加文本片段，最终生成 Data URI 编码的 SVG，
+ * 可直接嵌入 Markdown 图片语法中。自动估算文本宽度并生成合适的 SVG 尺寸。
+ *
+ * @desc Collects styled text segments via chainable methods, then produces a
+ * Data-URI-encoded SVG suitable for embedding in Markdown image syntax.
+ * Automatically estimates text width and generates appropriate SVG dimensions.
+ *
+ * @remarks 实例为单例，每次 build() 后自动重置状态。纯文本 alt 属性用于复制支持。
+ *
+ * @remarks Singleton instance resets automatically after each build() call.
+ * The plain-text alt attribute provides copy-friendly fallback.
+ * */
 export class SvgBuilder {
     private static instance: SvgBuilder | null = null;
     private segments: TextSegment[] = [];
@@ -163,6 +191,16 @@ export class SvgBuilder {
     }
 }
 
+/**
+ * @summary SvgBuilder 单例实例的默认导出
+ *
+ * @summary Default export of the SvgBuilder singleton instance
+ *
+ * @desc 预初始化的全局 SvgBuilder 单例，通过 `svgBuilder.addSegment(...).build()` 链式调用生成 SVG。
+ *
+ * @desc Pre-initialized global SvgBuilder singleton. Use `svgBuilder.addSegment(...).build()`
+ * to chain and produce an SVG.
+ * */
 const svgBuilder = SvgBuilder.getInstance();
 
 export default svgBuilder;

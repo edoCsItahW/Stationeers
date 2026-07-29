@@ -74,6 +74,21 @@ interface FormatConfig {
     alignTrailingComments: boolean;
 }
 
+/**
+ * @summary IC10 格式化器的默认配置
+ *
+ * @summary Default configuration for the IC10 formatter
+ *
+ * @desc 定义所有格式化选项的硬编码默认值：使用 4 空格缩进、行尾注释前保留 2 空格、
+ * 最多保留 1 个连续空行、标签前不额外补齐空行、启用连续语句和行尾注释对齐。
+ * 这些默认值会被插件设置和项目配置文件 (.ic.json / .ic.yml / .ic.yaml) 覆盖。
+ *
+ * @desc Hardcoded defaults for all formatting options: 4-space indentation, 2 spaces
+ * before trailing comments, at most 1 consecutive empty line, 0 minimum empty lines
+ * before labels, consecutive statement and trailing comment alignment enabled.
+ * These defaults can be overridden by plugin settings and project config files
+ * (.ic.json / .ic.yml / .ic.yaml).
+ * */
 export const DEFAULT_FORMATTING_CONFIG: FormatConfig = {
     indent: {
         useTab: false,
@@ -637,15 +652,33 @@ function padEmptyLinesBeforeLabels(lines: readonly string[], minKeep: number): s
 // =========================================================================
 
 /**
- * 格式化处理器。
+ * @summary IC10 代码格式化处理器
+ *
+ * @summary IC10 code formatting handler
+ *
+ * @desc 采用流水线架构将 IC10 源代码格式化为规范样式。处理流程：
+ *   [原始文本] → parseSourceLine → [ParsedLine]
+ *   → buildFormatUnits (关联 AST) → [FormatUnit]
+ *   → groupToSegments (连续同类分组) → [FormatSegment]
+ *   → formatSegments (列对齐 + 缩进 + 注释对齐) → [string]
+ *   → compressEmptyLines (空行压缩) → [string]
+ *   → padEmptyLinesBeforeLabels (标签前空行补齐) → [string]
+ *   → TextEdit
  *
  * 配置加载优先级（惰性）：
  * 1. 项目根目录下的 .ic.json / .ic.yml / .ic.yaml 配置文件
  * 2. 构造时传入的 config（来自插件设置）
  * 3. DEFAULT_FORMATTING_CONFIG 硬编码默认值
  *
- * 配置文件加载失败时，通过 onConfigError 回调向客户端发送消息。
- */
+ * @desc Implements a pipeline architecture to format IC10 source code into canonical style.
+ * Pipeline: raw text → parse → build format units → group → format (align + indent) →
+ * compress empty lines → pad before labels → TextEdit.
+ *
+ * Config loading priority (lazy):
+ * 1. .ic.json / .ic.yml / .ic.yaml in the project root directory
+ * 2. Injected config (from plugin settings)
+ * 3. DEFAULT_FORMATTING_CONFIG hardcoded defaults
+ * */
 export class FormattingHandler {
     private readonly pluginConfigProvider: () => Partial<FormatConfig>;
     private readonly projectRootDirProvider: () => string | undefined;

@@ -82,13 +82,48 @@ class ThemeController<T extends Record<ThemeName, any>> extends EventEmitter {
     }
 }
 
+/**
+ * @summary 主题控制器单例，管理主题切换和样式值查询
+ *
+ * @summary Singleton theme controller managing theme switching and style value lookups
+ *
+ * @desc 默认初始化为深色主题，fallback 为浅色主题。支持通过 get() 按完整路径查询、
+ * getCurrent() 自动使用当前主题查询、setTheme() 切换并触发 themeChange 事件。
+ *
+ * @desc Defaults to dark theme with light fallback. Supports get() for full-path queries,
+ * getCurrent() for current-theme-aware queries, and setTheme() which emits themeChange.
+ * */
 export const themeController = new ThemeController(
     themeSchemas,
     "dark", // 初始主题
     { fallback: "light" }
 );
 
+/**
+ * @summary 快捷样式查询函数，自动使用当前主题
+ *
+ * @summary Shorthand style lookup function that auto-uses the current theme
+ *
+ * @desc 等同于 `themeController.getCurrent()`，绑定为独立函数便于简洁调用。
+ * 传入相对于当前主题的路径（如 `'hover.labelDef.identifier'`）即可获取颜色值。
+ *
+ * @desc Equivalent to `themeController.getCurrent()`, bound as a standalone function.
+ * Accepts a path relative to the current theme (e.g. `'hover.labelDef.identifier'`)
+ * and returns the corresponding color value.
+ * */
 // 快捷调用（自动使用当前主题）
 export const s = themeController.getCurrent.bind(themeController);
+
+/**
+ * @summary 完整路径样式查询函数
+ *
+ * @summary Full-path style lookup function
+ *
+ * @desc 等同于 `themeController.get()`，需要指定包含主题名的完整路径
+ * （如 `'dark.common.bg'`）。不依赖当前主题设置。
+ *
+ * @desc Equivalent to `themeController.get()`, requires a full path including
+ * the theme name (e.g. `'dark.common.bg'`). Does not depend on current theme.
+ * */
 // 也可以直接导出全路径方法
 export const getStyle = themeController.get.bind(themeController);
