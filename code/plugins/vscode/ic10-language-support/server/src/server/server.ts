@@ -19,17 +19,18 @@ import { createConnection, TextDocuments, ProposedFeatures, MessageType } from "
 import { TextDocument } from "vscode-languageserver-textdocument";
 import type { Connection } from "vscode-languageserver/node";
 
-import { SemanticTokenHandler } from "./handlers/semanticToken";
-import { SettingsManager } from "./services/settingsManager";
-import { CompletionHandler } from "./handlers/completion";
-import { DiagnosticHandler } from "./handlers/diagnostic";
-import { ParserPipline } from "./services/parserPipline";
-import { SignatureHandler } from "./handlers/signature";
-import { FormattingHandler } from "./handlers/formatting";
+import { ParserPipline, SettingsManager } from "./services";
 import { DocumentCache, GlobalCache } from "./cache";
-import { HoverHandler } from "./handlers/hover";
 import { t } from "../locals/locale";
 import { Console } from "common/";
+import {
+    SemanticTokenHandler,
+    CompletionHandler,
+    DiagnosticHandler,
+    SignatureHandler,
+    FormattingHandler,
+    HoverHandler
+} from "./handlers";
 
 type OnInitializeHandlerType = Parameters<Connection["onInitialize"]>[0];
 type OnInitializedHandlerType = Parameters<Connection["onInitialized"]>[0];

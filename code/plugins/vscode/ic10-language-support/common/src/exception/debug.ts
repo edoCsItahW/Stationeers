@@ -37,26 +37,46 @@ export type ClassMethodDecorator<This = unknown, Args extends unknown[] = unknow
     ...args: ClassMethodDecoratorSignature<This, Args, Return>
 ) => void;
 
-export function debug<This, Args extends unknown[], Return>(
-    options: DebugOptions
-): ClassMethodDecorator<This, Args, Return>;
 
-export function debug<This extends object, Args extends unknown[], Return>(
-    ...args: ClassMethodDecoratorSignature<This, Args, Return>
-): void;
+export function debug(options: DebugOptions = {}) {
+    const {
+        message: msgOrFn = (err: unknown) => `Error in method: ${err instanceof Error ? err.message : String(err)}`,
+        logger = console.error,
+        rethrow = true
+    } = options;
 
-export function debug<Args extends unknown[], Return>(
-    target: any,
-    context: ClassMethodDecoratorContext<any, ClassMethodType<any, Args, Return>>
-): void;
+    return function <This, Args extends any[], Return>(
+        target: any, // 转译模式下为原函数本身，原生模式下为 undefined（实例方法）或构造函数（静态方法）
+        context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Return>
+    ): ((this: This, ...args: Args) => Return) | void {
+        if (context.kind !== "method") return;
 
-export function debug<This extends object, Args extends unknown[], Return>(
-    arg1: DebugOptions | This,
-    arg2?: ClassMethodDecoratorContext<This, ClassMethodType<This, Args, Return>>
-): ClassMethodDecorator<This, Args, Return> | void {
-    if (arg2 && typeof arg2 === "object" && "kind" in arg2) return applyDebug(arg1 as This, arg2, {});
-    return (target: This, context: ClassMethodDecoratorContext<This, ClassMethodType<This, Args, Return>>) =>
-        applyDebug(target, context, arg1 || {});
+        const methodName = String(context.name);
+        const original: (this: This, ...args: Args) => Return =
+            typeof target === "function"
+                ? target
+                : target?.[methodName];
+
+        if (typeof original !== "function") return;
+
+        // 返回包装函数，__esDecorate 会用它替换原型上的方法
+        return function (this: This, ...args: Args): Return {
+            try {
+                return original.apply(this, args);
+            } catch (err) {
+                const errorMessage =
+                    typeof msgOrFn === "function"
+                        ? msgOrFn(err, ...args)
+                        : `${msgOrFn}: ${err instanceof Error ? err.message : String(err)}`;
+                logger(errorMessage);
+
+                if (rethrow) throw err;
+                // 若 rethrow = false，则返回 undefined，这可能导致类型不匹配
+                // 但编译器会警告，因此建议保持 rethrow 为 true（默认）
+                return undefined as any as Return;
+            }
+        };
+    };
 }
 
 function applyDebug<This extends object, Args extends unknown[], Return>(

@@ -17,17 +17,17 @@
 import { CompletionItemKind, CompletionTriggerKind, InsertTextFormat } from "vscode-languageserver/node";
 import type { CompletionItem } from "vscode-languageserver/node";
 import {
-    AliasDirectiveNode,
-    BasicType,
     DefineDirectiveNode,
+    AliasDirectiveNode,
+    IdentifierNode,
+    StatementNode,
+    RegisterNode,
+    TypeCategory,
+    OperandType,
     DeviceNode,
     DeviceType,
-    ErrorNode,
-    IdentifierNode,
-    OperandType,
-    RegisterNode,
-    StatementNode,
-    TypeCategory
+    BasicType,
+    ErrorNode
 } from "ic10-node-api";
 
 import { findCurrentOperand, getKeyword, getOperandIndex, getOperandType, isAtKeyword } from "./utils";

@@ -19,8 +19,8 @@ import { DidChangeConfigurationNotification } from "vscode-languageserver/node";
 import type { Connection, InitializeResult } from "vscode-languageserver";
 import { IC10Local } from "ic10-node-api";
 
-import { TOKEN_TYPES, TOKEN_MODIFIERS } from "../handlers/semanticToken";
 import { CONFIGURATION_SECTION_NAME, Optional } from "common";
+import { TOKEN_TYPES, TOKEN_MODIFIERS } from "../handlers";
 import { DocumentCache, GlobalCache } from "../cache";
 import { locale } from "../../locals/locale";
 import { uriToPath } from "../../utils";
@@ -113,7 +113,7 @@ export class SettingsManager {
                     full: {
                         delta: false
                     },
-                    range: false
+                    range: true
                 },
 
                 // 代码补全

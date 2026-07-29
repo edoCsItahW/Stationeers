@@ -13,9 +13,12 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Diagnostic } from "ic10-node-api";
 import { Languages, DiagnosticSeverity } from "vscode-languageserver";
+import { Diagnostic } from "ic10-node-api";
+
 import { DocumentCache } from "../cache";
+import { t } from "../../locals/locale";
+import { Console, debug } from "common";
 
 type OnHandlerType = Parameters<Languages["diagnostics"]["on"]>[0];
 
@@ -35,6 +38,11 @@ export class DiagnosticHandler {
         }
     }
 
+    @debug({
+        message: err => t("server.handler.error", { name: "diagnostic", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "diagnostic"),
+        rethrow: false
+    })
     handle(...[params]: Parameters<OnHandlerType>): ReturnType<OnHandlerType> {
         const cache = this.docCache.getCache(params.textDocument.uri);
 

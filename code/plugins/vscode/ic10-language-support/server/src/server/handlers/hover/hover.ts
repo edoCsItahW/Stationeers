@@ -20,11 +20,12 @@ import type { HoverContext, HoverProvider } from "./types";
 import { t, locale } from "../../../locals/locale";
 import { findStatementAtPosition } from "./utils";
 import { DocumentCache } from "../../cache";
+import { Console, debug } from "common";
 import {
-    LabelDefHoverProvider,
-    AliasDirectiveHoverProvider,
     DefineDirectiveHoverProvider,
-    InstructionHoverProvider
+    AliasDirectiveHoverProvider,
+    InstructionHoverProvider,
+    LabelDefHoverProvider
 } from "./providers";
 
 type OnHoverHandlerType = Parameters<Connection["onHover"]>[0];
@@ -41,6 +42,11 @@ export class HoverHandler {
         ];
     }
 
+    @debug({
+        message: err => t("server.handler.error", { name: "hover", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "hover"),
+        rethrow: false
+    })
     public handle(...[{ position, textDocument }]: Parameters<OnHoverHandlerType>): ReturnType<OnHoverHandlerType> {
         const line = position.line + 1;
         const character = position.character + 1;

@@ -25,6 +25,9 @@ export default {
                 LIE1: "parseInc failed, falling back to full parse {err}",
                 LIE2: "full parse failed {err}"
             }
+        },
+        handler: {
+            error: "processor {name} encountered a serious error: {err}"
         }
     },
     hover: {

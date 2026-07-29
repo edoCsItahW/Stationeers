@@ -19,12 +19,11 @@
 import type { Hover } from "vscode-languageserver/node";
 import { BasicType } from "ic10-node-api";
 import type {
+    PureExeInstructionNode,
+    IdentifierNode,
     StatementNode,
     OperandNode,
-    IdentifierNode,
     SymbolMap,
-    ExecutableInstructionNode,
-    ErrorNode
 } from "ic10-node-api";
 
 import { lowerBound, getEnumName, type Nullable, type Optional } from "common";
@@ -53,7 +52,7 @@ export function isInsideNode(col: number, length: number, character: number): bo
  * Find the operand at a given character position in an instruction, or return the keyword string.
  */
 export function findOperand(
-    node: Exclude<ExecutableInstructionNode, ErrorNode>,
+    node: PureExeInstructionNode,
     a: number
 ): { result: OperandNode | string; index: number } {
     let maxCol = -Infinity;
@@ -117,7 +116,7 @@ export function formatType(identifier: IdentifierNode, symbols: SymbolMap): Opti
 /**
  * Type guard: check if a statement node is an executable instruction (excluding ErrorNode).
  */
-export function isInstruction(node: StatementNode): node is Exclude<ExecutableInstructionNode, ErrorNode> {
+export function isInstruction(node: StatementNode): node is PureExeInstructionNode {
     return node.type.endsWith("Instruction");
 }
 
