@@ -17,9 +17,9 @@ import { ErrorNode, ExecutableInstructionNode, StatementNode } from "ic10-node-a
 import { Connection } from "vscode-languageserver";
 
 import { findCurrentOperand, getOperandIndex } from "./completion/utils";
+import { debug, lowerBound, Optional, Console } from "common";
 import { INS_META_MAP, INS_LOCAL_MAP } from "../../mateData";
-import { lowerBound, Optional } from "common";
-import { locale } from "../../locals/locale";
+import { locale, t } from "../../locals/locale";
 import { DocumentCache } from "../cache";
 
 type OnSignatureHelpHandlerType = Parameters<Connection["onSignatureHelp"]>[0];
@@ -27,6 +27,11 @@ type OnSignatureHelpHandlerType = Parameters<Connection["onSignatureHelp"]>[0];
 export class SignatureHandler {
     constructor(private readonly docCache: DocumentCache) {}
 
+    @debug({
+        message: err => t("server.handler.error", { name: "signature", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "signature"),
+        rethrow: false
+    })
     handle(
         ...[
             {

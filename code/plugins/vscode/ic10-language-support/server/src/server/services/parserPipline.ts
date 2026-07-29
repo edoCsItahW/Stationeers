@@ -15,11 +15,13 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Lexer, Parser, Linker, IncLexer, IncParser, type SymbolMap, Diagnostic } from "ic10-node-api";
+import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic } from "ic10-node-api";
 import stdLib from "ic10-node-api/static/stdLib.ic.json";
 import { createHash } from "node:crypto";
 
 import { DocCacheValue } from "../cache";
+import { Console, debug } from "common";
+import { t } from "../../locals/locale";
 
 export interface ParseResult extends DocCacheValue {
     changed: boolean;
@@ -31,10 +33,11 @@ export class ParserPipline {
     /** 增量语法分析器（内部维护缓存，用于增量解析） */
     private incParser = new IncParser();
 
-    private sanitizeIME(code: string): string {
-        return code.replace(/'/g, "_");
-    }
-
+    @debug({
+        message: err => t("server.handler.error", { name: "parser", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "parser"),
+        rethrow: false
+    })
     public async parse(code: string, cache?: DocCacheValue): Promise<ParseResult> {
         const noop: ParseResult = {
             changed: false,
@@ -54,11 +57,7 @@ export class ParserPipline {
 
         const diagnostics: Diagnostic[] = [];
 
-        // IME 输入法拼音分隔符 ' 会触发词法分析器崩溃，替换为 _ 后再词法分析
-        // 原始 code 保留用于 hash 和 source，确保位置不变
-        const sanitized = this.sanitizeIME(code);
-
-        const lexer = new Lexer(sanitized);
+        const lexer = new Lexer(code);
         const tokens = lexer.scan();
 
         diagnostics.push(...lexer.diagnostics);
@@ -91,6 +90,11 @@ export class ParserPipline {
         };
     }
 
+    @debug({
+        message: err => t("server.handler.error", { name: "inc parser", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "inc parser"),
+        rethrow: false
+    })
     public async parseInc(code: string, cache?: DocCacheValue): Promise<ParseResult> {
         const noop: ParseResult = {
             changed: false,
@@ -112,8 +116,7 @@ export class ParserPipline {
 
         // 首次调用 / 缓存失效：全量词法+语法分析以建立增量基准
         if (!this.incLexer.hasCache() || !this.incParser.hasCache()) {
-            const sanitized = this.sanitizeIME(code);
-            const lexResult = this.incLexer.tokenizeFull(sanitized);
+            const lexResult = this.incLexer.tokenizeFull(code);
             const parseResult = this.incParser.parseFull(lexResult.tokens);
 
             const linker = new Linker();
@@ -138,8 +141,7 @@ export class ParserPipline {
         }
 
         // 增量词法分析
-        const sanitized = this.sanitizeIME(code);
-        const lexResult = this.incLexer.tokenizeInc(sanitized);
+        const lexResult = this.incLexer.tokenizeInc(code);
 
         // 增量语法分析
         const parseResult = this.incParser.parseInc(lexResult.tokens, lexResult.changedStartLine);

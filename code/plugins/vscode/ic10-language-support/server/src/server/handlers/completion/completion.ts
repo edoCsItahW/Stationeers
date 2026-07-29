@@ -22,7 +22,7 @@ import type { CompletionContext, CompletionData, CompletionProvider } from "./ty
 import { locale, t } from "../../../locals/locale";
 import { findStatementAtPosition } from "./utils";
 import { DocumentCache } from "../../cache";
-import { Optional } from "common";
+import { Optional, Console, debug } from "common";
 
 
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];
@@ -40,6 +40,11 @@ export class CompletionHandler {
         ];
     }
 
+    @debug({
+        message: err => t("server.handler.error", { name: "completion", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "completion"),
+        rethrow: false
+    })
     handle(
         ...[
             {

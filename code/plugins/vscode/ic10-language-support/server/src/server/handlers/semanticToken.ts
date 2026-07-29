@@ -35,8 +35,9 @@ import {
     TypeOfNode
 } from "ic10-node-api";
 
-import { Console, upperBound } from "common";
+import { Console, debug, upperBound } from "common";
 import { DocumentCache } from "../cache";
+import { t } from "../../locals/locale";
 
 type OnHandlerType = Parameters<Languages["semanticTokens"]["on"]>[0];
 type OnRangeHandlerType = Parameters<Languages["semanticTokens"]["onRange"]>[0];
@@ -134,6 +135,11 @@ interface HandlerContext {
 export class SemanticTokenHandler {
     constructor(private readonly docCache: DocumentCache) {}
 
+    @debug({
+        message: err => t("server.handler.error", { name: "semantic token", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "semantic token"),
+        rethrow: false
+    })
     handle(...[params]: Parameters<OnHandlerType>): ReturnType<OnHandlerType> {
         try {
             const cache = this.docCache.getCache(params.textDocument.uri);
@@ -149,6 +155,11 @@ export class SemanticTokenHandler {
         } catch (error) {}
     }
 
+    @debug({
+        message: err => t("server.handler.error", { name: "semantic token range", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "semantic token range"),
+        rethrow: false
+    })
     handleRange(
         ...[
             {
