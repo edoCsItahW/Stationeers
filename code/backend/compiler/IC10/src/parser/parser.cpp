@@ -148,7 +148,9 @@ namespace stationeers::ic10 {
                         valueEnd = content.size();  // 未闭合引号，取到末尾
                     }
                 } else {
-                    valueEnd = content.find_first_of(" \t", valueStart);
+                    // 非引号值：取到下一个 @ 或末尾，支持带空格的描述文本
+                    // 如 @desc Constant value 应得到 "Constant value" 而非 "Constant"
+                    valueEnd = content.find('@', valueStart);
                 }
                 if (valueEnd == std::string::npos) valueEnd = content.size();
                 value = content.substr(valueStart, valueEnd - valueStart);

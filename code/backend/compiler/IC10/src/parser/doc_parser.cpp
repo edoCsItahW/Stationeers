@@ -302,22 +302,34 @@ namespace stationeers::ic10 {
         // 7. 提取参数
         std::vector<std::string> args;
         auto pos = tagEnd;
-        while (pos < content.size()) {
-            auto argStart = content.find_first_not_of(" \t", pos);
-            if (argStart == std::string::npos)
-                break;
 
-            auto argEnd = content.find_first_of(" \t", argStart);
-            if (argEnd == std::string::npos)
-                argEnd = content.size();
+        // @desc 标签：将余下内容整体作为一个描述参数（支持带空格的文本）
+        if (tagName == "desc") {
+            auto descStart = content.find_first_not_of(" \t", pos);
+            if (descStart != std::string::npos) {
+                auto descVal = content.substr(descStart);
+                while (!descVal.empty() && std::isspace(static_cast<unsigned char>(descVal.back())))
+                    descVal.pop_back();
+                args.push_back(std::move(descVal));
+            }
+        } else {
+            while (pos < content.size()) {
+                auto argStart = content.find_first_not_of(" \t", pos);
+                if (argStart == std::string::npos)
+                    break;
 
-            auto arg = content.substr(argStart, argEnd - argStart);
-            // 去除参数尾部空白
-            while (!arg.empty() && std::isspace(static_cast<unsigned char>(arg.back())))
-                arg.pop_back();
+                auto argEnd = content.find_first_of(" \t", argStart);
+                if (argEnd == std::string::npos)
+                    argEnd = content.size();
 
-            args.push_back(std::move(arg));
-            pos = argEnd;
+                auto arg = content.substr(argStart, argEnd - argStart);
+                // 去除参数尾部空白
+                while (!arg.empty() && std::isspace(static_cast<unsigned char>(arg.back())))
+                    arg.pop_back();
+
+                args.push_back(std::move(arg));
+                pos = argEnd;
+            }
         }
 
         return std::make_pair(it->second, std::move(args));
