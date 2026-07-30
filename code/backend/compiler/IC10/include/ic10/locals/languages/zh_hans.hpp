@@ -144,7 +144,7 @@ namespace stationeers::ic10 {
 
     IC10_LOCAL_MSG_ZH_HANS(IWA6_1, "'{}'不是一个试剂模式（ReagentMode）类型 - 语义分析。")
 
-    IC10_LOCAL_MSG_ZH_HANS(IWA7_1, "'{}'不是一个标签类型 - 语义分析。")
+    IC10_LOCAL_MSG_ZH_HANS(IWA7_1, "'{}'不是一个标签、数值或寄存器类型 - 语义分析。")
 
     IC10_LOCAL_MSG_ZH_HANS(IWA8_1, "'{}'不是一个逻辑（Logic）类型 - 语义分析。")
 

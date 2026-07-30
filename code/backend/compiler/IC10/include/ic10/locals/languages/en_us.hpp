@@ -200,7 +200,7 @@ namespace stationeers::ic10 {
 
     IC10_LOCAL_MSG_EN_US(IWA6_1, "'{}' is not a ReagentMode type - semantic analysis.")
 
-    IC10_LOCAL_MSG_EN_US(IWA7_1, "'{}' is not a Label type - semantic analysis.")
+    IC10_LOCAL_MSG_EN_US(IWA7_1, "'{}' is not a Label, Number or Register type - semantic analysis.")
 
     IC10_LOCAL_MSG_EN_US(IWA8_1, "'{}' is not a Logic type - semantic analysis.")
 
