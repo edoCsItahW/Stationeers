@@ -454,7 +454,7 @@ namespace stationeers::ic10 {
     bool Analyser::IdentifierChecker<OperandType::JUMP_TARGET>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
-        return self->checkOperandType<IMsgId::IWA7_1, TypeCategory::LABEL, TypeCategory::NUMBER>(
+        return self->checkOperandType<IMsgId::IWA7_1, TypeCategory::LABEL, TypeCategory::NUMBER, BasicType::REGISTER>(
             symbol, arg
         );
     }

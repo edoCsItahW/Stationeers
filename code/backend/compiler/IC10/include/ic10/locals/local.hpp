@@ -237,7 +237,7 @@ namespace stationeers::ic10 {
         /** @if zh @brief 不是ReagentMode类型 @else @brief Not a ReagentMode type @endif */
         IWA6_1,
 
-        /** @if zh @brief 不是Label类型 @else @brief Not a Label type @endif */
+        /** @if zh @brief 不是Label、Number或Register类型 @else @brief Not a Label, Number or Register type @endif */
         IWA7_1,
 
         /** @if zh @brief 不是Logic类型 @else @brief Not a Logic type @endif */
