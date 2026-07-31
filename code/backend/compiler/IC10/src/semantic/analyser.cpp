@@ -118,7 +118,7 @@ namespace stationeers::ic10 {
         if (std::holds_alternative<Identifier>(labelDef.identifier)) {
             const auto identifier = std::get<Identifier>(labelDef.identifier);
 
-            defineSymbol(identifier, {identifier.value, type_of<LabelDef>});
+            defineSymbol(identifier, {identifier.value, type_of<LabelDef>, std::to_string(labelDef.position.line())});
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配

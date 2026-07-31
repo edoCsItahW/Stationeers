@@ -37,7 +37,7 @@ import {
 
 import { Console, debug, upperBound } from "common";
 import { DocumentCache } from "../cache";
-import { t } from "../../locals/locale";
+import { t } from "../../locals";
 
 type OnHandlerType = Parameters<Languages["semanticTokens"]["on"]>[0];
 type OnRangeHandlerType = Parameters<Languages["semanticTokens"]["onRange"]>[0];

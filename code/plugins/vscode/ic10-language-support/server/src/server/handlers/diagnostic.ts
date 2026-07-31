@@ -17,8 +17,8 @@ import { Languages, DiagnosticSeverity } from "vscode-languageserver";
 import { Diagnostic } from "ic10-node-api";
 
 import { DocumentCache } from "../cache";
-import { t } from "../../locals/locale";
 import { Console, debug } from "common";
+import { t } from "../../locals";
 
 type OnHandlerType = Parameters<Languages["diagnostics"]["on"]>[0];
 

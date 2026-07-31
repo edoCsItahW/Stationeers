@@ -46,8 +46,8 @@ import {
 
 import { operandToString } from "../../utils";
 import { DocumentCache } from "../cache";
-import { t } from "../../locals/locale";
 import { Console, debug } from "common";
+import { t } from "../../locals";
 
 
 type OnDocumentFormattingHandlerType = Parameters<Connection["onDocumentFormatting"]>[0];

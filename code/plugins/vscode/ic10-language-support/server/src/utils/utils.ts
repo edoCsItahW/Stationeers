@@ -75,11 +75,7 @@ export class RadixTree<T> {
     }
 
     keysWithPrefix(prefix: string): string[] {
-        const result: string[] = [];
-        const node = this._search(this.root, prefix);
-        if (node) this._collectKeys(node, prefix, result);
-
-        return result;
+        return this.entriesWithPrefix(prefix).map(([key]) => key);
     }
 
     /**
@@ -87,11 +83,12 @@ export class RadixTree<T> {
      *
      * @summary Find all key-value pairs starting with prefix
      *
-     * @desc 与 keysWithPrefix + search 的组合相比，仅需一次树遍历，
-     * 避免对每个匹配键分别从根节点重新查找。
+     * @desc 通过一次树遍历收集所有匹配前缀的键值对。
+     * 处理 prefix 被压缩边部分包含的情况（prefix 长度 < 边长度）。
      *
-     * @desc Compared to composing keysWithPrefix + search, this performs
-     * a single tree traversal instead of re-searching from root for each matching key.
+     * @desc Collects all key-value pairs matching the prefix in a single tree traversal.
+     * Handles the case where the prefix is partially contained within a compressed edge
+     * (prefix length < edge length).
      *
      * @param prefix 前缀字符串
      * @param prefix Prefix string
@@ -100,13 +97,61 @@ export class RadixTree<T> {
      */
     entriesWithPrefix(prefix: string): [string, T][] {
         const result: [string, T][] = [];
-        const node = this._search(this.root, prefix);
-        if (node) this._collectEntries(node, prefix, result);
-
+        this._collectByPrefix(this.root, prefix, "", result);
         return result;
     }
 
     // ---------- 私有辅助方法 ----------
+
+    /**
+     * @summary 基于前缀收集所有匹配的键值对
+     *
+     * @summary Collect all key-value pairs matching a prefix
+     *
+     * @desc 递归遍历基数树，处理两种匹配情况：
+     * 1. remaining 完全消耗 → 从当前节点收集所有子项
+     * 2. remaining 是 edge 的前缀 → edge 子树全部匹配
+     * 3. edge 是 remaining 的前缀 → 继续深层搜索
+     *
+     * @desc Recursively traverses the radix tree, handling two match cases:
+     * 1. remaining fully consumed → collect all entries from this node
+     * 2. remaining is a prefix of edge → entire edge subtree matches
+     * 3. edge is a prefix of remaining → continue deeper search
+     *
+     * @param node 当前节点
+     * @param node Current node
+     * @param remaining 剩余未匹配的前缀部分
+     * @param remaining Remaining unmatched prefix portion
+     * @param currentPath 从根节点到当前节点的完整路径
+     * @param currentPath Full path from root to current node
+     * @param result 收集结果的数组
+     * @param result Array to collect results
+     */
+    private _collectByPrefix(
+        node: RadixNode<T>,
+        remaining: string,
+        currentPath: string,
+        result: [string, T][]
+    ): void {
+        if (remaining === "") {
+            if (node.value !== null) result.push([currentPath, node.value]);
+            for (const [edge, child] of node.children)
+                this._collectByPrefix(child, "", currentPath + edge, result);
+            return;
+        }
+
+        for (const [edge, child] of node.children) {
+            const lcp = this._lcpLength(remaining, edge);
+            if (lcp === 0) continue;
+
+            if (lcp === remaining.length)
+                // remaining 完全包含在 edge 中 → 子树全部匹配
+                this._collectByPrefix(child, "", currentPath + edge, result);
+            else if (lcp === edge.length)
+                // edge 完全包含在 remaining 中 → 继续搜索
+                this._collectByPrefix(child, remaining.slice(edge.length), currentPath + edge, result);
+        }
+    }
 
     private _insert(node: RadixNode<T>, key: string, value: T): void {
         if (key === "") {

@@ -9,8 +9,8 @@
  * @file index.ts
  * @author edocsitahw
  * @version 1.1
- * @date 2026/07/30 19:36
+ * @date 2026/07/30 23:51
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-export * from "./completion";
+export * from "./locale";
