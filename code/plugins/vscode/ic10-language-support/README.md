@@ -1,6 +1,4 @@
-<div align="center">
-  <img src="./icon.png" style="width: 30%; aspect-ratio: 1;" />
-</div>
+<img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRcBqbImDpkFUNZuN-IR1ksGO1tMv0AACNyUAAhvBaVf8vAVm0ki34T0E.png" />
 
 # IC10 Language Support
 
@@ -18,7 +16,7 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 ### 1. 语法高亮
 基于 TextMate 语法的高亮规则，覆盖关键字、寄存器、设备引用、字符串、数字、注释等。
 
-<img alt="语法分析" src="./static/grammar.png" style="padding: 20px;">
+<img alt="语法分析" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYZqbIXmFdhtFLJrZ2DptdYpoy65AgAC-SQAAhvBaVfF89F5jqMjwj0E.png" style="padding: 20px;">
 
 ### 2. 语义高亮
 基于编译器符号表的语义级着色：
@@ -28,12 +26,15 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 - 标签、宏调用（`HASH`/`STR`）、类型注解等独立着色
 - 词素按声明/引用状态赋予不同修饰符
 
-<img alt="语义分析" src="./static/semantic.png" style="padding: 20px;">
+<img alt="语义高亮" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYlqbIXx46tAV7jh3lDvEXEwezCqWQAC_CQAAhvBaVeVd9uY_lk3MD0E.png" style="padding: 20px;">
+
+> [!TIP]
+> 语义高亮颜色由 VS Code 的语义令牌主题控制，您可以通过在设置中配置 `editor.semanticTokenColorCustomizations` 来覆盖默认颜色，例如为寄存器别名、设备别名等指定自定义前景色或样式。具体配置方式请参考 VS Code 官方文档。
 
 ### 3. 实时诊断
 编译器在每次编辑后增量分析代码，即时报告词法、语法与语义错误，并在问题面板中分类展示。
 
-<img alt="实时诊断" src="./static/diagnostic.png" style="padding: 20px;">
+<img alt="实时诊断" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYRqbIXg07nZ7QnZMfvbbf9OnUgzlAAC9yQAAhvBaVfa2hh2dBm4fD0E.png" style="padding: 20px;">
 
 > [!NOTE]
 > 由于 IC10 没有公开的官方语言规范，编译器行为基于 Stationeers 游戏实际运行验证。对于未覆盖的边缘情况，欢迎在 [Issues](https://github.com/edoCsItahW/Stationeers/issues) 中反馈。
@@ -41,7 +42,7 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 ### 4. 悬停提示
 悬停在任意符号（别名、标签、常量、指令关键字）上时，显示其类型、值、描述等详细信息。
 
-<video src="./static/hover.mp4"  style="padding: 20px;"></video>
+<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRYdqbIXrD_Q8ZzxBf45gJJ7vfLMbhgAC-iQAAhvBaVcmb9otxvqKST0E.mp4"  style="padding: 20px;"></video>
 
 
 ### 5. 智能补全
@@ -50,12 +51,12 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 - 设备上下文感知：根据前置设备节点过滤对应的 `LogicType`/`LogicSlot`/`BatchMode`/`SlotIndex`
 - `alias` / `define` 专用补全
 
-<video src="./static/completion.mp4" style="padding: 20px;"></video>
+<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRXBqbIUOZlor00XzLejyotnFMgE2nQAC4CQAAhvBaVfLuegPvCpe7T0E.mp4" style="padding: 20px;"></video>
 
 ### 6. 函数签名帮助
 输入空格或逗号后，显示当前指令的参数签名与各操作数位置，标记当前正在输入的参数。
 
-<video src="./static/signature.mp4"  style="padding: 20px;"> </video>
+<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRZtqbIbBxWIdlw-xCLLbN2zHE87lbQACDiUAAhvBaVe996a-GINPfj0E.mp4"  style="padding: 20px;"> </video>
 
 ### 7. 代码格式化
 支持从项目根 `.ic.yaml`、`.ic.yml` 或 `.ic.json` 读取格式化配置。支持的规则：
@@ -66,7 +67,7 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 - 标签前可配置最小空行数
 - 激进模式：同标签作用域内指令操作数按列对齐
 
-<img alt="格式化" src="./static/formatting.png" style="padding: 20px;">
+<img alt="格式化" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYVqbIXjgdYWiFEGaKZ6r1DcqEZPHwAC-CQAAhvBaVe71pql3gViLj0E.png" style="padding: 20px;">
 
 > [!TIP]
 > 若代码中包含 Unicode 字符（如中文注释、特殊符号），请确保编辑器使用等宽字体，否则格式化后的对齐效果可能发生偏移。
@@ -77,7 +78,7 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 ### 9. 双语支持
 支持英语（en-us）和简体中文（zh-hans），覆盖编译诊断、悬停提示、补全文档等所有界面文本。切换语言即时生效。
 
-<img alt="本地化" src="./static/locale.png" style="padding: 20px;">
+<img alt="本地化" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYhqbIXub5wcp_zox88AAQUFM65H80wAAvskAAIbwWlX2n0Lf7hzuKw9BA.png" style="padding: 20px;">
 
 ### 10. 类型注解语法
 支持通过特殊尾随注释语法为别名标注类型信息：
@@ -123,7 +124,7 @@ alias myDevice d0  #: @type DeviceType
 - `ic10.format.alignTrailingComments`：同组内行尾注释对齐，默认 `true`。
 
 > [!TIP]
-> 格式化配置也可通过项目根目录下的 `.ic.json`、`.ic.yaml` 或 `.ic.yml` 文件指定，格式参考 [参考模板]()。
+> 格式化配置也可通过项目根目录下的 `.ic.json`、`.ic.yaml` 或 `.ic.yml` 文件指定，格式参考 [语法参考](https://github.com/edoCsItahW/Stationeers/blob/main/docs/IC10.g4)。
 
 ## 已知问题
 
@@ -160,7 +161,7 @@ The extension is powered by a **C++ native compiler core**, integrated with VS C
 ### 1. Syntax Highlighting
 TextMate-based grammar covering keywords, registers, device references, strings, numbers, and comments.
 
-<img alt="syntax" src="./static/grammar.png" style="padding: 20px;">
+<img alt="syntax" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYZqbIXmFdhtFLJrZ2DptdYpoy65AgAC-SQAAhvBaVfF89F5jqMjwj0E.png" style="padding: 20px;">
 
 ### 2. Semantic Highlighting
 Compiler symbol-table-driven semantic coloring:
@@ -170,12 +171,15 @@ Compiler symbol-table-driven semantic coloring:
 - Labels, macro calls (`HASH`/`STR`), and type annotations each have independent colors
 - Tokens carry declaration/reference modifiers for fine-grained theming
 
-<img alt="semantic" src="./static/semantic.png" style="padding: 20px;">
+<img alt="semantic" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYlqbIXx46tAV7jh3lDvEXEwezCqWQAC_CQAAhvBaVeVd9uY_lk3MD0E.png" style="padding: 20px;">
+
+> [!TIP]
+> Semantic highlighting colors are controlled by VS Code's semantic token theming. You can override the default colors by configuring `editor.semanticTokenColorCustomizations` in your settings, e.g., to assign custom foreground colors or styles to register aliases, device aliases, etc. Refer to the VS Code documentation for details.
 
 ### 3. Real-time Diagnostics
 The compiler incrementally re-analyzes code on every edit, instantly reporting lexical, syntax, and semantic errors categorized in the Problems panel.
 
-<img alt="diagnostic" src="./static/diagnostic.png" style="padding: 20px;">
+<img alt="diagnostic" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYRqbIXg07nZ7QnZMfvbbf9OnUgzlAAC9yQAAhvBaVfa2hh2dBm4fD0E.png" style="padding: 20px;">
 
 > [!NOTE]
 > As IC10 has no publicly available official language specification, compiler behavior is validated against Stationeers' actual in-game execution. For uncovered edge cases, feedback is welcome in [Issues](https://github.com/edoCsItahW/Stationeers/issues).
@@ -183,7 +187,7 @@ The compiler incrementally re-analyzes code on every edit, instantly reporting l
 ### 4. Hover Tooltips
 Hovering over any symbol (alias, label, constant, instruction keyword) displays its type, value, description, and other details.
 
-<video src="./static/hover.mp4"  style="padding: 20px;"></video>
+<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRYdqbIXrD_Q8ZzxBf45gJJ7vfLMbhgAC-iQAAhvBaVcmb9otxvqKST0E.mp4"  style="padding: 20px;"></video>
 
 ### 5. Intelligent Completion
 - Instruction keyword completion with prefix matching
@@ -191,12 +195,12 @@ Hovering over any symbol (alias, label, constant, instruction keyword) displays 
 - Device context awareness: filters `LogicType`/`LogicSlot`/`BatchMode`/`SlotIndex` based on the preceding device node
 - Specialized `alias` / `define` directive completion
 
-<video src="./static/completion.mp4" style="padding: 20px;"></video>
+<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRXBqbIUOZlor00XzLejyotnFMgE2nQAC4CQAAhvBaVfLuegPvCpe7T0E.mp4" style="padding: 20px;"></video>
 
 ### 6. Function Signature Help
 Displays the current instruction's parameter signature and operand positions after typing a space or comma, highlighting the active parameter.
 
-<video src="./static/signature.mp4"  style="padding: 20px;"> </video>
+<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRZtqbIbBxWIdlw-xCLLbN2zHE87lbQACDiUAAhvBaVe996a-GINPfj0E.mp4"  style="padding: 20px;"> </video>
 
 ### 7. Code Formatting
 Supports configuration from `.ic.yaml`, `.ic.yml`, or `.ic.json` in the project root. Formatting rules:
@@ -207,7 +211,7 @@ Supports configuration from `.ic.yaml`, `.ic.yml`, or `.ic.json` in the project 
 - Configurable minimum empty lines before labels
 - Aggressive mode: instruction operand column alignment within the same label scope
 
-<img alt="formatting" src="./static/formatting.png" style="padding: 20px;">
+<img alt="formatting" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYVqbIXjgdYWiFEGaKZ6r1DcqEZPHwAC-CQAAhvBaVe71pql3gViLj0E.png" style="padding: 20px;">
 
 > [!TIP]
 > If your code contains Unicode characters (e.g., Chinese comments or special symbols), ensure that the editor uses a monospaced font; otherwise, the alignment effect of formatting may be skewed.
@@ -218,7 +222,7 @@ The compilation pipeline implements line-level incremental lexical analysis and 
 ### 9. Bilingual Support
 English (en-us) and Simplified Chinese (zh-hans), covering all interface text including compiler diagnostics, hover tooltips, and completion documentation. Language changes take effect immediately.
 
-<img alt="locale" src="./static/locale.png" style="padding: 20px;">
+<img alt="locale" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYhqbIXub5wcp_zox88AAQUFM65H80wAAvskAAIbwWlX2n0Lf7hzuKw9BA.png" style="padding: 20px;">
 
 ### 10. Type Annotation Syntax
 Annotate aliases with type information using special comment syntax:
@@ -230,12 +234,12 @@ The compiler infers operand types from annotations, providing more precise compl
 > [!NOTE]
 > The compiler ships with a built-in standard library ([stdLib.ic](https://github.com/edoCsItahW/Stationeers/blob/develop/code/backend/compiler/tests/stdLib.ic)) that defines enumerations for common device types, logic slots, batch modes, and more. However, given the vast number of in-game devices, the standard library currently covers only a subset. If your project uses device types not yet in the standard library, contributions are welcome. The standard library uses a special documentation comment syntax (`#>`) to define enumerations and device types, for example:
 > ```
-> #> @enum
+> #> @device
 > #> @name MyDevice
 > #> @desc ./locals/enums.MyDevice.desc
 > #> @value ModeA 0 ./locals/enums.MyDevice.enums.ModeA.desc
 > #> @value ModeB 1 ./locals/enums.MyDevice.enums.ModeB.desc
-> #> @end-enum
+> #> @end-device
 > ```
 
 ## Requirements
@@ -267,7 +271,7 @@ Location: `File > Preferences > Settings > Extensions > IC10`
 - `ic10.format.alignTrailingComments`: Align trailing comments within the same group, default `true`.
 
 > [!TIP]
-> Formatting configuration can also be specified via a `.ic.json`, `.ic.yaml`, or `.ic.yml` file in the project root. See the [reference template]() for the schema.
+> Formatting configuration can also be specified via a `.ic.json`, `.ic.yaml`, or `.ic.yml` file in the project root. See the [grammar reference](https://github.com/edoCsItahW/Stationeers/blob/main/docs/IC10.g4) for the schema.
 
 ## Known Issues
 
