@@ -110,9 +110,7 @@ export function debug(options: DebugOptions = {}) {
 
         const methodName = String(context.name);
         const original: (this: This, ...args: Args) => Return =
-            typeof target === "function"
-                ? target
-                : target?.[methodName];
+            typeof target === "function" ? target : target?.[methodName];
 
         if (typeof original !== "function") return;
 
@@ -136,34 +134,60 @@ export function debug(options: DebugOptions = {}) {
     };
 }
 
-function applyDebug<This extends object, Args extends unknown[], Return>(
-    target: This,
-    context: ClassMethodDecoratorContext<This, ClassMethodType<This, Args, Return>>,
-    options: DebugOptions
-) {
-    if (context.kind !== "method") return;
+let FIRST: boolean = true;
 
-    const mthName = String(context.name);
-    const original = target[mthName as keyof This] as ClassMethodType<This, Args, Return>;
-    if (typeof original !== "function") return;
+export function traceback(exit: boolean = false, rethrow: boolean = false) {
+    return function (orgMth: Function, context: ClassMethodDecoratorContext) {
+        return function (this: any, ...args: any[]) {
+            try {
+                return orgMth.apply(this, args);
+            } catch (e: any) {
+                if (rethrow) throw e;
 
-    const { message = `Error in method ${mthName}`, logger = console.error, rethrow = true } = options;
+                const { msg, stack } = regexStack(e.stack);
 
-    (target as any)[mthName] = function (this: This, ...args: Args): Optional<Return> {
-        try {
-            return original.apply(this, args);
-        } catch (err) {
-            let msg =
-                typeof message === "function"
-                    ? message(err, ...args)
-                    : `${message}: ${err instanceof Error ? err.message : String(err)}`;
+                if (FIRST) {
+                    // 确保仅在第一次调用时打印
+                    console.error(`Traceback (most recent call last):`);
+                    FIRST = false;
+                }
 
-            logger(msg);
+                console.error(
+                    `    File "${stack[0].file}", line ${stack[0].line}, in <${orgMth.name}>\n\t${e.message}`
+                );
 
-            if (rethrow) throw err;
-        }
+                if (exit) process.exit(1);
+            }
+        };
     };
 }
+
+export interface IError {
+    func: string;
+    file: string;
+    line: string;
+}
+
+export function regexStack(stack: string): {
+    msg: string;
+    stack: IError[];
+} {
+    const stackRegex: RegExp = /(?<=at)\s+([^(]+?)\s+[(]([^)]+):(\d+):(\d+)[)]/g; // 如: at Function.main (server.ts:12:13)
+
+    const matches: IError[] = [];
+    let match: RegExpExecArray | null;
+
+    while ((match = stackRegex.exec(stack)) !== null) {
+        matches.push({
+            func: match[1] || "main",
+            file: match[2] || "unknown",
+            line: match[3]
+        });
+    }
+
+    return { msg: stack.match(/^(.*?)(?=\n)/)?.[1] || "", stack: matches };
+}
+
 
 enum Level {
     Info = 0,

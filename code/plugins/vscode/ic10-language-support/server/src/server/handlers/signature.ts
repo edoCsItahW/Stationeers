@@ -16,11 +16,12 @@
 import { StatementNode, PureExeInstructionNode } from "ic10-node-api";
 import { Connection } from "vscode-languageserver";
 
-import { findCurrentOperand, getOperandIndex } from "./completion/utils";
+import { findRangeTokens, getOperandType, isInstruction, isDirectiveNode } from "../../utils"
 import { debug, lowerBound, Optional, Console } from "common";
 import { INS_META_MAP, INS_LOCAL_MAP } from "../../mateData";
-import { locale, t } from "../../locals/locale";
+import { locale, t } from "../../locals";
 import { DocumentCache } from "../cache";
+import { end } from "../../utils";
 
 type OnSignatureHelpHandlerType = Parameters<Connection["onSignatureHelp"]>[0];
 
@@ -52,8 +53,7 @@ export class SignatureHandler {
         ...[
             {
                 textDocument,
-                context: ctx,
-                position: { line, character }
+                position
             }
         ]: Parameters<OnSignatureHelpHandlerType>
     ): ReturnType<OnSignatureHelpHandlerType> {
@@ -61,13 +61,12 @@ export class SignatureHandler {
 
         if (!cache || !cache.ast || !cache.symbols) return;
 
-        const L = line + 1;
-        const C = character + 1;
+        const line = position.line + 1;
+        const column = position.character + 1;
 
-        const stmtIdx = lowerBound(cache.ast.statements, stmt => stmt.position.line >= L);
+        const stmtIdx = lowerBound(cache.ast.statements, n => n.position.line >= line);
         const stmt = cache.ast.statements[stmtIdx];
-
-        if (!stmt) return;
+        if (!stmt || stmt.position.line !== line) return;
 
         let keyword: Optional<string> = undefined;
 
@@ -80,47 +79,34 @@ export class SignatureHandler {
         const doc = INS_META_MAP.get(keyword)!.signature;
         const local = INS_LOCAL_MAP.get(keyword)!;
 
-        if (this.isInstruction(stmt)) {
-            if (stmt.keyword && ctx && ctx.triggerCharacter) {
-                const operand = findCurrentOperand(stmt, ctx.triggerCharacter);
+        const tokens = cache.tokens.filter(t => t.pos.line === line);
+        const { prev: prevIdx } = findRangeTokens(tokens, column);
 
-                if (!operand) return;
+        const prevBlocks = column - end(tokens[prevIdx]).column;
+        let opIdx = prevIdx; // -1则补keyword(0)，其余补operand${opIdx}
 
-                const idx = getOperandIndex(operand[0]);
+        if (prevBlocks > 0) {
+            opIdx++;
 
-                return {
-                    signatures: [
-                        {
-                            label: doc,
-                            documentation: local["desc"][locale.getLocale()],
-                            parameters: this.getOperandPositions(doc).map(item => ({
-                                label: item
-                            })),
-                            activeParameter: idx - 1
-                        }
-                    ]
-                };
-            }
-        } else if (stmt.type === "AliasDirective" || stmt.type === "DefineDirective") {
-            if (ctx && ctx.triggerCharacter) {
-                let idx = 0;
+            if (isInstruction(stmt) && getOperandType(stmt, opIdx) === undefined)
+                return;
 
-                if (stmt.identifier.type === "Identifier") idx = 1;
-
-                return {
-                    signatures: [
-                        {
-                            label: doc,
-                            documentation: local["desc"][locale.getLocale()],
-                            parameters: this.getOperandPositions(doc).map(item => ({
-                                label: item
-                            })),
-                            activeParameter: idx
-                        }
-                    ]
-                };
-            }
+            if (isDirectiveNode(stmt) && opIdx > 2)
+                return;
         }
+
+        return {
+            signatures: [
+                {
+                    label: doc,
+                    documentation: local["desc"][locale.getLocale()],
+                    parameters: this.getOperandPositions(doc).map(item => ({
+                        label: item
+                    })),
+                    activeParameter: opIdx - 1
+                }
+            ]
+        };
     }
 
     private getOperandPositions(input: string): [number, number][] {
