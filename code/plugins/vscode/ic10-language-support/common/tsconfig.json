@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "module": "nodenext",
+        "target": "ES2024",
+        "lib": ["es2024"],
+        "outDir": "out",
+        "rootDir": "src",
+        "sourceMap": true,
+        "types": ["node"],
+        "allowArbitraryExtensions": true,
+        "moduleResolution": "NodeNext",
+        "esModuleInterop": true
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": ["node_modules", ]
+}

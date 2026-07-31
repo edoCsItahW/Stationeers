@@ -75,15 +75,17 @@ namespace stationeers::ic10 {
     std::string AST<Derived>::jsonBase(Args&&... args) const {
         return toJson<"type", "position", Vs...>(
             Derived::nodeName, toJson<"line", "column">(position.line(), position.column()),
-            [](auto&& arg) -> std::optional<std::string> {
+            [](auto&& arg) -> decltype(auto) {
                 using U = std::decay_t<decltype(arg)>;
                 if constexpr (std::is_same_v<U, std::nullopt_t>)
-                    return std::nullopt;
+                    return std::optional<std::string>(std::nullopt);
                 else if constexpr (IsOptional<U>)
                     if (!arg.has_value())
-                        return std::nullopt;
+                        return std::optional<std::string>(std::nullopt);
                     else
-                        return process(*arg);
+                        return std::optional<std::string>(process(*arg));
+                else if constexpr (std::is_arithmetic_v<U>)
+                    return U(arg);  // 保持算术类型，toJson 通过 std::is_arithmetic_v 分支直接输出 JSON 数字
                 else
                     return process(arg);
             }(std::forward<Args>(args))...

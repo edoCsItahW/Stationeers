@@ -16,6 +16,7 @@
 #include "ic10_node/incremental/inc_compiler_adapter.hpp"
 #include "ic10_node/incremental/inc_parser_adapter.hpp"
 #include "ic10_node/semantic/symbol_table_adapter.hpp"
+#include "ic10_node/semantic/type_table_adapter.hpp"
 #include "ic10_node/incremental/inc_lexer_adapter.hpp"
 #include "ic10_node/semantic/analyser_adapter.hpp"
 #include "ic10_node/parser/parser_adapter.hpp"
@@ -24,6 +25,7 @@
 #include "ic10_node/lexer/token_adapter.hpp"
 #include "ic10_node/parser/ast_adapter.hpp"
 #include "ic10_node/link/linker_adapter.hpp"
+#include "ic10_node/semantic/type_of_node_adapter.hpp"
 #include "common_node/build.hpp"
 
 
@@ -43,11 +45,15 @@ node::Object Init(node::Env env, node::Object exports) {
     ic::ParserAdapter::init(env, exports);
 
     ic::SymbolTableAdapter::init(env, exports);
+    ic::TypeTableAdapter::init(env, exports);
     ic::AnalyserAdapter::init(env, exports);
     ic::LinkerAdapter::init(env, exports);
     ic::IncLexerAdapter::init(env, exports);
     ic::IncParserAdapter::init(env, exports);
     ic::IncCompilerAdapter::init(env, exports);
+
+    // 导出 BasicType, TypeCategory 枚举和 TypeOfNode 映射
+    (void)exports.Set("TypeOfNode", ic::exportTypeOfNode(env));
 
     return exports;
 }

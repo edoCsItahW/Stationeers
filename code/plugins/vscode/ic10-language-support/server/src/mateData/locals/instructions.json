@@ -1,0 +1,980 @@
+{
+    "#": {
+        "desc": {
+            "en-us": "any characters on line after this ignored",
+            "zh-hans": "此行中该符号之后的所有字符都会被忽略"
+        }
+    },
+    "abs": {
+        "desc": {
+            "en-us": "Compares the absolute value of a, and stores it in register (r?)",
+            "zh-hans": "比较a的绝对值，并保存在寄存器(r?)中"
+        }
+    },
+    "acos": {
+        "desc": {
+            "en-us": "Calculates the cosine value of the arc length a, and stores it in register (r?)",
+            "zh-hans": "计算弧长为a的余弦值，并保存在寄存器(r?)中"
+        }
+    },
+    "add": {
+        "desc": {
+            "en-us": "Calculates the result of a + b and stores it in register (r?)",
+            "zh-hans": "计算a+b的结果并保存在寄存器(r?)中"
+        }
+    },
+    "alias": {
+        "desc": {
+            "en-us": "Assigns a label (str) as an alias for a register (r?) or device (d?). Device aliases will also affect the content displayed on IC package pins.",
+            "zh-hans": "使用别名(alias)为寄存器(r?)或设备(d?)指定一个标签(str)，设备别名也会影响IC封装引脚上显示的内容"
+        }
+    },
+    "and": {
+        "desc": {
+            "en-us": "Performs a bitwise AND operation on the binary representations of two values. Each bit in the result is determined by the corresponding bits of the input values: if both input bits are 1, the result bit is 1; otherwise, the result bit is 0.",
+            "zh-hans": "对两个数值的二进制表示形式执行按位AND(与)运算。结果中的每个位都是通过计算输入值的相应二进制位来确定的。如果输入值中的两个位均为1，则结果位为1；否则，结果位为0"
+        }
+    },
+    "asin": {
+        "desc": {
+            "en-us": "Arcsine function: calculates the radian value of the angle whose sine is a, and stores the result in register (r?)",
+            "zh-hans": "反正弦函数，计算正弦值为a的弧长值，并保存在寄存器(r?)中"
+        }
+    },
+    "atan": {
+        "desc": {
+            "en-us": "Arctangent function: calculates the radian value of the angle whose tangent is a, and stores the result in register (r?)",
+            "zh-hans": "反正切函数，计算正切值为a的弧长值，并保存在寄存器(r?)中"
+        }
+    },
+    "atan2": {
+        "desc": {
+            "en-us": "Advanced arctangent function atan2: calculates the radian value of the angle represented by parameters a (y) and b (x), and stores the result in register (r?)",
+            "zh-hans": "高级反正切函数atan2，计算两个参数a(y)和b(x)所代表的正切值的弧长，并保存在寄存器(r?)中"
+        }
+    },
+    "bap": {
+        "desc": {
+            "en-us": "Jumps to line number d when abs(a-b) <= max(c * max(abs(a), abs(b)), float.epsilon * 8)",
+            "zh-hans": "当符合abs(a-b)<=max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号d"
+        }
+    },
+    "bapal": {
+        "desc": {
+            "en-us": "Jumps to line number c if a != b, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a!=b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bapz": {
+        "desc": {
+            "en-us": "Jumps to line number c when abs(a) <= float.epsilon * 8",
+            "zh-hans": "当符合abs(a)<=float.epsilon*8，则跳转到代码行号c"
+        }
+    },
+    "bapzal": {
+        "desc": {
+            "en-us": "Jumps to line number c when abs(a) <= float.epsilon * 8",
+            "zh-hans": "当符合abs(a)<=float.epsilon*8，则跳转到代码行号c"
+        }
+    },
+    "bdns": {
+        "desc": {
+            "en-us": "Jumps to line number a if the device (d) is invalid",
+            "zh-hans": "如果设备(d)无效，则跳转到代码行号a"
+        }
+    },
+    "bdnsal": {
+        "desc": {
+            "en-us": "Jumps to line number a if the device (d) is invalid, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果设备(d)无效，则跳转到代码行号a，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bdnvl": {
+        "desc": {
+            "en-us": "Jumps to line a if the specified device is invalid for read instructions of the specified logic type",
+            "zh-hans": "如果所提供的设备对于所提供逻辑类型的读取指令无效，则跳转到行a"
+        }
+    },
+    "bdnvs": {
+        "desc": {
+            "en-us": "Jumps to line a if the specified device is invalid for write instructions of the specified logic type",
+            "zh-hans": "如果所提供的设备对于所提供逻辑类型的写入指令无效，则跳转到行a"
+        }
+    },
+    "bdse": {
+        "desc": {
+            "en-us": "Jumps to line number a if the device (d) is valid",
+            "zh-hans": "如果设备(d)有效，则跳转到代码行号a"
+        }
+    },
+    "bdseal": {
+        "desc": {
+            "en-us": "Jumps to line number a if the device (d) is valid, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果设备(d)有效，则跳转到代码行号a，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "beq": {
+        "desc": {
+            "en-us": "Jumps to line number c if a == b",
+            "zh-hans": "如果a==b，则跳转到代码行号c"
+        }
+    },
+    "beqal": {
+        "desc": {
+            "en-us": "Jumps to line number c if a == b, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a==b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "beqz": {
+        "desc": {
+            "en-us": "Jumps to line number b if a == 0",
+            "zh-hans": "如果a==0，则跳转到代码行号b"
+        }
+    },
+    "beqzal": {
+        "desc": {
+            "en-us": "Jumps to line number b if a == 0, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a==0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bge": {
+        "desc": {
+            "en-us": "Jumps to line number c if a >= b",
+            "zh-hans": "如果a>=b，则跳转到代码行号c"
+        }
+    },
+    "bgeal": {
+        "desc": {
+            "en-us": "Jumps to line number c if a >= b, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a>=b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bgez": {
+        "desc": {
+            "en-us": "Jumps to line number b if a >= 0",
+            "zh-hans": "如果a>=0，则跳转到代码行号b"
+        }
+    },
+    "bgezal": {
+        "desc": {
+            "en-us": "Jumps to line number b if a >= 0, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a>=0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bgt": {
+        "desc": {
+            "en-us": "Jumps to line number c if a > b",
+            "zh-hans": "如果a>b，则跳转到代码行号c"
+        }
+    },
+    "bgtal": {
+        "desc": {
+            "en-us": "Jumps to line number c if a > b, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a>b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bgtz": {
+        "desc": {
+            "en-us": "Jumps to line number b if a > 0",
+            "zh-hans": "如果a>0，则跳转到代码行号b"
+        }
+    },
+    "bgtzal": {
+        "desc": {
+            "en-us": "Jumps to line number b if a > 0, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a>0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "binary_number": {
+        "desc": {
+            "en-us": "any valid binary numbers (0 or 1) will be parsed together as a binary value. You can use underscores to help with readability, but they have no functional use. As an example, %1111 or %11_11 will parse as 15.",
+            "zh-hans": "任意有效二进制数字（0 或 1）将被共同解析为一个二进制数值。可以使用下划线提升可读性，但下划线无实际功能作用。例如，%1111 或 %11_11 会被解析为 15。"
+        }
+    },
+    "ble": {
+        "desc": {
+            "en-us": "Jumps to line number c if a <= b",
+            "zh-hans": "如果a<=b，则跳转到代码行号c"
+        }
+    },
+    "bleal": {
+        "desc": {
+            "en-us": "Jumps to line number c if a <= b, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a<=b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "blez": {
+        "desc": {
+            "en-us": "Jumps to line number b if a <= 0",
+            "zh-hans": "如果a<=0，则跳转到代码行号b"
+        }
+    },
+    "blezal": {
+        "desc": {
+            "en-us": "Jumps to line number b if a <= 0, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a<=0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "blt": {
+        "desc": {
+            "en-us": "Jumps to line number c if a < b",
+            "zh-hans": "如果a<b，则跳转到代码行号c"
+        }
+    },
+    "bltal": {
+        "desc": {
+            "en-us": "Jumps to line number c if a < b, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a<b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bltz": {
+        "desc": {
+            "en-us": "Jumps to line number b if a < 0",
+            "zh-hans": "如果a<0，则跳转到代码行号b"
+        }
+    },
+    "bltzal": {
+        "desc": {
+            "en-us": "Jumps to line number b if a < 0, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a<0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bna": {
+        "desc": {
+            "en-us": "Jumps to line number d when abs(a-b) > max(c * max(abs(a), abs(b)), float.epsilon * 8)",
+            "zh-hans": "当符合abs(a-b)>max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号d"
+        }
+    },
+    "bnaal": {
+        "desc": {
+            "en-us": "Jumps to line number d when abs(a-b) > max(c * max(abs(a), abs(b)), float.epsilon * 8), and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "当符合abs(a-b)>max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号d行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bnan": {
+        "desc": {
+            "en-us": "Jumps to line number b if a == NaN",
+            "zh-hans": "如果a==NaN，则跳转到代码行号b"
+        }
+    },
+    "bnaz": {
+        "desc": {
+            "en-us": "Jumps to line number c when abs(a) > float.epsilon * 8",
+            "zh-hans": "当符合abs(a)>float.epsilon*8，则跳转到代码行号c"
+        }
+    },
+    "bnazal": {
+        "desc": {
+            "en-us": "Jumps to line number c when abs(a) > float.epsilon * 8",
+            "zh-hans": "当符合abs(a)>float.epsilon*8，则跳转到代码行号c"
+        }
+    },
+    "bne": {
+        "desc": {
+            "en-us": "Jumps to line number c if a != b",
+            "zh-hans": "如果a!=b，则跳转到代码行号c"
+        }
+    },
+    "bneal": {
+        "desc": {
+            "en-us": "Jumps to line number c if a != b, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a!=b，则跳转到代码行号c行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "bnez": {
+        "desc": {
+            "en-us": "Jumps to line number b if a != 0",
+            "zh-hans": "如果a!=0，则跳转到代码行号b"
+        }
+    },
+    "bnezal": {
+        "desc": {
+            "en-us": "Jumps to line number b if a != 0, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "如果a!=0，则跳转到代码行号b行，并将跳转前的行号+1并储存在寄存器ra"
+        }
+    },
+    "brap": {
+        "desc": {
+            "en-us": "Jumps to line (current line + d) when abs(a-b) <= max(c * max(abs(a), abs(b)), float.epsilon * 8)",
+            "zh-hans": "当符合abs(a-b)<=max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号(当前行号+d)行"
+        }
+    },
+    "brapz": {
+        "desc": {
+            "en-us": "Jumps to line (current line + c) when abs(a) <= float.epsilon * 8",
+            "zh-hans": "当符合abs(a)<=float.epsilon*8，则跳转到代码行号(当前行号+c)行"
+        }
+    },
+    "brdns": {
+        "desc": {
+            "en-us": "Jumps to line (current line + a) if the device (d) is invalid",
+            "zh-hans": "如果设备(d)无效，则跳转到代码行号(当前行号+a)行"
+        }
+    },
+    "brdse": {
+        "desc": {
+            "en-us": "Jumps to line (current line + a) if the device (d) is valid",
+            "zh-hans": "如果设备(d)有效，则跳转到代码行号(当前行号+a)行"
+        }
+    },
+    "breq": {
+        "desc": {
+            "en-us": "Jumps to line (current line + c) if a == b",
+            "zh-hans": "如果a==b，则跳转到代码行号(当前行号+c)行"
+        }
+    },
+    "breqz": {
+        "desc": {
+            "en-us": "Jumps to line (current line + b) if a == 0",
+            "zh-hans": "如果a==0，则跳转到代码行号(当前行号+b)行"
+        }
+    },
+    "brge": {
+        "desc": {
+            "en-us": "Jumps to line (current line + c) if a >= b",
+            "zh-hans": "如果a>=b，则跳转到代码行号(当前行号+c)行"
+        }
+    },
+    "brgez": {
+        "desc": {
+            "en-us": "Jumps to line (current line + b) if a >= 0",
+            "zh-hans": "如果a>=0，则跳转到代码行号(当前行号+b)行"
+        }
+    },
+    "brgt": {
+        "desc": {
+            "en-us": "Jumps to line (current line + c) if a > b",
+            "zh-hans": "如果a>b，则跳转到代码行号(当前行号+c)行"
+        }
+    },
+    "brgtz": {
+        "desc": {
+            "en-us": "Jumps to line (current line + b) if a > 0",
+            "zh-hans": "如果a>0，则跳转到代码行号(当前行号+b)行"
+        }
+    },
+    "brle": {
+        "desc": {
+            "en-us": "Jumps to line (current line + c) if a <= b",
+            "zh-hans": "如果a<=b，则跳转到代码行号(当前行号+c)行"
+        }
+    },
+    "brlez": {
+        "desc": {
+            "en-us": "Jumps to line (current line + b) if a <= 0",
+            "zh-hans": "如果a<=0，则跳转到代码行号(当前行号+b)行"
+        }
+    },
+    "brlt": {
+        "desc": {
+            "en-us": "Jumps to line (current line + c) if a < b",
+            "zh-hans": "如果a<b，则跳转到代码行号(当前行号+c)行"
+        }
+    },
+    "brltz": {
+        "desc": {
+            "en-us": "Jumps to line (current line + b) if a < 0",
+            "zh-hans": "如果a<0，则跳转到代码行号(当前行号+b)行"
+        }
+    },
+    "brna": {
+        "desc": {
+            "en-us": "Jumps to line (current line + d) when abs(a-b) > max(c * max(abs(a), abs(b)), float.epsilon * 8)",
+            "zh-hans": "当符合abs(a-b)>max(c*max(abs(a), abs(b)), float.epsilon*8)时，则跳转到代码行号(当前行号+d)行"
+        }
+    },
+    "brnan": {
+        "desc": {
+            "en-us": "Jumps to line (current line + b) if a == NaN",
+            "zh-hans": "如果a==NaN，则跳转到代码行号(当前行号+b)行"
+        }
+    },
+    "brnaz": {
+        "desc": {
+            "en-us": "Jumps to line (current line + c) when abs(a) > float.epsilon * 8",
+            "zh-hans": "当符合abs(a)>float.epsilon*8，则跳转到代码行号(当前行号+c)行"
+        }
+    },
+    "brne": {
+        "desc": {
+            "en-us": "Jumps to line (current line + c) if a != b",
+            "zh-hans": "如果a!=b，则跳转到代码行号(当前行号+c)行"
+        }
+    },
+    "brnez": {
+        "desc": {
+            "en-us": "Jumps to line (current line + b) if a != 0",
+            "zh-hans": "如果a!=0，则跳转到代码行号(当前行号+b)行"
+        }
+    },
+    "ceil": {
+        "desc": {
+            "en-us": "Calculates the smallest integer greater than a, and stores it in register (r?)",
+            "zh-hans": "计算大于a的最小整数，并保存在寄存器(r?)中"
+        }
+    },
+    "clamp": {
+        "desc": {
+            "en-us": "Stores a clamped to the inclusive range [min, max] in the register provided.",
+            "zh-hans": "将a限制在闭区间[min, max]范围内，并将结果存入指定寄存器"
+        }
+    },
+    "clr": {
+        "desc": {
+            "en-us": "Clears the stack memory of the specified device",
+            "zh-hans": "清除指定设备的堆栈内存"
+        }
+    },
+    "clrd": {
+        "desc": {
+            "en-us": "Locates a device by its ID and clears its stack memory",
+            "zh-hans": "通过设备ID定位设备并清除其堆栈内存"
+        }
+    },
+    "cos": {
+        "desc": {
+            "en-us": "Calculates the cosine value of the arc length a, and stores it in register (r?)",
+            "zh-hans": "计算弧长为a的余弦值，并保存在寄存器(r?)中"
+        }
+    },
+    "define": {
+        "desc": {
+            "en-us": "Defines a label (str) for the specified value (num). All occurrences of the same label in the program will be replaced with this value",
+            "zh-hans": "为指定的值(num)定义一个标签(str)，程序中所有出现的同名标签都将被替换为该值"
+        }
+    },
+    "deg2rad": {
+        "desc": {
+            "en-us": "Degrees to radians conversion constant. Value: 0.0174532923847437",
+            "zh-hans": "角度转弧度的换算常量，取值为 0.0174532923847437"
+        }
+    },
+    "div": {
+        "desc": {
+            "en-us": "Calculates the result of a / b and stores it in register (r?)",
+            "zh-hans": "计算a/b的结果并保存在寄存器(r?)中"
+        }
+    },
+    "epsilon": {
+        "desc": {
+            "en-us": "A constant representing the smallest positive subnormal > 0",
+            "zh-hans": "表示大于 0 的最小正次正规数的常量"
+        }
+    },
+    "exp": {
+        "desc": {
+            "en-us": "Calculates the natural exponential exp(a) of a, and stores it in register (r?)",
+            "zh-hans": "计算a以自然常数为底的指数exp(a)，并保存在寄存器(r?)中"
+        }
+    },
+    "ext": {
+        "desc": {
+            "en-us": "Extracts a segment of bits from a, starting at position b with length c, and places it into the provided register. The maximum valid payload length must not exceed 53 bits",
+            "zh-hans": "从a中提取一段比特值，起始位置为b，长度为c，并放入指定寄存器。最大有效载荷长度不得超过53位"
+        }
+    },
+    "floor": {
+        "desc": {
+            "en-us": "Calculates the largest integer less than a, and stores it in register (r?)",
+            "zh-hans": "计算小于a的最大整数，并保存在寄存器(r?)中"
+        }
+    },
+    "get": {
+        "desc": {
+            "en-us": "Attempts to read the stack value at the specified address using the specified device, and stores it in register (r?)",
+            "zh-hans": "使用指定设备尝试读取指定地址的堆栈值，并存入寄存器(r?)"
+        }
+    },
+    "hash": {
+        "desc": {
+            "en-us": "any text inside will be hashed to an integer before processing takes place. Use this to generate integer values for use wherever hashes are required.",
+            "zh-hans": "括号内的任意文本会在处理开始前被哈希为一个整数。可用于在需要哈希值的场景生成整数值。"
+        }
+    },
+    "hash_number": {
+        "desc": {
+            "en-us": "any valid hex characters after this will be parsed together as a hex value. You can use underscores to help with readability, but they have no functional use. As an example, $F will parse as 15.",
+            "zh-hans": "此后的任意有效十六进制字符将被共同解析为一个十六进制数值。可以使用下划线提升可读性，但下划线无实际功能作用。例如，$F 会被解析为 15。"
+        }
+    },
+    "hcf": {
+        "desc": {
+            "en-us": "Halt and catch fire. An early computer machine instruction that causes the CPU to perform cyclic addressing, continuously looping to read large amounts of data. If it addresses a non-existent memory address (catchfire state), it will lock up the computer (halt)",
+            "zh-hans": "Halt and catch fire，早期计算机的机器指令，作用是让CPU执行循环寻址操作，持续循环读取大量数据；若寻址到不存在的内存地址（Catchfire状态），将锁定计算机即挂起(Halt)"
+        }
+    },
+    "ins": {
+        "desc": {
+            "en-us": "Inserts the bits of value a into the specified register, starting at position b with length c. The maximum valid payload length must not exceed 53 bits",
+            "zh-hans": "将a的值按比特位插入到指定寄存器中，起始位置为b，长度为c。最大有效载荷长度不得超过53位"
+        }
+    },
+    "j": {
+        "desc": {
+            "en-us": "Jumps to code line number a",
+            "zh-hans": "跳转到代码行号a"
+        }
+    },
+    "jal": {
+        "desc": {
+            "en-us": "Jumps to code line number a, and stores the line number before jumping plus 1 into register ra",
+            "zh-hans": "跳转到代码行号a，并将跳转前的行号+1储存在寄存器ra中"
+        }
+    },
+    "jr": {
+        "desc": {
+            "en-us": "Jumps to code line (current line number + a)",
+            "zh-hans": "跳转到代码行号(当前行号+a)行"
+        }
+    },
+    "l": {
+        "desc": {
+            "en-us": "Loads the logic property value (LogicType) of the device corresponding to logic pin (d?) into register (r?)",
+            "zh-hans": "将逻辑引脚(d?)对应设备的逻辑属性值(LogicType)加载到寄存器(r?)中"
+        }
+    },
+    "lb": {
+        "desc": {
+            "en-us": "Loads logic property values (LogicType) of all devices of the same type in the network into the register using the specified aggregation method, based on the given device type hash. Available modes: Average(0), Sum(1), Minimum(2), Maximum(3); supports both word and number",
+            "zh-hans": "通过给定的设备类型哈希值(deviceHash)，将网络内所有同类设备的逻辑属性值(LogicType)以指定统计方式加载到寄存器。可用统计方式：Average(0)平均、Sum(1)求和、Minimum(2)最小、Maximum(3)最大，支持单词或数字"
+        }
+    },
+    "lbn": {
+        "desc": {
+            "en-us": "Loads logic property values of all matching devices in the network into the register using the specified aggregation method, based on the given device type hash and device name hash. Available modes: Average(0), Sum(1), Minimum(2), Maximum(3); supports both word and number",
+            "zh-hans": "通过给定的设备类型哈希值与设备名称哈希值，将网络内所有符合条件设备的逻辑属性值以指定统计方式加载到寄存器。可用统计方式：Average(0)平均、Sum(1)求和、Minimum(2)最小、Maximum(3)最大，支持单词或数字"
+        }
+    },
+    "lbns": {
+        "desc": {
+            "en-us": "Loads logic property values of specific slots from all matching devices in the network into the register using the specified aggregation method, based on device type hash, slot index and device name hash. Available modes: Average(0), Sum(1), Minimum(2), Maximum(3); supports both word and number",
+            "zh-hans": "通过给定的设备类型哈希值、槽位索引值、设备名称哈希值，将网络内所有符合条件设备的特定槽位逻辑属性值以指定统计方式加载到寄存器。可用统计方式：Average(0)平均、Sum(1)求和、Minimum(2)最小、Maximum(3)最大，支持单词或数字"
+        }
+    },
+    "lbs": {
+        "desc": {
+            "en-us": "Loads logic property values of specific slots from all matching devices in the network into the register using the specified aggregation method, based on device type hash and slot index. Available modes: Average(0), Sum(1), Minimum(2), Maximum(3); supports both word and number",
+            "zh-hans": "通过给定的设备类型哈希值与槽位索引值，将网络内所有符合条件设备中特定槽位的逻辑属性值以指定统计方式加载到寄存器。可用统计方式：Average(0)平均、Sum(1)求和、Minimum(2)最小、Maximum(3)最大，支持单词或数字"
+        }
+    },
+    "lerp": {
+        "desc": {
+            "en-us": "Performs linear interpolation between a and b with ratio c, and places the result into the provided register. The ratio c will be clamped between 0 and 1",
+            "zh-hans": "以比率c在a和b之间进行线性插值，并将结果放入指定寄存器。比率c会被限制在0到1之间"
+        }
+    },
+    "log": {
+        "desc": {
+            "en-us": "Calculates the natural logarithm log(a) of a, and stores it in register (r?)",
+            "zh-hans": "计算a以自然常数为底的对数log(a)，并保存在寄存器(r?)中"
+        }
+    },
+    "lr": {
+        "desc": {
+            "en-us": "Loads the reagent hash value from the device corresponding to logic pin (d?) into the register using the specified reagent mode. Available modes: Contents(0), Required(1), Recipe(2); supports both word and number",
+            "zh-hans": "对逻辑引脚(d?)对应的设备，通过指定的原料模式(ReagentMode)将原料的哈希值加载到寄存器。可用模式：Contents(0)内含、Required(1)需求、Recipe(2)配方，支持单词或数字"
+        }
+    },
+    "ls": {
+        "desc": {
+            "en-us": "Loads the logic slot property value (LogicSlotType) of the item in the slot at the specified index of the device corresponding to logic pin (d?) into register (r?)",
+            "zh-hans": "将逻辑引脚(d?)对应设备的指定槽位索引中物品的逻辑槽位属性值(LogicSlotType)加载到寄存器(r?)中"
+        }
+    },
+    "max": {
+        "desc": {
+            "en-us": "Compares a and b, and stores the larger value in register (r?)",
+            "zh-hans": "比较a和b，并将较大值保存在寄存器(r?)中"
+        }
+    },
+    "min": {
+        "desc": {
+            "en-us": "Compares a and b, and stores the smaller value in register (r?)",
+            "zh-hans": "比较a和b，并将较小值保存在寄存器(r?)中"
+        }
+    },
+    "mod": {
+        "desc": {
+            "en-us": "Calculates the result of a modulo b and stores it in register (r?). Note: this is not equivalent to the a % b remainder operator",
+            "zh-hans": "计算a模以b的结果并保存在寄存器(r?)中，注意：并非取余运算符a%b"
+        }
+    },
+    "move": {
+        "desc": {
+            "en-us": "Assigns the specified value (register or constant) to register (r?)",
+            "zh-hans": "将指定的值（寄存器或常量）赋值给寄存器(r?)"
+        }
+    },
+    "mul": {
+        "desc": {
+            "en-us": "Calculates the result of a * b and stores it in register (r?)",
+            "zh-hans": "计算a*b的结果并保存在寄存器(r?)中"
+        }
+    },
+    "nan": {
+        "desc": {
+            "en-us": "A constant representing 'not a number'. This constant technically provides a 'quiet' NaN, a signal NaN from some instructions will result in an exception and halt execution",
+            "zh-hans": "表示“非数值”的常量。该常量在技术上是一个“安静型”NaN，部分指令产生的信号型NaN会触发异常并终止执行。"
+        }
+    },
+    "ninf": {
+        "desc": {
+            "en-us": "A constant representing a negative infinite value",
+            "zh-hans": "表示负无穷大值的常量"
+        }
+    },
+    "nor": {
+        "desc": {
+            "en-us": "Performs a bitwise NOR operation on the binary representations of two values. Each result bit is determined by the corresponding input bits: 1 if both bits are 0, 0 if either bit is 1",
+            "zh-hans": "对两个数值的二进制表示执行按位NOR(或非)运算。结果每一位由输入对应位决定：两位都为0时结果位为1，任意一位为1则结果位为0"
+        }
+    },
+    "not": {
+        "desc": {
+            "en-us": "Performs a bitwise NOT operation on the binary representation of a value, inverting every bit: 1 becomes 0 and 0 becomes 1",
+            "zh-hans": "对数值的二进制表示执行按位NOT(非)运算，将所有二进制位取反，1变0、0变1"
+        }
+    },
+    "or": {
+        "desc": {
+            "en-us": "Performs a bitwise OR operation on the binary representations of two values. Each result bit is 1 if either input bit is 1, and 0 only if both bits are 0",
+            "zh-hans": "对两个数值的二进制表示执行按位OR(或)运算。结果每一位由输入对应位决定：任意一位为1则结果位为1，都为0时结果位为0"
+        }
+    },
+    "peek": {
+        "desc": {
+            "en-us": "Gets the value at the top of the stack and stores it in register (r?)",
+            "zh-hans": "获取堆栈顶的值，并保存在寄存器(r?)中"
+        }
+    },
+    "pi": {
+        "desc": {
+            "en-us": "A constant representing ratio of the circumference of a circle to its diameter, provided in double precision. Value: 3.14159265358979",
+            "zh-hans": "表示圆的周长与直径比值的常量，以双精度浮点数提供，取值为 3.14159265358979"
+        }
+    },
+    "pinf": {
+        "desc": {
+            "en-us": "A constant representing a positive infinite value",
+            "zh-hans": "表示正无穷大值的常量"
+        }
+    },
+    "poke": {
+        "desc": {
+            "en-us": "Stores the specified value at the given index in the stack",
+            "zh-hans": "将指定值存储到堆栈的指定索引位置"
+        }
+    },
+    "pop": {
+        "desc": {
+            "en-us": "Stores the value at the top of the stack in register (r?), and increments the stack pointer register sp by 1",
+            "zh-hans": "将堆栈顶的值保存在寄存器(r?)中，并将堆栈指针寄存器sp的值+1"
+        }
+    },
+    "pow": {
+        "desc": {
+            "en-us": "Calculates a raised to the power of b and stores the result in the register. Follows the IEEE-754 floating-point arithmetic standard",
+            "zh-hans": "计算a的b次幂并将结果存入寄存器，遵循IEEE-754浮点算术标准"
+        }
+    },
+    "push": {
+        "desc": {
+            "en-us": "Pushes value a onto the stack, and increments the stack pointer register sp by 1",
+            "zh-hans": "将a值压入堆栈，并将堆栈指针寄存器sp的值+1"
+        }
+    },
+    "put": {
+        "desc": {
+            "en-us": "Attempts to write the specified value to the specified address in the stack of the target device",
+            "zh-hans": "尝试将指定的值写入指定设备堆栈的指定地址"
+        }
+    },
+    "rad2deg": {
+        "desc": {
+            "en-us": "Radians to degrees conversion constant. Value: 57.2957801818848",
+            "zh-hans": "弧度转角度的换算常量，取值为 57.2957801818848"
+        }
+    },
+    "rand": {
+        "desc": {
+            "en-us": "Generates a random number in the range 0 <= x < 1, and stores it in register (r?)",
+            "zh-hans": "生成范围为0<=x<1的随机数，并保存在寄存器(r?)中"
+        }
+    },
+    "rgas": {
+        "desc": {
+            "en-us": "Universal gas constant (J/(mol*K)). Value: 8.31446261815324",
+            "zh-hans": "通用气体常数，单位为焦耳每摩尔开尔文（J/(mol*K)），取值为 8.31446261815324"
+        }
+    },
+    "rmap": {
+        "desc": {
+            "en-us": "Returns the quantity of the corresponding material required by the device's recipe, based on the given material hash (e.g. querying iron hash for an automatic lathe returns iron ingot hash)",
+            "zh-hans": "根据给定的材料哈希值，返回设备配方所需的对应材料数量（例如查询自动车床中铁的哈希值，返回对应铁锭的哈希值）"
+        }
+    },
+    "rol": {
+        "desc": {
+            "en-us": "Performs a bitwise left rotation on the binary representation of a by b places, wrapping bits shifted out of the most significant position back into the least significant position",
+            "zh-hans": "对a的二进制表示执行按位左循环移位b位，将从最高位移出的比特回绕到最低位"
+        }
+    },
+    "ror": {
+        "desc": {
+            "en-us": "Performs a bitwise right rotation on the binary representation of a by b places, wrapping bits shifted out of the least significant position back into the most significant position",
+            "zh-hans": "对a的二进制表示执行按位右循环移位b位，将从最低位移出的比特回绕到最高位"
+        }
+    },
+    "round": {
+        "desc": {
+            "en-us": "Calculates the integer result of a rounded to the nearest whole number, and stores it in register (r?)",
+            "zh-hans": "计算a四舍五入后的整数结果，并保存在寄存器(r?)中"
+        }
+    },
+    "s": {
+        "desc": {
+            "en-us": "Writes the value of register (r?) to the logic property (LogicType) of the device corresponding to the specified logic pin (d?)",
+            "zh-hans": "将寄存器(r?)的值写入指定逻辑引脚(d?)所对应设备的逻辑属性值(LogicType)"
+        }
+    },
+    "sap": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if abs(a-b) <= max(c * max(abs(a), abs(b)), float.epsilon * 8), otherwise 0",
+            "zh-hans": "当符合abs(a-b)<=max(c*max(abs(a), abs(b)), float.epsilon*8)时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sapz": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if |a| <= float.epsilon * 8, otherwise 0",
+            "zh-hans": "当符合|a|<=float.epsilon*8时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sb": {
+        "desc": {
+            "en-us": "Writes the value of register (r?) to the logic property (LogicType) of all matching devices in the network, based on the given device type hash",
+            "zh-hans": "通过给定的设备类型哈希值(deviceHash)，将寄存器(r?)的值写入到网络内所有符合条件的设备的逻辑属性值(LogicType)"
+        }
+    },
+    "sbn": {
+        "desc": {
+            "en-us": "Writes the value of register (r?) to the logic property (LogicType) of all matching devices in the network, based on the given device type hash and device name hash",
+            "zh-hans": "通过给定的设备类型哈希值与设备名称哈希值，将寄存器(r?)的值写入到网络内所有符合条件的设备的逻辑属性值(LogicType)"
+        }
+    },
+    "sbs": {
+        "desc": {
+            "en-us": "Writes the value of register (r?) to the logic slot property (LogicSlotType) of specific slots in all matching devices in the network, based on device type hash and slot index",
+            "zh-hans": "通过给定的设备类型哈希值与槽位索引值，将寄存器(r?)的值写入到网络内所有符合条件设备中特定槽位的逻辑槽位属性值(LogicSlotType)"
+        }
+    },
+    "sdns": {
+        "desc": {
+            "en-us": "Sets register (r?) to 0 if the pin corresponding to device (d?) points to an invalid device, otherwise 1",
+            "zh-hans": "如果设备(d?)对应的引脚指向一个无效的设备，则寄存器(r?)的值为0，否则为1"
+        }
+    },
+    "sdse": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if the pin corresponding to device (d?) points to a valid device, otherwise 0",
+            "zh-hans": "如果设备(d?)对应的引脚指向一个有效的设备，则寄存器(r?)的值为1，否则为0"
+        }
+    },
+    "select": {
+        "desc": {
+            "en-us": "Sets register (r?) to b if a is not zero, otherwise c",
+            "zh-hans": "如果a不为0，则寄存器(r?)的值为b，否则为c"
+        }
+    },
+    "seq": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a == b, otherwise 0",
+            "zh-hans": "a==b时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "seqz": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a == 0, otherwise 0",
+            "zh-hans": "a==0时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sge": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a >= b, otherwise 0",
+            "zh-hans": "a>=b时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sgez": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a >= 0, otherwise 0",
+            "zh-hans": "a>=0时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sgn": {
+        "desc": {
+            "en-us": "Stores the sign of a in the register: -1 if a is negative, 1 if positive, and 0 if a is zero or not a number",
+            "zh-hans": "将a的符号存入寄存器：负数为-1，正数为1，零或非数值为0"
+        }
+    },
+    "sgt": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a > b, otherwise 0",
+            "zh-hans": "a>b时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sgtz": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a > 0, otherwise 0",
+            "zh-hans": "a>0时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sin": {
+        "desc": {
+            "en-us": "Calculates the sine value of the arc length a, and stores it in register (r?)",
+            "zh-hans": "计算弧长为a的正弦值，并保存在寄存器(r?)中"
+        }
+    },
+    "sla": {
+        "desc": {
+            "en-us": "Performs an arithmetic left shift on the binary representation of a value, shifting all bits left and filling the right side with the sign bit",
+            "zh-hans": "对数值的二进制表示执行算术左移位，将所有二进制位向左移动，并用符号位填充右侧空出的部分"
+        }
+    },
+    "sle": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a <= b, otherwise 0",
+            "zh-hans": "a<=b时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sleep": {
+        "desc": {
+            "en-us": "Pauses code execution for a seconds",
+            "zh-hans": "暂停代码运行a秒"
+        }
+    },
+    "slez": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a <= 0, otherwise 0",
+            "zh-hans": "a<=0时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sll": {
+        "desc": {
+            "en-us": "Performs a logical left shift on the binary representation of a value, shifting all bits left and filling the right side with 0",
+            "zh-hans": "对数值的二进制表示执行逻辑左移位，将所有二进制位向左移动，并用0填充右侧空出的部分"
+        }
+    },
+    "slt": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a < b, otherwise 0",
+            "zh-hans": "a<b时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sltz": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a < 0, otherwise 0",
+            "zh-hans": "a<0时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sna": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if abs(a-b) > max(c * max(abs(a), abs(b)), float.epsilon * 8), otherwise 0",
+            "zh-hans": "当符合abs(a-b)>max(c*max(abs(a), abs(b)), float.epsilon*8)时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "snan": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a == NaN, otherwise 0. NaN is a special constant used when a calculation result is meaningless, such as division by zero",
+            "zh-hans": "a==NaN时，寄存器(r?)为1，否则为0。NaN是特殊常量，当计算结果无意义（如除以0）时，存储结果的寄存器值为NaN"
+        }
+    },
+    "snanz": {
+        "desc": {
+            "en-us": "Sets register (r?) to 0 if a == NaN, otherwise 1. NaN is a special value used when a calculation result is meaningless, such as division by zero",
+            "zh-hans": "a==NaN时，寄存器(r?)为0，否则为1。NaN是特殊值，当计算结果无意义（如除以0）时，存储结果的寄存器值为NaN"
+        }
+    },
+    "snaz": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if |a| > float.epsilon, otherwise 0",
+            "zh-hans": "当符合|a|>float.epsilon时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sne": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a != b, otherwise 0",
+            "zh-hans": "a!=b时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "snez": {
+        "desc": {
+            "en-us": "Sets register (r?) to 1 if a != 0, otherwise 0",
+            "zh-hans": "a!=0时，寄存器(r?)为1，否则为0"
+        }
+    },
+    "sqrt": {
+        "desc": {
+            "en-us": "Calculates the square root of a and stores the result in register (r?)",
+            "zh-hans": "计算a的平方根并将结果保存在寄存器(r?)中"
+        }
+    },
+    "sra": {
+        "desc": {
+            "en-us": "Performs an arithmetic right shift on the binary representation of a value, shifting all bits right and filling the left side with the sign bit",
+            "zh-hans": "对数值的二进制表示执行算术右移位，将所有二进制位向右移动，并用符号位填充左侧空出的部分"
+        }
+    },
+    "srl": {
+        "desc": {
+            "en-us": "Performs a logical right shift on the binary representation of a value, shifting all bits right and filling the left side with 0",
+            "zh-hans": "对数值的二进制表示执行逻辑右移位，将所有二进制位向右移动，并用0填充左侧空出的部分"
+        }
+    },
+    "ss": {
+        "desc": {
+            "en-us": "Locates the device in the device slot via logic pin (d?) and slot index, then writes the value of register (r?) to its logic slot property (LogicSlotType)",
+            "zh-hans": "通过逻辑引脚(d?)和槽位索引定位到设备槽位中的设备，将寄存器(r?)的值写入该设备的逻辑槽位属性值(LogicSlotType)"
+        }
+    },
+    "str": {
+        "desc": {
+            "en-us": "any text inside will be packed into 53 usable bits of the 64 bit backing number that can be used for drawing text. This limits its use to 6 characters.",
+            "zh-hans": "括号内的任意文本会被打包进64位底层数值的53个可用比特中，可用于绘制文本。该限制使其最多支持6个字符。"
+        }
+    },
+    "sub": {
+        "desc": {
+            "en-us": "Calculates the result of a - b and stores it in register (r?)",
+            "zh-hans": "计算a-b的结果并保存在寄存器(r?)中"
+        }
+    },
+    "tan": {
+        "desc": {
+            "en-us": "Calculates the tangent value of the arc length a, and stores it in register (r?)",
+            "zh-hans": "计算弧长为a的正切值，并保存在寄存器(r?)中"
+        }
+    },
+    "tau": {
+        "desc": {
+            "en-us": "A constant representing the ratio of the circumference of a circle to its radius, provided in double precision. Value: 6.28318530717959",
+            "zh-hans": "表示圆的周长与半径比值的常量，以双精度浮点数提供，取值为 6.28318530717959"
+        }
+    },
+    "trunc": {
+        "desc": {
+            "en-us": "Calculates the result of a with the fractional part truncated, and stores it in register (r?)",
+            "zh-hans": "计算a舍去小数部分后的结果，并保存在寄存器(r?)中"
+        }
+    },
+    "xor": {
+        "desc": {
+            "en-us": "Performs a bitwise XOR operation on the binary representations of two values. Each result bit is 1 if the corresponding input bits differ, 0 if they are the same",
+            "zh-hans": "对两个数值的二进制表示执行按位XOR(异或)运算。两个对应位不同时结果位为1，相同时结果位为0"
+        }
+    },
+    "yield": {
+        "desc": {
+            "en-us": "Pauses code execution until the end of the current tick",
+            "zh-hans": "暂停代码运行直到当前tick结束"
+        }
+    }
+}

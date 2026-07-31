@@ -310,6 +310,26 @@ namespace stationeers::ic10 {
          */
         const std::vector<UnitInfo>& getUnits() const;
 
+        /**
+         * @if zh
+         * @brief 获取全局类型表
+         * @details 返回链接过程中合并的全局类型表引用，包含所有单元注册的设备类型和枚举类型。
+         *          应在调用 @ref link() 之后使用以获取完整结果。
+         *
+         * @return 全局类型表的引用
+         *
+         * @elseif en
+         * @brief Get global type table
+         * @details Returns a reference to the merged global type table from the linking process,
+         *          containing device types and enum types registered by all units.
+         *          Should be used after calling @ref link() to get complete results.
+         *
+         * @return Reference to the global type table
+         *
+         * @endif
+         */
+        TypeTable& getTypeTable();
+
     private:
         /** @if zh @brief 全局类型表，存储所有单元的类型定义 @else @brief Global type table storing type definitions from all units @endif */
         TypeTable typeTable_;

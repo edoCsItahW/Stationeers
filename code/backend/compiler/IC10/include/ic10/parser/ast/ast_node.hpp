@@ -836,7 +836,7 @@ namespace stationeers::ic10 {
      *          (br*|brnez, etc.), where the target is typically given as a line number (integer).
      * @endif
      */
-    using JumpTarget = NumberValue;
+    using JumpTarget = Errorable<NumberValue, Register>;
 
     // Operand
 

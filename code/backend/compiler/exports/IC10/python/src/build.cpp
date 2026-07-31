@@ -28,6 +28,7 @@
 #include "ic10_python/incremental/inc_parser_adapter.hpp"
 #include "ic10_python/incremental/inc_lexer_adapter.hpp"
 #include "ic10_python/semantic/symbol_table_adapter.hpp"
+#include "ic10_python/semantic/type_table_adapter.hpp"
 #include "ic10_python/semantic/analyser_adapter.hpp"
 #include "ic10_python/link/linker_adapter.hpp"
 #include "ic10_python/parser/parser_adapter.hpp"
@@ -35,7 +36,9 @@
 #include "ic10_python/lexer/lexer_adapter.hpp"
 #include "ic10_python/lexer/token_adapter.hpp"
 #include "ic10_python/parser/ast_adapter.hpp"
+#include "ic10_python/semantic/type_of_node_adapter.hpp"
 #include "common_python/build.hpp"
+#include "common_python/enum_adapter.hpp"
 
 namespace ic = stationeers::ic10;
 
@@ -66,9 +69,13 @@ PYBIND11_MODULE(ic10_python, m) {
     ic::initProgram(m);
     ic::initParser(m);
     ic::initSymbolTable(m);
+    ic::initTypeTable(m);
     ic::initAnalyser(m);
     ic::initLinker(m);
     ic::initIncLexer(m);
     ic::initIncParser(m);
     ic::initIncCompiler(m);
+
+    // 导出 TypeOfNode 映射
+    ic::exportTypeOfNode(m);
 }

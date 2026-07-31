@@ -55,6 +55,8 @@ namespace stationeers::ic10 {
         return reporter_->getDiagnostics();
     }
 
+    TypeTable& Analyser::getTypeTable() const { return *typeTable_; }
+
     // 访问 Program：逐条遍历语句，结束后清理未决 Future
     Task<> Analyser::visit(const Program& program) {
         for (const auto& stmt : program.statements)
@@ -96,7 +98,7 @@ namespace stationeers::ic10 {
             reporter_->errorWith<IMsgId::IE0_1>(e.getStart(), e.getEnd(), e.message());
         } catch (const std::exception& e) {
             reporter_->errorWith<IMsgId::IE0_1>(
-                pos, endPos(pos, name.size()), std::string(e.what())
+                pos, endPos(pos, name), std::string(e.what())
             );
         }
     }
@@ -116,7 +118,7 @@ namespace stationeers::ic10 {
         if (std::holds_alternative<Identifier>(labelDef.identifier)) {
             const auto identifier = std::get<Identifier>(labelDef.identifier);
 
-            defineSymbol(identifier, {identifier.value, type_of<LabelDef>});
+            defineSymbol(identifier, {identifier.value, type_of<LabelDef>, std::to_string(labelDef.position.line())});
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配

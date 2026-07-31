@@ -27,7 +27,7 @@ namespace stationeers::ic10 {
 
     template<FString K>
     Pos NullaryInstructionBase<K>::end() const {
-        return endPos(this->position, keyword.size);
+        return endPos(this->position, keyword.size, keyword.size);
     }
 
     template<FString K>

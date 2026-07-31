@@ -1,4 +1,41 @@
+# IDE
+.idea/**
 .vscode/**
 .vscode-test/**
+
+# Common: exclude source & build config, keep out/
+common/src/**
+common/node_modules/**
+common/tsconfig.json
+common/pnpm-lock.yaml
+common/package-lock.json
+
+# Client: exclude source & build config, keep out/
+client/src/**
+client/testFixture/**
+client/tsconfig.json
+client/pnpm-lock.yaml
+client/package-lock.json
+client/tsconfig.tsbuildinfo
+
+# Server: exclude source & build config, keep out/
+server/src/**
+server/tsconfig.json
+server/pnpm-lock.yaml
+server/package-lock.json
+server/pnpm-workspace.yaml
+
+# Misc
 .gitignore
-vsc-extension-quickstart.md
+.git 
+*.vsix
+*.zip
+package.yml
+pnpm-lock.yaml
+package-lock.json
+pnpm-workspace.yaml
+tsconfig.tsbuildinfo
+scripts/**
+node_modules/.package-map.json
+node_modules/.pnpm-workspace-state-v1.json
+.prettierrc.json

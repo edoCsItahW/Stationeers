@@ -9,12 +9,11 @@
 		"sourceMap": true,
 		"strict": true,
 		"outDir": "out",
-		"rootDir": "..",
+		"rootDir": "src",
 		"types": ["node"]
 	},
 	"include": [
-		"src",
-		"../common"
+		"src"
 	],
 	"exclude": [
 		"node_modules",

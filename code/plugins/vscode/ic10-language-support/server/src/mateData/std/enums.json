@@ -1,0 +1,2856 @@
+{
+    "AirCon": {
+        "desc": "$./locals/enums.AirCon.desc",
+        "enums": {
+            "Cold": {
+                "desc": "$./locals/enums.AirCon.enums.Cold.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Hot": {
+                "desc": "$./locals/enums.AirCon.enums.Hot.desc",
+                "type": "Constant",
+                "value": 1
+            }
+        }
+    },
+    "AirControl": {
+        "desc": "$./locals/enums.AirControl.desc",
+        "enums": {
+            "Draught": {
+                "desc": "$./locals/enums.AirControl.enums.Draught.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "None": {
+                "desc": "$./locals/enums.AirControl.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Offline": {
+                "desc": "$./locals/enums.AirControl.enums.Offline.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Pressure": {
+                "desc": "$./locals/enums.AirControl.enums.Pressure.desc",
+                "type": "Constant",
+                "value": 2
+            }
+        }
+    },
+    "Color": {
+        "desc": "$./locals/enums.Color.desc",
+        "enums": {
+            "Black": {
+                "desc": "$./locals/enums.Color.enums.Black.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "Blue": {
+                "desc": "$./locals/enums.Color.enums.Blue.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Brown": {
+                "desc": "$./locals/enums.Color.enums.Brown.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "Gray": {
+                "desc": "$./locals/enums.Color.enums.Gray.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Green": {
+                "desc": "$./locals/enums.Color.enums.Green.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "Khaki": {
+                "desc": "$./locals/enums.Color.enums.Khaki.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "Orange": {
+                "desc": "$./locals/enums.Color.enums.Orange.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "Pink": {
+                "desc": "$./locals/enums.Color.enums.Pink.desc",
+                "type": "Constant",
+                "value": 10
+            },
+            "Purple": {
+                "desc": "$./locals/enums.Color.enums.Purple.desc",
+                "type": "Constant",
+                "value": 11
+            },
+            "Red": {
+                "desc": "$./locals/enums.Color.enums.Red.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "White": {
+                "desc": "$./locals/enums.Color.enums.White.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "Yellow": {
+                "desc": "$./locals/enums.Color.enums.Yellow.desc",
+                "type": "Constant",
+                "value": 5
+            }
+        }
+    },
+    "CompareOperator": {
+        "desc": "$./locals/enums.CompareOperator.desc",
+        "enums": {
+            "Equals": {
+                "desc": "$./locals/enums.CompareOperator.enums.Equals.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Greater": {
+                "desc": "$./locals/enums.CompareOperator.enums.Greater.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Less": {
+                "desc": "$./locals/enums.CompareOperator.enums.Less.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "NotEquals": {
+                "desc": "$./locals/enums.CompareOperator.enums.NotEquals.desc",
+                "type": "Constant",
+                "value": 3
+            }
+        }
+    },
+    "DaylightsensorMode": {
+        "desc": "$./locals/enums.DaylightsensorMode.desc",
+        "enums": {
+            "Default": {
+                "desc": "$./locals/enums.DaylightsensorMode.enums.Default.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Horizontal": {
+                "desc": "$./locals/enums.DaylightsensorMode.enums.Horizontal.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Vertical": {
+                "desc": "$./locals/enums.DaylightsensorMode.enums.Vertical.desc",
+                "type": "Constant",
+                "value": 2
+            }
+        }
+    },
+    "DisplayMode": {
+        "desc": "$./locals/enums.DisplayMode.desc",
+        "enums": {
+            "Celsius": {
+                "desc": "$./locals/enums.DisplayMode.enums.Celsius.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "Credits": {
+                "desc": "$./locals/enums.DisplayMode.enums.Credits.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "Days": {
+                "desc": "$./locals/enums.DisplayMode.enums.Days.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "Default": {
+                "desc": "$./locals/enums.DisplayMode.enums.Default.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Degrees": {
+                "desc": "$./locals/enums.DisplayMode.enums.Degrees.desc",
+                "type": "Constant",
+                "value": 16
+            },
+            "Fahrenheit": {
+                "desc": "$./locals/enums.DisplayMode.enums.Fahrenheit.desc",
+                "type": "Constant",
+                "value": 11
+            },
+            "Kelvin": {
+                "desc": "$./locals/enums.DisplayMode.enums.Kelvin.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "Litres": {
+                "desc": "$./locals/enums.DisplayMode.enums.Litres.desc",
+                "type": "Constant",
+                "value": 12
+            },
+            "Meters": {
+                "desc": "$./locals/enums.DisplayMode.enums.Meters.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "Minutes": {
+                "desc": "$./locals/enums.DisplayMode.enums.Minutes.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "Mol": {
+                "desc": "$./locals/enums.DisplayMode.enums.Mol.desc",
+                "type": "Constant",
+                "value": 13
+            },
+            "Newtons": {
+                "desc": "$./locals/enums.DisplayMode.enums.Newtons.desc",
+                "type": "Constant",
+                "value": 15
+            },
+            "Pa": {
+                "desc": "$./locals/enums.DisplayMode.enums.Pa.desc",
+                "type": "Constant",
+                "value": 14
+            },
+            "Percent": {
+                "desc": "$./locals/enums.DisplayMode.enums.Percent.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Power": {
+                "desc": "$./locals/enums.DisplayMode.enums.Power.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "Seconds": {
+                "desc": "$./locals/enums.DisplayMode.enums.Seconds.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "String": {
+                "desc": "$./locals/enums.DisplayMode.enums.String.desc",
+                "type": "Constant",
+                "value": 10
+            }
+        }
+    },
+    "ElevatorMode": {
+        "desc": "$./locals/enums.ElevatorMode.desc",
+        "enums": {
+            "Downward": {
+                "desc": "$./locals/enums.ElevatorMode.enums.Downward.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "Stationary": {
+                "desc": "$./locals/enums.ElevatorMode.enums.Stationary.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Upward": {
+                "desc": "$./locals/enums.ElevatorMode.enums.Upward.desc",
+                "type": "Constant",
+                "value": 1
+            }
+        }
+    },
+    "EntityState": {
+        "desc": "$./locals/enums.EntityState.desc",
+        "enums": {
+            "Alive": {
+                "desc": "$./locals/enums.EntityState.enums.Alive.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Dead": {
+                "desc": "$./locals/enums.EntityState.enums.Dead.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Decay": {
+                "desc": "$./locals/enums.EntityState.enums.Decay.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "Unconscious": {
+                "desc": "$./locals/enums.EntityState.enums.Unconscious.desc",
+                "type": "Constant",
+                "value": 2
+            }
+        }
+    },
+    "GasType": {
+        "desc": "$./locals/enums.GasType.desc",
+        "enums": {
+            "Air": {
+                "desc": "$./locals/enums.GasType.enums.Air.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "CarbonDioxide": {
+                "desc": "$./locals/enums.GasType.enums.CarbonDioxide.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "Fuel": {
+                "desc": "$./locals/enums.GasType.enums.Fuel.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "Hydrogen": {
+                "desc": "$./locals/enums.GasType.enums.Hydrogen.desc",
+                "type": "Constant",
+                "value": 16384
+            },
+            "LiquidCarbonDioxide": {
+                "desc": "$./locals/enums.GasType.enums.LiquidCarbonDioxide.desc",
+                "type": "Constant",
+                "value": 2048
+            },
+            "LiquidHydrogen": {
+                "desc": "$./locals/enums.GasType.enums.LiquidHydrogen.desc",
+                "type": "Constant",
+                "value": 32768
+            },
+            "LiquidNitrogen": {
+                "desc": "$./locals/enums.GasType.enums.LiquidNitrogen.desc",
+                "type": "Constant",
+                "value": 128
+            },
+            "LiquidNitrousOxide": {
+                "desc": "$./locals/enums.GasType.enums.LiquidNitrousOxide.desc",
+                "type": "Constant",
+                "value": 8192
+            },
+            "LiquidOxygen": {
+                "desc": "$./locals/enums.GasType.enums.LiquidOxygen.desc",
+                "type": "Constant",
+                "value": 256
+            },
+            "LiquidPollutant": {
+                "desc": "$./locals/enums.GasType.enums.LiquidPollutant.desc",
+                "type": "Constant",
+                "value": 4096
+            },
+            "LiquidVolatiles": {
+                "desc": "$./locals/enums.GasType.enums.LiquidVolatiles.desc",
+                "type": "Constant",
+                "value": 512
+            },
+            "Nitrogen": {
+                "desc": "$./locals/enums.GasType.enums.Nitrogen.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "NitrousOxide": {
+                "desc": "$./locals/enums.GasType.enums.NitrousOxide.desc",
+                "type": "Constant",
+                "value": 64
+            },
+            "Oxygen": {
+                "desc": "$./locals/enums.GasType.enums.Oxygen.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Pollutant": {
+                "desc": "$./locals/enums.GasType.enums.Pollutant.desc",
+                "type": "Constant",
+                "value": 16
+            },
+            "PollutedWater": {
+                "desc": "$./locals/enums.GasType.enums.PollutedWater.desc",
+                "type": "Constant",
+                "value": 65536
+            },
+            "Steam": {
+                "desc": "$./locals/enums.GasType.enums.Steam.desc",
+                "type": "Constant",
+                "value": 1024
+            },
+            "Undefined": {
+                "desc": "$./locals/enums.GasType.enums.Undefined.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Volatiles": {
+                "desc": "$./locals/enums.GasType.enums.Volatiles.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "Water": {
+                "desc": "$./locals/enums.GasType.enums.Water.desc",
+                "type": "Constant",
+                "value": 32
+            }
+        }
+    },
+    "HashType": {
+        "desc": "$./locals/enums.HashType.desc",
+        "enums": {
+            "GasLiquid": {
+                "desc": "$./locals/enums.HashType.enums.GasLiquid.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Prefab": {
+                "desc": "$./locals/enums.HashType.enums.Prefab.desc",
+                "type": "Constant",
+                "value": 0
+            }
+        }
+    },
+    "LogicSlotType": {
+        "desc": "$./locals/enums.LogicSlotType.desc",
+        "enums": {
+            "Charge": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Charge.desc",
+                "type": "Constant",
+                "value": 10
+            },
+            "ChargeRatio": {
+                "desc": "$./locals/enums.LogicSlotType.enums.ChargeRatio.desc",
+                "type": "Constant",
+                "value": 11
+            },
+            "Class": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Class.desc",
+                "type": "Constant",
+                "value": 12
+            },
+            "Damage": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Damage.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "Efficiency": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Efficiency.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "FilterType": {
+                "desc": "$./locals/enums.LogicSlotType.enums.FilterType.desc",
+                "type": "Constant",
+                "value": 26
+            },
+            "FreeSlots": {
+                "desc": "$./locals/enums.LogicSlotType.enums.FreeSlots.desc",
+                "type": "Constant",
+                "value": 31
+            },
+            "Growth": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Growth.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "HarvestedHash": {
+                "desc": "$./locals/enums.LogicSlotType.enums.HarvestedHash.desc",
+                "type": "Constant",
+                "value": 27
+            },
+            "Health": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Health.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "LineNumber": {
+                "desc": "$./locals/enums.LogicSlotType.enums.LineNumber.desc",
+                "type": "Constant",
+                "value": 19
+            },
+            "Lock": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Lock.desc",
+                "type": "Constant",
+                "value": 23
+            },
+            "Mature": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Mature.desc",
+                "type": "Constant",
+                "value": 16
+            },
+            "MaturityRatio": {
+                "desc": "$./locals/enums.LogicSlotType.enums.MaturityRatio.desc",
+                "type": "Constant",
+                "value": 29
+            },
+            "MaxQuantity": {
+                "desc": "$./locals/enums.LogicSlotType.enums.MaxQuantity.desc",
+                "type": "Constant",
+                "value": 15
+            },
+            "Mode": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Mode.desc",
+                "type": "Constant",
+                "value": 28
+            },
+            "None": {
+                "desc": "$./locals/enums.LogicSlotType.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "OccupantHash": {
+                "desc": "$./locals/enums.LogicSlotType.enums.OccupantHash.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "Occupled": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Occupled.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "true": {
+                "desc": "$./locals/enums.LogicSlotType.enums.True.desc",
+                "type": "Constant",
+                "value": 22
+            },
+            "Open": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Open.desc",
+                "type": "Constant",
+                "value": 21
+            },
+            "PrefabHash": {
+                "desc": "$./locals/enums.LogicSlotType.enums.PrefabHash.desc",
+                "type": "Constant",
+                "value": 17
+            },
+            "Pressure": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Pressure.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "PressureAir": {
+                "desc": "$./locals/enums.LogicSlotType.enums.PressureAir.desc",
+                "type": "Constant",
+                "value": 14
+            },
+            "PressureWaste": {
+                "desc": "$./locals/enums.LogicSlotType.enums.PressureWaste.desc",
+                "type": "Constant",
+                "value": 13
+            },
+            "Quantity": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Quantity.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "Referenced": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Referenced.desc",
+                "type": "Constant",
+                "value": 26
+            },
+            "Seeding": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Seeding.desc",
+                "type": "Constant",
+                "value": 18
+            },
+            "SeedingRatio": {
+                "desc": "$./locals/enums.LogicSlotType.enums.SeedingRatio.desc",
+                "type": "Constant",
+                "value": 30
+            },
+            "SortingClass": {
+                "desc": "$./locals/enums.LogicSlotType.enums.SortingClass.desc",
+                "type": "Constant",
+                "value": 24
+            },
+            "Temperature": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Temperature.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "TotalSlots": {
+                "desc": "$./locals/enums.LogicSlotType.enums.TotalSlots.desc",
+                "type": "Constant",
+                "value": 32
+            },
+            "Volume": {
+                "desc": "$./locals/enums.LogicSlotType.enums.Volume.desc",
+                "type": "Constant",
+                "value": 20
+            }
+        }
+    },
+    "LogicType": {
+        "desc": "$./locals/enums.LogicType.desc",
+        "enums": {
+            "Acceleration": {
+                "desc": "$./locals/enums.LogicType.enums.Acceleration.desc",
+                "type": "Constant",
+                "value": 216
+            },
+            "Activate": {
+                "desc": "$./locals/enums.LogicType.enums.Activate.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "AirRelease": {
+                "desc": "$./locals/enums.LogicType.enums.AirRelease.desc",
+                "type": "Constant",
+                "value": 75
+            },
+            "AlignmentError": {
+                "desc": "$./locals/enums.LogicType.enums.AlignmentError.desc",
+                "type": "Constant",
+                "value": 243
+            },
+            "Altitude": {
+                "desc": "$./locals/enums.LogicType.enums.Altitude.desc",
+                "type": "Constant",
+                "value": 269
+            },
+            "Apex": {
+                "desc": "$./locals/enums.LogicType.enums.Apex.desc",
+                "type": "Constant",
+                "value": 238
+            },
+            "AutoLand": {
+                "desc": "$./locals/enums.LogicType.enums.AutoLand.desc",
+                "type": "Constant",
+                "value": 226
+            },
+            "AutoShutOff": {
+                "desc": "$./locals/enums.LogicType.enums.AutoShutOff.desc",
+                "type": "Constant",
+                "value": 218
+            },
+            "BestContactFilter": {
+                "desc": "$./locals/enums.LogicType.enums.BestContactFilter.desc",
+                "type": "Constant",
+                "value": 267
+            },
+            "Bpm": {
+                "desc": "$./locals/enums.LogicType.enums.Bpm.desc",
+                "type": "Constant",
+                "value": 103
+            },
+            "BurnTimeRemaining": {
+                "desc": "$./locals/enums.LogicType.enums.BurnTimeRemaining.desc",
+                "type": "Constant",
+                "value": 225
+            },
+            "CelestialHash": {
+                "desc": "$./locals/enums.LogicType.enums.CelestialHash.desc",
+                "type": "Constant",
+                "value": 242
+            },
+            "CelestialParentHash": {
+                "desc": "$./locals/enums.LogicType.enums.CelestialParentHash.desc",
+                "type": "Constant",
+                "value": 250
+            },
+            "Channel0": {
+                "desc": "$./locals/enums.LogicType.enums.Channel0.desc",
+                "type": "Constant",
+                "value": 165
+            },
+            "Channel1": {
+                "desc": "$./locals/enums.LogicType.enums.Channel1.desc",
+                "type": "Constant",
+                "value": 166
+            },
+            "Channel2": {
+                "desc": "$./locals/enums.LogicType.enums.Channel2.desc",
+                "type": "Constant",
+                "value": 167
+            },
+            "Channel3": {
+                "desc": "$./locals/enums.LogicType.enums.Channel3.desc",
+                "type": "Constant",
+                "value": 168
+            },
+            "Channel4": {
+                "desc": "$./locals/enums.LogicType.enums.Channel4.desc",
+                "type": "Constant",
+                "value": 169
+            },
+            "Channel5": {
+                "desc": "$./locals/enums.LogicType.enums.Channel5.desc",
+                "type": "Constant",
+                "value": 170
+            },
+            "Channel6": {
+                "desc": "$./locals/enums.LogicType.enums.Channel6.desc",
+                "type": "Constant",
+                "value": 171
+            },
+            "Channel7": {
+                "desc": "$./locals/enums.LogicType.enums.Channel7.desc",
+                "type": "Constant",
+                "value": 172
+            },
+            "Charge": {
+                "desc": "$./locals/enums.LogicType.enums.Charge.desc",
+                "type": "Constant",
+                "value": 11
+            },
+            "Chart": {
+                "desc": "$./locals/enums.LogicType.enums.Chart.desc",
+                "type": "Constant",
+                "value": 256
+            },
+            "ChartedNavPoints": {
+                "desc": "$./locals/enums.LogicType.enums.ChartedNavPoints.desc",
+                "type": "Constant",
+                "value": 259
+            },
+            "ClearMemory": {
+                "desc": "$./locals/enums.LogicType.enums.ClearMemory.desc",
+                "type": "Constant",
+                "value": 62
+            },
+            "CollectableGoods": {
+                "desc": "$./locals/enums.LogicType.enums.CollectableGoods.desc",
+                "type": "Constant",
+                "value": 101
+            },
+            "Color": {
+                "desc": "$./locals/enums.LogicType.enums.Color.desc",
+                "type": "Constant",
+                "value": 38
+            },
+            "Combustion": {
+                "desc": "$./locals/enums.LogicType.enums.Combustion.desc",
+                "type": "Constant",
+                "value": 98
+            },
+            "CombustionInput": {
+                "desc": "$./locals/enums.LogicType.enums.CombustionInput.desc",
+                "type": "Constant",
+                "value": 146
+            },
+            "CombustionInput2": {
+                "desc": "$./locals/enums.LogicType.enums.CombustionInput2.desc",
+                "type": "Constant",
+                "value": 147
+            },
+            "CombustionLimiter": {
+                "desc": "$./locals/enums.LogicType.enums.CombustionLimiter.desc",
+                "type": "Constant",
+                "value": 153
+            },
+            "CombustionOutput": {
+                "desc": "$./locals/enums.LogicType.enums.CombustionOutput.desc",
+                "type": "Constant",
+                "value": 148
+            },
+            "CombustionOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.CombustionOutput2.desc",
+                "type": "Constant",
+                "value": 149
+            },
+            "CompletionRatio": {
+                "desc": "$./locals/enums.LogicType.enums.CompletionRatio.desc",
+                "type": "Constant",
+                "value": 61
+            },
+            "ContactTypeId": {
+                "desc": "$./locals/enums.LogicType.enums.ContactTypeId.desc",
+                "type": "Constant",
+                "value": 198
+            },
+            "CurrentCode": {
+                "desc": "$./locals/enums.LogicType.enums.CurrentCode.desc",
+                "type": "Constant",
+                "value": 261
+            },
+            "CurrentResearchPodType": {
+                "desc": "$./locals/enums.LogicType.enums.CurrentResearchPodType.desc",
+                "type": "Constant",
+                "value": 93
+            },
+            "Density": {
+                "desc": "$./locals/enums.LogicType.enums.Density.desc",
+                "type": "Constant",
+                "value": 262
+            },
+            "DerivativeGain": {
+                "desc": "$./locals/enums.LogicType.enums.DerivativeGain.desc",
+                "type": "Constant",
+                "value": 276
+            },
+            "DestinationCode": {
+                "desc": "$./locals/enums.LogicType.enums.DestinationCode.desc",
+                "type": "Constant",
+                "value": 215
+            },
+            "Discover": {
+                "desc": "$./locals/enums.LogicType.enums.Discover.desc",
+                "type": "Constant",
+                "value": 255
+            },
+            "DistanceAu": {
+                "desc": "$./locals/enums.LogicType.enums.DistanceAu.desc",
+                "type": "Constant",
+                "value": 244
+            },
+            "DistanceKm": {
+                "desc": "$./locals/enums.LogicType.enums.DistanceKm.desc",
+                "type": "Constant",
+                "value": 249
+            },
+            "DrillCondition": {
+                "desc": "$./locals/enums.LogicType.enums.DrillCondition.desc",
+                "type": "Constant",
+                "value": 240
+            },
+            "DryMass": {
+                "desc": "$./locals/enums.LogicType.enums.DryMass.desc",
+                "type": "Constant",
+                "value": 220
+            },
+            "Eccentricity": {
+                "desc": "$./locals/enums.LogicType.enums.Eccentricity.desc",
+                "type": "Constant",
+                "value": 247
+            },
+            "ElevatorLevel": {
+                "desc": "$./locals/enums.LogicType.enums.ElevatorLevel.desc",
+                "type": "Constant",
+                "value": 40
+            },
+            "ElevatorSpeed": {
+                "desc": "$./locals/enums.LogicType.enums.ElevatorSpeed.desc",
+                "type": "Constant",
+                "value": 39
+            },
+            "EntityState": {
+                "desc": "$./locals/enums.LogicType.enums.EntityState.desc",
+                "type": "Constant",
+                "value": 239
+            },
+            "EnvironmentEfficiency": {
+                "desc": "$./locals/enums.LogicType.enums.EnvironmentEfficiency.desc",
+                "type": "Constant",
+                "value": 104
+            },
+            "Error": {
+                "desc": "$./locals/enums.LogicType.enums.Error.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "ExhaustVelocity": {
+                "desc": "$./locals/enums.LogicType.enums.ExhaustVelocity.desc",
+                "type": "Constant",
+                "value": 235
+            },
+            "ExportCount": {
+                "desc": "$./locals/enums.LogicType.enums.ExportCount.desc",
+                "type": "Constant",
+                "value": 63
+            },
+            "Extended": {
+                "desc": "$./locals/enums.LogicType.enums.Extended.desc",
+                "type": "Constant",
+                "value": 272
+            },
+            "Filtration": {
+                "desc": "$./locals/enums.LogicType.enums.Filtration.desc",
+                "type": "Constant",
+                "value": 74
+            },
+            "FlightControlRule": {
+                "desc": "$./locals/enums.LogicType.enums.FlightControlRule.desc",
+                "type": "Constant",
+                "value": 236
+            },
+            "Flush": {
+                "desc": "$./locals/enums.LogicType.enums.Flush.desc",
+                "type": "Constant",
+                "value": 174
+            },
+            "ForceWrite": {
+                "desc": "$./locals/enums.LogicType.enums.ForceWrite.desc",
+                "type": "Constant",
+                "value": 85
+            },
+            "ForwardX": {
+                "desc": "$./locals/enums.LogicType.enums.ForwardX.desc",
+                "type": "Constant",
+                "value": 227
+            },
+            "ForwardY": {
+                "desc": "$./locals/enums.LogicType.enums.ForwardY.desc",
+                "type": "Constant",
+                "value": 228
+            },
+            "ForwardZ": {
+                "desc": "$./locals/enums.LogicType.enums.ForwardZ.desc",
+                "type": "Constant",
+                "value": 229
+            },
+            "Fuel": {
+                "desc": "$./locals/enums.LogicType.enums.Fuel.desc",
+                "type": "Constant",
+                "value": 99
+            },
+            "Harvest": {
+                "desc": "$./locals/enums.LogicType.enums.Harvest.desc",
+                "type": "Constant",
+                "value": 69
+            },
+            "Horizontal": {
+                "desc": "$./locals/enums.LogicType.enums.Horizontal.desc",
+                "type": "Constant",
+                "value": 20
+            },
+            "HorizontalRatio": {
+                "desc": "$./locals/enums.LogicType.enums.HorizontalRatio.desc",
+                "type": "Constant",
+                "value": 34
+            },
+            "Idle": {
+                "desc": "$./locals/enums.LogicType.enums.Idle.desc",
+                "type": "Constant",
+                "value": 37
+            },
+            "ImportCount": {
+                "desc": "$./locals/enums.LogicType.enums.ImportCount.desc",
+                "type": "Constant",
+                "value": 64
+            },
+            "Inclination": {
+                "desc": "$./locals/enums.LogicType.enums.Inclination.desc",
+                "type": "Constant",
+                "value": 246
+            },
+            "Index": {
+                "desc": "$./locals/enums.LogicType.enums.Index.desc",
+                "type": "Constant",
+                "value": 241
+            },
+            "IntegralGain": {
+                "desc": "$./locals/enums.LogicType.enums.IntegralGain.desc",
+                "type": "Constant",
+                "value": 275
+            },
+            "InterrogationProgress": {
+                "desc": "$./locals/enums.LogicType.enums.InterrogationProgress.desc",
+                "type": "Constant",
+                "value": 157
+            },
+            "LineNumber": {
+                "desc": "$./locals/enums.LogicType.enums.LineNumber.desc",
+                "type": "Constant",
+                "value": 173
+            },
+            "Lock": {
+                "desc": "$./locals/enums.LogicType.enums.Lock.desc",
+                "type": "Constant",
+                "value": 10
+            },
+            "ManualResearchRequiredPod": {
+                "desc": "$./locals/enums.LogicType.enums.ManualResearchRequiredPod.desc",
+                "type": "Constant",
+                "value": 94
+            },
+            "Mass": {
+                "desc": "$./locals/enums.LogicType.enums.Mass.desc",
+                "type": "Constant",
+                "value": 219
+            },
+            "Maximum": {
+                "desc": "$./locals/enums.LogicType.enums.Maximum.desc",
+                "type": "Constant",
+                "value": 23
+            },
+            "MineablesInQueue": {
+                "desc": "$./locals/enums.LogicType.enums.MineablesInQueue.desc",
+                "type": "Constant",
+                "value": 96
+            },
+            "MineablesInVicinity": {
+                "desc": "$./locals/enums.LogicType.enums.MineablesInVicinity.desc",
+                "type": "Constant",
+                "value": 95
+            },
+            "MinedQuantity": {
+                "desc": "$./locals/enums.LogicType.enums.MinedQuantity.desc",
+                "type": "Constant",
+                "value": 266
+            },
+            "Minimum": {
+                "desc": "$./locals/enums.LogicType.enums.Minimum.desc",
+                "type": "Constant",
+                "value": 277
+            },
+            "MinimumWattsToContact": {
+                "desc": "$./locals/enums.LogicType.enums.MinimumWattsToContact.desc",
+                "type": "Constant",
+                "value": 163
+            },
+            "Mode": {
+                "desc": "$./locals/enums.LogicType.enums.Mode.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "NameHash": {
+                "desc": "$./locals/enums.LogicType.enums.NameHash.desc",
+                "type": "Constant",
+                "value": 268
+            },
+            "NavPoints": {
+                "desc": "$./locals/enums.LogicType.enums.NavPoints.desc",
+                "type": "Constant",
+                "value": 258
+            },
+            "NetworkFault": {
+                "desc": "$./locals/enums.LogicType.enums.NetworkFault.desc",
+                "type": "Constant",
+                "value": 273
+            },
+            "NextWeatherEventTime": {
+                "desc": "$./locals/enums.LogicType.enums.NextWeatherEventTime.desc",
+                "type": "Constant",
+                "value": 97
+            },
+            "NextWeatherHash": {
+                "desc": "$./locals/enums.LogicType.enums.NextWeatherHash.desc",
+                "type": "Constant",
+                "value": 281
+            },
+            "true": {
+                "desc": "$./locals/enums.LogicType.enums.True.desc",
+                "type": "Constant",
+                "value": 28
+            },
+            "Open": {
+                "desc": "$./locals/enums.LogicType.enums.Open.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "OperationalTemperatureEfficiency": {
+                "desc": "$./locals/enums.LogicType.enums.OperationalTemperatureEfficiency.desc",
+                "type": "Constant",
+                "value": 150
+            },
+            "OrbitPeriod": {
+                "desc": "$./locals/enums.LogicType.enums.OrbitPeriod.desc",
+                "type": "Constant",
+                "value": 245
+            },
+            "Orientation": {
+                "desc": "$./locals/enums.LogicType.enums.Orientation.desc",
+                "type": "Constant",
+                "value": 230
+            },
+            "Output": {
+                "desc": "$./locals/enums.LogicType.enums.Output.desc",
+                "type": "Constant",
+                "value": 70
+            },
+            "PassedMoles": {
+                "desc": "$./locals/enums.LogicType.enums.PassedMoles.desc",
+                "type": "Constant",
+                "value": 234
+            },
+            "Plant": {
+                "desc": "$./locals/enums.LogicType.enums.Plant.desc",
+                "type": "Constant",
+                "value": 68
+            },
+            "PositionX": {
+                "desc": "$./locals/enums.LogicType.enums.PositionX.desc",
+                "type": "Constant",
+                "value": 76
+            },
+            "PositionY": {
+                "desc": "$./locals/enums.LogicType.enums.PositionY.desc",
+                "type": "Constant",
+                "value": 77
+            },
+            "PositionZ": {
+                "desc": "$./locals/enums.LogicType.enums.PositionZ.desc",
+                "type": "Constant",
+                "value": 78
+            },
+            "Power": {
+                "desc": "$./locals/enums.LogicType.enums.Power.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "PowerActual": {
+                "desc": "$./locals/enums.LogicType.enums.PowerActual.desc",
+                "type": "Constant",
+                "value": 26
+            },
+            "PowerGeneration": {
+                "desc": "$./locals/enums.LogicType.enums.PowerGeneration.desc",
+                "type": "Constant",
+                "value": 65
+            },
+            "PowerPotential": {
+                "desc": "$./locals/enums.LogicType.enums.PowerPotential.desc",
+                "type": "Constant",
+                "value": 25
+            },
+            "PowerRequired": {
+                "desc": "$./locals/enums.LogicType.enums.PowerRequired.desc",
+                "type": "Constant",
+                "value": 36
+            },
+            "PrefabHash": {
+                "desc": "$./locals/enums.LogicType.enums.PrefabHash.desc",
+                "type": "Constant",
+                "value": 84
+            },
+            "Pressure": {
+                "desc": "$./locals/enums.LogicType.enums.Pressure.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "PressureEfficiency": {
+                "desc": "$./locals/enums.LogicType.enums.PressureEfficiency.desc",
+                "type": "Constant",
+                "value": 152
+            },
+            "PressureExternal": {
+                "desc": "$./locals/enums.LogicType.enums.PressureExternal.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "PressureInput": {
+                "desc": "$./locals/enums.LogicType.enums.PressureInput.desc",
+                "type": "Constant",
+                "value": 106
+            },
+            "PressureInput2": {
+                "desc": "$./locals/enums.LogicType.enums.PressureInput2.desc",
+                "type": "Constant",
+                "value": 116
+            },
+            "PressureInternal": {
+                "desc": "$./locals/enums.LogicType.enums.PressureInternal.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "PressureOutput": {
+                "desc": "$./locals/enums.LogicType.enums.PressureOutput.desc",
+                "type": "Constant",
+                "value": 126
+            },
+            "PressureOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.PressureOutput2.desc",
+                "type": "Constant",
+                "value": 136
+            },
+            "PressureSetting": {
+                "desc": "$./locals/enums.LogicType.enums.PressureSetting.desc",
+                "type": "Constant",
+                "value": 71
+            },
+            "Progress": {
+                "desc": "$./locals/enums.LogicType.enums.Progress.desc",
+                "type": "Constant",
+                "value": 214
+            },
+            "ProportionalGain": {
+                "desc": "$./locals/enums.LogicType.enums.ProportionalGain.desc",
+                "type": "Constant",
+                "value": 274
+            },
+            "Quantity": {
+                "desc": "$./locals/enums.LogicType.enums.Quantity.desc",
+                "type": "Constant",
+                "value": 27
+            },
+            "Ratio": {
+                "desc": "$./locals/enums.LogicType.enums.Ratio.desc",
+                "type": "Constant",
+                "value": 24
+            },
+            "RatioCarbonDioxide": {
+                "desc": "$./locals/enums.LogicType.enums.RatioCarbonDioxide.desc",
+                "type": "Constant",
+                "value": 15
+            },
+            "RatioCarbonDioxideInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioCarbonDioxideInput.desc",
+                "type": "Constant",
+                "value": 109
+            },
+            "RatioCarbonDioxideInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioCarbonDioxideInput2.desc",
+                "type": "Constant",
+                "value": 119
+            },
+            "RatioCarbonDioxideOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioCarbonDioxideOutput.desc",
+                "type": "Constant",
+                "value": 129
+            },
+            "RatioCarbonDioxideOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioCarbonDioxideOutput2.desc",
+                "type": "Constant",
+                "value": 139
+            },
+            "RatioHydrogen": {
+                "desc": "$./locals/enums.LogicType.enums.RatioHydrogen.desc",
+                "type": "Constant",
+                "value": 252
+            },
+            "RatioLiquidCarbonDioxide": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidCarbonDioxide.desc",
+                "type": "Constant",
+                "value": 199
+            },
+            "Ratiol.iquidCarbonDioxideInput": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideInput.desc",
+                "type": "Constant",
+                "value": 200
+            },
+            "Ratiol.iquidCarbonDioxideInput2": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideInput2.desc",
+                "type": "Constant",
+                "value": 201
+            },
+            "Ratiol.iquidCarbonDioxideOutput": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideOutput.desc",
+                "type": "Constant",
+                "value": 202
+            },
+            "Ratiol.iquidCarbonDioxideOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideOutput2.desc",
+                "type": "Constant",
+                "value": 203
+            },
+            "Ratiol.iquidNitrogen": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidNitrogen.desc",
+                "type": "Constant",
+                "value": 253
+            },
+            "Ratiol.iquidNitrogenInput": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidNitrogenInput.desc",
+                "type": "Constant",
+                "value": 178
+            },
+            "Ratiol.iquidNitrogenInput2": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidNitrogenInput2.desc",
+                "type": "Constant",
+                "value": 179
+            },
+            "Ratiol.IquidNitrogenOutput": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrogenOutput.desc",
+                "type": "Constant",
+                "value": 180
+            },
+            "Ratiol.IquidNitrogenOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrogenOutput2.desc",
+                "type": "Constant",
+                "value": 181
+            },
+            "Ratiol.IquidNitrousOxide": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxide.desc",
+                "type": "Constant",
+                "value": 209
+            },
+            "Ratiol.IquidNitrousOxideInput": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideInput.desc",
+                "type": "Constant",
+                "value": 210
+            },
+            "Ratiol.IquidNitrousOxideInput2": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideInput2.desc",
+                "type": "Constant",
+                "value": 211
+            },
+            "Ratiol.IquidNitrousOxideOutput": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideOutput.desc",
+                "type": "Constant",
+                "value": 212
+            },
+            "Ratiol.IquidNitrousOxideOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideOutput2.desc",
+                "type": "Constant",
+                "value": 213
+            },
+            "Ratiol.IquidOxygen": {
+                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidOxygen.desc",
+                "type": "Constant",
+                "value": 183
+            },
+            "RatioLiquidOxygenInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidOxygenInput.desc",
+                "type": "Constant",
+                "value": 184
+            },
+            "RatioLiquidOxygenInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidOxygenInput2.desc",
+                "type": "Constant",
+                "value": 185
+            },
+            "RatioLiquidOxygenOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidOxygenOutput.desc",
+                "type": "Constant",
+                "value": 186
+            },
+            "RatioLiquidOxygenOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidOxygenOutput2.desc",
+                "type": "Constant",
+                "value": 187
+            },
+            "RatioLiquidPollutant": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidPollutant.desc",
+                "type": "Constant",
+                "value": 204
+            },
+            "RatioLiquidPollutantInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidPollutantInput.desc",
+                "type": "Constant",
+                "value": 205
+            },
+            "RatioLiquidPollutantInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidPollutantInput2.desc",
+                "type": "Constant",
+                "value": 206
+            },
+            "RatioLiquidPollutantOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidPollutantOutput.desc",
+                "type": "Constant",
+                "value": 207
+            },
+            "RatioLiquidPollutantOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidPollutantOutput2.desc",
+                "type": "Constant",
+                "value": 208
+            },
+            "RatioLiquidVolatiles": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidVolatiles.desc",
+                "type": "Constant",
+                "value": 188
+            },
+            "RatioLiquidVolatilesInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidVolatilesInput.desc",
+                "type": "Constant",
+                "value": 189
+            },
+            "RatioLiquidVolatilesInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidVolatilesInput2.desc",
+                "type": "Constant",
+                "value": 190
+            },
+            "RatioLiquidVolatilesOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidVolatilesOutput.desc",
+                "type": "Constant",
+                "value": 191
+            },
+            "RatioLiquidVolatilesOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidVolatilesOutput2.desc",
+                "type": "Constant",
+                "value": 192
+            },
+            "RatioNitrogen": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrogen.desc",
+                "type": "Constant",
+                "value": 16
+            },
+            "RatioNitrogenInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrogenInput.desc",
+                "type": "Constant",
+                "value": 110
+            },
+            "RatioNitrogenInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrogenInput2.desc",
+                "type": "Constant",
+                "value": 120
+            },
+            "RatioNitrogenOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrogenOutput.desc",
+                "type": "Constant",
+                "value": 130
+            },
+            "RatioNitrogenOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrogenOutput2.desc",
+                "type": "Constant",
+                "value": 140
+            },
+            "RatioNitrousOxide": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrousOxide.desc",
+                "type": "Constant",
+                "value": 83
+            },
+            "RatioNitrousOxideInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrousOxideInput.desc",
+                "type": "Constant",
+                "value": 114
+            },
+            "RatioNitrousOxideInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrousOxideInput2.desc",
+                "type": "Constant",
+                "value": 124
+            },
+            "RatioNitrousOxideOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrousOxideOutput.desc",
+                "type": "Constant",
+                "value": 134
+            },
+            "RatioNitrousOxideOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioNitrousOxideOutput2.desc",
+                "type": "Constant",
+                "value": 144
+            },
+            "RatioOxygen": {
+                "desc": "$./locals/enums.LogicType.enums.RatioOxygen.desc",
+                "type": "Constant",
+                "value": 14
+            },
+            "RatioOxygenInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioOxygenInput.desc",
+                "type": "Constant",
+                "value": 108
+            },
+            "RatioOxygenInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioOxygenInput2.desc",
+                "type": "Constant",
+                "value": 118
+            },
+            "RatioOxygenOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioOxygenOutput.desc",
+                "type": "Constant",
+                "value": 128
+            },
+            "RatioOxygenOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioOxygenOutput2.desc",
+                "type": "Constant",
+                "value": 138
+            },
+            "RatioPollutant": {
+                "desc": "$./locals/enums.LogicType.enums.RatioPollutant.desc",
+                "type": "Constant",
+                "value": 17
+            },
+            "RatioPollutantInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioPollutantInput.desc",
+                "type": "Constant",
+                "value": 111
+            },
+            "RatioPollutantInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioPollutantInput2.desc",
+                "type": "Constant",
+                "value": 121
+            },
+            "RatioPollutantOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioPollutantOutput.desc",
+                "type": "Constant",
+                "value": 131
+            },
+            "RatioPollutantOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioPollutantOutput2.desc",
+                "type": "Constant",
+                "value": 141
+            },
+            "RatioPollutedWater": {
+                "desc": "$./locals/enums.LogicType.enums.RatioPollutedWater.desc",
+                "type": "Constant",
+                "value": 254
+            },
+            "RatioSteam": {
+                "desc": "$./locals/enums.LogicType.enums.RatioSteam.desc",
+                "type": "Constant",
+                "value": 193
+            },
+            "RatioSteamInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioSteamInput.desc",
+                "type": "Constant",
+                "value": 194
+            },
+            "RatioSteamInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioSteamInput2.desc",
+                "type": "Constant",
+                "value": 195
+            },
+            "RatioSteamOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioSteamOutput.desc",
+                "type": "Constant",
+                "value": 196
+            },
+            "RatioSteamOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioSteamOutput2.desc",
+                "type": "Constant",
+                "value": 197
+            },
+            "RatioVolatiles": {
+                "desc": "$./locals/enums.LogicType.enums.RatioVolatiles.desc",
+                "type": "Constant",
+                "value": 18
+            },
+            "RatioVolatilesInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioVolatilesInput.desc",
+                "type": "Constant",
+                "value": 112
+            },
+            "RatioVolatilesInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioVolatilesInput2.desc",
+                "type": "Constant",
+                "value": 122
+            },
+            "RatioVolatilesOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioVolatilesOutput.desc",
+                "type": "Constant",
+                "value": 132
+            },
+            "RatioVolatilesOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioVolatilesOutput2.desc",
+                "type": "Constant",
+                "value": 142
+            },
+            "RatioWater": {
+                "desc": "$./locals/enums.LogicType.enums.RatioWater.desc",
+                "type": "Constant",
+                "value": 19
+            },
+            "RatioWaterInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioWaterInput.desc",
+                "type": "Constant",
+                "value": 113
+            },
+            "RatioWaterInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioWaterInput2.desc",
+                "type": "Constant",
+                "value": 123
+            },
+            "RatioWaterOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioWaterOutput.desc",
+                "type": "Constant",
+                "value": 133
+            },
+            "RatioWaterOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioWaterOutput2.desc",
+                "type": "Constant",
+                "value": 143
+            },
+            "Reagents": {
+                "desc": "$./locals/enums.LogicType.enums.Reagents.desc",
+                "type": "Constant",
+                "value": 13
+            },
+            "RecipeHash": {
+                "desc": "$./locals/enums.LogicType.enums.RecipeHash.desc",
+                "type": "Constant",
+                "value": 41
+            },
+            "ReEntryAltitude": {
+                "desc": "$./locals/enums.LogicType.enums.ReEntryAltitude.desc",
+                "type": "Constant",
+                "value": 237
+            },
+            "ReferenceId": {
+                "desc": "$./locals/enums.LogicType.enums.ReferenceId.desc",
+                "type": "Constant",
+                "value": 217
+            },
+            "RequestHash": {
+                "desc": "$./locals/enums.LogicType.enums.RequestHash.desc",
+                "type": "Constant",
+                "value": 60
+            },
+            "RequiredPower": {
+                "desc": "$./locals/enums.LogicType.enums.RequiredPower.desc",
+                "type": "Constant",
+                "value": 33
+            },
+            "Reset": {
+                "desc": "$./locals/enums.LogicType.enums.Reset.desc",
+                "type": "Constant",
+                "value": 279
+            },
+            "ReturnFuelCost": {
+                "desc": "$./locals/enums.LogicType.enums.ReturnFuelCost.desc",
+                "type": "Constant",
+                "value": 100
+            },
+            "Richness": {
+                "desc": "$./locals/enums.LogicType.enums.Richness.desc",
+                "type": "Constant",
+                "value": 263
+            },
+            "Rpm": {
+                "desc": "$./locals/enums.LogicType.enums.Rpm.desc",
+                "type": "Constant",
+                "value": 155
+            },
+            "SemMajorAxis": {
+                "desc": "$./locals/enums.LogicType.enums.SemMajorAxis.desc",
+                "type": "Constant",
+                "value": 248
+            },
+            "Setpoint": {
+                "desc": "$./locals/enums.LogicType.enums.Setpoint.desc",
+                "type": "Constant",
+                "value": 278
+            },
+            "Setting": {
+                "desc": "$./locals/enums.LogicType.enums.Setting.desc",
+                "type": "Constant",
+                "value": 12
+            },
+            "SettingInput": {
+                "desc": "$./locals/enums.LogicType.enums.SettingInput.desc",
+                "type": "Constant",
+                "value": 91
+            },
+            "SettingOutput": {
+                "desc": "$./locals/enums.LogicType.enums.SettingOutput.desc",
+                "type": "Constant",
+                "value": 92
+            },
+            "SignalID": {
+                "desc": "$./locals/enums.LogicType.enums.SignalID.desc",
+                "type": "Constant",
+                "value": 87
+            },
+            "SignalStrength": {
+                "desc": "$./locals/enums.LogicType.enums.SignalStrength.desc",
+                "type": "Constant",
+                "value": 86
+            },
+            "Sites": {
+                "desc": "$./locals/enums.LogicType.enums.Sites.desc",
+                "type": "Constant",
+                "value": 260
+            },
+            "Size": {
+                "desc": "$./locals/enums.LogicType.enums.Size.desc",
+                "type": "Constant",
+                "value": 264
+            },
+            "SizeX": {
+                "desc": "$./locals/enums.LogicType.enums.SizeX.desc",
+                "type": "Constant",
+                "value": 160
+            },
+            "SizeY": {
+                "desc": "$./locals/enums.LogicType.enums.SizeY.desc",
+                "type": "Constant",
+                "value": 161
+            },
+            "SizeZ": {
+                "desc": "$./locals/enums.LogicType.enums.SizeZ.desc",
+                "type": "Constant",
+                "value": 162
+            },
+            "SolarAngle": {
+                "desc": "$./locals/enums.LogicType.enums.SolarAngle.desc",
+                "type": "Constant",
+                "value": 22
+            },
+            "SolarIrradiance": {
+                "desc": "$./locals/enums.LogicType.enums.SolarIrradiance.desc",
+                "type": "Constant",
+                "value": 176
+            },
+            "SoundAlert": {
+                "desc": "$./locals/enums.LogicType.enums.SoundAlert.desc",
+                "type": "Constant",
+                "value": 175
+            },
+            "StackTrace": {
+                "desc": "$./locals/enums.LogicType.enums.StackTrace.desc",
+                "type": "Constant",
+                "value": 280
+            },
+            "Stress": {
+                "desc": "$./locals/enums.LogicType.enums.Stress.desc",
+                "type": "Constant",
+                "value": 156
+            },
+            "Survey": {
+                "desc": "$./locals/enums.LogicType.enums.Survey.desc",
+                "type": "Constant",
+                "value": 257
+            },
+            "TargetPadIndex": {
+                "desc": "$./locals/enums.LogicType.enums.TargetPadIndex.desc",
+                "type": "Constant",
+                "value": 158
+            },
+            "TargetPrefabHash": {
+                "desc": "$./locals/enums.LogicType.enums.TargetPrefabHash.desc",
+                "type": "Constant",
+                "value": 271
+            },
+            "TargetSlotIndex": {
+                "desc": "$./locals/enums.LogicType.enums.TargetSlotIndex.desc",
+                "type": "Constant",
+                "value": 270
+            },
+            "TargetX": {
+                "desc": "$./locals/enums.LogicType.enums.TargetX.desc",
+                "type": "Constant",
+                "value": 88
+            },
+            "TargetY": {
+                "desc": "$./locals/enums.LogicType.enums.TargetY.desc",
+                "type": "Constant",
+                "value": 89
+            },
+            "TargetZ": {
+                "desc": "$./locals/enums.LogicType.enums.TargetZ.desc",
+                "type": "Constant",
+                "value": 90
+            },
+            "Temperature": {
+                "desc": "$./locals/enums.LogicType.enums.Temperature.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "TemperatureDifferentialEfficiency": {
+                "desc": "$./locals/enums.LogicType.enums.TemperatureDifferentialEfficiency.desc",
+                "type": "Constant",
+                "value": 151
+            },
+            "TemperatureExternal": {
+                "desc": "$./locals/enums.LogicType.enums.TemperatureExternal.desc",
+                "type": "Constant",
+                "value": 73
+            },
+            "TemperatureInput": {
+                "desc": "$./locals/enums.LogicType.enums.TemperatureInput.desc",
+                "type": "Constant",
+                "value": 107
+            },
+            "TemperatureInput2": {
+                "desc": "$./locals/enums.LogicType.enums.TemperatureInput2.desc",
+                "type": "Constant",
+                "value": 117
+            },
+            "TemperatureOutput": {
+                "desc": "$./locals/enums.LogicType.enums.TemperatureOutput.desc",
+                "type": "Constant",
+                "value": 127
+            },
+            "TemperatureOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.TemperatureOutput2.desc",
+                "type": "Constant",
+                "value": 137
+            },
+            "TemperatureSetting": {
+                "desc": "$./locals/enums.LogicType.enums.TemperatureSetting.desc",
+                "type": "Constant",
+                "value": 72
+            },
+            "Throttle": {
+                "desc": "$./locals/enums.LogicType.enums.Throttle.desc",
+                "type": "Constant",
+                "value": 154
+            },
+            "Thrust": {
+                "desc": "$./locals/enums.LogicType.enums.Thrust.desc",
+                "type": "Constant",
+                "value": 221
+            },
+            "ThrustToWeight": {
+                "desc": "$./locals/enums.LogicType.enums.ThrustToWeight.desc",
+                "type": "Constant",
+                "value": 223
+            },
+            "Time": {
+                "desc": "$./locals/enums.LogicType.enums.Time.desc",
+                "type": "Constant",
+                "value": 102
+            },
+            "TimeToDestination": {
+                "desc": "$./locals/enums.LogicType.enums.TimeToDestination.desc",
+                "type": "Constant",
+                "value": 224
+            },
+            "TotalMoles": {
+                "desc": "$./locals/enums.LogicType.enums.TotalMoles.desc",
+                "type": "Constant",
+                "value": 66
+            },
+            "TotalMolesInput": {
+                "desc": "$./locals/enums.LogicType.enums.TotalMolesInput.desc",
+                "type": "Constant",
+                "value": 115
+            },
+            "TotalMolesInput2": {
+                "desc": "$./locals/enums.LogicType.enums.TotalMolesInput2.desc",
+                "type": "Constant",
+                "value": 125
+            },
+            "TotalMolesOutput": {
+                "desc": "$./locals/enums.LogicType.enums.TotalMolesOutput.desc",
+                "type": "Constant",
+                "value": 135
+            },
+            "TotalMolesOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.TotalMolesOutput2.desc",
+                "type": "Constant",
+                "value": 145
+            },
+            "TotalQuantity": {
+                "desc": "$./locals/enums.LogicType.enums.TotalQuantity.desc",
+                "type": "Constant",
+                "value": 265
+            },
+            "TrueAnomaly": {
+                "desc": "$./locals/enums.LogicType.enums.TrueAnomaly.desc",
+                "type": "Constant",
+                "value": 251
+            },
+            "VelocityMagnitude": {
+                "desc": "$./locals/enums.LogicType.enums.VelocityMagnitude.desc",
+                "type": "Constant",
+                "value": 79
+            },
+            "VelocityRelativeX": {
+                "desc": "$./locals/enums.LogicType.enums.VelocityRelativeX.desc",
+                "type": "Constant",
+                "value": 80
+            },
+            "VelocityRelativeY": {
+                "desc": "$./locals/enums.LogicType.enums.VelocityRelativeY.desc",
+                "type": "Constant",
+                "value": 81
+            },
+            "VelocityRelativeZ": {
+                "desc": "$./locals/enums.LogicType.enums.VelocityRelativeZ.desc",
+                "type": "Constant",
+                "value": 82
+            },
+            "VelocityX": {
+                "desc": "$./locals/enums.LogicType.enums.VelocityX.desc",
+                "type": "Constant",
+                "value": 231
+            },
+            "VelocityY": {
+                "desc": "$./locals/enums.LogicType.enums.VelocityY.desc",
+                "type": "Constant",
+                "value": 232
+            },
+            "VelocityZ": {
+                "desc": "$./locals/enums.LogicType.enums.VelocityZ.desc",
+                "type": "Constant",
+                "value": 233
+            },
+            "Vertical": {
+                "desc": "$./locals/enums.LogicType.enums.Vertical.desc",
+                "type": "Constant",
+                "value": 21
+            },
+            "VerticalRatio": {
+                "desc": "$./locals/enums.LogicType.enums.VerticalRatio.desc",
+                "type": "Constant",
+                "value": 35
+            },
+            "Volume": {
+                "desc": "$./locals/enums.LogicType.enums.Volume.desc",
+                "type": "Constant",
+                "value": 67
+            },
+            "VolumeOfLiquid": {
+                "desc": "$./locals/enums.LogicType.enums.VolumeOfLiquid.desc",
+                "type": "Constant",
+                "value": 182
+            },
+            "WattsReachingContact": {
+                "desc": "$./locals/enums.LogicType.enums.WattsReachingContact.desc",
+                "type": "Constant",
+                "value": 164
+            },
+            "Weight": {
+                "desc": "$./locals/enums.LogicType.enums.Weight.desc",
+                "type": "Constant",
+                "value": 222
+            },
+            "WorkingGasEfficiency": {
+                "desc": "$./locals/enums.LogicType.enums.WorkingGasEfficiency.desc",
+                "type": "Constant",
+                "value": 105
+            }
+        }
+    },
+    "PowerMode": {
+        "desc": "$./locals/enums.PowerMode.desc",
+        "enums": {
+            "Charged": {
+                "desc": "$./locals/enums.PowerMode.enums.Charged.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "Charging": {
+                "desc": "$./locals/enums.PowerMode.enums.Charging.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "Discharged": {
+                "desc": "$./locals/enums.PowerMode.enums.Discharged.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Discharging": {
+                "desc": "$./locals/enums.PowerMode.enums.Discharging.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "Idle": {
+                "desc": "$./locals/enums.PowerMode.enums.Idle.desc",
+                "type": "Constant",
+                "value": 0
+            }
+        }
+    },
+    "PrinterInstruction": {
+        "desc": "$./locals/enums.PrinterInstruction.desc",
+        "enums": {
+            "DeviceSetLock": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.DeviceSetLock.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "EjectAllReagents": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.EjectAllReagents.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "EjectReagent": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.EjectReagent.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "ExecuteRecipe": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.ExecuteRecipe.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "JumpIfNextInvalid": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.JumpIfNextInvalid.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "JumpToAddress": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.JumpToAddress.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "MissingRecipeReagent": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.MissingRecipeReagent.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "None": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "StackPointer": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.StackPointer.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "WaitUntilNextValid": {
+                "desc": "$./locals/enums.PrinterInstruction.enums.WaitUntilNextValid.desc",
+                "type": "Constant",
+                "value": 3
+            }
+        }
+    },
+    "ReEntryProfile": {
+        "desc": "$./locals/enums.ReEntryProfile.desc",
+        "enums": {
+            "High": {
+                "desc": "$./locals/enums.ReEntryProfile.enums.High.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "Low": {
+                "desc": "$./locals/enums.ReEntryProfile.enums.Low.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Max": {
+                "desc": "$./locals/enums.ReEntryProfile.enums.Max.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "Medium": {
+                "desc": "$./locals/enums.ReEntryProfile.enums.Medium.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "None": {
+                "desc": "$./locals/enums.ReEntryProfile.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            }
+        }
+    },
+    "RobotMode": {
+        "desc": "$./locals/enums.RobotMode.desc",
+        "enums": {
+            "Follow": {
+                "desc": "$./locals/enums.RobotMode.enums.Follow.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "MoveToTarget": {
+                "desc": "$./locals/enums.RobotMode.enums.MoveToTarget.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "None": {
+                "desc": "$./locals/enums.RobotMode.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "PathToTarget": {
+                "desc": "$./locals/enums.RobotMode.enums.PathToTarget.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "Roam": {
+                "desc": "$./locals/enums.RobotMode.enums.Roam.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "StorageFull": {
+                "desc": "$./locals/enums.RobotMode.enums.StorageFull.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "Unload": {
+                "desc": "$./locals/enums.RobotMode.enums.Unload.desc",
+                "type": "Constant",
+                "value": 4
+            }
+        }
+    },
+    "RocketMode": {
+        "desc": "$./locals/enums.RocketMode.desc",
+        "enums": {
+            "Chart": {
+                "desc": "$./locals/enums.RocketMode.enums.Chart.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "Deploy": {
+                "desc": "$./locals/enums.RocketMode.enums.Deploy.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "Discover": {
+                "desc": "$./locals/enums.RocketMode.enums.Discover.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "Invalid": {
+                "desc": "$./locals/enums.RocketMode.enums.Invalid.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Mine": {
+                "desc": "$./locals/enums.RocketMode.enums.Mine.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "None": {
+                "desc": "$./locals/enums.RocketMode.enums.None.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Survey": {
+                "desc": "$./locals/enums.RocketMode.enums.Survey.desc",
+                "type": "Constant",
+                "value": 3
+            }
+        }
+    },
+    "SettingDisplayMode": {
+        "desc": "$./locals/enums.SettingDisplayMode.desc",
+        "enums": {
+            "Number": {
+                "desc": "$./locals/enums.SettingDisplayMode.enums.Number.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "String": {
+                "desc": "$./locals/enums.SettingDisplayMode.enums.String.desc",
+                "type": "Constant",
+                "value": 1
+            }
+        }
+    },
+    "ShuttleType": {
+        "desc": "$./locals/enums.ShuttleType.desc",
+        "enums": {
+            "Large": {
+                "desc": "$./locals/enums.ShuttleType.enums.Large.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "LargeGas": {
+                "desc": "$./locals/enums.ShuttleType.enums.LargeGas.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "LargePlane": {
+                "desc": "$./locals/enums.ShuttleType.enums.LargePlane.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "Medium": {
+                "desc": "$./locals/enums.ShuttleType.enums.Medium.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "MediumGas": {
+                "desc": "$./locals/enums.ShuttleType.enums.MediumGas.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "MediumPlane": {
+                "desc": "$./locals/enums.ShuttleType.enums.MediumPlane.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "None": {
+                "desc": "$./locals/enums.ShuttleType.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Small": {
+                "desc": "$./locals/enums.ShuttleType.enums.Small.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "SmallGas": {
+                "desc": "$./locals/enums.ShuttleType.enums.SmallGas.desc",
+                "type": "Constant",
+                "value": 2
+            }
+        }
+    },
+    "SlotClass": {
+        "desc": "$./locals/enums.SlotClass.desc",
+        "enums": {
+            "AccessCard": {
+                "desc": "$./locals/enums.SlotClass.enums.AccessCard.desc",
+                "type": "Constant",
+                "value": 22
+            },
+            "Appliance": {
+                "desc": "$./locals/enums.SlotClass.enums.Appliance.desc",
+                "type": "Constant",
+                "value": 18
+            },
+            "Back": {
+                "desc": "$./locals/enums.SlotClass.enums.Back.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "Battery": {
+                "desc": "$./locals/enums.SlotClass.enums.Battery.desc",
+                "type": "Constant",
+                "value": 14
+            },
+            "Belt": {
+                "desc": "$./locals/enums.SlotClass.enums.Belt.desc",
+                "type": "Constant",
+                "value": 16
+            },
+            "Blocked": {
+                "desc": "$./locals/enums.SlotClass.enums.Blocked.desc",
+                "type": "Constant",
+                "value": 39
+            },
+            "Bottle": {
+                "desc": "$./locals/enums.SlotClass.enums.Bottle.desc",
+                "type": "Constant",
+                "value": 25
+            },
+            "Cartridge": {
+                "desc": "$./locals/enums.SlotClass.enums.Cartridge.desc",
+                "type": "Constant",
+                "value": 21
+            },
+            "Circuit": {
+                "desc": "$./locals/enums.SlotClass.enums.Circuit.desc",
+                "type": "Constant",
+                "value": 24
+            },
+            "Circuitboard": {
+                "desc": "$./locals/enums.SlotClass.enums.Circuitboard.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "Crate": {
+                "desc": "$./locals/enums.SlotClass.enums.Crate.desc",
+                "type": "Constant",
+                "value": 40
+            },
+            "CreditCard": {
+                "desc": "$./locals/enums.SlotClass.enums.CreditCard.desc",
+                "type": "Constant",
+                "value": 28
+            },
+            "DataDisk": {
+                "desc": "$./locals/enums.SlotClass.enums.DataDisk.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "DirtCanister": {
+                "desc": "$./locals/enums.SlotClass.enums.DirtCanister.desc",
+                "type": "Constant",
+                "value": 29
+            },
+            "DrillHead": {
+                "desc": "$./locals/enums.SlotClass.enums.DrillHead.desc",
+                "type": "Constant",
+                "value": 35
+            },
+            "Egg": {
+                "desc": "$./locals/enums.SlotClass.enums.Egg.desc",
+                "type": "Constant",
+                "value": 15
+            },
+            "Entity": {
+                "desc": "$./locals/enums.SlotClass.enums.Entity.desc",
+                "type": "Constant",
+                "value": 13
+            },
+            "Flare": {
+                "desc": "$./locals/enums.SlotClass.enums.Flare.desc",
+                "type": "Constant",
+                "value": 37
+            },
+            "GasCanister": {
+                "desc": "$./locals/enums.SlotClass.enums.GasCanister.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "GasFilter": {
+                "desc": "$./locals/enums.SlotClass.enums.GasFilter.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "Glasses": {
+                "desc": "$./locals/enums.SlotClass.enums.Glasses.desc",
+                "type": "Constant",
+                "value": 27
+            },
+            "Helmet": {
+                "desc": "$./locals/enums.SlotClass.enums.Helmet.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Input": {
+                "desc": "$./locals/enums.SlotClass.enums.Input.desc",
+                "type": "Constant",
+                "value": 19
+            },
+            "LiquidBottle": {
+                "desc": "$./locals/enums.SlotClass.enums.LiquidBottle.desc",
+                "type": "Constant",
+                "value": 32
+            },
+            "LiquidCanister": {
+                "desc": "$./locals/enums.SlotClass.enums.LiquidCanister.desc",
+                "type": "Constant",
+                "value": 31
+            },
+            "Magazine": {
+                "desc": "$./locals/enums.SlotClass.enums.Magazine.desc",
+                "type": "Constant",
+                "value": 23
+            },
+            "Motherboard": {
+                "desc": "$./locals/enums.SlotClass.enums.Motherboard.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "None": {
+                "desc": "$./locals/enums.SlotClass.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "One": {
+                "desc": "$./locals/enums.SlotClass.enums.One.desc",
+                "type": "Constant",
+                "value": 10
+            },
+            "Organ": {
+                "desc": "$./locals/enums.SlotClass.enums.Organ.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "Plant": {
+                "desc": "$./locals/enums.SlotClass.enums.Plant.desc",
+                "type": "Constant",
+                "value": 11
+            },
+            "Portables": {
+                "desc": "$./locals/enums.SlotClass.enums.Portables.desc",
+                "type": "Constant",
+                "value": 41
+            },
+            "ProgrammableChip": {
+                "desc": "$./locals/enums.SlotClass.enums.ProgrammableChip.desc",
+                "type": "Constant",
+                "value": 26
+            },
+            "RocketPayload": {
+                "desc": "$./locals/enums.SlotClass.enums.RocketPayload.desc",
+                "type": "Constant",
+                "value": 42
+            },
+            "ScanningHead": {
+                "desc": "$./locals/enums.SlotClass.enums.ScanningHead.desc",
+                "type": "Constant",
+                "value": 36
+            },
+            "SensorProcessingUnit": {
+                "desc": "$./locals/enums.SlotClass.enums.SensorProcessingUnit.desc",
+                "type": "Constant",
+                "value": 30
+            },
+            "SoundCartridge": {
+                "desc": "$./locals/enums.SlotClass.enums.SoundCartridge.desc",
+                "type": "Constant",
+                "value": 34
+            },
+            "Suit": {
+                "desc": "$./locals/enums.SlotClass.enums.Suit.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "SuitMod": {
+                "desc": "$./locals/enums.SlotClass.enums.SuitMod.desc",
+                "type": "Constant",
+                "value": 39
+            },
+            "Tool": {
+                "desc": "$./locals/enums.SlotClass.enums.Tool.desc",
+                "type": "Constant",
+                "value": 17
+            },
+            "Torpedo": {
+                "desc": "$./locals/enums.SlotClass.enums.Torpedo.desc",
+                "type": "Constant",
+                "value": 20
+            },
+            "Uniform": {
+                "desc": "$./locals/enums.SlotClass.enums.Uniform.desc",
+                "type": "Constant",
+                "value": 12
+            },
+            "Wreckage": {
+                "desc": "$./locals/enums.SlotClass.enums.Wreckage.desc",
+                "type": "Constant",
+                "value": 33
+            }
+        }
+    },
+    "SorterInstruction": {
+        "desc": "$./locals/enums.SorterInstruction.desc",
+        "enums": {
+            "FilterPrefabHashEquals": {
+                "desc": "$./locals/enums.SorterInstruction.enums.FilterPrefabHashEquals.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "FilterPrefabHashNotEquals": {
+                "desc": "$./locals/enums.SorterInstruction.enums.FilterPrefabHashNotEquals.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "FilterQuantityCompare": {
+                "desc": "$./locals/enums.SorterInstruction.enums.FilterQuantityCompare.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "FilterSlotTypeCompare": {
+                "desc": "$./locals/enums.SorterInstruction.enums.FilterSlotTypeCompare.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "FilterSortingClassCompare": {
+                "desc": "$./locals/enums.SorterInstruction.enums.FilterSortingClassCompare.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "LimitNextExecutionByCount": {
+                "desc": "$./locals/enums.SorterInstruction.enums.LimitNextExecutionByCount.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "None": {
+                "desc": "$./locals/enums.SorterInstruction.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            }
+        }
+    },
+    "SortingClass": {
+        "desc": "$./locals/enums.SortingClass.desc",
+        "enums": {
+            "Appliances": {
+                "desc": "$./locals/enums.SortingClass.enums.Appliances.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "Atmospherics": {
+                "desc": "$./locals/enums.SortingClass.enums.Atmospherics.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "Clothing": {
+                "desc": "$./locals/enums.SortingClass.enums.Clothing.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "Default": {
+                "desc": "$./locals/enums.SortingClass.enums.Default.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "Food": {
+                "desc": "$./locals/enums.SortingClass.enums.Food.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "Ices": {
+                "desc": "$./locals/enums.SortingClass.enums.Ices.desc",
+                "type": "Constant",
+                "value": 10
+            },
+            "Kits": {
+                "desc": "$./locals/enums.SortingClass.enums.Kits.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Ores": {
+                "desc": "$./locals/enums.SortingClass.enums.Ores.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "Resources": {
+                "desc": "$./locals/enums.SortingClass.enums.Resources.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "Storage": {
+                "desc": "$./locals/enums.SortingClass.enums.Storage.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "Tools": {
+                "desc": "$./locals/enums.SortingClass.enums.Tools.desc",
+                "type": "Constant",
+                "value": 2
+            }
+        }
+    },
+    "Sound": {
+        "desc": "$./locals/enums.Sound.desc",
+        "enums": {
+            "AirlockCycling": {
+                "desc": "$./locals/enums.Sound.enums.AirlockCycling.desc",
+                "type": "Constant",
+                "value": 22
+            },
+            "Alarm1": {
+                "desc": "$./locals/enums.Sound.enums.Alarm1.desc",
+                "type": "Constant",
+                "value": 45
+            },
+            "Alarm10": {
+                "desc": "$./locals/enums.Sound.enums.Alarm10.desc",
+                "type": "Constant",
+                "value": 12
+            },
+            "Alarm11": {
+                "desc": "$./locals/enums.Sound.enums.Alarm11.desc",
+                "type": "Constant",
+                "value": 13
+            },
+            "Alarm12": {
+                "desc": "$./locals/enums.Sound.enums.Alarm12.desc",
+                "type": "Constant",
+                "value": 14
+            },
+            "Alarm2": {
+                "desc": "$./locals/enums.Sound.enums.Alarm2.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Alarm3": {
+                "desc": "$./locals/enums.Sound.enums.Alarm3.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "Alarm4": {
+                "desc": "$./locals/enums.Sound.enums.Alarm4.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "Alarm5": {
+                "desc": "$./locals/enums.Sound.enums.Alarm5.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "Alarm6": {
+                "desc": "$./locals/enums.Sound.enums.Alarm6.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "Alarm7": {
+                "desc": "$./locals/enums.Sound.enums.Alarm7.desc",
+                "type": "Constant",
+                "value": 6
+            },
+            "Alarm8": {
+                "desc": "$./locals/enums.Sound.enums.Alarm8.desc",
+                "type": "Constant",
+                "value": 10
+            },
+            "Alarm9": {
+                "desc": "$./locals/enums.Sound.enums.Alarm9.desc",
+                "type": "Constant",
+                "value": 11
+            },
+            "Alert": {
+                "desc": "$./locals/enums.Sound.enums.Alert.desc",
+                "type": "Constant",
+                "value": 17
+            },
+            "Danger": {
+                "desc": "$./locals/enums.Sound.enums.Danger.desc",
+                "type": "Constant",
+                "value": 15
+            },
+            "Depressurising": {
+                "desc": "$./locals/enums.Sound.enums.Depressurising.desc",
+                "type": "Constant",
+                "value": 20
+            },
+            "FireFireFire": {
+                "desc": "$./locals/enums.Sound.enums.FireFireFire.desc",
+                "type": "Constant",
+                "value": 28
+            },
+            "Five": {
+                "desc": "$./locals/enums.Sound.enums.Five.desc",
+                "type": "Constant",
+                "value": 33
+            },
+            "Floor": {
+                "desc": "$./locals/enums.Sound.enums.Floor.desc",
+                "type": "Constant",
+                "value": 34
+            },
+            "Four": {
+                "desc": "$./locals/enums.Sound.enums.Four.desc",
+                "type": "Constant",
+                "value": 32
+            },
+            "HallWhoGoesThere": {
+                "desc": "$./locals/enums.Sound.enums.HallWhoGoesThere.desc",
+                "type": "Constant",
+                "value": 27
+            },
+            "HighCarbonDioxide": {
+                "desc": "$./locals/enums.Sound.enums.HighCarbonDioxide.desc",
+                "type": "Constant",
+                "value": 44
+            },
+            "IntruderAlert": {
+                "desc": "$./locals/enums.Sound.enums.IntruderAlert.desc",
+                "type": "Constant",
+                "value": 19
+            },
+            "LiftOff": {
+                "desc": "$./locals/enums.Sound.enums.LiftOff.desc",
+                "type": "Constant",
+                "value": 36
+            },
+            "MalfunctionDetected": {
+                "desc": "$./locals/enums.Sound.enums.MalfunctionDetected.desc",
+                "type": "Constant",
+                "value": 26
+            },
+            "Music1": {
+                "desc": "$./locals/enums.Sound.enums.Music1.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "Music2": {
+                "desc": "$./locals/enums.Sound.enums.Music2.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "Music3": {
+                "desc": "$./locals/enums.Sound.enums.Music3.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "None": {
+                "desc": "$./locals/enums.Sound.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "One": {
+                "desc": "$./locals/enums.Sound.enums.One.desc",
+                "type": "Constant",
+                "value": 29
+            },
+            "PollutantsDetected": {
+                "desc": "$./locals/enums.Sound.enums.PollutantsDetected.desc",
+                "type": "Constant",
+                "value": 43
+            },
+            "PowerLow": {
+                "desc": "$./locals/enums.Sound.enums.PowerLow.desc",
+                "type": "Constant",
+                "value": 23
+            },
+            "PressureHigh": {
+                "desc": "$./locals/enums.Sound.enums.PressureHigh.desc",
+                "type": "Constant",
+                "value": 39
+            },
+            "PressureLow": {
+                "desc": "$./locals/enums.Sound.enums.PressureLow.desc",
+                "type": "Constant",
+                "value": 40
+            },
+            "Pressurising": {
+                "desc": "$./locals/enums.Sound.enums.Pressurising.desc",
+                "type": "Constant",
+                "value": 21
+            },
+            "RocketLaunching": {
+                "desc": "$./locals/enums.Sound.enums.RocketLaunching.desc",
+                "type": "Constant",
+                "value": 35
+            },
+            "StormIncoming": {
+                "desc": "$./locals/enums.Sound.enums.StormIncoming.desc",
+                "type": "Constant",
+                "value": 18
+            },
+            "SystemFailure": {
+                "desc": "$./locals/enums.Sound.enums.SystemFailure.desc",
+                "type": "Constant",
+                "value": 24
+            },
+            "TemperatureHigh": {
+                "desc": "$./locals/enums.Sound.enums.TemperatureHigh.desc",
+                "type": "Constant",
+                "value": 41
+            },
+            "TemperatureLow": {
+                "desc": "$./locals/enums.Sound.enums.TemperatureLow.desc",
+                "type": "Constant",
+                "value": 42
+            },
+            "Three": {
+                "desc": "$./locals/enums.Sound.enums.Three.desc",
+                "type": "Constant",
+                "value": 31
+            },
+            "TraderIncoming": {
+                "desc": "$./locals/enums.Sound.enums.TraderIncoming.desc",
+                "type": "Constant",
+                "value": 37
+            },
+            "TraderLanded": {
+                "desc": "$./locals/enums.Sound.enums.TraderLanded.desc",
+                "type": "Constant",
+                "value": 30
+            },
+            "Two": {
+                "desc": "$./locals/enums.Sound.enums.Two.desc",
+                "type": "Constant",
+                "value": 30
+            },
+            "Warning": {
+                "desc": "$./locals/enums.Sound.enums.Warning.desc",
+                "type": "Constant",
+                "value": 16
+            },
+            "Welcome": {
+                "desc": "$./locals/enums.Sound.enums.Welcome.desc",
+                "type": "Constant",
+                "value": 25
+            }
+        }
+    },
+    "TraderInstruction": {
+        "desc": "$./locals/enums.TraderInstruction.desc",
+        "enums": {
+            "FilterGasContains": {
+                "desc": "$./locals/enums.TraderInstruction.enums.FilterGasContains.desc",
+                "type": "Constant",
+                "value": 17
+            },
+            "FilterGasNotContains": {
+                "desc": "$./locals/enums.TraderInstruction.enums.FilterGasNotContains.desc",
+                "type": "Constant",
+                "value": 18
+            },
+            "FilterPrefabHashEquals": {
+                "desc": "$./locals/enums.TraderInstruction.enums.FilterPrefabHashEquals.desc",
+                "type": "Constant",
+                "value": 13
+            },
+            "FilterPrefabHashNotEquals": {
+                "desc": "$./locals/enums.TraderInstruction.enums.FilterPrefabHashNotEquals.desc",
+                "type": "Constant",
+                "value": 14
+            },
+            "FilterQuantityCompare": {
+                "desc": "$./locals/enums.TraderInstruction.enums.FilterQuantityCompare.desc",
+                "type": "Constant",
+                "value": 16
+            },
+            "FilterSortingClassCompare": {
+                "desc": "$./locals/enums.TraderInstruction.enums.FilterSortingClassCompare.desc",
+                "type": "Constant",
+                "value": 15
+            },
+            "None": {
+                "desc": "$./locals/enums.TraderInstruction.enums.None.desc",
+                "type": "Constant",
+                "value": 0
+            },
+            "StrongestContactIdHash": {
+                "desc": "$./locals/enums.TraderInstruction.enums.StrongestContactIdHash.desc",
+                "type": "Constant",
+                "value": 2
+            },
+            "StrongestContactMetaData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.StrongestContactMetaData.desc",
+                "type": "Constant",
+                "value": 3
+            },
+            "StrongestContactSignalData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.StrongestContactSignalData.desc",
+                "type": "Constant",
+                "value": 4
+            },
+            "TraderBuyGasData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.TraderBuyGasData.desc",
+                "type": "Constant",
+                "value": 9
+            },
+            "TraderBuyThingChildData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.TraderBuyThingChildData.desc",
+                "type": "Constant",
+                "value": 8
+            },
+            "TraderBuyThingData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.TraderBuyThingData.desc",
+                "type": "Constant",
+                "value": 7
+            },
+            "TraderSellGasData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.TraderSellGasData.desc",
+                "type": "Constant",
+                "value": 11
+            },
+            "TraderSellThingChildData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.TraderSellThingChildData.desc",
+                "type": "Constant",
+                "value": 12
+            },
+            "TraderSellThingData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.TraderSellThingData.desc",
+                "type": "Constant",
+                "value": 10
+            },
+            "WriteTraderBuyData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.WriteTraderBuyData.desc",
+                "type": "Constant",
+                "value": 5
+            },
+            "WriteTraderData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.WriteTraderData.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "WriteTraderSellData": {
+                "desc": "$./locals/enums.TraderInstruction.enums.WriteTraderSellData.desc",
+                "type": "Constant",
+                "value": 6
+            }
+        }
+    },
+    "TransmitterMode": {
+        "desc": "$./locals/enums.TransmitterMode.desc",
+        "enums": {
+            "Active": {
+                "desc": "$./locals/enums.TransmitterMode.enums.Active.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Passive": {
+                "desc": "$./locals/enums.TransmitterMode.enums.Passive.desc",
+                "type": "Constant",
+                "value": 0
+            }
+        }
+    },
+    "Vent": {
+        "desc": "$./locals/enums.Vent.desc",
+        "enums": {
+            "Inward": {
+                "desc": "$./locals/enums.Vent.enums.Inward.desc",
+                "type": "Constant",
+                "value": 1
+            },
+            "Outward": {
+                "desc": "$./locals/enums.Vent.enums.Outward.desc",
+                "type": "Constant",
+                "value": 0
+            }
+        }
+    },
+    "ReagentMode": {
+        "enums": {
+            "Contents": {
+                "type": "LogicReagentMode",
+                "value": 0
+            },
+            "Recipe": {
+                "type": "LogicReagentMode",
+                "value": 2
+            },
+            "Required": {
+                "type": "LogicReagentMode",
+                "value": 1
+            },
+            "TotalContents": {
+                "type": "LogicReagentMode",
+                "value": 3
+            }
+        }
+    },
+    "BatchMode": {
+        "enums": {
+            "Average": {
+                "type": "LogicBatchMethod",
+                "value": 0
+            },
+            "Count": {
+                "type": "LogicBatchMethod",
+                "value": 4
+            },
+            "Maximum": {
+                "type": "LogicBatchMethod",
+                "value": 3
+            },
+            "Minimum": {
+                "type": "LogicBatchMethod",
+                "value": 2
+            },
+            "Sum": {
+                "type": "LogicBatchMethod",
+                "value": 1
+            }
+        }
+    }
+}

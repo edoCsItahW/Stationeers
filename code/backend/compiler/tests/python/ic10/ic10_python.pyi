@@ -15,7 +15,73 @@ IC10 compiler Python bindings - type stubs
 """
 
 import enum
-from typing import List, Dict, Any, Optional, TypedDict
+from typing import List, Dict, Any, Optional, TypedDict, Literal, Union
+
+
+class TypeTable:
+    """Type table for semantic analysis."""
+    def __init__(self) -> None: ...
+    def toJSON(self) -> str: ...
+
+
+# ============================================================================
+# Type Table JSON Interfaces
+# ============================================================================
+
+class DescValue(TypedDict):
+    """Description value (text or link)."""
+    kind: str
+    value: str
+
+class DeviceSlot(TypedDict):
+    """Device slot entry."""
+    index: str
+    direction: str
+    desc: Optional[DescValue]
+
+class DeviceLogic(TypedDict):
+    """Device logic entry."""
+    name: str
+    access: str
+
+class DeviceMode(TypedDict):
+    """Device mode entry."""
+    index: str
+    desc: Optional[DescValue]
+
+class DeviceConnect(TypedDict):
+    """Device connect entry."""
+    index: str
+    desc: Optional[DescValue]
+
+class DeviceTypeJSON(TypedDict):
+    """Device type (from toJSON())."""
+    type: Literal["device"]
+    name: str
+    desc: Optional[DescValue]
+    slots: List[DeviceSlot]
+    logics: List[DeviceLogic]
+    modes: List[DeviceMode]
+    logicSlots: List[str]
+    connects: List[DeviceConnect]
+
+class EnumValueEntry(TypedDict):
+    """Enum value entry."""
+    name: str
+    value: str
+    desc: Optional[DescValue]
+
+class EnumTypeJSON(TypedDict):
+    """Enum type (from toJSON())."""
+    type: Literal["enum"]
+    name: str
+    desc: Optional[DescValue]
+    values: List[EnumValueEntry]
+
+CustomTypeJSON = Union[DeviceTypeJSON, EnumTypeJSON]
+
+TypeTableMap = Dict[str, CustomTypeJSON]
+"""Type table JSON dictionary."""
 
 
 # ============================================================================
@@ -264,6 +330,23 @@ class TokenCategory(enum.IntEnum):
     WHITESPACE
     END
     INVALID
+
+
+class _TypeOfNodeEntry(TypedDict):
+    """Type of node entry."""
+    kind: int
+    category: int
+
+
+TypeOfNode: Dict[str, _TypeOfNodeEntry]
+"""AST node type mapping.
+
+Maps node type names to their BasicType and TypeCategory.
+
+Example:
+    >>> TypeOfNode['Integer']
+    {'kind': BasicType.INTEGER, 'category': TypeCategory.NUMBER}
+"""
 
 
 class OperandType(enum.IntEnum):
@@ -603,6 +686,11 @@ class Analyser:
     @property
     def symbolTable(self) -> SymbolTable:
         """Get the symbol table after analysis."""
+        ...
+
+    @property
+    def typeTable(self) -> TypeTable:
+        """Get the type table after analysis."""
         ...
 
     @property

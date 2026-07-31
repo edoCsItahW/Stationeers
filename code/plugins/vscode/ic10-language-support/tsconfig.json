@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "nodenext",
         "target": "ES2024",
         "lib": ["es2024"],
         "outDir": "out",
-        "rootDir": "src",
+        "rootDir": ".",
         "sourceMap": true,
         "types": ["node", "vscode"],
         "allowArbitraryExtensions": true,
@@ -12,7 +12,6 @@
         "esModuleInterop": true
     },
     "include": [
-        "src/**/*"
     ],
     "exclude": [
         "node_modules",
@@ -20,6 +19,7 @@
     ],
     "references": [
         { "path": "./client" },
-        { "path": "./server" }
+        { "path": "./server" },
+        { "path": "./common" }
     ]
 }

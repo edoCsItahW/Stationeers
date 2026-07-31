@@ -1045,7 +1045,7 @@ TEST(PositionTest, ParamConstructorSetsValues) {
 TEST(PositionTest, NextIncrementsColumnAndOffset) {
     initLocale();
     Pos pos;
-    pos.next();
+    pos.next(0x00);
     EXPECT_EQ(pos.line(), 1);
     EXPECT_EQ(pos.column(), 2);
     EXPECT_EQ(pos.offset(), 1u);
@@ -1063,7 +1063,7 @@ TEST(PositionTest, NewlineResetsColumnIncrementsLine) {
 TEST(PositionTest, MoveAdvancesByOffset) {
     initLocale();
     Pos pos;
-    pos.move(5);
+    pos.move(5, 5);
     EXPECT_EQ(pos.line(), 1);
     EXPECT_EQ(pos.column(), 6);
     EXPECT_EQ(pos.offset(), 5u);
@@ -1072,7 +1072,7 @@ TEST(PositionTest, MoveAdvancesByOffset) {
 TEST(PositionTest, EndPosCalculatesCorrectly) {
     initLocale();
     Pos pos(1, 1, 0);
-    auto end = endPos(pos, 5);
+    auto end = endPos(pos, 5, 5);
     EXPECT_EQ(end.line(), 1);
     EXPECT_EQ(end.column(), 6);
     EXPECT_EQ(end.offset(), 5u);
@@ -1082,7 +1082,7 @@ TEST(PositionTest, MultipleNextCalls) {
     initLocale();
     Pos pos;
     for (int i = 0; i < 10; ++i) {
-        pos.next();
+        pos.next(0x00);
     }
     EXPECT_EQ(pos.line(), 1);
     EXPECT_EQ(pos.column(), 11);
@@ -1093,8 +1093,68 @@ TEST(PositionTest, NewlineThenNext) {
     initLocale();
     Pos pos;
     pos.newline();
-    pos.next();
+    pos.next(0x00);
     EXPECT_EQ(pos.line(), 2);
     EXPECT_EQ(pos.column(), 2);
     EXPECT_EQ(pos.offset(), 2u);
+}
+
+// ============================================================
+// 符号容错测试（特殊字符不应导致死循环或内存爆炸）
+// ============================================================
+
+TEST(LexerTest, SymbolToleranceBareSpecialChars) {
+    initLocale();
+    Lexer lexer("`~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterAlias) {
+    initLocale();
+    Lexer lexer("alias `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterAliasWithName) {
+    initLocale();
+    Lexer lexer("alias test1 `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterDefine) {
+    initLocale();
+    Lexer lexer("define `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterDefineWithName) {
+    initLocale();
+    Lexer lexer("define test2 `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterJump) {
+    initLocale();
+    Lexer lexer("j `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, SymbolToleranceAfterJumpWithTarget) {
+    initLocale();
+    Lexer lexer("j xxx `~!@$%^&*()_+{}|:\"<>?-=[]\\;',./");
+    auto tokens = lexer.scan();
+    EXPECT_GT(tokens.size(), 1u);
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
 }

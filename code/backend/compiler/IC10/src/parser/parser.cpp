@@ -105,13 +105,16 @@ namespace stationeers::ic10 {
         labelDef.identifier = parseIdentifier(++layer);
 
         try {
-            expect(TokenType::COLON);
+            // 只跳过注释，不跳过换行 —— 换行是同步点，跳过会导致错误恢复时吃掉下一行的 token
+            while (inScope() && current()->category == TokenCategory::COMMENT) consume();
+            // skipWs=false: 不跳过换行; errorConsume=false: 出错时不自动消耗 token
+            expect(TokenType::COLON, false, false);
 
         } catch (const Error&) {
             reporter_.error<IMsgId::IEP23>(current()->pos, endPos(*current()));
 
             auto errToken = *current();
-            consume();
+            // 不消耗 token，让 parse() 主循环通过 NEWLINE 同步到下一行
             return ErrorNode{errToken, ILoc::msgStr<IMsgId::IEP23>()};
         }
 
@@ -135,7 +138,20 @@ namespace stationeers::ic10 {
             auto valueStart = content.find_first_not_of(" \t", tagEnd);
             std::string value;
             if (valueStart != std::string::npos && content[valueStart] != '@') {
-                auto valueEnd = content.find_first_of(" \t", valueStart);
+                size_t valueEnd;
+                if (content[valueStart] == '"') {
+                    // 引号包裹的值：查找匹配的闭合引号（支持空格）
+                    valueEnd = content.find('"', valueStart + 1);
+                    if (valueEnd != std::string::npos) {
+                        ++valueEnd;  // 包含闭合引号
+                    } else {
+                        valueEnd = content.size();  // 未闭合引号，取到末尾
+                    }
+                } else {
+                    // 非引号值：取到下一个 @ 或末尾，支持带空格的描述文本
+                    // 如 @desc Constant value 应得到 "Constant value" 而非 "Constant"
+                    valueEnd = content.find('@', valueStart);
+                }
                 if (valueEnd == std::string::npos) valueEnd = content.size();
                 value = content.substr(valueStart, valueEnd - valueStart);
                 // 去除值尾部空白（如 Windows CRLF 残留的 '\r'）
@@ -880,8 +896,16 @@ namespace stationeers::ic10 {
     JumpTarget Parser::parseJumpTarget(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "JumpTarget");
 
-        // JumpTarget 与 NumberValue 相同
-        return parseNumberValue(++layer);
+        if (!current()) {
+            reporter_.error<IMsgId::IMP1>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), ILoc::msgStr<IMsgId::IMP1>()};
+        }
+
+        if (current()->type == TokenType::REGISTER)
+            return wide_cast<JumpTarget>(parseRegister(layer));
+
+        return wide_cast<JumpTarget>(parseNumberValue(layer));
     }
 
     DeviceAliasRef Parser::parseDeviceAliasRef(int layer) {
@@ -968,16 +992,13 @@ namespace stationeers::ic10 {
 
         HashCall hashCall{current()->pos};
 
-        expect(TokenType::KEYWORD_HASH);
-
-        expect(TokenType::LPAREN);
-
         try {
+            expect(TokenType::KEYWORD_HASH);
+            expect(TokenType::LPAREN);
             hashCall.value = parseString(++layer);
+            hashCall.endPosition = expect(TokenType::RPAREN)->pos;
 
         } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        hashCall.endPosition = expect(TokenType::RPAREN)->pos;
 
         return hashCall;
     }
@@ -987,17 +1008,16 @@ namespace stationeers::ic10 {
 
         StrCall strCall{current()->pos};
 
-        expect(TokenType::KEYWORD_STR);
-
-        expect(TokenType::LPAREN);
-
-        strCall.value = parseString(++layer);
-
         try {
+            expect(TokenType::KEYWORD_STR);
+
+            expect(TokenType::LPAREN);
+
+            strCall.value = parseString(++layer);
+
             strCall.endPosition = expect(TokenType::RPAREN)->pos;
 
         } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
 
         return strCall;
     }
@@ -1129,7 +1149,10 @@ namespace stationeers::ic10 {
         Identifier identifier{current()->pos};
 
         try {
-            identifier.value = expect(TokenType::IDENTIFIER)->lexeme;
+            // 只跳过注释，不跳过换行 —— 换行是同步点，跳过会导致错误恢复时吃掉下一行的 token
+            while (inScope() && current()->category == TokenCategory::COMMENT) consume();
+            // skipWs=false: 不跳过换行; errorConsume=false: 出错时不自动消耗 token
+            identifier.value = expect(TokenType::IDENTIFIER, false, false)->lexeme;
 
         } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
 

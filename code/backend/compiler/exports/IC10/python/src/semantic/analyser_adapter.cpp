@@ -78,6 +78,18 @@ namespace stationeers::ic10 {
             })
             /**
              * @if zh
+             * @brief 获取类型表
+             * @return TypeTable对象
+             * @elseif en
+             * @brief Get type table
+             * @return TypeTable object
+             * @endif
+             */
+            .def_property_readonly("typeTable", [](Analyser& self) {
+                return self.getTypeTable();
+            })
+            /**
+             * @if zh
              * @brief 获取诊断列表
              * @details 返回语义分析过程中收集到的所有诊断信息(包含错误、警告、提示)。
              *          每个诊断信息为字典,包含level/id/start/end/message字段。

@@ -211,6 +211,25 @@ namespace stationeers::ic10 {
          * @endif
          */
         node::Value getUnits(const node::CallbackInfo& info);
+
+        /**
+         * @if zh
+         * @brief 获取全局类型表
+         * @details JavaScript getter，返回链接过程中合并的全局类型表。
+         *
+         * @param info Node.js回调信息对象
+         * @return TypeTable对象
+         *
+         * @elseif en
+         * @brief Get global type table
+         * @details JavaScript getter that returns the merged global type table from linking.
+         *
+         * @param info Node.js callback info object
+         * @return TypeTable object
+         *
+         * @endif
+         */
+        node::Value getTypeTable(const node::CallbackInfo& info);
     };
 
 }  // namespace stationeers::ic10

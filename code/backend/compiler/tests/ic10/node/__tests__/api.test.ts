@@ -9,7 +9,7 @@
 import IC10NodeAPI = require('ic10-node-api');
 import {setupUTF8Console} from "../utils";
 
-const {IC10Local, Token, TokenType, TokenCategory, Pos, Lexer, Program, Parser, Analyser, SymbolTable} = IC10NodeAPI;
+const {IC10Local, Token, TokenType, TokenCategory, Pos, Lexer, Program, Parser, Analyser, SymbolTable, Linker, TypeTable} = IC10NodeAPI;
 
 
 beforeAll(() => {
@@ -66,6 +66,72 @@ describe('Analyser', () => {
         const symbolTable = analyser.symbolTable;
         expect(symbolTable).toBeInstanceOf(SymbolTable);
         expect(symbolTable.toJSON()).toBeDefined();
+    });
+});
+
+describe('Linker', () => {
+    it('should create Linker instance', () => {
+        const linker = new Linker();
+        expect(linker).toBeInstanceOf(Linker);
+    });
+
+    it('should link single unit and return SymbolTable', () => {
+        const linker = new Linker();
+        linker.addUnit('alias dev d0\nhcf\n');
+        const symtab = linker.link();
+        expect(symtab).toBeInstanceOf(SymbolTable);
+    });
+
+    it('should expose diagnostics after linking', () => {
+        const linker = new Linker();
+        linker.addUnit('alias dev d0\nhcf\n');
+        linker.link();
+        expect(Array.isArray(linker.diagnostics)).toBe(true);
+    });
+
+    it('should expose units after linking', () => {
+        const linker = new Linker();
+        linker.addUnit('alias dev d0\nhcf\n');
+        linker.link();
+        expect(Array.isArray(linker.units)).toBe(true);
+    });
+
+    it('should expose typeTable after linking', () => {
+        const linker = new Linker();
+        linker.addUnit('alias dev d0\nhcf\n');
+        linker.link();
+        const typeTable = linker.typeTable;
+        expect(typeTable).toBeInstanceOf(TypeTable);
+        expect(typeTable.toJSON()).toBeDefined();
+    });
+
+    it('should return non-empty typeTable with device types', () => {
+        const linker = new Linker();
+        linker.addUnit(
+            '#> @device\n' +
+            '#> @name Sensor\n' +
+            '#> @logic Pressure rw\n' +
+            '#> @end-device\n'
+        );
+        linker.addUnit('alias s d0 #: @type Sensor\nhcf\n');
+        linker.link();
+        const json = linker.typeTable.toJSON();
+        expect(json).toContain('Sensor');
+    });
+
+    it('should return non-empty typeTable with enum types', () => {
+        const linker = new Linker();
+        linker.addUnit(
+            '#> @enum\n' +
+            '#> @name ReagentMode\n' +
+            '#> @value Contents 0\n' +
+            '#> @value Required 1\n' +
+            '#> @end-enum\n'
+        );
+        linker.addUnit('alias f d0\nhcf\n');
+        linker.link();
+        const json = linker.typeTable.toJSON();
+        expect(json).toContain('ReagentMode');
     });
 });
 

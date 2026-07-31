@@ -4,35 +4,34 @@
     "description": "IC10 language support | IC10语言支持",
     "author": "edocsitahw",
     "license": "CC BY-NC-SA 4.0",
-    "version": "1.0.0",
+    "version": "1.0.2",
+    "publisher": "edocsitahw",
     "repository": {
         "type": "git",
         "url": "https://github.com/edoCsItahW/Stationeers.git"
     },
-    "engines": {
-        "vscode": "^1.125.0"
-    },
-    "main": "./client/out/extension",
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -b",
-        "watch": "tsc -b -w",
-        "lint": "eslint",
-        "postinstall": "cd client && pnpm install && cd ../server && pnpm install && cd ..",
-        "test": "sh ./scripts/e2e.sh"
-    },
-    "devDependencies": {
-        "@types/node": "^26.0.1"
-    },
-    "activationEvents": [
-        "onLanguage:ic10"
+    "categories": [
+        "Programming Languages"
     ],
     "keywords": [
         "Stationeers",
         "IC10"
     ],
-    "categories": [
-        "Programming Languages"
+    "engines": {
+        "vscode": "^1.125.0"
+    },
+    "activationEvents": [],
+    "main": "./client/out/extension",
+    "icon": "icon.png",
+    "screenshots": [
+        "static/completion.mp4",
+        "static/diagnostic.png",
+        "static/formatting.png",
+        "static/grammar.png",
+        "static/hover.mp4",
+        "static/locale.png",
+        "static/semantic.png",
+        "static/signature.mp4"
     ],
     "contributes": {
         "languages": [
@@ -55,6 +54,191 @@
                 "scopeName": "source.ic10",
                 "path": "./syntaxes/ic10.tmLanguage.json"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "IC10 Language Support",
+            "properties": {
+                "ic10.language": {
+                    "enum": [
+                        "en-us",
+                        "zh-hans"
+                    ],
+                    "enumDescriptions": [
+                        "English(Default, US)",
+                        "简体中文"
+                    ],
+                    "default": "en-us",
+                    "description": "The language displayed to users by this plugin also includes the language used by the IC10 compiler core | 该插件向用户展示的语言，也包括IC10编译器核心使用的语言"
+                },
+                "ic10.format.useTab": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use tabs for indentation. When true, indentWidth is ignored. | 使用 Tab 缩进。为 true 时忽略 indentWidth。"
+                },
+                "ic10.format.indentWidth": {
+                    "type": "number",
+                    "default": 4,
+                    "description": "Number of spaces per indentation level. | 每级缩进的空格数。"
+                },
+                "ic10.format.spacesBeforeTrailingComments": {
+                    "type": "number",
+                    "default": 2,
+                    "description": "Number of spaces before trailing comments. | 行尾注释前的空格数。"
+                },
+                "ic10.format.maxEmptyLinesToKeep": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Maximum number of consecutive empty lines to keep. | 保留的最大连续空行数。"
+                },
+                "ic10.format.minEmptyLinesBeforeLabels": {
+                    "type": "number",
+                    "default": 0,
+                    "description": "Minimum empty lines before labels. 0 means no restriction. | 标签前的最小空行数。0 表示无限制。"
+                },
+                "ic10.format.alignConsecutiveStatements": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Align consecutive statements of the same type by column. | 按列对齐连续的同类语句。"
+                },
+                "ic10.format.alignTrailingComments": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Align trailing comments within the same group. | 对齐同组内的行尾注释。"
+                }
+            }
+        },
+        "configurationDefaults": {
+            "[ic10]": {
+                "editor.semanticHighlighting.enabled": true
+            },
+            "editor.semanticTokenColorCustomizations": {
+                "rules": {
+                    "Keyword": "#CF8E6D",
+                    "Register": "#B4654A",
+                    "RegisterIdentifier": "#7E4633",
+                    "Macro": "#56A8F5",
+                    "Device": "#B267D6",
+                    "DeviceIdentifier": "#77458F",
+                    "Number": "#2AACB8",
+                    "NumberIdentifier": "#1F8088",
+                    "String": "#6AAB73",
+                    "Constant": "#C77DBB",
+                    "Comment": "#7A7E85",
+                    "Decorator": "#C586C0",
+                    "Label": "#E8BF6A",
+                    "Label.declaration": "#E8BF6A",
+                    "LabelIdentifier": "#A3874C",
+                    "Unknown": "#BCBEC4"
+                }
+            }
+        },
+        "semanticTokenTypes": [
+            {
+                "id": "Keyword",
+                "superType": "keyword",
+                "description": "IC10 instruction keywords and preprocessor directives | IC10指令关键字和预处理指令"
+            },
+            {
+                "id": "Register",
+                "superType": "variable",
+                "description": "IC10 register references (r0, r1, ra, sp) | IC10寄存器引用"
+            },
+            {
+                "id": "RegisterIdentifier",
+                "superType": "variable",
+                "description": "IC10 user-defined register identifiers (alias names) | IC10用户定义的寄存器标识符（别名名称）"
+            },
+            {
+                "id": "Macro",
+                "superType": "function",
+                "description": "IC10 macro calls (hash, str) | IC10宏调用"
+            },
+            {
+                "id": "Device",
+                "superType": "type",
+                "description": "IC10 device references (d0, d1, db) | IC10设备引用"
+            },
+            {
+                "id": "DeviceIdentifier",
+                "superType": "variable",
+                "description": "IC10 user-defined device identifiers (alias names) | IC10用户定义的设备标识符（别名名称）"
+            },
+            {
+                "id": "Number",
+                "superType": "number",
+                "description": "IC10 numeric literals | IC10数字字面量"
+            },
+            {
+                "id": "NumberIdentifier",
+                "superType": "variable",
+                "description": "IC10 user-defined constant identifiers (define names) | IC10用户定义的常量标识符（define名称）"
+            },
+            {
+                "id": "String",
+                "superType": "string",
+                "description": "IC10 string literals | IC10字符串字面量"
+            },
+            {
+                "id": "Constant",
+                "superType": "variable",
+                "description": "IC10 constant literals | IC10常量字面量"
+            },
+            {
+                "id": "Comment",
+                "superType": "comment",
+                "description": "IC10 comments | IC10注释"
+            },
+            {
+                "id": "Decorator",
+                "superType": "decorator",
+                "description": "IC10 type hint annotations (#: @type) | IC10类型提示注解"
+            },
+            {
+                "id": "Label",
+                "superType": "variable",
+                "description": "IC10 labels, aliases and define constants | IC10标签、别名和define常量"
+            },
+            {
+                "id": "LabelIdentifier",
+                "superType": "variable",
+                "description": "IC10 user-defined label identifiers | IC10用户定义的标签标识符"
+            },
+            {
+                "id": "Unknown",
+                "superType": "variable",
+                "description": "Unknown or unresolved tokens | 未知或未解析的令牌"
+            }
+        ],
+        "semanticTokenColors": {
+            "Keyword": "#CF8E6D",
+            "Register": "#B4654A",
+            "RegisterIdentifier": "#7E4633",
+            "Macro": "#56A8F5",
+            "Device": "#B267D6",
+            "DeviceIdentifier": "#77458F",
+            "Number": "#2AACB8",
+            "NumberIdentifier": "#1F8088",
+            "String": "#6AAB73",
+            "Constant": "#C77DBB",
+            "Comment": "#7A7E85",
+            "Decorator": "#C586C0",
+            "Label": "#E8BF6A",
+            "LabelIdentifier": "#A3874C",
+            "Unknown": "#000000"
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile && cd client && npm install --production --ignore-scripts --no-package-lock && cd ../server && npm install --production --ignore-scripts --no-package-lock && cd .. && node -e \"const{rmSync,cpSync}=require('fs');for(const d of['client','server']){const m=d+'/node_modules/common';rmSync(m,{recursive:true,force:true});cpSync('common',m,{recursive:true,filter:s=>!s.includes('node_modules')})}\"",
+        "compile": "tsc -b",
+        "watch": "tsc -b -w",
+        "lint": "eslint",
+        "test": "sh ./scripts/e2e.sh",
+        "install:all": "pnpm i && cd common && pnpm i && cd ../client && pnpm i && cd ../server && pnpm i",
+        "install:npm": "npm i && cd ./common && npm i && cd ../client && npm i && cd ../server && npm i"
+    },
+    "devDependencies": {
+        "@types/node": "^26.0.1",
+        "prettier": "^3.9.6"
     }
 }
