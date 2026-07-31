@@ -13,18 +13,20 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {
-    Program,
-    OperandNode,
-    Token,
-    Position,
-    PureExeInstructionNode,
-    OperandType,
-    StatementNode,
-    AliasDirectiveNode,
-    DefineDirectiveNode, TokenCategory
-} from "ic10-node-api";
 import { Optional } from "type-fest";
+import {
+    PureExeInstructionNode,
+    DefineDirectiveNode,
+    AliasDirectiveNode,
+    StatementNode,
+    TokenCategory,
+    OperandNode,
+    OperandType,
+    TokenType,
+    Position,
+    Program,
+    Token
+} from "ic10-node-api";
 
 type NodeType = Program["statements"][number] | OperandNode;
 
@@ -191,7 +193,11 @@ export function findRangeTokens(
     const result = { prev: -1, curr: -1, next: -1 };
 
     tokens.some((token, i) => {
-        const idx = token.category === TokenCategory.WHITESPACE || token.category === TokenCategory.COMMENT ? -1 : i;
+        const idx = (
+            token.category === TokenCategory.WHITESPACE
+            || token.category === TokenCategory.COMMENT
+            || token.type === TokenType.END
+        ) ? -1 : i;
         if (end(token).column <= column) result.prev = idx;
         else if (token.pos.column >= column) {
             result.next = idx;

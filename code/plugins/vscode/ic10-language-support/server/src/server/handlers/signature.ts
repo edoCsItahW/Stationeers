@@ -13,7 +13,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { StatementNode, PureExeInstructionNode } from "ic10-node-api";
+import { StatementNode, PureExeInstructionNode, TokenCategory, TokenType } from "ic10-node-api";
 import { Connection } from "vscode-languageserver";
 
 import { findRangeTokens, getOperandType, isInstruction, isDirectiveNode } from "../../utils"
@@ -79,20 +79,26 @@ export class SignatureHandler {
         const doc = INS_META_MAP.get(keyword)!.signature;
         const local = INS_LOCAL_MAP.get(keyword)!;
 
-        const tokens = cache.tokens.filter(t => t.pos.line === line);
+        const tokens = cache.tokens.filter(
+            t =>
+                t.pos.line === line &&
+                t.category !== TokenCategory.WHITESPACE &&
+                t.category !== TokenCategory.COMMENT &&
+                t.type !== TokenType.END
+        );
         const { prev: prevIdx } = findRangeTokens(tokens, column);
 
-        const prevBlocks = column - end(tokens[prevIdx]).column;
+        const token = tokens[prevIdx];
+
+        const prevBlocks = token ? column - end(tokens[prevIdx]).column : 0;
         let opIdx = prevIdx; // -1则补keyword(0)，其余补operand${opIdx}
 
+        if (prevBlocks > 0 || opIdx === -1) opIdx++;
+
         if (prevBlocks > 0) {
-            opIdx++;
+            if (isInstruction(stmt) && getOperandType(stmt, opIdx) === undefined) return;
 
-            if (isInstruction(stmt) && getOperandType(stmt, opIdx) === undefined)
-                return;
-
-            if (isDirectiveNode(stmt) && opIdx > 2)
-                return;
+            if (isDirectiveNode(stmt) && opIdx > 2) return;
         }
 
         return {
