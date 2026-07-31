@@ -67,10 +67,6 @@ namespace stationeers::ic10 {
         DOC_COMMENT,  ///< @if zh 文档注释(#>开头) @else Doc comment (#> prefix) @endif
         TYPE_HINT,    ///< @if zh 类型提示(#:开头) @else Type hint (#: prefix) @endif
 
-        /* 注解 */
-        DOC_COMMENT,  ///< @if zh 文档注释(#>开头) @else Doc comment (#> prefix) @endif
-        TYPE_HINT,    ///< @if zh 类型提示(#:开头) @else Type hint (#: prefix) @endif
-
         /* 换行 */
         NEWLINE,  ///< @if zh 换行符 @else Newline @endif
 
