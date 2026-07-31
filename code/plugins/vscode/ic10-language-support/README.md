@@ -1,4 +1,6 @@
-<img src="./icon.png" style="width: 30%; aspect-ratio: 1;" />
+<div align="center">
+  <img src="./icon.png" style="width: 30%; aspect-ratio: 1;" />
+</div>
 
 # IC10 Language Support
 
@@ -15,6 +17,7 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 
 ### 1. 语法高亮
 基于 TextMate 语法的高亮规则，覆盖关键字、寄存器、设备引用、字符串、数字、注释等。
+
 <img alt="语法分析" src="./static/grammar.png" style="padding: 20px;">
 
 ### 2. 语义高亮
@@ -38,7 +41,8 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 ### 4. 悬停提示
 悬停在任意符号（别名、标签、常量、指令关键字）上时，显示其类型、值、描述等详细信息。
 
-<img src="">
+<video src="./static/hover.mp4"  style="padding: 20px;"></video>
+
 
 ### 5. 智能补全
 - 指令关键字补全（支持前缀匹配）
@@ -46,12 +50,12 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 - 设备上下文感知：根据前置设备节点过滤对应的 `LogicType`/`LogicSlot`/`BatchMode`/`SlotIndex`
 - `alias` / `define` 专用补全
 
-<img src="">
+<video src="./static/completion.mp4" style="padding: 20px;"></video>
 
 ### 6. 函数签名帮助
 输入空格或逗号后，显示当前指令的参数签名与各操作数位置，标记当前正在输入的参数。
 
-<img src="">
+<video src="./static/signature.mp4"  style="padding: 20px;"> </video>
 
 ### 7. 代码格式化
 支持从项目根 `.ic.yaml`、`.ic.yml` 或 `.ic.json` 读取格式化配置。支持的规则：
@@ -62,7 +66,7 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 - 标签前可配置最小空行数
 - 激进模式：同标签作用域内指令操作数按列对齐
 
-<img src="">
+<img alt="格式化" src="./static/formatting.png" style="padding: 20px;">
 
 > [!TIP]
 > 若代码中包含 Unicode 字符（如中文注释、特殊符号），请确保编辑器使用等宽字体，否则格式化后的对齐效果可能发生偏移。
@@ -73,7 +77,7 @@ IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationee
 ### 9. 双语支持
 支持英语（en-us）和简体中文（zh-hans），覆盖编译诊断、悬停提示、补全文档等所有界面文本。切换语言即时生效。
 
-<img src="">
+<img alt="本地化" src="./static/locale.png" style="padding: 20px;">
 
 ### 10. 类型注解语法
 支持通过特殊尾随注释语法为别名标注类型信息：
@@ -85,12 +89,12 @@ alias myDevice d0  #: @type DeviceType
 > [!NOTE]
 > 编译器内置了标准库（[stdLib.ic](https://github.com/edoCsItahW/Stationeers/blob/develop/code/backend/compiler/tests/stdLib.ic)），定义了常见设备的类型、逻辑槽位、批处理模式等枚举。但由于游戏中设备种类繁多，标准库目前仅覆盖了部分设备。若您的项目使用了尚未纳入标准库的设备类型，欢迎向标准库仓库贡献。标准库使用特殊的文档注释语法（`#>`）定义枚举和设备类型，例如：
 > ```
-> #> @enum
+> #> @device
 > #> @name MyDevice
 > #> @desc ./locals/enums.MyDevice.desc
 > #> @value ModeA 0 ./locals/enums.MyDevice.enums.ModeA.desc
 > #> @value ModeB 1 ./locals/enums.MyDevice.enums.ModeB.desc
-> #> @end-enum
+> #> @end-device
 > ```
 
 ## 依赖
@@ -130,7 +134,6 @@ alias myDevice d0  #: @type DeviceType
 - 编译器
     - [ ] 完善标准库，覆盖更多设备类型
     - [ ] 链接器增量支持，进一步降低声明式编辑的延迟
-    - [ ] 支持更多 IC10 方言和扩展语法
 
 - IDE
     - [ ] 添加跳转定义 / 查找引用
@@ -157,6 +160,8 @@ The extension is powered by a **C++ native compiler core**, integrated with VS C
 ### 1. Syntax Highlighting
 TextMate-based grammar covering keywords, registers, device references, strings, numbers, and comments.
 
+<img alt="syntax" src="./static/grammar.png" style="padding: 20px;">
+
 ### 2. Semantic Highlighting
 Compiler symbol-table-driven semantic coloring:
 - Register aliases visually distinguished from native registers
@@ -165,8 +170,12 @@ Compiler symbol-table-driven semantic coloring:
 - Labels, macro calls (`HASH`/`STR`), and type annotations each have independent colors
 - Tokens carry declaration/reference modifiers for fine-grained theming
 
+<img alt="semantic" src="./static/semantic.png" style="padding: 20px;">
+
 ### 3. Real-time Diagnostics
 The compiler incrementally re-analyzes code on every edit, instantly reporting lexical, syntax, and semantic errors categorized in the Problems panel.
+
+<img alt="diagnostic" src="./static/diagnostic.png" style="padding: 20px;">
 
 > [!NOTE]
 > As IC10 has no publicly available official language specification, compiler behavior is validated against Stationeers' actual in-game execution. For uncovered edge cases, feedback is welcome in [Issues](https://github.com/edoCsItahW/Stationeers/issues).
@@ -174,14 +183,20 @@ The compiler incrementally re-analyzes code on every edit, instantly reporting l
 ### 4. Hover Tooltips
 Hovering over any symbol (alias, label, constant, instruction keyword) displays its type, value, description, and other details.
 
+<video src="./static/hover.mp4"  style="padding: 20px;"></video>
+
 ### 5. Intelligent Completion
 - Instruction keyword completion with prefix matching
 - Operand completion: automatically filters registers, device references, enum values, and jump targets based on the current instruction's operand type constraints (`typeN`)
 - Device context awareness: filters `LogicType`/`LogicSlot`/`BatchMode`/`SlotIndex` based on the preceding device node
 - Specialized `alias` / `define` directive completion
 
+<video src="./static/completion.mp4" style="padding: 20px;"></video>
+
 ### 6. Function Signature Help
 Displays the current instruction's parameter signature and operand positions after typing a space or comma, highlighting the active parameter.
+
+<video src="./static/signature.mp4"  style="padding: 20px;"> </video>
 
 ### 7. Code Formatting
 Supports configuration from `.ic.yaml`, `.ic.yml`, or `.ic.json` in the project root. Formatting rules:
@@ -192,6 +207,8 @@ Supports configuration from `.ic.yaml`, `.ic.yml`, or `.ic.json` in the project 
 - Configurable minimum empty lines before labels
 - Aggressive mode: instruction operand column alignment within the same label scope
 
+<img alt="formatting" src="./static/formatting.png" style="padding: 20px;">
+
 > [!TIP]
 > If your code contains Unicode characters (e.g., Chinese comments or special symbols), ensure that the editor uses a monospaced font; otherwise, the alignment effect of formatting may be skewed.
 
@@ -200,6 +217,8 @@ The compilation pipeline implements line-level incremental lexical analysis and 
 
 ### 9. Bilingual Support
 English (en-us) and Simplified Chinese (zh-hans), covering all interface text including compiler diagnostics, hover tooltips, and completion documentation. Language changes take effect immediately.
+
+<img alt="locale" src="./static/locale.png" style="padding: 20px;">
 
 ### 10. Type Annotation Syntax
 Annotate aliases with type information using special comment syntax:
@@ -259,7 +278,6 @@ Location: `File > Preferences > Settings > Extensions > IC10`
 - Compiler
     - [ ] Expand standard library coverage for more device types
     - [ ] Incremental linker support to further reduce latency for declarative edits
-    - [ ] Support for additional IC10 dialects and extended syntax
 
 - IDE
     - [ ] Add go-to-definition / find-references

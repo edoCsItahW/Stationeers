@@ -5,7 +5,7 @@
     "author": "edocsitahw",
     "license": "CC BY-NC-SA 4.0",
     "version": "1.0.0",
-    "publisher": "",
+    "publisher": "edocsitahw",
     "repository": {
         "type": "git",
         "url": "https://github.com/edoCsItahW/Stationeers.git"
@@ -23,7 +23,16 @@
     "activationEvents": [],
     "main": "./client/out/extension",
     "icon": "icon.png",
-    "screenshots": null,
+    "screenshots": [
+        "static/completion.mp4",
+        "static/diagnostic.png",
+        "static/formatting.png",
+        "static/grammar.png",
+        "static/hover.mp4",
+        "static/locale.png",
+        "static/semantic.png",
+        "static/signature.mp4"
+    ],
     "contributes": {
         "languages": [
             {
