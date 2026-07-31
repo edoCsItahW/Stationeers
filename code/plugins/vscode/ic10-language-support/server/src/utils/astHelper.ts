@@ -13,7 +13,18 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Program, OperandNode } from "ic10-node-api";
+import {
+    Program,
+    OperandNode,
+    Token,
+    Position,
+    PureExeInstructionNode,
+    OperandType,
+    StatementNode,
+    AliasDirectiveNode,
+    DefineDirectiveNode, TokenCategory
+} from "ic10-node-api";
+import { Optional } from "type-fest";
 
 type NodeType = Program["statements"][number] | OperandNode;
 
@@ -144,4 +155,49 @@ export function operandToString(node: OperandNode): string {
         },
         node
     );
+}
+
+
+export function end(node: OperandNode): Position;
+export function end(token: Token): Position;
+export function end(item: OperandNode | Token): Position {
+    if ("pos" in item)
+        return { line: item.pos.line /* 无换行 */, column: item.pos.column + item.lexeme.length };
+
+    return { line: item.position.line /* 无换行 */, column: item.position.column + operandValueLength(item) };
+}
+
+
+export function getOperandType(ins: PureExeInstructionNode, idx: number): Optional<OperandType> {
+    return (ins as any)[`type${idx}`];
+}
+
+export function isInstruction(stmt: StatementNode): stmt is PureExeInstructionNode {
+    return stmt.type.endsWith("Instruction");
+}
+
+export function isDirectiveNode(stmt: StatementNode): stmt is AliasDirectiveNode | DefineDirectiveNode {
+    return stmt.type.endsWith("Directive");
+}
+
+export function findRangeTokens(
+    tokens: Token[],
+    column: number
+): {
+    prev: number;
+    curr: number;
+    next: number;
+} {
+    const result = { prev: -1, curr: -1, next: -1 };
+
+    tokens.some((token, i) => {
+        const idx = token.category === TokenCategory.WHITESPACE || token.category === TokenCategory.COMMENT ? -1 : i;
+        if (end(token).column <= column) result.prev = idx;
+        else if (token.pos.column >= column) {
+            result.next = idx;
+            return true;
+        } else result.curr = idx;
+    });
+
+    return result;
 }

@@ -148,7 +148,9 @@ namespace stationeers::ic10 {
                         valueEnd = content.size();  // 未闭合引号，取到末尾
                     }
                 } else {
-                    valueEnd = content.find_first_of(" \t", valueStart);
+                    // 非引号值：取到下一个 @ 或末尾，支持带空格的描述文本
+                    // 如 @desc Constant value 应得到 "Constant value" 而非 "Constant"
+                    valueEnd = content.find('@', valueStart);
                 }
                 if (valueEnd == std::string::npos) valueEnd = content.size();
                 value = content.substr(valueStart, valueEnd - valueStart);
@@ -894,8 +896,16 @@ namespace stationeers::ic10 {
     JumpTarget Parser::parseJumpTarget(int layer) {
         if (debug_) Console::log(std::string(layer * 4, ' ') + "JumpTarget");
 
-        // JumpTarget 与 NumberValue 相同
-        return parseNumberValue(++layer);
+        if (!current()) {
+            reporter_.error<IMsgId::IMP1>(current()->pos, endPos(*current()));
+
+            return ErrorNode{*current(), ILoc::msgStr<IMsgId::IMP1>()};
+        }
+
+        if (current()->type == TokenType::REGISTER)
+            return wide_cast<JumpTarget>(parseRegister(layer));
+
+        return wide_cast<JumpTarget>(parseNumberValue(layer));
     }
 
     DeviceAliasRef Parser::parseDeviceAliasRef(int layer) {
