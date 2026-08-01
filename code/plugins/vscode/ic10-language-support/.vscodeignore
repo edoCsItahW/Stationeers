@@ -36,6 +36,7 @@ package-lock.json
 pnpm-workspace.yaml
 tsconfig.tsbuildinfo
 scripts/**
+static/**
 node_modules/.package-map.json
 node_modules/.pnpm-workspace-state-v1.json
 .prettierrc.json

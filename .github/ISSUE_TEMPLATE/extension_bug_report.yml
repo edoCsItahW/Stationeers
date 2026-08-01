@@ -1,0 +1,152 @@
+name: Extension Bug Report
+description: Report a bug in the IC10 VS Code extension (ic10-language-support)
+labels: ["bug", "extension"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug in the IC10 VS Code extension!
+        Please fill out the form below. Fields marked with * are required.
+
+  - type: dropdown
+    id: feature
+    attributes:
+      label: Feature
+      description: Which extension feature is affected?
+      options:
+        - Syntax Highlighting (TextMate grammar)
+        - Semantic Highlighting (symbol-table-driven coloring)
+        - Diagnostics (real-time error reporting, Problems panel)
+        - Hover Tooltips
+        - Intelligent Completion (keywords, operands, device-context filtering)
+        - Signature Help (parameter highlighting)
+        - Code Formatting (alignment, indentation, comment alignment)
+        - Incremental Compilation (caching, re-parse performance)
+        - 'Type Annotations (#: type hints, #> doc comments)'
+        - Language Server (connection, startup, crash)
+        - Settings / Configuration (ic10.* settings, .ic.yaml/.ic.json)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension Version
+      description: The version of the IC10 extension you are using (found in VS Code Extensions panel).
+      placeholder: "1.0.2"
+    validations:
+      required: true
+
+  - type: input
+    id: vscode-version
+    attributes:
+      label: VS Code Version
+      description: Your VS Code version (found in Help > About).
+      placeholder: "1.125.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-source
+    attributes:
+      label: Installation Source
+      description: How did you install the extension?
+      options:
+        - VS Code Marketplace (released version)
+        - Local build from source
+        - VSIX installation (manual)
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: Your operating system.
+      placeholder: "Windows 11 / Ubuntu 24.04"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior. Include the IC10 source code that triggers the issue.
+      placeholder: |
+        1. Open a `.ic` file with the following content:
+           ```ic10
+           alias furnace d0 #: @type Furnace
+           l r0 furnace Pressure
+           hcf
+           ```
+        2. Place cursor after `furnace ` (with trailing space)
+        3. Trigger completion (Ctrl+Space)
+        4. See incorrect behavior...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened. Include screenshots or screen recordings if applicable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: lsp-log
+    attributes:
+      label: LSP Output Log
+      description: |
+        Log output from the IC10 language server. To capture:
+        1. Open VS Code Output panel (View > Output)
+        2. Select "IC10 Language Support" from the dropdown
+        3. Reproduce the issue
+        4. Copy the log contents here
+      placeholder: |
+        [Info 12:34:56] IC10 language server started
+        [Error 12:35:01] ...
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: Relevant Settings
+      description: Any IC10-related settings you have changed from defaults (in settings.json or .ic.yaml/.ic.json).
+      placeholder: |
+        ```json
+        {
+          "ic10.language": "zh-hans",
+          "ic10.format.indentWidth": 2
+        }
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other context — extension host logs, related issues, workarounds found, etc.
+    validations:
+      required: false

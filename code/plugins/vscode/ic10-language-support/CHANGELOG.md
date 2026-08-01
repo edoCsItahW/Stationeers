@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-07-31
+
+- Fix invalid images in README when displayed in Marketplace
+
+## [1.0.1] - 2026-07-31
+
+- Attempt to fix invalid images in README when displayed in Marketplace
+
 ## [1.0.0] - 2026-07-31
 
 - publish release 1.0.0
