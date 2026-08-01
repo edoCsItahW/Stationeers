@@ -1,0 +1,123 @@
+name: VSCode Extension Release
+run-name: Package VSCode Extension ${{ github.ref_name }} | 打包 VSCode 扩展 ${{ github.ref_name }}
+
+on:
+    push:
+        tags:
+            # 精确匹配子项目标签（如 vscode-ic10-language-support-v1.0.0）
+            - 'vscode-ic10-language-support-v*'
+
+concurrency:
+    group: vscode-extension-release-${{ github.ref }}
+    cancel-in-progress: false
+
+jobs:
+    package:
+        name: Package VSIX | 打包 VSIX
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+
+        steps:
+            -   name: Checkout source code | 检出源码
+                uses: actions/checkout@v6
+
+            -   name: Setup pnpm | 配置 pnpm
+                uses: pnpm/action-setup@v4
+                with:
+                    version: '9'
+
+            -   name: Setup Node.js | 配置 Node.js
+                uses: actions/setup-node@v6
+                with:
+                    node-version: '24'
+                    cache: 'pnpm'
+                    cache-dependency-path: code/plugins/vscode/ic10-language-support/pnpm-lock.yaml
+
+            -   name: Install dependencies | 安装依赖
+                working-directory: code/plugins/vscode/ic10-language-support
+                run: pnpm install --frozen-lockfile
+
+            # 安装 common / client / server 子包依赖
+            -   name: Install sub-package dependencies | 安装子包依赖
+                working-directory: code/plugins/vscode/ic10-language-support
+                run: pnpm run install:all
+
+            -   name: Compile TypeScript | 编译 TypeScript
+                working-directory: code/plugins/vscode/ic10-language-support
+                run: pnpm run compile
+
+            -   name: Install VSCE tool | 安装 VSCE 工具
+                run: npm install -g @vscode/vsce
+
+            # 从 tag 名称提取版本号（如 vscode-ic10-language-support-v1.0.2 → 1.0.2）
+            -   name: Extract version from tag | 从标签提取版本号
+                id: version
+                shell: bash
+                run: |
+                    TAG_NAME="${{ github.ref_name }}"
+                    VERSION="${TAG_NAME#vscode-ic10-language-support-v}"
+                    echo "version=$VERSION" >> $GITHUB_OUTPUT
+                    echo "Tag: $TAG_NAME, Version: $VERSION"
+
+            -   name: Package VSIX | 打包 VSIX
+                working-directory: code/plugins/vscode/ic10-language-support
+                run: vsce package --out ic10-${{ steps.version.outputs.version }}.vsix
+                env:
+                    VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+            -   name: Upload VSIX artifact | 上传 VSIX 构建产物
+                uses: actions/upload-artifact@v6
+                with:
+                    name: vscode-extension-vsix
+                    path: code/plugins/vscode/ic10-language-support/*.vsix
+                    retention-days: 7
+
+            # 根据 tag 名称判断是否为预发布版本
+            -   name: Determine prerelease status | 确定预发布状态
+                id: prerelease
+                shell: bash
+                run: |
+                    TAG_NAME="${{ github.ref_name }}"
+                    IS_PRERELEASE=false
+                    if [[ "$TAG_NAME" == *"-rc"* || "$TAG_NAME" == *"-beta"* || "$TAG_NAME" == *"-alpha"* ]]; then
+                        IS_PRERELEASE=true
+                    fi
+                    echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+                    echo "Tag: $TAG_NAME, Prerelease: $IS_PRERELEASE"
+
+            -   name: Upload to GitHub Release | 上传到 GitHub Release
+                uses: softprops/action-gh-release@v2
+                with:
+                    draft: true
+                    prerelease: ${{ steps.prerelease.outputs.is_prerelease }}
+                    name: IC10 Language Support ${{ steps.version.outputs.version }}
+                    body: |
+                        ## IC10 Language Support v${{ steps.version.outputs.version }}
+
+                        ### 产物 / Artifacts
+                        - **ic10-${{ steps.version.outputs.version }}.vsix** — VS Code 扩展安装包
+
+                        ### 安装方式 / Installation
+                        ```bash
+                        code --install-extension ic10-${{ steps.version.outputs.version }}.vsix
+                        ```
+
+                        ### 变更日志 / Changelog
+                        详见 [CHANGELOG.md](https://github.com/edoCsItahW/Stationeers/blob/main/code/plugins/vscode/ic10-language-support/CHANGELOG.md)
+                    files: |
+                        code/plugins/vscode/ic10-language-support/*.vsix
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Summary | 发布摘要
+                shell: bash
+                run: |
+                    echo "### VSCode Extension Release ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    echo "**Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+                    echo "**Draft**: true (请手动核对后发布)" >> $GITHUB_STEP_SUMMARY
+                    echo "**Prerelease**: ${{ steps.prerelease.outputs.is_prerelease }}" >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    echo "#### 产物 / Artifacts" >> $GITHUB_STEP_SUMMARY
+                    echo "- ic10-${{ steps.version.outputs.version }}.vsix (VS Code 扩展安装包)" >> $GITHUB_STEP_SUMMARY
