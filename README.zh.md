@@ -25,6 +25,7 @@
 - **Python 绑定** – 通过 `pybind11` 实现原生 Python 扩展，提供与 Node.js 绑定相同的编译器功能。
 - **跨平台** – Linux（GCC 13+ / Clang 16+）和 Windows（MSVC 2022）。
 - **测试** – C++ 核心使用 GoogleTest 单元测试（词法、语法、语义、链接器、增量、集成、系统测试），Node.js 绑定使用 Jest 测试，Python 绑定使用 pytest 测试。
+- **VS Code 插件** – 已发布的 [IC10](https://marketplace.visualstudio.com/items?itemName=edocsitahw.ic10) 扩展为 `.ic`/`.ic10` 文件提供完整 IDE 体验：语法与语义高亮、实时诊断、悬停提示、智能补全（设备上下文感知）、签名帮助、代码格式化、双语界面（中/英）— 全部基于 C++ 核心通过 Node.js 绑定驱动，内置增量编译实现近零延迟编辑。
 - **CI/CD** – GitHub Actions 工作流：构建、测试、静态分析（cppcheck、clang-tidy、clang-format），以及标签推送时自动发布构建产物。
 
 ---
@@ -67,6 +68,11 @@ Stationeers/
 │   └── .clang-tidy                     # 静态分析配置
 ├── code/backend/mateDatas/             # 游戏元数据（指令、枚举、类型）
 ├── code/plugins/vscode/                # VS Code 语言支持扩展
+│   └── ic10-language-support/         # 扩展源码（LSP 服务端 + 客户端）
+│       ├── server/                    # 语言服务器（补全、悬停、签名、诊断、格式化、语义等处理器）
+│       ├── client/                    # VS Code 扩展客户端
+│       ├── syntaxes/                  # TextMate 语法规则
+│       └── package.json               # 扩展清单（v1.0.2）
 ├── docs/                               # 文档与 Doxygen 资源
 ├── .github/workflows/                  # CI/CD 工作流
 ├── CHANGELOG.md                        # 更新日志（英文）
@@ -295,6 +301,37 @@ analyser = ic10.Analyser()
 analyser.visit(program)
 print(analyser.symbolTable.toJSON())
 ```
+
+### VS Code 插件
+
+最简单的方式是从 VS Code 应用市场安装已发布的 **IC10** 扩展 — 无需任何构建工具链。
+
+**安装：**
+
+在 VS Code 扩展面板中搜索 "IC10"，或通过命令行安装：
+
+```bash
+code --install-extension edocsitahw.ic10
+```
+
+> 扩展已内置预编译的 C++ 编译器核心（Node.js 原生模块 `ic10-node-api`），无需额外安装 C++ 工具链、CMake 或编译器。
+
+**功能概览：**
+
+| 功能 | 说明 |
+|---|---|
+| 语法高亮 | TextMate 语法规则，覆盖关键字、寄存器、设备、字符串、数字、注释 |
+| 语义高亮 | 基于符号表着色：别名与原生寄存器区分、`define` 常量与原始数字区分、标签、宏调用等独立着色 |
+| 实时诊断 | 每次编辑后增量分析，在问题面板中分类展示词法、语法、语义错误 |
+| 悬停提示 | 悬停符号显示类型、值、描述等信息 |
+| 智能补全 | 指令关键字补全 + 操作数补全（设备上下文感知过滤） |
+| 签名帮助 | 输入时高亮当前正在输入的参数 |
+| 代码格式化 | 通过 `.ic.yaml`/`.ic.yml`/`.ic.json` 配置（列对齐、缩进、注释对齐） |
+| 增量编译 | 行级增量词法 + 语句级增量语法分析；缓存跨编辑会话保持 |
+| 双语界面 | 英语（`en-us`）和简体中文（`zh-hans`）；设置中切换 |
+| 类型注解 | `#:` 类型提示语法和 `#>` 文档注释语法，用于声明设备/枚举类型 |
+
+详见扩展 [README](code/plugins/vscode/ic10-language-support/README.md) 了解完整配置选项。
 
 ---
 
