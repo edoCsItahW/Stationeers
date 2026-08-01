@@ -1,0 +1,154 @@
+name: Extension Feature Request
+description: Suggest a new feature or enhancement for the IC10 VS Code extension
+labels: ["enhancement", "extension"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature for the IC10 VS Code extension!
+        Please fill out the form below. Fields marked with * are required.
+
+  - type: dropdown
+    id: feature
+    attributes:
+      label: Feature Area
+      description: Which extension feature area would this enhancement belong to?
+      options:
+        - Syntax Highlighting (TextMate grammar)
+        - Semantic Highlighting (symbol-table-driven coloring)
+        - Diagnostics (error reporting, quick fixes)
+        - Hover Tooltips
+        - Intelligent Completion (keywords, operands, device-context filtering)
+        - Signature Help (parameter highlighting)
+        - Code Formatting (alignment, indentation, comment alignment)
+        - Incremental Compilation (caching, performance)
+        - Type Annotations (#: type hints, #> doc comments)
+        - Go to Definition / Find References
+        - Rename Symbol
+        - Code Actions (quick fixes, refactorings)
+        - Snippets
+        - Settings / Configuration
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature is this?
+      options:
+        - New functionality
+        - Enhancement to existing feature
+        - Performance improvement
+        - Developer experience (DX)
+        - Documentation improvement
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: What problem does this feature solve? Or what use case does it address?
+      placeholder: |
+        When editing a large IC10 file, I'm unable to quickly navigate to
+        a label definition. I currently have to search manually...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like. Be as specific as possible.
+      placeholder: |
+        Add "Go to Definition" support: Ctrl+Click on a label reference
+        (e.g. `j start`) to jump to `start:` definition. F12 should also
+        work via VS Code's built-in command.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+    validations:
+      required: false
+
+  - type: textarea
+    id: completion-details
+    attributes:
+      label: Completion-Specific Details
+      description: Required if requesting a completion feature. Include trigger characters, filter logic, or item types.
+      placeholder: |
+        Proposed: Add completion for `#>` doc comment tags after typing `#> @`.
+
+        Trigger: typing `@` after `#> `
+        Items: @device, @enum, @name, @desc, @value, @slot, @logic, @mode, @logicSlot, @connect
+    validations:
+      required: false
+
+  - type: textarea
+    id: format-details
+    attributes:
+      label: Formatting-Specific Details
+      description: Required if requesting a formatting feature. Include formatting rules, alignment behavior, or config options.
+      placeholder: |
+        Proposed: Add `ic10.format.sortAliases` option to sort consecutive
+        `alias` directives alphabetically.
+
+        Config:
+        ```yaml
+        sortAliases: true
+        sortAliasesBy: "name"  # or "device"
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: diagnostic-details
+    attributes:
+      label: Diagnostics-Specific Details
+      description: Required if requesting a diagnostics feature. Include error codes, quick fixes, or validation rules.
+      placeholder: |
+        Proposed: Add a quick fix for undefined labels — suggest creating
+        a label definition at the cursor position.
+
+        Error: Undefined label 'loop'
+        Quick fix: Create label 'loop:' at current line
+    validations:
+      required: false
+
+  - type: textarea
+    id: settings-details
+    attributes:
+      label: Settings-Specific Details
+      description: Required if requesting a settings or configuration feature. Include setting names, types, defaults.
+      placeholder: |
+        Proposed setting:
+        ```json
+        {
+          "ic10.completion.triggerCharacters": [" ", ","]
+        }
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: breaking
+    attributes:
+      label: Breaking Changes
+      description: Does this feature introduce breaking changes to existing extension behavior? If yes, describe the migration path.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other context — screenshots, mockups, references to similar features in other extensions, etc.
+    validations:
+      required: false
