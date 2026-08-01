@@ -25,6 +25,7 @@ This project provides lexical analysis, syntax analysis, semantic analysis, link
 - **Python Bindings** – native Python extension via `pybind11`, exposing the same compiler capabilities to Python.
 - **Cross-Platform** – builds on Linux (GCC 13+ / Clang 16+) and Windows (MSVC 2022).
 - **Testing** – GoogleTest unit tests for C++ core (lexer, parser, semantic, linker, incremental, integration, system), Jest tests for Node.js bindings, pytest tests for Python bindings.
+- **VS Code Extension** – the published [IC10](https://marketplace.visualstudio.com/items?itemName=edocsitahw.ic10) extension provides a full IDE experience for `.ic`/`.ic10` files: syntax & semantic highlighting, real-time diagnostics, hover tooltips, intelligent completion (device-context aware), signature help, code formatting, and bilingual UI (en/zh) — all powered by the C++ core via Node.js bindings with incremental compilation for near-zero editing latency.
 - **CI/CD** – GitHub Actions workflows for build, test, static analysis (cppcheck, clang-tidy, clang-format), and automatic artifact publishing on tag push.
 
 ---
@@ -67,6 +68,11 @@ Stationeers/
 │   └── .clang-tidy                     # Static analysis configuration
 ├── code/backend/mateDatas/             # Game metadata (instructions, enums, types)
 ├── code/plugins/vscode/                # VS Code language support extension
+│   └── ic10-language-support/         # Extension source (LSP server + client)
+│       ├── server/                    # Language server (handlers: completion, hover, signature, diagnostic, format, semantic)
+│       ├── client/                    # VS Code extension client
+│       ├── syntaxes/                  # TextMate grammar
+│       └── package.json               # Extension manifest (v1.0.2)
 ├── docs/                               # Documentation & Doxygen resources
 ├── .github/workflows/                  # CI/CD workflows
 ├── CHANGELOG.md                        # Changelog (English)
@@ -295,6 +301,37 @@ analyser = ic10.Analyser()
 analyser.visit(program)
 print(analyser.symbolTable.toJSON())
 ```
+
+### VS Code Extension
+
+The easiest way to get started is to install the published **IC10** extension from the VS Code Marketplace — no build toolchain required.
+
+**Install:**
+
+Search for "IC10" in the VS Code Extensions panel, or install from the command line:
+
+```bash
+code --install-extension edocsitahw.ic10
+```
+
+> The extension bundles the pre-built C++ compiler core as a Node.js native addon (`ic10-node-api`). No external C++ toolchain, CMake, or compiler installation is needed.
+
+**Features at a glance:**
+
+| Feature | Description |
+|---|---|
+| Syntax highlighting | TextMate grammar for keywords, registers, devices, strings, numbers, comments |
+| Semantic highlighting | Symbol-table-driven coloring: alias vs. native register, `define` vs. literal, labels, macros |
+| Real-time diagnostics | Incremental re-analysis on every edit; errors categorized in the Problems panel |
+| Hover tooltips | Symbol type, value, and description on hover |
+| Intelligent completion | Instruction keywords + operand completion with device-context filtering |
+| Signature help | Active parameter highlighting as you type |
+| Code formatting | Configurable via `.ic.yaml`/`.ic.yml`/`.ic.json` (column alignment, indentation, comment alignment) |
+| Incremental compilation | Line-level incremental lexing + statement-level incremental parsing; caches persist across sessions |
+| Bilingual UI | English (`en-us`) and Simplified Chinese (`zh-hans`); switch in settings |
+| Type annotations | `#:` type hint syntax and `#>` doc comment syntax for device/enum type declarations |
+
+See the extension's [README](code/plugins/vscode/ic10-language-support/README.md) for full details and configuration options.
 
 ---
 
