@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: IC10 Language Support on Marketplace
+    url: https://marketplace.visualstudio.com/items?itemName=edocsitahw.ic10
+    about: View the extension listing on VS Code Marketplace.
