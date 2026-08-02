@@ -31,12 +31,10 @@ jobs:
                 uses: actions/setup-node@v6
                 with:
                     node-version: '24'
-                    cache: 'pnpm'
-                    cache-dependency-path: code/plugins/vscode/ic10-language-support/pnpm-lock.yaml
 
             -   name: Install dependencies | 安装依赖
                 working-directory: code/plugins/vscode/ic10-language-support
-                run: pnpm install --frozen-lockfile
+                run: pnpm install
 
             # 安装 common / client / server 子包依赖
             -   name: Install sub-package dependencies | 安装子包依赖
