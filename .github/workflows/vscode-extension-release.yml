@@ -26,8 +26,6 @@ jobs:
                 uses: actions/setup-node@v6
                 with:
                     node-version: '24'
-                    cache: 'npm'
-                    cache-dependency-path: code/plugins/vscode/ic10-language-support/package-lock.json
 
             # 使用 npm 安装所有依赖（根 + common + client + server）
             -   name: Install dependencies | 安装依赖
