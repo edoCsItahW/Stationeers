@@ -22,28 +22,21 @@ jobs:
             -   name: Checkout source code | 检出源码
                 uses: actions/checkout@v6
 
-            -   name: Setup pnpm | 配置 pnpm
-                uses: pnpm/action-setup@v4
-                with:
-                    version: '9'
-
             -   name: Setup Node.js | 配置 Node.js
                 uses: actions/setup-node@v6
                 with:
                     node-version: '24'
+                    cache: 'npm'
+                    cache-dependency-path: code/plugins/vscode/ic10-language-support/package-lock.json
 
+            # 使用 npm 安装所有依赖（根 + common + client + server）
             -   name: Install dependencies | 安装依赖
                 working-directory: code/plugins/vscode/ic10-language-support
-                run: pnpm install
-
-            # 安装 common / client / server 子包依赖
-            -   name: Install sub-package dependencies | 安装子包依赖
-                working-directory: code/plugins/vscode/ic10-language-support
-                run: pnpm run install:all
+                run: npm run install:npm
 
             -   name: Compile TypeScript | 编译 TypeScript
                 working-directory: code/plugins/vscode/ic10-language-support
-                run: pnpm run compile
+                run: npm run compile
 
             -   name: Install VSCE tool | 安装 VSCE 工具
                 run: npm install -g @vscode/vsce
