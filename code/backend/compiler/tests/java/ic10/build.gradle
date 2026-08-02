@@ -1,0 +1,62 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.stationeers'
+version = '1.0.0'
+
+repositories {
+    // 阿里云 Maven 镜像（国内最快）
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    // 如果涉及 Android 相关依赖（fbjni 可能需要），可以加 google 镜像
+    maven { url 'https://maven.aliyun.com/repository/google' }
+    // 回退到中央仓库（走镜像后，这个基本不会触发，但保留）
+    mavenCentral()
+}
+
+dependencies {
+    // fbjni 源码引用了 javax.annotation.Nullable
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+    // 测试用
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+
+// 编译前确保 libs 目录存在
+tasks.withType(JavaCompile).configureEach {
+    doFirst {
+        file("${projectDir}/libs").mkdirs()
+    }
+}
+
+// 测试时让 Java 能找到 CMake 编译出的 ic10_java 动态库
+test {
+    useJUnitPlatform()
+
+    // 动态库查找路径：项目本地的 libs 目录
+    def libsDir = file("${projectDir}/libs").absolutePath
+    systemProperty "java.library.path", libsDir
+    jvmArgs "-Djava.library.path=${libsDir}"
+
+    // 标准库文件路径（src/main/resources）
+    systemProperty "stdLib.path", file("src/main/resources/stdLib.ic").absolutePath
+}
+
+// 方便一键构建（调用 PowerShell 构建脚本）
+task buildNative(type: Exec) {
+    // 回到项目根目录 (code/backend/compiler)
+    workingDir = file("${projectDir}/../../..")
+    if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+        commandLine "powershell", "-File", "scripts/IC10JavaExport.ps1"
+    }
+}
+
+// 编译 Java 前先确保 libs 目录存在
+tasks.compileJava.dependsOn tasks.register('ensureLibsDir') {
+    doLast {
+        file("${projectDir}/libs").mkdirs()
+        file("${projectDir}/src/main/resources").mkdirs()
+    }
+}

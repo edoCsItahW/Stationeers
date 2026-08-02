@@ -17,6 +17,13 @@
 **/__pycache__/
 *.pyd
 
+# Java
+**/.gradle/
+**/gradle/wrapper/
+**/gradlew
+**/gradlew.bat
+*.dll
+
 # IDE
 **/.idea/
 **/.vscode/
