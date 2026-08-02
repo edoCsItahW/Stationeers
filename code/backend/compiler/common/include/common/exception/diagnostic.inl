@@ -20,7 +20,7 @@
 #include "common/locals/local.hpp"
 #include "common/utils/enum_to_str.hpp"
 
-namespace stationeers::ic10 {
+namespace stationeers {
 
     template<IsMsgPack P>
     const std::vector<Diagnostic>& DiagnosticReporter<P>::getDiagnostics() const {

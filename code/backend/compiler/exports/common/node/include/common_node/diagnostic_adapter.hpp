@@ -100,7 +100,7 @@ namespace stationeers {
          *
          * @endif
          */
-        static node::Object to(node::Env env, const ic10::Diagnostic& diagnostic);
+        static node::Object to(node::Env env, const Diagnostic& diagnostic);
 
     private:
         /**
@@ -110,7 +110,7 @@ namespace stationeers {
          * @brief Convert DiagnosticLevel enum to string
          * @endif
          */
-        static const char* levelToString(ic10::DiagnosticLevel level);
+        static const char* levelToString(DiagnosticLevel level);
     };
 
 }  // namespace stationeers

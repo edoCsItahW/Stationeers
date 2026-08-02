@@ -1,0 +1,2 @@
+# IC10 Java binding dynamic libraries (ic10_java.dll / libic10_java.so / libic10_java.dylib)
+# 由 CMake 构建 IC10_Java_API target 时自动输出到此目录

@@ -3,12 +3,8 @@ project(IC10_Node_API VERSION 1.0)
 # ============================================================================
 # 依赖查找（pybind11 和 Node.js）
 # ============================================================================
-option(USE_ELECTRON "Build with Electron headers instead of Node.js" OFF)
-if(USE_ELECTRON)
-    include(${CMAKE_SOURCE_DIR}/cmake/electron_node.cmake)
-else()
-    include(${CMAKE_SOURCE_DIR}/cmake/node.cmake)  # 自动查找 Node.js 头文件和库
-endif()
+include(${CMAKE_SOURCE_DIR}/cmake/node.cmake)  # 自动查找 Node.js 头文件和库
+
 
 # ============================================================================
 # 主要构建目标
@@ -29,21 +25,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 if(MSVC)
-    if(USE_ELECTRON)
-        target_compile_definitions(${PROJECT_NAME} PRIVATE
-                HOST_BINARY="electron.exe"
-        )
-        target_link_options(${PROJECT_NAME} PRIVATE
-                "/DELAYLOAD:electron.exe"
-        )
-    else()
-        target_compile_definitions(${PROJECT_NAME} PRIVATE
-                HOST_BINARY="node.exe"
-        )
-        target_link_options(${PROJECT_NAME} PRIVATE
-                "/DELAYLOAD:node.exe"
-        )
-    endif()
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+            HOST_BINARY="node.exe"
+    )
+    target_link_options(${PROJECT_NAME} PRIVATE
+            "/DELAYLOAD:node.exe"
+    )
+
     target_link_libraries(${PROJECT_NAME}
             PRIVATE
             delayimp
