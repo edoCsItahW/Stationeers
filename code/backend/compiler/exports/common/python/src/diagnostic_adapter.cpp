@@ -19,11 +19,11 @@ namespace stationeers {
 
     namespace {
         /// 将DiagnosticLevel枚举转换为字符串
-        const char* levelToString(ic10::DiagnosticLevel level) {
+        const char* levelToString(DiagnosticLevel level) {
             switch (level) {
-                case ic10::DiagnosticLevel::Error:   return "error";
-                case ic10::DiagnosticLevel::Warning: return "warning";
-                case ic10::DiagnosticLevel::Info:    return "info";
+                case DiagnosticLevel::Error:   return "error";
+                case DiagnosticLevel::Warning: return "warning";
+                case DiagnosticLevel::Info:    return "info";
             }
             return "unknown";
         }
@@ -34,7 +34,7 @@ namespace stationeers {
         (void)m;
     }
 
-    py::dict diagnosticToPython(const ic10::Diagnostic& diagnostic) {
+    py::dict diagnosticToPython(const Diagnostic& diagnostic) {
         py::dict d;
         d["level"] = py::str(levelToString(diagnostic.level));
         d["id"] = py::str(diagnostic.id);

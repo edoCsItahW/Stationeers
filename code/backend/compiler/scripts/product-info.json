@@ -15,6 +15,14 @@
         "PackageName": "ic10_python",
         "TestDir": "tests/ic10/python"
     },
+    "IC10Java": {
+        "BuildConfig": "Release",
+        "CMakeTarget": "IC10_Java_API",
+        "ArtifactSource": "build/exports/IC10/java/Release/ic10_java.dll",
+        "PackageRoot": "tests/java/ic10",
+        "PackageName": "ic10_java",
+        "TestDir": "tests/ic10/java"
+    },
     "StationScriptNode": {
         "BuildConfig": "Release",
         "CMakeTarget": "StationScript_Node_API",

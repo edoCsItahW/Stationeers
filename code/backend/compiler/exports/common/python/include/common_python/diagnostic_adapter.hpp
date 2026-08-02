@@ -81,7 +81,7 @@ namespace stationeers {
      *
      * @endif
      */
-    py::dict diagnosticToPython(const ic10::Diagnostic& diagnostic);
+    py::dict diagnosticToPython(const Diagnostic& diagnostic);
 
 }  // namespace stationeers
 

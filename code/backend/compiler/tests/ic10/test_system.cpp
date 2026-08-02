@@ -28,6 +28,7 @@
 #include "ic10/semantic/analyser.hpp"
 
 using namespace stationeers::ic10;
+using stationeers::Diagnostic;
 
 
 class SystemTestFixture : public ::testing::Test {

@@ -17,6 +17,7 @@ option(BUILD_IC10 "Build IC10 compiler core" ON)
 option(BUILD_STATIONSCRIPT "Build StationScript compiler" ON)
 option(BUILD_NODE_BINDINGS "Build Node.js bindings" ON)
 option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
+option(BUILD_JAVA_BINDINGS  "Build Java bindings" ON)
 option(BUILD_TESTS "Build tests" ON)
 option(ENABLE_CCACHE "Enable ccache/sccache if available" ON)
 
@@ -82,7 +83,7 @@ if(BUILD_STATIONSCRIPT)
     add_subdirectory(StationScript)
 endif()
 
-if(BUILD_NODE_BINDINGS OR BUILD_PYTHON_BINDINGS)
+if(BUILD_NODE_BINDINGS OR BUILD_PYTHON_BINDINGS OR BUILD_JAVA_BINDINGS)
     add_subdirectory(exports)
 endif()
 

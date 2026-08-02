@@ -24,16 +24,16 @@ namespace stationeers {
         return exports;
     }
 
-    const char* DiagnosticAdapter::levelToString(ic10::DiagnosticLevel level) {
+    const char* DiagnosticAdapter::levelToString(DiagnosticLevel level) {
         switch (level) {
-            case ic10::DiagnosticLevel::Error:   return "error";
-            case ic10::DiagnosticLevel::Warning: return "warning";
-            case ic10::DiagnosticLevel::Info:    return "info";
+            case DiagnosticLevel::Error:   return "error";
+            case DiagnosticLevel::Warning: return "warning";
+            case DiagnosticLevel::Info:    return "info";
         }
         return "unknown";
     }
 
-    node::Object DiagnosticAdapter::to(node::Env env, const ic10::Diagnostic& diagnostic) {
+    node::Object DiagnosticAdapter::to(node::Env env, const Diagnostic& diagnostic) {
         auto obj = node::Object::New(env);
 
         (void)obj.Set("level", node::String::New(env, levelToString(diagnostic.level)));
