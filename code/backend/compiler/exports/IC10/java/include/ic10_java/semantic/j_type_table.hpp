@@ -46,7 +46,7 @@ namespace stationeers::ic10 {
      */
     class JTypeTable : public java::HybridClass<JTypeTable> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/TypeTable;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/TypeTable;";
 
         TypeTable typeTable_;
 

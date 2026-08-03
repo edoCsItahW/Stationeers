@@ -48,7 +48,7 @@ namespace stationeers::ic10 {
      */
     class JIncCompiler : public java::HybridClass<JIncCompiler> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/IncCompiler;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/IncCompiler;";
 
         IncCompiler compiler_;
 

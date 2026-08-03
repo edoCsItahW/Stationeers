@@ -46,7 +46,7 @@ namespace stationeers::ic10 {
      */
     class JSymbolTable : public java::HybridClass<JSymbolTable> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/SymbolTable;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/SymbolTable;";
 
         SymbolTable symbolTable_;
 

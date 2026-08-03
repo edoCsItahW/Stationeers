@@ -24,7 +24,7 @@ namespace stationeers::ic10 {
 
     class JToken : public java::HybridClass<JToken> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/Token;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/Token;";
 
         Token token_;
 
