@@ -82,7 +82,7 @@
 #include <string>
 #include <vector>
 
-namespace stationeers::ic10 {
+namespace stationeers {
 
     /**
      * @if zh

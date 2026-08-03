@@ -1,0 +1,4 @@
+rootProject.name = 'ic10-java-tests'
+
+// 使用 Gradle composite build 引入 tests/java/ic10 作为最终用户包
+includeBuild('../../java/ic10')

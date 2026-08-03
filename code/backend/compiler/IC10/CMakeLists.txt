@@ -47,6 +47,7 @@ target_compile_definitions(IC10_Compiler PRIVATE IC10_SIMPLE_MODE)
 if (MSVC)
     target_compile_options(IC10_Compiler PRIVATE /MP /O1 /W4)
     target_link_options(IC10_Compiler PRIVATE LINKER:/pdbpagesize:16384)
+    add_compile_options(/wd4514)
 
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(IC10_Compiler PRIVATE -O1 -Wall -Wextra)
