@@ -1,0 +1,183 @@
+name: IC10 Java Bindings Build & Test
+run-name: IC10 Java | IC10 Java 绑定
+
+on:
+    workflow_call:
+        inputs:
+            os:
+                description: 'Operating system'
+                type: string
+                required: false
+                default: 'ubuntu-latest'
+            cmake-version:
+                description: 'CMake version'
+                type: string
+                required: false
+                default: '4.2.1'
+            java-version:
+                description: 'Java version'
+                type: string
+                required: false
+                default: '21'
+            build-type:
+                description: 'Build type'
+                type: string
+                required: false
+                default: 'Release'
+            run-tests:
+                description: 'Whether to run tests (C++ + Gradle)'
+                type: boolean
+                required: false
+                default: true
+            upload-artifact:
+                description: 'Whether to upload build artifacts'
+                type: boolean
+                required: false
+                default: false
+            artifact-name:
+                description: 'Artifact name prefix'
+                type: string
+                required: false
+                default: 'ic10-java'
+            core-artifact-name:
+                description: 'Name of the IC10 core artifact to reuse (empty to build from source)'
+                type: string
+                required: false
+                default: ''
+        outputs:
+            artifact-name:
+                description: 'Name of the uploaded artifact'
+                value: ${{ jobs.build.outputs.artifact-name }}
+
+jobs:
+    build:
+        name: build ${{ inputs.os }} | 构建${{ inputs.os }}
+        runs-on: ${{ inputs.os }}
+        outputs:
+            artifact-name: ${{ steps.artifact.outputs.name }}
+
+        steps:
+            -   name: Checkout source code | 检出源码
+                uses: actions/checkout@v6
+
+            -   name: Setup build environment | 设置构建环境
+                uses: ./.github/actions/setup-build-env
+                with:
+                    os: ${{ inputs.os }}
+                    cmake-version: ${{ inputs.cmake-version }}
+                    java-version: ${{ inputs.java-version }}
+                    cache-key-prefix: ic10-java
+
+            -   name: Download core artifact | 下载核心构件
+                if: inputs.core-artifact-name != ''
+                uses: actions/download-artifact@v6
+                with:
+                    name: ${{ inputs.core-artifact-name }}
+                    path: core-artifact
+
+            -   name: Configure CMake | 配置 CMake
+                shell: bash
+                run: |
+                    CMAKE_ARGS="-B build -S code/backend/compiler"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=23"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_STATIONSCRIPT=OFF"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_NODE_BINDINGS=OFF"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=OFF"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_JAVA_BINDINGS=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_TESTS=${{ inputs.run-tests && 'ON' || 'OFF' }}"
+                    CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CCACHE=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+
+                    if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
+                      CMAKE_ARGS="$CMAKE_ARGS -DIC10_CORE_ARTIFACT_DIR=$GITHUB_WORKSPACE/core-artifact"
+                      echo "Using prebuilt core artifact from: $GITHUB_WORKSPACE/core-artifact"
+                    fi
+
+                    if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
+                      CMAKE_ARGS="$CMAKE_ARGS -G Ninja"
+                      CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld"
+                    fi
+
+                    echo "CMake args: $CMAKE_ARGS"
+                    cmake $CMAKE_ARGS
+
+            -   name: Build | 编译
+                shell: bash
+                run: |
+                    if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
+                      cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target IC10_Java_API common_java
+                    else
+                      cmake --build build --config ${{ inputs.build-type }} --parallel 4
+                    fi
+
+            -   name: (Linux) Show ccache/sccache stats | 显示缓存统计
+                if: inputs.os == 'ubuntu-latest'
+                shell: bash
+                run: ccache --show-stats
+
+            -   name: (Windows) Show sccache stats | 显示缓存统计
+                if: inputs.os == 'windows-latest'
+                shell: pwsh
+                run: |
+                    if (Get-Command sccache -ErrorAction SilentlyContinue) {
+                        sccache --show-stats
+                    } elseif (Get-Command ccache -ErrorAction SilentlyContinue) {
+                        ccache --show-stats
+                    } else {
+                        Write-Host "No cache tool available"
+                    }
+
+            -   name: Run C++ tests (CTest) | 运行 C++ 测试
+                if: inputs.run-tests
+                shell: bash
+                run: |
+                    cd build
+                    ctest --output-on-failure --parallel 4 -C ${{ inputs.build-type }} -R ic10
+
+            -   name: Copy native library to Java package | 复制原生库到 Java 包
+                shell: bash
+                run: |
+                    LIBS_DIR="code/backend/compiler/tests/java/ic10/libs"
+                    mkdir -p "$LIBS_DIR"
+                    if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
+                      cp -f build/exports/IC10/java/Release/ic10_java.dll "$LIBS_DIR/" 2>/dev/null || \
+                      cp -f build/exports/IC10/java/ic10_java.dll "$LIBS_DIR/" 2>/dev/null || \
+                      echo "WARNING: ic10_java.dll not found"
+                    else
+                      cp -f build/exports/IC10/java/libic10_java.so "$LIBS_DIR/" 2>/dev/null || \
+                      echo "WARNING: libic10_java.so not found"
+                      echo "--- ldd check ---"
+                      ldd "$LIBS_DIR/libic10_java.so" 2>&1 || true
+                    fi
+                    ls -la "$LIBS_DIR/"
+
+            -   name: Run Gradle tests | 运行 Gradle 测试
+                if: inputs.run-tests
+                working-directory: code/backend/compiler/tests/ic10/java
+                shell: bash
+                run: |
+                    LIBS_DIR="$(realpath ../../java/ic10/libs)"
+                    export LD_LIBRARY_PATH="$LIBS_DIR:${LD_LIBRARY_PATH:-}"
+                    chmod +x ../../java/ic10/gradlew
+                    ../../java/ic10/gradlew test --no-daemon --stacktrace
+
+            -   name: Set artifact name | 设置产物名称
+                id: artifact
+                if: inputs.upload-artifact
+                shell: bash
+                run: |
+                    NAME="${{ inputs.artifact-name }}-${{ inputs.os }}"
+                    echo "name=$NAME" >> $GITHUB_OUTPUT
+
+            -   name: Upload build artifacts | 上传构建产物
+                if: inputs.upload-artifact
+                uses: actions/upload-artifact@v6
+                with:
+                    name: ${{ steps.artifact.outputs.name }}
+                    path: |
+                        build/exports/IC10/java/**
+                        build/bin/**
+                    retention-days: 7

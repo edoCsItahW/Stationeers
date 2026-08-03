@@ -24,7 +24,7 @@ namespace stationeers {
 
     class JPos : public java::HybridClass<JPos> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/Pos;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/Pos;";
 
         Pos pos_;
 

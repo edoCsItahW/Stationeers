@@ -17,7 +17,6 @@
 package com.facebook.jni;
 
 import com.facebook.jni.annotations.DoNotStripAny;
-import com.facebook.soloader.nativeloader.NativeLoader;
 
 /**
  * This object holds a native C++ member for hybrid Java/C++ objects.
@@ -29,10 +28,6 @@ import com.facebook.soloader.nativeloader.NativeLoader;
  */
 @DoNotStripAny
 public class HybridData {
-
-  static {
-    NativeLoader.loadLibrary("fbjni");
-  }
 
   private final Destructor mDestructor = new Destructor(this);
 

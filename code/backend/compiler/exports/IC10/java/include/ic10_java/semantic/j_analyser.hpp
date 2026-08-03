@@ -55,7 +55,7 @@ namespace stationeers::ic10 {
      */
     class JAnalyser : public java::HybridClass<JAnalyser> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/Analyser;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/Analyser;";
 
         Analyser analyser_;
 

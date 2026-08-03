@@ -16,6 +16,10 @@ inputs:
         description: 'Python version (empty to skip)'
         required: false
         default: ''
+    java-version:
+        description: 'Java version (empty to skip)'
+        required: false
+        default: ''
     pnpm-version:
         description: 'pnpm version (empty to skip)'
         required: false
@@ -79,6 +83,13 @@ runs:
             uses: actions/setup-python@v5
             with:
                 python-version: ${{ inputs.python-version }}
+
+        -   name: Setup Java
+            if: inputs.java-version != ''
+            uses: actions/setup-java@v4
+            with:
+                distribution: 'temurin'
+                java-version: ${{ inputs.java-version }}
 
         -   name: Setup pnpm
             if: inputs.node-version != '' && inputs.pnpm-version != ''
@@ -183,4 +194,8 @@ runs:
                 if [[ "${{ inputs.python-version }}" != "" ]]; then
                   python --version
                   pip --version
+                fi
+                if [[ "${{ inputs.java-version }}" != "" ]]; then
+                  java --version
+                  echo "JAVA_HOME=$JAVA_HOME"
                 fi

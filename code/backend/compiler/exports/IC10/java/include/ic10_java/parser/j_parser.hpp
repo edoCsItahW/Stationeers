@@ -34,7 +34,7 @@ namespace stationeers::ic10 {
 
     class JParser : public java::HybridClass<JParser> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/Parser;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/Parser;";
 
         Parser parser_;
 
