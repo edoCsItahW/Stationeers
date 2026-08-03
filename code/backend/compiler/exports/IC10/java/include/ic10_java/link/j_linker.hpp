@@ -51,7 +51,7 @@ namespace stationeers::ic10 {
      */
     class JLinker : public java::HybridClass<JLinker> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/Linker;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/Linker;";
 
         Linker linker_;
 

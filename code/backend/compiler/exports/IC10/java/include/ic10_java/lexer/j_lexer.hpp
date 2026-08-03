@@ -33,7 +33,7 @@ namespace stationeers::ic10 {
 
     class JLexer : public java::HybridClass<JLexer> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/Lexer;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/Lexer;";
 
         Lexer lexer_;
         std::string source_;

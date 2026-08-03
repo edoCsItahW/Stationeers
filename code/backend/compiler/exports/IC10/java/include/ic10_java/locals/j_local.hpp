@@ -44,7 +44,7 @@ namespace stationeers::ic10 {
      */
     class JIC10Local : public java::JavaClass<JIC10Local> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/IC10Local;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/IC10Local;";
 
         /**
          * @if zh

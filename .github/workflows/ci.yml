@@ -20,6 +20,7 @@ jobs:
             ic10-core: ${{ steps.filter.outputs.ic10-core }}
             ic10-node: ${{ steps.filter.outputs.ic10-node }}
             ic10-python: ${{ steps.filter.outputs.ic10-python }}
+            ic10-java: ${{ steps.filter.outputs.ic10-java }}
             stationscript: ${{ steps.filter.outputs.stationscript }}
             shared: ${{ steps.filter.outputs.shared }}
             workflow: ${{ steps.filter.outputs.workflow }}
@@ -60,6 +61,11 @@ jobs:
                           - 'code/backend/compiler/exports/IC10/python/**'
                           - 'code/backend/compiler/exports/common/python/**'
                           - 'code/backend/compiler/tests/python/**'
+                        ic10-java:
+                          - 'code/backend/compiler/exports/IC10/java/**'
+                          - 'code/backend/compiler/exports/common/java/**'
+                          - 'code/backend/compiler/tests/java/**'
+                          - 'code/backend/compiler/tests/ic10/java/**'
                         stationscript:
                           - 'code/backend/compiler/StationScript/**'
                           - 'code/backend/compiler/tests/station_script/**'
@@ -93,6 +99,7 @@ jobs:
                     echo "- IC10 Core: ${{ steps.filter.outputs.ic10-core }}" >> $GITHUB_STEP_SUMMARY
                     echo "- IC10 Node Bindings: ${{ steps.filter.outputs.ic10-node }}" >> $GITHUB_STEP_SUMMARY
                     echo "- IC10 Python Bindings: ${{ steps.filter.outputs.ic10-python }}" >> $GITHUB_STEP_SUMMARY
+                    echo "- IC10 Java Bindings: ${{ steps.filter.outputs.ic10-java }}" >> $GITHUB_STEP_SUMMARY
                     echo "- StationScript: ${{ steps.filter.outputs.stationscript }}" >> $GITHUB_STEP_SUMMARY
                     echo "- Shared (common/cmake): ${{ steps.filter.outputs.shared }}" >> $GITHUB_STEP_SUMMARY
                     echo "- Workflow/Actions: ${{ steps.filter.outputs.workflow }}" >> $GITHUB_STEP_SUMMARY
@@ -102,7 +109,7 @@ jobs:
     ic10-core-artifact-linux:
         name: (linux) ic10-core-artifact | IC10 核心构件
         needs: detect-changes
-        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.shared == 'true'
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.ic10-java == 'true' || needs.detect-changes.outputs.shared == 'true'
         uses: ./.github/workflows/ic10-core-artifact.yml
         with:
             os: ubuntu-latest
@@ -112,7 +119,7 @@ jobs:
     ic10-core-artifact-windows:
         name: (windows) ic10-core-artifact | IC10 核心构件
         needs: detect-changes
-        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.shared == 'true'
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.ic10-node == 'true' || needs.detect-changes.outputs.ic10-python == 'true' || needs.detect-changes.outputs.ic10-java == 'true' || needs.detect-changes.outputs.shared == 'true'
         uses: ./.github/workflows/ic10-core-artifact.yml
         with:
             os: windows-latest
@@ -163,6 +170,28 @@ jobs:
             upload-artifact: false
             core-artifact-name: ${{ needs.ic10-core-artifact-windows.outputs.artifact-name }}
 
+    ic10-java-linux:
+        name: (linux) ic10-java | IC10 Java 绑定
+        needs: [detect-changes, ic10-core-artifact-linux]
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-java == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
+        uses: ./.github/workflows/ic10-java.yml
+        with:
+            os: ubuntu-latest
+            run-tests: true
+            upload-artifact: false
+            core-artifact-name: ${{ needs.ic10-core-artifact-linux.outputs.artifact-name }}
+
+    ic10-java-windows:
+        name: (windows) ic10-java | IC10 Java 绑定
+        needs: [detect-changes, ic10-core-artifact-windows]
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-java == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
+        uses: ./.github/workflows/ic10-java.yml
+        with:
+            os: windows-latest
+            run-tests: true
+            upload-artifact: false
+            core-artifact-name: ${{ needs.ic10-core-artifact-windows.outputs.artifact-name }}
+
     static-analysis:
         name: static analysis | 静态分析
         needs: detect-changes
@@ -188,6 +217,8 @@ jobs:
             - ic10-node-windows
             - ic10-python-linux
             - ic10-python-windows
+            - ic10-java-linux
+            - ic10-java-windows
             - static-analysis
         if: always()
         runs-on: ubuntu-latest
@@ -203,6 +234,8 @@ jobs:
                     echo "ic10-node-windows:         ${{ needs.ic10-node-windows.result }}"
                     echo "ic10-python-linux:         ${{ needs.ic10-python-linux.result }}"
                     echo "ic10-python-windows:       ${{ needs.ic10-python-windows.result }}"
+                    echo "ic10-java-linux:           ${{ needs.ic10-java-linux.result }}"
+                    echo "ic10-java-windows:         ${{ needs.ic10-java-windows.result }}"
                     echo "static-analysis:           ${{ needs.static-analysis.result }}"
                     echo ""
 
@@ -211,6 +244,7 @@ jobs:
                     echo "ic10-core:      ${{ needs.detect-changes.outputs.ic10-core }}"
                     echo "ic10-node:      ${{ needs.detect-changes.outputs.ic10-node }}"
                     echo "ic10-python:    ${{ needs.detect-changes.outputs.ic10-python }}"
+                    echo "ic10-java:      ${{ needs.detect-changes.outputs.ic10-java }}"
                     echo "stationscript:  ${{ needs.detect-changes.outputs.stationscript }}"
                     echo "shared:         ${{ needs.detect-changes.outputs.shared }}"
                     echo "workflow:       ${{ needs.detect-changes.outputs.workflow }}"
@@ -220,6 +254,7 @@ jobs:
                     CORE_CHANGED="${{ needs.detect-changes.outputs.ic10-core }}"
                     NODE_CHANGED="${{ needs.detect-changes.outputs.ic10-node }}"
                     PYTHON_CHANGED="${{ needs.detect-changes.outputs.ic10-python }}"
+                    JAVA_CHANGED="${{ needs.detect-changes.outputs.ic10-java }}"
                     SHARED_CHANGED="${{ needs.detect-changes.outputs.shared }}"
                     STATIONSCRIPT_CHANGED="${{ needs.detect-changes.outputs.stationscript }}"
 
@@ -247,9 +282,9 @@ jobs:
                     # detect-changes 总是应该运行
                     check_job "detect-changes" "${{ needs.detect-changes.result }}" "true"
 
-                    # 核心库：全量构建 / core变更 / node变更 / python变更 / shared变更 时应运行
+                    # 核心库：全量构建 / core变更 / node变更 / python变更 / java变更 / shared变更 时应运行
                     CORE_SHOULD_RUN="false"
-                    [[ "$IS_FULL" == "true" || "$CORE_CHANGED" == "true" || "$NODE_CHANGED" == "true" || "$PYTHON_CHANGED" == "true" || "$SHARED_CHANGED" == "true" ]] && CORE_SHOULD_RUN="true"
+                    [[ "$IS_FULL" == "true" || "$CORE_CHANGED" == "true" || "$NODE_CHANGED" == "true" || "$PYTHON_CHANGED" == "true" || "$JAVA_CHANGED" == "true" || "$SHARED_CHANGED" == "true" ]] && CORE_SHOULD_RUN="true"
                     check_job "ic10-core-artifact-linux"   "${{ needs.ic10-core-artifact-linux.result }}" "$CORE_SHOULD_RUN"
                     check_job "ic10-core-artifact-windows" "${{ needs.ic10-core-artifact-windows.result }}" "$CORE_SHOULD_RUN"
 
@@ -264,6 +299,12 @@ jobs:
                     [[ "$IS_FULL" == "true" || "$PYTHON_CHANGED" == "true" || "$CORE_CHANGED" == "true" ]] && PYTHON_SHOULD_RUN="true"
                     check_job "ic10-python-linux"    "${{ needs.ic10-python-linux.result }}" "$PYTHON_SHOULD_RUN"
                     check_job "ic10-python-windows"  "${{ needs.ic10-python-windows.result }}" "$PYTHON_SHOULD_RUN"
+
+                    # Java绑定：全量构建 / java变更 / core变更 时应运行
+                    JAVA_SHOULD_RUN="false"
+                    [[ "$IS_FULL" == "true" || "$JAVA_CHANGED" == "true" || "$CORE_CHANGED" == "true" ]] && JAVA_SHOULD_RUN="true"
+                    check_job "ic10-java-linux"    "${{ needs.ic10-java-linux.result }}" "$JAVA_SHOULD_RUN"
+                    check_job "ic10-java-windows"  "${{ needs.ic10-java-windows.result }}" "$JAVA_SHOULD_RUN"
 
                     # 静态分析：全量构建 / core变更 / stationscript变更 时应运行
                     SA_SHOULD_RUN="false"

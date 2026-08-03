@@ -40,8 +40,10 @@ add_library(${PROJECT_NAME} SHARED ${SOURCE})
 
 # 只指定输出名，输出目录交给 CMake 默认 build 路径
 # 工件移动由 scripts/IC10JavaExport.ps1 负责（复制到 tests/java/ic10/libs）
+# 注意：不设置 PREFIX ""，因为 Linux 下 System.loadLibrary("ic10_java")
+# 查找 libic10_java.so（JVM 自动添加 lib 前缀），CMake 默认也添加 lib 前缀。
+# Windows/MSVC 默认不加前缀，生成 ic10_java.dll，与 JVM 查找规则一致。
 set_target_properties(${PROJECT_NAME} PROPERTIES
-        PREFIX ""
         OUTPUT_NAME "ic10_java"
 )
 
@@ -56,3 +58,11 @@ target_link_libraries(${PROJECT_NAME}
         common                    # 公共基础库
         common_java
 )
+
+# Linux/GCC: fbjni 的 static constexpr 模板成员（如 jtype_traits<int>::kDescriptor）
+# 会在 common_java.a 和 libfbjni.a 中各生成一份相同定义。
+# MSVC 将 static constexpr 视为隐式 inline，不受影响；
+# GCC 需要允许重复定义以避免链接错误。
+if(UNIX AND NOT APPLE)
+    target_link_options(${PROJECT_NAME} PRIVATE -Wl,--allow-multiple-definition)
+endif()
