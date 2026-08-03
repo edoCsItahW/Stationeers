@@ -1,9 +1,24 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
 }
 
-group = 'com.stationeers'
+group = 'io.github.stationeers'
 version = '1.0.0'
+
+// Java 工具链：确保产出字节码为 Java 21，与 IntelliJ 插件项目（2025.3）及其他消费端对齐。
+// 若未设置 toolchain，Gradle 9.6.1 自带的 JVM 25 会将字节码编译为 version 69，
+// 消费端（Java 21）无法加载，会报 "compatible with JVM runtime version 25 or newer"。
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    // 显式设置 release flag，保证即便 toolchain 解析失败也能约束字节码版本。
+    options.release = 21
+}
 
 repositories {
     // 阿里云 Maven 镜像（国内最快）
@@ -58,5 +73,20 @@ tasks.compileJava.dependsOn tasks.register('ensureLibsDir') {
     doLast {
         file("${projectDir}/libs").mkdirs()
         file("${projectDir}/src/main/resources").mkdirs()
+    }
+}
+
+// 发布配置：将 JAR 发布到本地 Maven 仓库（~/.m2/repository）
+// 使用方式：gradle publishToMavenLocal
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            pom {
+                name = 'ic10'
+                description = 'IC10 compiler Java binding'
+            }
+        }
     }
 }

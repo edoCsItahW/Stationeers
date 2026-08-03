@@ -52,7 +52,7 @@ namespace stationeers::ic10 {
      */
     class JTypeOfNode : public java::JavaClass<JTypeOfNode> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/TypeOfNode;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/TypeOfNode;";
 
         /**
          * @if zh

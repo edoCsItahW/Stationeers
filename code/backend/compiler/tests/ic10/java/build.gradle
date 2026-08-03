@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'com.stationeers'
+group = 'io.github.stationeers'
 version = '1.0.0'
 
 repositories {
@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     // 通过 composite build 引入最终用户的 ic10 java 包（tests/java/ic10）
-    implementation 'com.stationeers:ic10:1.0.0'
+    implementation 'io.github.stationeers:ic10:1.0.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
@@ -26,8 +26,12 @@ test {
     // 动态库查找路径：使用 tests/java/ic10/libs（最终用户目录中的 dll）
     def libsDir = file("../../java/ic10/libs").absolutePath
     systemProperty "java.library.path", libsDir
+    jvmArgs "-Djava.library.path=${libsDir}"
     // Windows 下 dll 依赖也通过 PATH 查找
     environment "PATH", libsDir + ";" + (System.getenv("PATH") ?: "")
+    // Linux/macOS 下通过 LD_LIBRARY_PATH / DYLD_LIBRARY_PATH 也能找到
+    environment "LD_LIBRARY_PATH", libsDir + ":" + (System.getenv("LD_LIBRARY_PATH") ?: "")
+    environment "DYLD_LIBRARY_PATH", libsDir + ":" + (System.getenv("DYLD_LIBRARY_PATH") ?: "")
 
     // 标准库文件（最终用户目录中的 resources）
     systemProperty "stdLib.path",

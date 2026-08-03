@@ -17,13 +17,9 @@
 package com.facebook.jni;
 
 import com.facebook.jni.annotations.DoNotStrip;
-import com.facebook.soloader.nativeloader.NativeLoader;
 
 @DoNotStrip
 public class ThreadScopeSupport {
-  static {
-    NativeLoader.loadLibrary("fbjni");
-  }
 
   // This is just used for ThreadScope::withClassLoader to have a java function
   // in the stack so that jni has access to the correct classloader.
