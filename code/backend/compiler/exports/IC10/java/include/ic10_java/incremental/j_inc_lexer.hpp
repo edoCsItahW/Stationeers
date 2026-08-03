@@ -48,7 +48,7 @@ namespace stationeers::ic10 {
      */
     class JIncLexer : public java::HybridClass<JIncLexer> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/IncLexer;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/IncLexer;";
 
         IncLexer lexer_;
 

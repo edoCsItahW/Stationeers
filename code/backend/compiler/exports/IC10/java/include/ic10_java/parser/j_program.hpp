@@ -32,7 +32,7 @@ namespace stationeers::ic10 {
 
     class JProgram : public java::HybridClass<JProgram> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/Program;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/Program;";
 
         Program program_;
 

@@ -24,7 +24,7 @@ namespace stationeers {
 
     class JDiagnostic : public java::JavaClass<JDiagnostic> {
     public:
-        static constexpr auto kJavaDescriptor = "Lcom/stationeers/ic10/Diagnostic;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/Diagnostic;";
 
         static java::local_ref<javaobject> to(const Diagnostic& d);
 
