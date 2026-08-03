@@ -1,4 +1,4 @@
-package org.stationeers;
+package io.github.stationeers.jetbrains.ic10;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;

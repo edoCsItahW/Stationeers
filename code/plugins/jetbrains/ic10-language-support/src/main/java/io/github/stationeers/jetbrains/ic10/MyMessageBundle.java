@@ -1,4 +1,4 @@
-package org.stationeers;
+package io.github.stationeers.jetbrains.ic10;
 
 import com.intellij.DynamicBundle;
 import org.jetbrains.annotations.Nls;
