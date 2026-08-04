@@ -4,6 +4,10 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Quaternary instruction (4 operands): clamp, lerp, ext, ins, sap,
  * sna, select, ss, lb, sbn, sbs, bap, bapal, bna, bnaal, brap,
@@ -12,15 +16,12 @@ package io.github.stationeers.ic10.ast;
  * @author edocsitahw
  * @since 1.1.0
  */
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class QuaternaryInstruction extends TernaryInstruction {
     private ASTNode operand4;
     private int type4;
-
-    public ASTNode getOperand4() { return operand4; }
-    public void setOperand4(ASTNode operand4) { this.operand4 = operand4; }
-
-    public int getType4() { return type4; }
-    public void setType4(int type4) { this.type4 = type4; }
 
     @Override
     public int getArity() { return 4; }

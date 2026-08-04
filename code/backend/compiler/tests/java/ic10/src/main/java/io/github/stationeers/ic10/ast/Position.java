@@ -4,6 +4,8 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.*;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -14,26 +16,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor(onConstructor = @__(@JsonCreator))
 public class Position {
-
-    private int line;
-    private int column;
-
-    public Position() {}
-
-    @JsonCreator
-    public Position(
-            @JsonProperty("line") int line,
-            @JsonProperty("column") int column) {
-        this.line = line;
-        this.column = column;
-    }
-
-    public int getLine() { return line; }
-    public void setLine(int line) { this.line = line; }
-
-    public int getColumn() { return column; }
-    public void setColumn(int column) { this.column = column; }
+    @JsonProperty("line") private int line;
+    @JsonProperty("column") private int column;
+    @JsonProperty("offset") private int offset;
 
     @Override
     public String toString() {

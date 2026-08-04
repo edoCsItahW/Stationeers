@@ -18,9 +18,9 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief Source code position information management
- * @details Provides management functionality for token positions in source code, including tracking of
- *        line number, column number, and offset. Supports position movement, newline operations,
- *        used for compiler error location and diagnostic information output.
+ * @details Provides management functionality for token positions in source code, including tracking
+ * of line number, column number, and offset. Supports position movement, newline operations, used
+ * for compiler error location and diagnostic information output.
  * @note Line and column numbers start from 1, offset starts from 0
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -32,7 +32,6 @@
 #include "common/utils/utf8string.hpp"
 #include <string>
 #include <type_traits>
-
 
 namespace stationeers {
 
@@ -222,6 +221,23 @@ namespace stationeers {
          */
         void move(std::size_t charOffset, std::size_t byteOffset);
 
+        /**
+         * @if zh
+         *
+         * @brief 将位置信息转换为JSON字符串
+         * @return JSON字符串表示的位置信息
+         *
+         * @elseif en
+         *
+         * @brief Convert position information to JSON string
+         * @return JSON string representation of position information
+         *
+         * @endif
+         *
+         * @public @memberof Pos
+         */
+        [[nodiscard]] std::string toJSON() const;
+
     private:
         /**
          * @if zh
@@ -354,7 +370,7 @@ namespace stationeers {
      *
      * @endif
      */
-    Pos endPos(const Pos &pos, std::size_t charLength, std::size_t byteLength);
+    Pos endPos(const Pos& pos, std::size_t charLength, std::size_t byteLength);
 
     /**
      * @if zh
@@ -373,7 +389,7 @@ namespace stationeers {
      *
      * @endif
      */
-    inline Pos endPos(const Pos &pos, const std::string& lexeme) {
+    inline Pos endPos(const Pos& pos, const std::string& lexeme) {
         return endPos(pos, charLength(lexeme), lexeme.size());
     }
 

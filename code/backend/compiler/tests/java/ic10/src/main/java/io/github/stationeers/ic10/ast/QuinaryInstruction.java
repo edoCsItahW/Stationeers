@@ -4,21 +4,22 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Quinary instruction (5 operands): lbn, lbs.
  *
  * @author edocsitahw
  * @since 1.1.0
  */
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class QuinaryInstruction extends QuaternaryInstruction {
     private ASTNode operand5;
     private int type5;
-
-    public ASTNode getOperand5() { return operand5; }
-    public void setOperand5(ASTNode operand5) { this.operand5 = operand5; }
-
-    public int getType5() { return type5; }
-    public void setType5(int type5) { this.type5 = type5; }
 
     @Override
     public int getArity() { return 5; }

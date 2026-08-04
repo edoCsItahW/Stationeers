@@ -4,15 +4,17 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Label definition node ("LabelDef") — "labelName:".
  *
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class LabelDefNode extends ASTNode {
     private ASTNode identifier;  // IdentifierNode or ErrorNode
-
-    public ASTNode getIdentifier() { return identifier; }
-    public void setIdentifier(ASTNode identifier) { this.identifier = identifier; }
 }

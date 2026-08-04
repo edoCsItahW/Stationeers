@@ -4,6 +4,9 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Base class for all instruction nodes (any arity).
  * <p>
@@ -15,13 +18,12 @@ package io.github.stationeers.ic10.ast;
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public abstract class InstructionNode extends ASTNode {
 
     /** The instruction mnemonic (e.g. "add", "beq", "lbns"). */
     private String keyword;
-
-    public String getKeyword() { return keyword; }
-    public void setKeyword(String keyword) { this.keyword = keyword; }
 
     /**
      * Returns the number of operands for this instruction.

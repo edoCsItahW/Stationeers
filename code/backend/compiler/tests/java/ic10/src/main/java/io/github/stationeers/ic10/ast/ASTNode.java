@@ -6,6 +6,7 @@ package io.github.stationeers.ic10.ast;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Data;
 
 /**
  * Base class for all IC10 AST nodes.
@@ -285,6 +286,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         // ============================================================
         @JsonSubTypes.Type(value = SenaryInstruction.class, name = "lbnsInstruction"),
 })
+@Data
 public abstract class ASTNode {
 
     /** Discriminator field ("Integer", "addInstruction", ...). Set by Jackson. */
@@ -293,11 +295,7 @@ public abstract class ASTNode {
     /** Source position of this node. */
     private Position position;
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-
-    public Position getPosition() { return position; }
-    public void setPosition(Position position) { this.position = position; }
+    private Position end;
 
     /**
      * Returns true if this node is an instruction (any arity).
@@ -325,6 +323,10 @@ public abstract class ASTNode {
      */
     public InstructionNode asInstruction() {
         return (InstructionNode) this;
+    }
+
+    public int length() {
+        return end.getColumn() - position.getColumn();
     }
 
     @Override
