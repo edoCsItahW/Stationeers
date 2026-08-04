@@ -33,6 +33,10 @@ dependencies {
     // fbjni 源码引用了 javax.annotation.Nullable
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
+    // Jackson JSON 解析（AST 反序列化）
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.18.2'
+
     // 测试用
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
