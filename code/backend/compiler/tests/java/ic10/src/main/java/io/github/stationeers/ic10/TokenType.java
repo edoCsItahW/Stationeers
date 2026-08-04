@@ -457,9 +457,9 @@ public enum TokenType {
      */
     public static TokenType fromValue(int value) {
         TokenType[] all = values();
-        if (value >= 0 && value < all.length) {
+        if (value >= 0 && value < all.length)
             return all[value];
-        }
+
         throw new IllegalArgumentException("Invalid TokenType value: " + value);
     }
 }

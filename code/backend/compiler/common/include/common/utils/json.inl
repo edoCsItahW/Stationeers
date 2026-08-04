@@ -15,7 +15,7 @@
 #include <utility>
 
 
-namespace stationeers::ic10 {
+namespace stationeers {
 
     /**
      * @if zh

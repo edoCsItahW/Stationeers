@@ -25,7 +25,8 @@ namespace stationeers::ic10 {
     // Program
 
     Pos Program::end() const {
-        return call(statements[statements.size() - 1], [](auto&& s) { return s.end(); });
+        if (statements.empty()) return position;
+        return call(statements.back(), [](auto&& s) { return s.end(); });
     }
 
     std::string Program::toString() const {

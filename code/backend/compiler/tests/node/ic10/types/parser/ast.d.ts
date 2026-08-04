@@ -90,6 +90,12 @@ export interface ASTNode {
      * @desc 节点在源代码中的起始位置
      */
     position: Position;
+
+    /**
+    * @summary 节点结束位置
+    * @desc 节点在源代码中的结束位置
+    */
+    end: Position;
 }
 
 

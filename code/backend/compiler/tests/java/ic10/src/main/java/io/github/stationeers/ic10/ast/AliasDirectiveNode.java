@@ -5,6 +5,8 @@
 package io.github.stationeers.ic10.ast;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Alias directive node ("AliasDirective") — "alias NAME d0/Register".
@@ -12,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AliasDirectiveNode extends ASTNode {
     private ASTNode identifier;         // IdentifierNode or ErrorNode
@@ -19,15 +23,12 @@ public class AliasDirectiveNode extends ASTNode {
     private String typeName;            // optional (@type)
     private String desc;                // optional (@desc)
 
-    public ASTNode getIdentifier() { return identifier; }
-    public void setIdentifier(ASTNode identifier) { this.identifier = identifier; }
 
-    public ASTNode getRegisterOrDevice() { return registerOrDevice; }
-    public void setRegisterOrDevice(ASTNode registerOrDevice) { this.registerOrDevice = registerOrDevice; }
+    @Override
+    public int length() {
+        if (registerOrDevice.getType().equals("Error"))
+            return -1;
 
-    public String getTypeName() { return typeName; }
-    public void setTypeName(String typeName) { this.typeName = typeName; }
-
-    public String getDesc() { return desc; }
-    public void setDesc(String desc) { this.desc = desc; }
+        return registerOrDevice.getPosition().getColumn() - getPosition().getColumn() + registerOrDevice.length();
+    }
 }

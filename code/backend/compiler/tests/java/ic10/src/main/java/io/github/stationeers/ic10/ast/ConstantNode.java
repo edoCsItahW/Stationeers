@@ -4,17 +4,22 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Keyword constant node ("Constant") — nan, pinf, pi, deg2rad, etc.
  *
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class ConstantNode extends ASTNode implements ValueNode {
     private String keyword;
 
     @Override
-    public String getValue() { return keyword; }
-    public void setKeyword(String keyword) { this.keyword = keyword; }
-    public String getKeyword() { return keyword; }
+    public String getValue() {
+        return keyword;
+    }
 }

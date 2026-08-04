@@ -73,8 +73,8 @@ namespace stationeers::ic10 {
     template<FString... Vs, AstJsonAble... Args>
         requires(sizeof...(Vs) == sizeof...(Args))
     std::string AST<Derived>::jsonBase(Args&&... args) const {
-        return toJson<"type", "position", Vs...>(
-            Derived::nodeName, toJson<"line", "column">(position.line(), position.column()),
+        return toJson<"type", "position", "end", Vs...>(
+            Derived::nodeName, position.toJSON(), end().toJSON(),
             [](auto&& arg) -> decltype(auto) {
                 using U = std::decay_t<decltype(arg)>;
                 if constexpr (std::is_same_v<U, std::nullopt_t>)

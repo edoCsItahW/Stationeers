@@ -4,15 +4,17 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * String macro call node ("StrCall") — STR("...").
  *
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class StrCallNode extends ASTNode {
     private ASTNode value;  // StringNode or ErrorNode
-
-    public ASTNode getValue() { return value; }
-    public void setValue(ASTNode value) { this.value = value; }
 }
