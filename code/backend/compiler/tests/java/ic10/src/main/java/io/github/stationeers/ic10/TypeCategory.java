@@ -54,11 +54,10 @@ public enum TypeCategory {
      * @throws IllegalArgumentException if the value is out of range
      */
     public static TypeCategory fromValue(int value) {
-        for (TypeCategory category : values()) {
-            if (category.value == value) {
+        for (TypeCategory category : values())
+            if (category.value == value)
                 return category;
-            }
-        }
+
         throw new IllegalArgumentException("Invalid TypeCategory value: " + value);
     }
 }

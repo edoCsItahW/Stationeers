@@ -20,4 +20,9 @@ public class NullaryInstruction extends InstructionNode {
 
     @Override
     public int getOperandType(int n) { return -1; }
+
+    @Override
+    public int length() {
+        return getKeyword().length();
+    }
 }

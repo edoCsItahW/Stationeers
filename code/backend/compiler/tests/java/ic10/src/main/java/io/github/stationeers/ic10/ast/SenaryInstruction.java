@@ -4,21 +4,22 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Senary instruction (6 operands): lbns.
  *
  * @author edocsitahw
  * @since 1.1.0
  */
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class SenaryInstruction extends QuinaryInstruction {
     private ASTNode operand6;
     private int type6;
-
-    public ASTNode getOperand6() { return operand6; }
-    public void setOperand6(ASTNode operand6) { this.operand6 = operand6; }
-
-    public int getType6() { return type6; }
-    public void setType6(int type6) { this.type6 = type6; }
 
     @Override
     public int getArity() { return 6; }

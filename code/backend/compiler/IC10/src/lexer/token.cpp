@@ -230,7 +230,7 @@ namespace stationeers::ic10 {
     std::string Token::toJSON() const {
         return toJson<"type", "pos", "lexeme", "category">(
             static_cast<int>(type),
-            toJson<"line", "column">(pos.line(), pos.column()),
+            pos.toJSON(),
             lexeme,
             static_cast<int>(category)
         );

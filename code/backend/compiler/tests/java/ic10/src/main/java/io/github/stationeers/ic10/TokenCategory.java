@@ -57,11 +57,10 @@ public enum TokenCategory {
      * @throws IllegalArgumentException if the value is out of range
      */
     public static TokenCategory fromValue(int value) {
-        for (TokenCategory category : values()) {
-            if (category.value == value) {
+        for (TokenCategory category : values())
+            if (category.value == value)
                 return category;
-            }
-        }
+
         throw new IllegalArgumentException("Invalid TokenCategory value: " + value);
     }
 }
