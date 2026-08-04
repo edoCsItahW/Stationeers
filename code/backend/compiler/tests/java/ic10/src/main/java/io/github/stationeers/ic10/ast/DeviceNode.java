@@ -4,15 +4,17 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Device reference node (e.g. "d0", "Device").
  *
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class DeviceNode extends ASTNode implements ValueNode {
     private String value;
-
-    public String getValue() { return value; }
-    public void setValue(String value) { this.value = value; }
 }

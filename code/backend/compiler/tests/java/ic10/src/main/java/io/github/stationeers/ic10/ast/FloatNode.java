@@ -4,17 +4,19 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Float literal node ("Float").
  *
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class FloatNode extends ASTNode implements ValueNode {
     private String value;
-
-    public String getValue() { return value; }
-    public void setValue(String value) { this.value = value; }
 
     /**
      * Returns the float value as a parsed double.

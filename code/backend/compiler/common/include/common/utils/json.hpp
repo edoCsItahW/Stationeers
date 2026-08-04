@@ -33,7 +33,7 @@
 #include <optional>
 #include <string>
 
-namespace stationeers::ic10 {
+namespace stationeers {
 
     /**
      * @if zh
@@ -50,11 +50,11 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    template<typename T>
+    template<typename T, typename U = std::decay_t<T>>
     concept JsonStringAble =
-        std::is_constructible_v<std::string, std::decay_t<T>> || std::is_arithmetic_v<T>
-        || (IsOptional<T>
-            && std::is_constructible_v<std::string, std::decay_t<optional_trait_t<T>>>);
+        std::is_constructible_v<std::string, U> || std::is_arithmetic_v<U>
+        || (IsOptional<U>
+            && std::is_constructible_v<std::string, std::decay_t<optional_trait_t<U>>>);
 
     /**
      * @if zh

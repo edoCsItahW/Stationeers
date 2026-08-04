@@ -14,6 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "common/utils/position.hpp"
+#include "common/utils/json.hpp"
 #include <cstddef>
 
 namespace stationeers {
@@ -45,6 +46,10 @@ namespace stationeers {
     void Pos::move(const std::size_t charOffset, const std::size_t byteOffset) {
         column_ += static_cast<int>(charOffset);
         offset_ += byteOffset;
+    }
+
+    std::string Pos::toJSON() const {
+        return toJson<"line", "column", "offset">(line_, column_, offset_);
     }
 
     Pos endPos(const Pos& pos, const std::size_t charLength, const std::size_t byteLength) {

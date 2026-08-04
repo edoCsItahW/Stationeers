@@ -11,6 +11,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +46,8 @@ import java.util.List;
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(using = ProgramNode.ProgramDeserializer.class)
 public class ProgramNode extends ASTNode {
 
@@ -53,14 +58,6 @@ public class ProgramNode extends ASTNode {
 
     public ProgramNode() {
         setType(NODE_NAME);
-    }
-
-    public List<ASTNode> getStatements() {
-        return statements != null ? statements : Collections.emptyList();
-    }
-
-    public void setStatements(List<ASTNode> statements) {
-        this.statements = statements;
     }
 
     /**
@@ -103,7 +100,8 @@ public class ProgramNode extends ASTNode {
     public static class ProgramDeserializer extends JsonDeserializer<ProgramNode> {
 
         private static final TypeReference<List<ASTNode>> STATEMENT_LIST_TYPE =
-                new TypeReference<List<ASTNode>>() {};
+                new TypeReference<>() {
+                };
 
         @Override
         public ProgramNode deserialize(JsonParser p, DeserializationContext ctxt)
@@ -112,9 +110,8 @@ public class ProgramNode extends ASTNode {
             ProgramNode node = new ProgramNode();
 
             // Manually parse the JSON object fields
-            if (p.currentToken() != JsonToken.START_OBJECT) {
+            if (p.currentToken() != JsonToken.START_OBJECT)
                 throw new IOException("Expected START_OBJECT for Program");
-            }
 
             while (p.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = p.currentName();
@@ -136,9 +133,9 @@ public class ProgramNode extends ASTNode {
                             List<ASTNode> stmts = mapper.readValue(
                                     statementsJson, STATEMENT_LIST_TYPE);
                             node.setStatements(stmts);
-                        } else {
+                        } else
                             node.setStatements(new ArrayList<>());
-                        }
+
                         break;
                     default:
                         // skip unknown fields (future-proofing)

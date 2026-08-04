@@ -4,19 +4,23 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Error node ("Error") — produced by the parser when it encounters invalid syntax.
  *
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class ErrorNode extends ASTNode {
     private TokenData token;
     private String message;
 
-    public TokenData getToken() { return token; }
-    public void setToken(TokenData token) { this.token = token; }
-
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+    @Override
+    public int length() {
+        return -1;
+    }
 }

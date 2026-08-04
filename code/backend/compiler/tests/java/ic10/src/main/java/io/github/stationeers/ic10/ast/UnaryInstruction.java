@@ -4,6 +4,10 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Unary instruction (1 operand): peek, rand, pop, clr, sleep,
  * clrd, push, jal, jr, j.
@@ -11,15 +15,12 @@ package io.github.stationeers.ic10.ast;
  * @author edocsitahw
  * @since 1.1.0
  */
+@Setter
+@Getter
+@EqualsAndHashCode(callSuper = true)
 public class UnaryInstruction extends NullaryInstruction {
     private ASTNode operand1;
     private int type1;
-
-    public ASTNode getOperand1() { return operand1; }
-    public void setOperand1(ASTNode operand1) { this.operand1 = operand1; }
-
-    public int getType1() { return type1; }
-    public void setType1(int type1) { this.type1 = type1; }
 
     @Override
     public int getArity() { return 1; }
