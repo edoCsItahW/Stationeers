@@ -4,6 +4,10 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Binary instruction (2 operands): abs, acos, asin, atan, ceil, cos,
  * exp, floor, log, round, sin, sqrt, tan, trunc, not, move, sgn,
@@ -15,15 +19,12 @@ package io.github.stationeers.ic10.ast;
  * @author edocsitahw
  * @since 1.1.0
  */
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class BinaryInstruction extends UnaryInstruction {
     private ASTNode operand2;
     private int type2;
-
-    public ASTNode getOperand2() { return operand2; }
-    public void setOperand2(ASTNode operand2) { this.operand2 = operand2; }
-
-    public int getType2() { return type2; }
-    public void setType2(int type2) { this.type2 = type2; }
 
     @Override
     public int getArity() { return 2; }

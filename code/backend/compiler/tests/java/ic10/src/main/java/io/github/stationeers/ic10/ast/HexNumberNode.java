@@ -4,15 +4,17 @@
 
 package io.github.stationeers.ic10.ast;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Hexadecimal number literal node ("HexNumber").
  *
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class HexNumberNode extends ASTNode implements ValueNode {
     private String value;
-
-    public String getValue() { return value; }
-    public void setValue(String value) { this.value = value; }
 }

@@ -5,6 +5,9 @@
 package io.github.stationeers.ic10.ast;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.util.List;
 
 /**
@@ -13,6 +16,8 @@ import java.util.List;
  * @author edocsitahw
  * @since 1.1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeviceDocCommentNode extends ASTNode {
     private String name;
@@ -23,77 +28,36 @@ public class DeviceDocCommentNode extends ASTNode {
     private List<LogicSlotEntry> logicSlots;
     private List<ConnectEntry> connects;
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getDesc() { return desc; }
-    public void setDesc(String desc) { this.desc = desc; }
-
-    public List<SlotEntry> getSlots() { return slots; }
-    public void setSlots(List<SlotEntry> slots) { this.slots = slots; }
-
-    public List<LogicEntry> getLogics() { return logics; }
-    public void setLogics(List<LogicEntry> logics) { this.logics = logics; }
-
-    public List<ModeEntry> getModes() { return modes; }
-    public void setModes(List<ModeEntry> modes) { this.modes = modes; }
-
-    public List<LogicSlotEntry> getLogicSlots() { return logicSlots; }
-    public void setLogicSlots(List<LogicSlotEntry> logicSlots) { this.logicSlots = logicSlots; }
-
-    public List<ConnectEntry> getConnects() { return connects; }
-    public void setConnects(List<ConnectEntry> connects) { this.connects = connects; }
-
+    @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class SlotEntry {
         private String number;
         private String direction;  // "input" or "output"
         private String desc;       // optional
-
-        public String getNumber() { return number; }
-        public void setNumber(String number) { this.number = number; }
-        public String getDirection() { return direction; }
-        public void setDirection(String direction) { this.direction = direction; }
-        public String getDesc() { return desc; }
-        public void setDesc(String desc) { this.desc = desc; }
     }
 
+    @Data
     public static class LogicEntry {
         private String name;
         private String access;  // "r", "w", or "rw"
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public String getAccess() { return access; }
-        public void setAccess(String access) { this.access = access; }
     }
 
+    @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ModeEntry {
         private String number;
         private String desc;  // optional
-
-        public String getNumber() { return number; }
-        public void setNumber(String number) { this.number = number; }
-        public String getDesc() { return desc; }
-        public void setDesc(String desc) { this.desc = desc; }
     }
 
+    @Data
     public static class LogicSlotEntry {
         private String name;
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
     }
 
+    @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ConnectEntry {
         private String number;
         private String desc;  // optional
-
-        public String getNumber() { return number; }
-        public void setNumber(String number) { this.number = number; }
-        public String getDesc() { return desc; }
-        public void setDesc(String desc) { this.desc = desc; }
     }
 }

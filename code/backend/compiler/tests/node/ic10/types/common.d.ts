@@ -136,4 +136,10 @@ export interface Position {
      * @desc 当前行中的字符位置（从 0 或 1 开始）
      */
     column: number;
+
+    /**
+    * @summary 字节偏移量
+    * @desc 从源代码起始位置到该节点的字节偏移量
+    */
+    offset: number;
 }
