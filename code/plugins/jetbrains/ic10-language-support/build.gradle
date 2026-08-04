@@ -1,14 +1,14 @@
-import org.jetbrains.intellij.platform.gradle.TestFrameworkType
-
 plugins {
-    java
     id("org.jetbrains.changelog")
     id("org.jetbrains.intellij.platform")
 }
 
+group = 'io.github.stationeers.jetbrains'
+version = "1.0.0"
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -29,12 +29,21 @@ dependencies {
     implementation("io.github.stationeers:ic10:1.0.0")
     implementation("com.google.code.gson:gson:2.11.0")
 
-    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
-        intellijIdea("2025.3.5")
-        testFramework(TestFrameworkType.Platform)
-
-        // Add plugin dependencies for compilation here, for example:
-        // bundledPlugin("com.intellij.java")
+        intellijIdea("2026.2.0.1")
     }
+}
+
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            sinceBuild = '253.0'
+        }
+        name = 'IC10'
+        vendor { url = 'https://github.com/edocsitahw/stationeers' }
+    }
+}
+
+tasks.withType(org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask).configureEach {
+    systemProperty("idea.ultimate.enabled", "true")
 }

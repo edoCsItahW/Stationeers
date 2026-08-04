@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>org.stationeers.ic10-language-support</id>
     <name>IC10</name>
-    <vendor url="https://github.com/stationeers">Stationeers</vendor>
+    <vendor url="https://github.com/edocsitahw/stationeers">Stationeers</vendor>
 
     <description><![CDATA[
         Language support for IC10 (Stationeers in-game scripting language).<br>
@@ -10,16 +10,12 @@
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
-
-    <resource-bundle>messages.MyMessageBundle</resource-bundle>
-
     <extensions defaultExtensionNs="com.intellij">
-        <!-- IC10 file type registration -->
-        <fileType name="IC10" implementationClass="io.github.stationeers.jetbrains.ic10.IC10FileType"
-                  fieldName="INSTANCE" language="IC10" extensions="ic"/>
 
-        <!-- Hover tooltip via EditorFactoryListener -->
-<!--        <lang.documentationProvider language="IC10" implementationClass="org.github.stationeers.ic10.IC10HoverHandler" />-->
+        <fileType name="IC10 File" implementationClass="io.github.stationeers.jetbrains.ic10.IC10FileType" fieldName="INSTANCE" language="IC10" extensions="ic"/>
+
+        <platform.lsp.integrationProvider implementation="io.github.stationeers.jetbrains.ic10.IC10LspIntegrationProvider"/>
+
     </extensions>
 
 </idea-plugin>
