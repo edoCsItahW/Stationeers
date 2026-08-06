@@ -6,8 +6,8 @@
 ![C++](https://img.shields.io/badge/C%2B%2B-23-blue)
 ![License](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey)
 
-一个现代 C++23 编写的 **IC10** 和 **StationScript** 编译器套件。IC10 和 StationScript 是游戏《Stationeers》中使用的脚本语言。
-本项目提供词法分析、语法分析、语义分析、链接、增量编译，内置基于协程的异步基础设施，并提供 Node.js / Python 绑定。
+一个现代 C++23 编写的 **IC10** 和 **Aero** 编译器套件。IC10 是游戏《Stationeers》中使用的汇编级脚本语言，Aero 是编译到 IC10 字节码的上层高级语言。
+本项目提供词法分析、语法分析、语义分析、链接、增量编译，内置基于协程的异步基础设施，并提供 Node.js / Python / Java 绑定。
 
 ---
 
@@ -34,53 +34,51 @@
 
 ```
 Stationeers/
-├── code/backend/compiler/              # 编译器主源码
-│   ├── CMakeLists.txt                  # 顶层 CMake
-│   ├── common/                         # 公共基础库
-│   │   ├── include/common/async/       # 协程任务、Promise、Future
-│   │   ├── include/common/exception/   # 异常与诊断层次
-│   │   ├── include/common/locals/      # 国际化框架
-│   │   └── include/common/utils/       # FStr、BiMap、enum_to_str、类型列表等
-│   ├── IC10/                           # IC10 编译器核心
-│   │   ├── include/ic10/lexer/         # Token 和词法分析器
-│   │   ├── include/ic10/parser/ast/    # AST 节点定义（0 元到 6 元）
-│   │   ├── include/ic10/semantic/      # 符号表、语义分析器、类型系统
-│   │   ├── include/ic10/link/          # 链接器（多单元符号合并）
-│   │   ├── include/ic10/incremental/   # IncLexer、IncParser、IncCompiler
-│   │   ├── include/ic10/locals/        # 语言资源（英文、简体中文）
-│   │   ├── src/                        # 实现文件
-│   │   ├── main.cpp                    # 命令行入口（ic10c）
-│   │   └── main.hpp                    # Doxygen 主页与专题文档
-│   ├── StationScript/                  # StationScript 编译器（开发中）
-│   ├── exports/                        # 语言绑定
-│   │   ├── common/node/                # 公共 Node.js 适配器工具
-│   │   ├── common/python/              # 公共 Python 适配器工具
-│   │   ├── IC10/node/                  # IC10 Node.js 绑定（11 个适配器）
-│   │   └── IC10/python/                # IC10 Python 绑定
-│   ├── tests/                          # 单元测试
-│   │   ├── ic10/                       # C++ 测试（词法、语法、语义、链接器、增量）
-│   │   │   ├── node/                   # Node.js 绑定测试（Jest + TypeScript）
-│   │   │   └── python/                 # Python 绑定测试（pytest）
-│   │   └── node/ic10/                  # Node.js 包（ic10-node-api）
-│   ├── scripts/                        # 构建脚本（PowerShell）
-│   ├── cmake/                          # CMake 模块（node.cmake、pybind11.cmake）
-│   ├── .clang-format                   # 代码风格配置（4 空格缩进）
-│   └── .clang-tidy                     # 静态分析配置
-├── code/backend/mateDatas/             # 游戏元数据（指令、枚举、类型）
-├── code/plugins/vscode/                # VS Code 语言支持扩展
-│   └── ic10-language-support/         # 扩展源码（LSP 服务端 + 客户端）
-│       ├── server/                    # 语言服务器（补全、悬停、签名、诊断、格式化、语义等处理器）
-│       ├── client/                    # VS Code 扩展客户端
-│       ├── syntaxes/                  # TextMate 语法规则
-│       └── package.json               # 扩展清单（v1.0.2）
-├── docs/                               # 文档与 Doxygen 资源
-├── .github/workflows/                  # CI/CD 工作流
-├── CHANGELOG.md                        # 更新日志（英文）
-├── CHANGELOG.zh.md                     # 更新日志（中文）
-├── CONTRIBUTING.md                     # 贡献指南（英文）
-├── CONTRIBUTING.zh.md                  # 贡献指南（中文）
-├── VERSION                             # 当前版本
-└── LICENSE                             # 许可证文件
+├── code/
+│   ├── IC10/                              # IC10 语言（低层级字节码 / 汇编）
+│   │   ├── assets/                        # 游戏元数据与资源文件
+│   │   │   ├── ic/                        # .ic 资源文件（stdLib.ic、grammarTest.ic）
+│   │   │   └── mateDatas/                 # 游戏元数据（指令、枚举、类型）
+│   │   ├── backend/
+│   │   │   └── compiler/                  # IC10 编译器主源码
+│   │   │       ├── CMakeLists.txt         # 顶层 CMake
+│   │   │       ├── core/                  # IC10 编译器核心（原 compiler/IC10/ 重命名）
+│   │   │       │   ├── include/ic10/      # 头文件 — 词法、语法、AST、语义、链接、增量、本地化
+│   │   │       │   ├── src/               # 实现文件
+│   │   │       │   ├── main.cpp           # 命令行入口（ic10c）
+│   │   │       │   └── main.hpp           # Doxygen 主页与专题文档
+│   │   │       ├── exports/              # IC10 专属语言绑定（Node.js / Python / Java）
+│   │   │       ├── publish/              # 各语言可发布包
+│   │   │       │   ├── node/              # npm 包（ic10c-node）
+│   │   │       │   ├── python/            # pip 包（ic10-python）
+│   │   │       │   └── java/              # Maven 包（ic10-java）
+│   │   │       ├── tests/                # 单元与集成测试
+│   │   │       │   ├── cpp/               # C++ 测试（GoogleTest — 词法、语法、语义、链接、增量）
+│   │   │       │   ├── node/              # Node.js 绑定测试（Jest + TypeScript）
+│   │   │       │   ├── python/            # Python 绑定测试（pytest）
+│   │   │       │   └── java/              # Java 绑定测试（JUnit + Gradle）
+│   │   │       ├── scripts/               # 构建脚本（PowerShell）
+│   │   │       ├── cmake/                 # CMake 模块（core_artifact.cmake）
+│   │   │       ├── .clang-format          # 代码风格（4 空格缩进）
+│   │   │       └── .clang-tidy            # 静态分析配置
+│   │   └── plugins/
+│   │       └── vscode/                    # VS Code 语言支持扩展
+│   │           └── ic10-language-support/  # 扩展源码（LSP 服务端 + 客户端）
+│   ├── Aero/                              # Aero 语言（IC10 上层高级语言，取火箭自动化之意）
+│   └── common/                            # 共享基础设施
+│       ├── cmake/                         # CMake 公共模块（node.cmake、pybind11.cmake、fbjni.cmake）
+│       └── cpp/                           # C++ 公共代码
+│           ├── core/                      # 公共工具库（异步协程、异常诊断、国际化、工具函数）
+│           ├── export/                    # 公共语言绑定适配封装
+│           └── tests/                     # 公共代码测试
+├── docs/                                  # 文档与 Doxygen 资源
+├── .github/workflows/                     # CI/CD 工作流
+├── CHANGELOG.md                           # 更新日志（英文）
+├── CHANGELOG.zh.md                        # 更新日志（中文）
+├── CONTRIBUTING.md                        # 贡献指南（英文）
+├── CONTRIBUTING.zh.md                     # 贡献指南（中文）
+├── VERSION                                # 当前版本
+└── LICENSE                                # 许可证
 ```
 
 ---
@@ -145,20 +143,20 @@ pnpm exec node-gyp install   # 或: npm exec node-gyp install
 ### 3. 安装 Node.js 依赖
 
 ```bash
-cd code/backend/compiler
+cd code/IC10/backend/compiler
 pnpm i --ignore-workspace
 ```
 
 ### 4. 使用 CMake 配置
 
 ```bash
-cmake -B build -S code/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake -B build -S code/IC10/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Release
 ```
 
 在 Windows 上（MSVC）可能需要指定生成器：
 
 ```powershell
-cmake -B build -S code/backend/compiler -G "Visual Studio 17 2022" -A x64
+cmake -B build -S code/IC10/backend/compiler -G "Visual Studio 17 2022" -A x64
 ```
 
 ### 5. 编译
@@ -168,8 +166,8 @@ cmake --build build --parallel
 ```
 
 可执行文件 `ic10c` 将生成在 `build/bin/` 目录下。
-Node.js 原生模块 `ic10-node-api.node` 将生成在 `build/exports/IC10/node/` 目录下。
-Python 原生模块将生成在 `build/exports/IC10/python/` 目录下。
+Node.js 原生模块 `ic10c-node.node` 将生成在 `build/exports/node/` 目录下。
+Python 原生模块将生成在 `build/exports/python/` 目录下。
 
 ### 6. 运行测试
 
@@ -183,14 +181,14 @@ ctest --output-on-failure
 #### Node.js 测试
 
 ```bash
-cd code/backend/compiler
+cd code/IC10/backend/compiler
 pnpm test
 ```
 
 #### Python 测试
 
 ```bash
-cd code/backend/compiler/tests/ic10/python
+cd code/IC10/backend/compiler/tests/python
 pytest -v
 ```
 
@@ -229,10 +227,10 @@ start:
 
 ### Node.js
 
-`ic10-node-api` 包提供 JavaScript/TypeScript 绑定：
+`ic10c-node` 包提供 JavaScript/TypeScript 绑定：
 
 ```typescript
-import { Lexer, Parser, Analyser, IC10Local } from 'ic10-node-api';
+import { Lexer, Parser, Analyser, IC10Local } from 'ic10c-node';
 
 // 设置语言（可选，默认英文）
 IC10Local.setLanguage('zh-hans');
@@ -264,7 +262,7 @@ console.log(analyser.diagnostics);
 **链接器用法：**
 
 ```typescript
-import { Linker } from 'ic10-node-api';
+import { Linker } from 'ic10c-node';
 
 const linker = new Linker();
 linker.addUnit(source1, 'file1.ic');
@@ -276,7 +274,7 @@ console.log(linker.diagnostics);
 **增量编译器用法：**
 
 ```typescript
-import { IncCompiler } from 'ic10-node-api';
+import { IncCompiler } from 'ic10c-node';
 
 const compiler = new IncCompiler();
 const result1 = compiler.compileFull(source);
@@ -314,7 +312,7 @@ print(analyser.symbolTable.toJSON())
 code --install-extension edocsitahw.ic10
 ```
 
-> 扩展已内置预编译的 C++ 编译器核心（Node.js 原生模块 `ic10-node-api`），无需额外安装 C++ 工具链、CMake 或编译器。
+> 扩展已内置预编译的 C++ 编译器核心（Node.js 原生模块 `ic10c-node`），无需额外安装 C++ 工具链、CMake 或编译器。
 
 **功能概览：**
 
@@ -331,7 +329,7 @@ code --install-extension edocsitahw.ic10
 | 双语界面 | 英语（`en-us`）和简体中文（`zh-hans`）；设置中切换 |
 | 类型注解 | `#:` 类型提示语法和 `#>` 文档注释语法，用于声明设备/枚举类型 |
 
-详见扩展 [README](code/plugins/vscode/ic10-language-support/README.md) 了解完整配置选项。
+详见扩展 [README](code/IC10/plugins/vscode/ic10-language-support/README.md) 了解完整配置选项。
 
 ---
 
@@ -380,7 +378,7 @@ IC10Local.setLanguage('zh-hans');
 
 ## 作者
 
-Xiao SongTao (edocsitahw) – [edocsitahw@qq.com](mailto:edocsitahw@qq.com)
+**edocsitahw** – [edocsitahw@qq.com](mailto:edocsitahw@qq.com)
 
 ---
 

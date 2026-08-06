@@ -14,8 +14,8 @@ body:
         - Semantic (type checking, symbol resolution)
         - Linker (multi-unit symbol merging)
         - Incremental (inclexer, incparser, incremental compilation)
-        - Node.js Bindings (ic10-node-api)
-        - Python Bindings (ic10-python)
+        - Node.js Bindings (ic10c-node)
+        - Python Bindings (ic10c-python)
         - CLI (ic10c command line tool)
         - CI/CD (build workflows, GitHub Actions)
         - Documentation
@@ -178,7 +178,7 @@ body:
       placeholder: |
         Node.js code:
         ```typescript
-        import { Lexer } from 'ic10-node-api';
+        import { Lexer } from 'ic10c_node';
         const tokens = Lexer.tokenize(source);
         ```
         

@@ -30,7 +30,7 @@ on:
                 required: false
                 default: true
             build-compiler:
-                description: 'Whether to build the IC10_Compiler executable'
+                description: 'Whether to build the IC10_Compiler_CLI executable'
                 type: boolean
                 required: false
                 default: false
@@ -65,12 +65,11 @@ jobs:
             -   name: Configure CMake | 配置 CMake
                 shell: bash
                 run: |
-                    CMAKE_ARGS="-B build -S code/backend/compiler"
+                    CMAKE_ARGS="-B build -S code/IC10/backend/compiler"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=23"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_STATIONSCRIPT=OFF"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_NODE_BINDINGS=OFF"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=OFF"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_TESTS=${{ inputs.run-tests && 'ON' || 'OFF' }}"
@@ -93,7 +92,7 @@ jobs:
                       BUILD_TARGETS="$BUILD_TARGETS ic10_tests"
                     fi
                     if [[ "${{ inputs.build-compiler }}" == "true" ]]; then
-                      BUILD_TARGETS="$BUILD_TARGETS IC10_Compiler"
+                      BUILD_TARGETS="$BUILD_TARGETS IC10_Compiler_CLI"
                     fi
                     if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
                       PARALLEL=2
@@ -130,9 +129,9 @@ jobs:
                 shell: bash
                 run: |
                     mkdir -p artifacts/lib/common/${{ inputs.build-type }}
-                    mkdir -p artifacts/lib/IC10/${{ inputs.build-type }}
+                    mkdir -p artifacts/lib/core/${{ inputs.build-type }}
                     mkdir -p artifacts/include/common
-                    mkdir -p artifacts/include/IC10
+                    mkdir -p artifacts/include/core
                     if [[ "${{ inputs.build-compiler }}" == "true" ]]; then
                       mkdir -p artifacts/bin
                     fi
@@ -142,14 +141,14 @@ jobs:
                 run: |
                     if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
                       cp -f build/common/${{ inputs.build-type }}/common.lib artifacts/lib/common/${{ inputs.build-type }}/ || echo "common.lib not found in expected path"
-                      cp -f build/IC10/${{ inputs.build-type }}/ic10_lib.lib artifacts/lib/IC10/${{ inputs.build-type }}/ || echo "ic10_lib.lib not found in expected path"
+                      cp -f build/core/${{ inputs.build-type }}/ic10_lib.lib artifacts/lib/core/${{ inputs.build-type }}/ || echo "ic10_lib.lib not found in expected path"
                     else
                       cp -f build/common/libcommon.a artifacts/lib/common/${{ inputs.build-type }}/ 2>/dev/null || \
                       cp -f build/common/${{ inputs.build-type }}/libcommon.a artifacts/lib/common/${{ inputs.build-type }}/ 2>/dev/null || \
                       echo "libcommon.a not found"
 
-                      cp -f build/IC10/libic10_lib.a artifacts/lib/IC10/${{ inputs.build-type }}/ 2>/dev/null || \
-                      cp -f build/IC10/${{ inputs.build-type }}/libic10_lib.a artifacts/lib/IC10/${{ inputs.build-type }}/ 2>/dev/null || \
+                      cp -f build/core/libic10_lib.a artifacts/lib/core/${{ inputs.build-type }}/ 2>/dev/null || \
+                      cp -f build/core/${{ inputs.build-type }}/libic10_lib.a artifacts/lib/core/${{ inputs.build-type }}/ 2>/dev/null || \
                       echo "libic10_lib.a not found"
                     fi
 
@@ -159,21 +158,21 @@ jobs:
                 run: |
                     if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
                       # Windows: 查找 .exe 文件
-                      cp -f build/bin/IC10_Compiler.exe artifacts/bin/ 2>/dev/null || \
-                      cp -f build/bin/${{ inputs.build-type }}/IC10_Compiler.exe artifacts/bin/ 2>/dev/null || \
-                      echo "IC10_Compiler.exe not found"
+                      cp -f build/bin/ic10c.exe artifacts/bin/ 2>/dev/null || \
+                      cp -f build/bin/${{ inputs.build-type }}/ic10c.exe artifacts/bin/ 2>/dev/null || \
+                      echo "ic10c.exe not found"
                     else
                       # Linux: 可执行文件无扩展名
-                      cp -f build/bin/IC10_Compiler artifacts/bin/ 2>/dev/null || \
-                      echo "IC10_Compiler not found"
+                      cp -f build/bin/ic10c artifacts/bin/ 2>/dev/null || \
+                      echo "ic10c not found"
                     fi
                     ls -la artifacts/bin/ || true
 
             -   name: Copy headers | 复制头文件
                 shell: bash
                 run: |
-                    cp -r code/backend/compiler/common/include/. artifacts/include/common/
-                    cp -r code/backend/compiler/IC10/include/. artifacts/include/IC10/
+                    cp -r code/common/cpp/core/include/. artifacts/include/common/
+                    cp -r code/IC10/backend/compiler/core/include/. artifacts/include/core/
 
             -   name: Set artifact name | 设置产物名称
                 id: artifact

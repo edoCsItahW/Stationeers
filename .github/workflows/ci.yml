@@ -21,7 +21,6 @@ jobs:
             ic10-node: ${{ steps.filter.outputs.ic10-node }}
             ic10-python: ${{ steps.filter.outputs.ic10-python }}
             ic10-java: ${{ steps.filter.outputs.ic10-java }}
-            stationscript: ${{ steps.filter.outputs.stationscript }}
             shared: ${{ steps.filter.outputs.shared }}
             workflow: ${{ steps.filter.outputs.workflow }}
             is-full-build: ${{ steps.flags.outputs.is-full-build }}
@@ -38,37 +37,34 @@ jobs:
                 with:
                     filters: |
                         shared:
-                          - 'code/backend/compiler/CMakeLists.txt'
-                          - 'code/backend/compiler/cmake/**'
-                          - 'code/backend/compiler/common/**'
-                          - 'code/backend/compiler/tests/common/**'
+                          - 'code/IC10/backend/compiler/CMakeLists.txt'
+                          - 'code/common/cmake/**'
+                          - 'code/common/cpp/core/**'
+                          - 'code/common/cpp/tests/**'
                         ic10-core:
-                          - 'code/backend/compiler/IC10/**'
-                          - 'code/backend/compiler/tests/ic10/*.cpp'
-                          - 'code/backend/compiler/tests/ic10/CMakeLists.txt'
-                          - 'code/backend/compiler/tests/grammarTest.ic'
+                          - 'code/IC10/backend/compiler/core/**'
+                          - 'code/IC10/backend/compiler/tests/cpp/*.cpp'
+                          - 'code/IC10/backend/compiler/tests/CMakeLists.txt'
+                          - 'code/IC10/assets/ic/grammarTest.ic'
                         ic10-node:
-                          - 'code/backend/compiler/exports/IC10/node/**'
-                          - 'code/backend/compiler/exports/common/node/**'
-                          - 'code/backend/compiler/tests/ic10/node/**'
-                          - 'code/backend/compiler/tests/node/**'
-                          - 'code/backend/compiler/package.json'
-                          - 'code/backend/compiler/pnpm-*.yaml'
-                          - 'code/backend/compiler/pnpm-workspace.yaml'
-                          - 'code/backend/compiler/jest.config.js'
-                          - 'code/backend/compiler/tsconfig.json'
+                          - 'code/IC10/backend/compiler/exports/node/**'
+                          - 'code/common/cpp/export/node/**'
+                          - 'code/IC10/backend/compiler/tests/node/**'
+                          - 'code/IC10/backend/compiler/publish/node/**'
+                          - 'code/IC10/backend/compiler/package.json'
+                          - 'code/IC10/backend/compiler/pnpm-*.yaml'
+                          - 'code/IC10/backend/compiler/pnpm-workspace.yaml'
+                          - 'code/IC10/backend/compiler/jest.config.js'
+                          - 'code/IC10/backend/compiler/tsconfig.json'
                         ic10-python:
-                          - 'code/backend/compiler/exports/IC10/python/**'
-                          - 'code/backend/compiler/exports/common/python/**'
-                          - 'code/backend/compiler/tests/python/**'
+                          - 'code/IC10/backend/compiler/exports/python/**'
+                          - 'code/common/cpp/export/python/**'
+                          - 'code/IC10/backend/compiler/publish/python/**'
                         ic10-java:
-                          - 'code/backend/compiler/exports/IC10/java/**'
-                          - 'code/backend/compiler/exports/common/java/**'
-                          - 'code/backend/compiler/tests/java/**'
-                          - 'code/backend/compiler/tests/ic10/java/**'
-                        stationscript:
-                          - 'code/backend/compiler/StationScript/**'
-                          - 'code/backend/compiler/tests/station_script/**'
+                          - 'code/IC10/backend/compiler/exports/java/**'
+                          - 'code/common/cpp/export/java/**'
+                          - 'code/IC10/backend/compiler/publish/java/**'
+                          - 'code/IC10/backend/compiler/tests/java/**'
                         workflow:
                           - '.github/workflows/**'
                           - '.github/actions/**'
@@ -100,7 +96,6 @@ jobs:
                     echo "- IC10 Node Bindings: ${{ steps.filter.outputs.ic10-node }}" >> $GITHUB_STEP_SUMMARY
                     echo "- IC10 Python Bindings: ${{ steps.filter.outputs.ic10-python }}" >> $GITHUB_STEP_SUMMARY
                     echo "- IC10 Java Bindings: ${{ steps.filter.outputs.ic10-java }}" >> $GITHUB_STEP_SUMMARY
-                    echo "- StationScript: ${{ steps.filter.outputs.stationscript }}" >> $GITHUB_STEP_SUMMARY
                     echo "- Shared (common/cmake): ${{ steps.filter.outputs.shared }}" >> $GITHUB_STEP_SUMMARY
                     echo "- Workflow/Actions: ${{ steps.filter.outputs.workflow }}" >> $GITHUB_STEP_SUMMARY
                     echo "" >> $GITHUB_STEP_SUMMARY
@@ -195,7 +190,7 @@ jobs:
     static-analysis:
         name: static analysis | 静态分析
         needs: detect-changes
-        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true' || needs.detect-changes.outputs.stationscript == 'true'
+        if: needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.ic10-core == 'true'
         uses: ./.github/workflows/static-analysis.yml
         with:
             os: ubuntu-latest
@@ -203,7 +198,6 @@ jobs:
             run-clang-tidy: true
             run-clang-format: true
             analyze-ic10: true
-            analyze-stationscript: ${{ needs.detect-changes.outputs.is-full-build == 'true' || needs.detect-changes.outputs.stationscript == 'true' }}
             analyze-common: true
             upload-reports: true
 
@@ -245,7 +239,6 @@ jobs:
                     echo "ic10-node:      ${{ needs.detect-changes.outputs.ic10-node }}"
                     echo "ic10-python:    ${{ needs.detect-changes.outputs.ic10-python }}"
                     echo "ic10-java:      ${{ needs.detect-changes.outputs.ic10-java }}"
-                    echo "stationscript:  ${{ needs.detect-changes.outputs.stationscript }}"
                     echo "shared:         ${{ needs.detect-changes.outputs.shared }}"
                     echo "workflow:       ${{ needs.detect-changes.outputs.workflow }}"
                     echo ""
@@ -256,8 +249,6 @@ jobs:
                     PYTHON_CHANGED="${{ needs.detect-changes.outputs.ic10-python }}"
                     JAVA_CHANGED="${{ needs.detect-changes.outputs.ic10-java }}"
                     SHARED_CHANGED="${{ needs.detect-changes.outputs.shared }}"
-                    STATIONSCRIPT_CHANGED="${{ needs.detect-changes.outputs.stationscript }}"
-
                     HAS_FAILURE=false
 
                     # 检查作业：如果应该运行却被跳过，则视为失败
@@ -306,9 +297,9 @@ jobs:
                     check_job "ic10-java-linux"    "${{ needs.ic10-java-linux.result }}" "$JAVA_SHOULD_RUN"
                     check_job "ic10-java-windows"  "${{ needs.ic10-java-windows.result }}" "$JAVA_SHOULD_RUN"
 
-                    # 静态分析：全量构建 / core变更 / stationscript变更 时应运行
+                    # 静态分析：全量构建 / core变更 时应运行
                     SA_SHOULD_RUN="false"
-                    [[ "$IS_FULL" == "true" || "$CORE_CHANGED" == "true" || "$STATIONSCRIPT_CHANGED" == "true" ]] && SA_SHOULD_RUN="true"
+                    [[ "$IS_FULL" == "true" || "$CORE_CHANGED" == "true" ]] && SA_SHOULD_RUN="true"
                     check_job "static-analysis" "${{ needs.static-analysis.result }}" "$SA_SHOULD_RUN"
 
                     if [[ "$HAS_FAILURE" == "true" ]]; then

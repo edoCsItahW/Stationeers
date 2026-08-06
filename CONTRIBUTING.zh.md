@@ -35,15 +35,15 @@
 5. **本地运行测试**：
    ```bash
    # C++ 测试
-   cmake -B build -S code/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Debug
+   cmake -B build -S code/IC10/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Debug
    cmake --build build --parallel
    cd build && ctest --output-on-failure
 
    # Node.js 测试
-   cd code/backend/compiler && pnpm test
+   cd code/IC10/backend/compiler && pnpm test
 
    # Python 测试
-   cd code/backend/compiler/tests/ic10/python && pytest -v
+   cd code/IC10/backend/compiler/tests/python && pytest -v
    ```
 6. **确保代码风格** – 项目使用 `clang-format`（4 空格缩进）。运行：
    ```bash
@@ -100,7 +100,7 @@ ci: 添加 Python 工作流
 ## 代码规范
 
 - **语言**：C++23（合理使用协程、概念、范围库）。
-- **风格**：遵循 `.clang-format`（4 空格缩进，花括号不换行，100 列限制）。完整配置见 [`.clang-format`](code/backend/compiler/.clang-format)。
+- **风格**：遵循 `.clang-format`（4 空格缩进，花括号不换行，100 列限制）。完整配置见 [`.clang-format`](code/IC10/backend/compiler/.clang-format)。
 - **命名**：
     - 类型：`PascalCase`（如 `Lexer`、`SymbolTable`、`IncCompiler`）
     - 函数/变量：`camelCase`（如 `extractHexNumber`、`pos_`）
@@ -117,9 +117,9 @@ ci: 添加 Python 工作流
     ILoc::msgFormat<IMsgId::IWL1>(charValue)
     ```
 - **测试**：为新功能添加单元测试：
-    - C++ 测试：`code/backend/compiler/tests/ic10/`
-    - Node.js 测试：`code/backend/compiler/tests/ic10/node/__tests__/`
-    - Python 测试：`code/backend/compiler/tests/ic10/python/`
+    - C++ 测试：`code/IC10/backend/compiler/tests/cpp/`
+    - Node.js 测试：`code/IC10/backend/compiler/tests/node/`
+    - Python 测试：`code/IC10/backend/compiler/tests/python/`
 - **文档**：公共 API 使用 Doxygen 风格注释，支持双语（`@if zh / @elseif en`）标签。
 
 ## 模块概览
@@ -147,23 +147,23 @@ ci: 添加 Python 工作流
 
 - **静态分析**（clang-tidy）：
   ```bash
-  cmake -B build -S code/backend/compiler -G Ninja \
+  cmake -B build -S code/IC10/backend/compiler -G Ninja \
     -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_CXX_CLANG_TIDY="clang-tidy;--config-file=code/backend/compiler/.clang-tidy"
+    -DCMAKE_CXX_CLANG_TIDY="clang-tidy;--config-file=code/IC10/backend/compiler/.clang-tidy"
   cmake --build build
   ```
 
 - **cppcheck**：
   ```bash
   cppcheck --enable=all --suppress=missingIncludeSystem --std=c++23 \
-    -I code/backend/compiler/common/include \
-    -I code/backend/compiler/IC10/include \
-    code/backend/compiler/IC10/src/
+    -I code/common/cpp/core/include \
+    -I code/IC10/backend/compiler/core/include \
+    code/IC10/backend/compiler/core/src/
   ```
 
 - **地址消毒器**（Linux）：
   ```bash
-  cmake -B build-san -S code/backend/compiler -G Ninja \
+  cmake -B build-san -S code/IC10/backend/compiler -G Ninja \
     -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer"
   ```
