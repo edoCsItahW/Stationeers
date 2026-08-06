@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor(onConstructor = @__(@JsonCreator))
 public class Position {
     @JsonProperty("line") private int line;
     @JsonProperty("column") private int column;

@@ -94,8 +94,13 @@ public class ProgramNode extends ASTNode {
     }
 
     /**
-     * Custom deserializer that handles the double-encoded {@code statements} field.
-     * The C++ serializer writes statements as a JSON-encoded string (not a raw array).
+     * Custom deserializer that handles the {@code statements} field.
+     * <p>
+     * The C++ {@code toJsonString()} function passes JSON arrays/objects
+     * through as-is (without quoting), so the statements field is a raw
+     * JSON array, not a JSON string. This deserializer handles both
+     * formats for robustness.
+     * </p>
      */
     public static class ProgramDeserializer extends JsonDeserializer<ProgramNode> {
 
@@ -109,11 +114,22 @@ public class ProgramNode extends ASTNode {
 
             ProgramNode node = new ProgramNode();
 
-            // Manually parse the JSON object fields
-            if (p.currentToken() != JsonToken.START_OBJECT)
-                throw new IOException("Expected START_OBJECT for Program");
+            // Due to @JsonTypeInfo(include = As.EXISTING_PROPERTY) on ASTNode,
+            // Jackson may have already consumed START_OBJECT and the "type" field.
+            // The parser may be at START_OBJECT or already at a FIELD_NAME.
+            JsonToken tok = p.currentToken();
 
-            while (p.nextToken() != JsonToken.END_OBJECT) {
+            if (tok == null) {
+                tok = p.nextToken();
+            }
+            if (tok == JsonToken.START_OBJECT) {
+                p.nextToken(); // advance to first field
+            } else if (tok == JsonToken.END_OBJECT) {
+                return node; // empty object
+            }
+            // else: already at FIELD_NAME (after type resolution consumed "type")
+
+            while (p.currentToken() != JsonToken.END_OBJECT) {
                 String fieldName = p.currentName();
                 p.nextToken(); // move to value
 
@@ -126,25 +142,48 @@ public class ProgramNode extends ASTNode {
                         node.setPosition(pos);
                         break;
                     case "statements":
-                        // statements is a JSON string — parse it again
-                        String statementsJson = p.getText();
-                        if (statementsJson != null && !statementsJson.isEmpty()) {
-                            ObjectMapper mapper = (ObjectMapper) p.getCodec();
-                            List<ASTNode> stmts = mapper.readValue(
-                                    statementsJson, STATEMENT_LIST_TYPE);
-                            node.setStatements(stmts);
-                        } else
-                            node.setStatements(new ArrayList<>());
-
+                        node.setStatements(deserializeStatements(p, ctxt));
                         break;
                     default:
                         // skip unknown fields (future-proofing)
                         p.skipChildren();
                         break;
                 }
+
+                p.nextToken(); // advance to next field or END_OBJECT
             }
 
             return node;
+        }
+
+        /**
+         * Deserializes the statements field, supporting both formats:
+         * <ol>
+         *   <li>Raw JSON array (actual C++ output)</li>
+         *   <li>JSON string containing a JSON array (compatibility)</li>
+         * </ol>
+         */
+        private static List<ASTNode> deserializeStatements(
+                JsonParser p, DeserializationContext ctxt) throws IOException {
+
+            JsonToken tok = p.currentToken();
+
+            if (tok == JsonToken.START_ARRAY) {
+                // C++ toJsonString passes arrays through as-is
+                ObjectMapper mapper = (ObjectMapper) p.getCodec();
+                return mapper.readValue(p, STATEMENT_LIST_TYPE);
+            }
+
+            if (tok == JsonToken.VALUE_STRING) {
+                // Double-encoded format (compatibility)
+                String statementsJson = p.getText();
+                if (statementsJson != null && !statementsJson.isEmpty()) {
+                    ObjectMapper mapper = (ObjectMapper) p.getCodec();
+                    return mapper.readValue(statementsJson, STATEMENT_LIST_TYPE);
+                }
+            }
+
+            return new ArrayList<>();
         }
     }
 

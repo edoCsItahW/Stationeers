@@ -35,6 +35,6 @@ public class TypeOfNode {
     public static native String toJSON();
 
     static {
-        System.loadLibrary("ic10_java");
+        IC10Native.ensureLoaded();
     }
 }
