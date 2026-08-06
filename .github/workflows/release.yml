@@ -150,20 +150,20 @@ jobs:
                     fi
 
                     # 编译器二进制可执行文件
-                    # Linux: IC10_Compiler (重命名为 IC10_Compiler-linux)
-                    if [[ -f "artifacts/ic10-core-ubuntu-latest-Release/bin/IC10_Compiler" ]]; then
-                        cp -f artifacts/ic10-core-ubuntu-latest-Release/bin/IC10_Compiler release-assets/IC10_Compiler-linux
-                        echo "Found Linux IC10_Compiler"
+                    # Linux: ic10c (重命名为 ic10c-linux)
+                    if [[ -f "artifacts/ic10-core-ubuntu-latest-Release/bin/ic10c" ]]; then
+                        cp -f artifacts/ic10-core-ubuntu-latest-Release/bin/ic10c release-assets/ic10c-linux
+                        echo "Found Linux ic10c"
                     else
-                        echo "::warning::Linux IC10_Compiler not found"
+                        echo "::warning::Linux ic10c not found"
                     fi
 
-                    # Windows: IC10_Compiler.exe (重命名为 IC10_Compiler.exe)
-                    if [[ -f "artifacts/ic10-core-windows-latest-Release/bin/IC10_Compiler.exe" ]]; then
-                        cp -f artifacts/ic10-core-windows-latest-Release/bin/IC10_Compiler.exe release-assets/IC10_Compiler.exe
-                        echo "Found Windows IC10_Compiler.exe"
+                    # Windows: ic10c.exe (重命名为 ic10c.exe)
+                    if [[ -f "artifacts/ic10-core-windows-latest-Release/bin/ic10c.exe" ]]; then
+                        cp -f artifacts/ic10-core-windows-latest-Release/bin/ic10c.exe release-assets/ic10c.exe
+                        echo "Found Windows ic10c.exe"
                     else
-                        echo "::warning::Windows IC10_Compiler.exe not found"
+                        echo "::warning::Windows ic10c.exe not found"
                     fi
 
                     # 创建各平台压缩包
@@ -202,8 +202,8 @@ jobs:
                         ## IC10 Compiler ${{ github.ref_name }}
 
                         ### 产物列表
-                        - **IC10_Compiler-linux** — Linux 编译器二进制可执行文件
-                        - **IC10_Compiler.exe** — Windows 编译器二进制可执行文件
+                        - **ic10c-linux** — Linux 编译器二进制可执行文件
+                        - **ic10c.exe** — Windows 编译器二进制可执行文件
                         - **ic10-core-linux.zip** — Linux 核心库 (libcommon.a, libic10_lib.a, 头文件)
                         - **ic10-core-windows.zip** — Windows 核心库 (common.lib, ic10_lib.lib, 头文件)
                         - **ic10-node-linux.zip** — Linux Node.js 绑定 (.node 文件)
@@ -214,8 +214,8 @@ jobs:
                         ### 安装说明
                         详见项目文档。
                     files: |
-                        release-assets/IC10_Compiler-linux
-                        release-assets/IC10_Compiler.exe
+                        release-assets/ic10c-linux
+                        release-assets/ic10c.exe
                         release-assets/ic10-core-linux.zip
                         release-assets/ic10-core-windows.zip
                         release-assets/ic10-node-linux.zip
@@ -234,8 +234,8 @@ jobs:
                     echo "**Prerelease**: ${{ steps.prerelease.outputs.is_prerelease }}" >> $GITHUB_STEP_SUMMARY
                     echo "" >> $GITHUB_STEP_SUMMARY
                     echo "#### 产物" >> $GITHUB_STEP_SUMMARY
-                    echo "- IC10_Compiler-linux (Linux 编译器二进制)" >> $GITHUB_STEP_SUMMARY
-                    echo "- IC10_Compiler.exe (Windows 编译器二进制)" >> $GITHUB_STEP_SUMMARY
+                    echo "- ic10c-linux (Linux 编译器二进制)" >> $GITHUB_STEP_SUMMARY
+                    echo "- ic10c.exe (Windows 编译器二进制)" >> $GITHUB_STEP_SUMMARY
                     echo "- ic10-core-linux.zip" >> $GITHUB_STEP_SUMMARY
                     echo "- ic10-core-windows.zip" >> $GITHUB_STEP_SUMMARY
                     echo "- ic10-node-linux.zip" >> $GITHUB_STEP_SUMMARY

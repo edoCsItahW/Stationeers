@@ -70,12 +70,12 @@ jobs:
                     cache-key-prefix: ic10-node
 
             -   name: Install pnpm dependencies | 安装 pnpm 依赖
-                working-directory: code/backend/compiler
+                working-directory: code/IC10/backend/compiler
                 shell: bash
                 run: pnpm i --ignore-workspace
 
             -   name: Download Node headers via node-gyp | 通过 node-gyp 下载 Node 头文件
-                working-directory: code/backend/compiler
+                working-directory: code/IC10/backend/compiler
                 shell: bash
                 run: |
                     pnpm add -D node-gyp --ignore-workspace
@@ -91,18 +91,17 @@ jobs:
             -   name: Configure CMake | 配置 CMake
                 shell: bash
                 run: |
-                    CMAKE_ARGS="-B build -S code/backend/compiler"
+                    CMAKE_ARGS="-B build -S code/IC10/backend/compiler"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=23"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_STATIONSCRIPT=OFF"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_NODE_BINDINGS=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=OFF"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_TESTS=${{ inputs.run-tests && 'ON' || 'OFF' }}"
                     CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CCACHE=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DNODE_ADDON_API_DIR=$GITHUB_WORKSPACE/code/backend/compiler/node_modules/node-addon-api"
+                    CMAKE_ARGS="$CMAKE_ARGS -DNODE_ADDON_API_DIR=$GITHUB_WORKSPACE/code/IC10/backend/compiler/node_modules/node-addon-api"
 
                     if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
                       CMAKE_ARGS="$CMAKE_ARGS -DIC10_CORE_ARTIFACT_DIR=$GITHUB_WORKSPACE/core-artifact"
@@ -121,7 +120,7 @@ jobs:
                 shell: bash
                 run: |
                     if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
-                      cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target IC10_Node_API common_node
+                      cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target IC10_Compiler_Node common_node
                     else
                       cmake --build build --config ${{ inputs.build-type }} --parallel 4
                     fi
@@ -152,11 +151,12 @@ jobs:
 
             -   name: Run Node.js tests (Jest) | 运行 Node.js 测试
                 if: inputs.run-tests
-                working-directory: code/backend/compiler
+                working-directory: code/IC10/backend/compiler
                 shell: bash
                 run: |
-                    cp $GITHUB_WORKSPACE/build/exports/IC10/node/Release/ic10-node-api.node tests/node/ic10/src/ 2>/dev/null || \
-                    cp $GITHUB_WORKSPACE/build/exports/IC10/node/ic10-node-api.node tests/node/ic10/src/
+                    mkdir -p publish/node/src
+                    cp $GITHUB_WORKSPACE/build/exports/node/Release/ic10c-node.node publish/node/src/ 2>/dev/null || \
+                    cp $GITHUB_WORKSPACE/build/exports/node/ic10c-node.node publish/node/src/
                     pnpm test --ignore-workspace
 
             -   name: Set artifact name | 设置产物名称
@@ -173,7 +173,7 @@ jobs:
                 with:
                     name: ${{ steps.artifact.outputs.name }}
                     path: |
-                        build/exports/IC10/node/**
+                        build/exports/node/**
                         build/bin/**
                     retention-days: 7
 
