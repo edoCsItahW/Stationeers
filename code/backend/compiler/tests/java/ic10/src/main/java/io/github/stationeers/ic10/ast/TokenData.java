@@ -19,7 +19,6 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor(onConstructor = @__(@JsonCreator))
 public class TokenData {
 
     @JsonProperty("type") private int type;        // TokenType enum value
