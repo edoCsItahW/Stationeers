@@ -2,7 +2,7 @@
     "name": "common",
     "version": "1.0.0",
     "description": "",
-    "main": "./out/index",
+    "main": "./out/index.js",
     "types": "./src/index.ts",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,7 +12,6 @@
         "type": "git",
         "url": "https://github.com/edoCsItahW/Stationeers.git"
     },
-    "private": true,
     "dependencies": {
         "type-fest": "^5.8.0"
     },
