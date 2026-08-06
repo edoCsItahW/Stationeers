@@ -21,8 +21,8 @@ import type { Connection } from "vscode-languageserver/node";
 
 import { ParserPipline, SettingsManager } from "./services";
 import { DocumentCache, GlobalCache } from "./cache";
-import { t } from "../locals/locale";
-import { Console } from "common/";
+import { Console } from "common";
+import { t } from "../locals";
 import {
     SemanticTokenHandler,
     CompletionHandler,

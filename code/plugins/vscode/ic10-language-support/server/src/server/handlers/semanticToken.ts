@@ -376,7 +376,7 @@ export class SemanticTokenHandler {
         result.push({
             line: gap.line,
             start: gap.column,
-            length: 5,
+            length: 6,
             type: TokenLegend.Keyword,
             modifier: 0
         });
