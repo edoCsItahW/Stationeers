@@ -53,6 +53,16 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
+// 将 native 动态库纳入资源，随 JAR 一同发布
+// src/main/resources 是默认资源目录（含 native/、stdLib.ic 等），libs 是额外目录。
+sourceSets {
+    main {
+        resources {
+            srcDir 'libs'
+        }
+    }
+}
+
 // 测试时让 Java 能找到 CMake 编译出的 ic10_java 动态库
 test {
     useJUnitPlatform()

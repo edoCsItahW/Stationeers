@@ -20,6 +20,6 @@ public class IC10Local {
     public static native void setLanguage(String name);
 
     static {
-        System.loadLibrary("ic10_java");
+        IC10Native.ensureLoaded();
     }
 }

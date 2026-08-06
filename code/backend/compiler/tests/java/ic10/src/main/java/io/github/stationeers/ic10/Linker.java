@@ -107,6 +107,6 @@ public class Linker {
     private native HybridData initHybrid();
 
     static {
-        System.loadLibrary("ic10_java");
+        IC10Native.ensureLoaded();
     }
 }
