@@ -1,0 +1,409 @@
+// Copyright (c) 2026. All rights reserved.
+// This source code is licensed under the CC BY-NC-SA
+// (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
+// This software is protected by copyright law. Reproduction, distribution, or use for commercial
+// purposes is prohibited without the author's permission. If you have any questions or require
+// permission, please contact the author: edocsitahw@qq.com
+
+/**
+ * @file lexer.cpp
+ * @author edocsitahw
+ * @version 1.1
+ * @date 2026/06/02 22:25
+ * @brief
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * */
+#include "ic10_compiler/lexer/lexer.hpp"
+#include "common/exception/debug.hpp"
+#include "common/utils/common.hpp"
+#include "ic10_compiler/locals/local.hpp"
+#include <unordered_set>
+
+namespace stationeers::ic10 {
+
+    Lexer::Lexer(const std::string_view src, const bool debug)
+        : src_(src)
+        , debug_(debug) {}
+
+    std::vector<std::shared_ptr<Token>> Lexer::scan() {
+        auto tokens = std::vector<std::shared_ptr<Token>>{};
+
+        do {
+            tokens.emplace_back(std::make_shared<Token>(next()));
+        } while (tokens.back()->type != TokenType::END);
+
+        return tokens;
+    }
+
+    std::vector<std::shared_ptr<Token>> Lexer::tokenize(
+        const std::string_view src, const bool debug
+    ) {
+        return Lexer(src, debug).scan();
+    }
+
+    std::optional<char> Lexer::current() const noexcept {
+        if (inScope()) return src_[pos_.offset()];
+
+        return std::nullopt;
+    }
+
+    Token Lexer::next() {
+        skip();
+
+        const auto start = pos_;
+
+        if (!inScope()) return {TokenType::END, start, "", TokenCategory::END};
+
+        const auto c = current();
+
+        if (*c == '\n') {
+            pos_.newline();
+            return {TokenType::NEWLINE, start, "\\n", TokenCategory::WHITESPACE};
+        }
+
+        if (*c == '$') return extractHexNumber();
+
+        if (*c == '%') return extractBinaryNumber();
+
+        if (isAsciiDigit(*c)) return extractNumber();
+
+        if (*c == '"') return extractString();
+
+        if (*c == '#') return extractHashComment();
+
+        if (*c == '/' && peek().value_or(' ') == '/') return extractSlashComment();
+
+        if (SYMBOLS.contains(*c)) return extractSymbol();
+
+        if (*c == 'd' && isAsciiDigit(peek().value_or(' ')) && isAsciiSpace(peek(2).value_or(' ')))
+            return extractDevice();
+
+        if (isAsciiDigit(peek(2).value_or(' ')); *c == 'r' && isAsciiDigit(peek().value_or(' ')))
+            return extractRegister();
+
+        // 为适配不同语言变量名，但难以判断，因此所有分支至此都认为是标识符
+        return extractIdentifier();
+    }
+
+    bool Lexer::inScope() const noexcept { return pos_.offset() < src_.size(); }
+
+    std::optional<char> Lexer::peek(const int offset) const noexcept {
+        if (pos_.offset() + offset >= src_.size()) return std::nullopt;
+
+        return src_[pos_.offset() + offset];
+    }
+
+    void Lexer::skip() const noexcept {
+        while (inScope() && isAsciiSpace(*current()) && *current() != '\n')
+            pos_.next(static_cast<unsigned char>(*current()));
+    }
+
+    Token Lexer::extractIdentifier() const {
+        std::string value;
+        const auto start = pos_;
+
+        while (inScope() && !isAsciiSpace(*current()) && !SYMBOLS.contains(*current())) {
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
+        }
+
+        if (KEYWORD_MAP.contains(value))
+            return {
+                KEYWORD_MAP.at(value), std::move(start), std::move(value), TokenCategory::LITERAL
+            };
+
+        return {TokenType::IDENTIFIER, start, std::move(value), TokenCategory::LITERAL};
+    }
+
+    Token Lexer::extractNumber() const {
+        std::string value;
+        const auto start = pos_;
+
+        int pointCount = 0;
+
+        while (                                                 //
+            inScope()                                           //
+            && (isAsciiDigit(*current()) || *current() == '.')  //
+            && pointCount <= 1                                  //
+        ) {
+            if (*current() == '.') pointCount++;
+
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
+        }
+
+        // 处理科学计数法
+        if (inScope() && (*current() == 'e' || *current() == 'E')) {
+            const auto currentPos   = pos_;
+            const auto currentValue = value;
+
+            // e | E
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
+
+            // 处理符号
+            if (inScope() && (*current() == '+' || *current() == '-')) {
+                value += *current();
+                pos_.next(static_cast<unsigned char>(*current()));
+            }
+
+            // 处理指数部分
+            if (inScope() && isAsciiDigit(*current())) {
+                while (inScope() && isAsciiDigit(*current())) {
+                    value += *current();
+                    pos_.next(static_cast<unsigned char>(*current()));
+                }
+
+                return {TokenType::FLOAT, start, value, TokenCategory::LITERAL};
+            }
+
+            // 指数部分没有数字，这不是一个有效的科学计数法
+            // 可能是标识符的一部分，回退到'e'/'E'之前
+            value = currentValue;
+            pos_  = currentPos;
+
+            // goto finally:
+        }
+
+        // finally:
+        // 令牌边界检查：数字后若紧跟字母/数字/下划线，说明缺少空白分隔
+        if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
+            reporter_.errorWith<IMsgId::IEL3_2>(
+                pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
+            );
+        }
+
+        return {
+            value.contains('.') ? TokenType::FLOAT : TokenType::INTEGER, start, value,
+            TokenCategory::LITERAL
+        };
+    }
+
+    Token Lexer::extractHexNumber() const {
+        std::string value = "$";
+        pos_.next(static_cast<unsigned char>('$'));
+
+        const auto start = pos_;
+
+        while (inScope() && isAsciiHexDigit(*current())) {
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
+        }
+
+        // 令牌边界检查
+        if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
+            reporter_.errorWith<IMsgId::IEL3_2>(
+                pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
+            );
+        }
+
+        return {TokenType::HEX_NUMBER, start, value, TokenCategory::LITERAL};
+    }
+
+    Token Lexer::extractBinaryNumber() const {
+        std::string value = "%";
+        pos_.next(static_cast<unsigned char>('%'));
+
+        const auto start = pos_;
+
+        while (inScope() && isAsciiBinDigit(*current())) {
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
+        }
+
+        // 令牌边界检查
+        if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
+            reporter_.errorWith<IMsgId::IEL3_2>(
+                pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
+            );
+        }
+
+        return {TokenType::BINARY_NUMBER, start, value, TokenCategory::LITERAL};
+    }
+
+    Token Lexer::extractString() {
+        std::string value = "\"";
+        pos_.next(static_cast<unsigned char>('"'));
+
+        const auto start = pos_;
+
+        // 循环直到遇到闭合引号、换行符或输入结束
+        // 换行符作为同步点：IC10中字符串不应跨行，遇到换行说明字符串未闭合
+        while (inScope() && *current() != '"' && *current() != '\n') {
+            // 处理转义字符
+            if (const auto it = WHITESPACE_MAP.find(*current()); it != WHITESPACE_MAP.end()) {
+                value += '\\';
+                value += it->second;
+                // 循环末尾的 pos_.next() 会推进到下一个字符，无需额外处理
+            }
+
+            else
+                value += *current();
+
+            pos_.next(static_cast<unsigned char>(*current()));
+        }
+
+        // 未闭合字符串：到达输入末尾或遇到换行符
+        if (!inScope() || *current() == '\n') {
+            reporter_.errorWith<IMsgId::IEL2_1>(
+                start, stationeers::endPos(start, value), std::string{1, '\"'}
+            );
+
+            // 不消耗换行符，让lexer从下一行恢复解析（同步点）
+            return {TokenType::UNKNOWN, start, std::move(value), TokenCategory::INVALID};
+        }
+
+        value += *current();
+        pos_.next(static_cast<unsigned char>(*current()));
+
+        // 令牌边界检查：字符串后若紧跟字母/数字/下划线，说明缺少空白分隔
+        if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
+            reporter_.errorWith<IMsgId::IEL3_2>(
+                pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
+            );
+        }
+
+        return {TokenType::STRING, start, std::move(value), TokenCategory::LITERAL};
+    }
+
+    Token Lexer::extractHashComment() const {
+        std::string value = "#";
+        pos_.next(static_cast<unsigned char>('#'));
+
+        const auto start = pos_;
+
+        while (inScope() && *current() != '\n') {
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
+        }
+
+        // 尝试型解析：区分 #>(文档注释)、#:(类型提示) 和 #普通注释
+        if (value.size() >= 2) {
+            if (const char second = value[1]; second == '>' || second == ':') {
+                // 提取第二个字符后的内容
+                auto content = value.substr(2);
+
+                // 去除前导空白
+                if (auto firstNonSpace = content.find_first_not_of(" \t"); firstNonSpace != std::string::npos && content[firstNonSpace] == '@') {
+                    // 提取标签名
+                    auto tagStart = firstNonSpace + 1;
+                    auto tagEnd   = content.find_first_of(" \t", tagStart);
+
+                    if (tagEnd == std::string::npos) tagEnd = content.size();
+
+                    auto tagName = content.substr(tagStart, tagEnd - tagStart);
+
+                    // 去除标签名尾部可能残留的空白（如 '\r'，Windows 换行符）
+                    while (!tagName.empty() && std::isspace(static_cast<unsigned char>(tagName.back())))
+                        tagName.pop_back();
+
+                    if (second == '>') {
+                        // 验证文档标签
+                        static const std::unordered_set<std::string> DOC_TAGS = {
+                            "device", "end-device", "enum",  "end-enum", "name",      "desc",
+                            "value",  "slot",       "logic", "mode",     "logicSlot", "connect"
+                        };
+
+                        if (DOC_TAGS.contains(tagName))
+                            return {
+                                .type     = TokenType::DOC_COMMENT,
+                                .pos      = start,
+                                .lexeme   = std::move(value),
+                                .category = TokenCategory::ANNOTATION
+                            };
+                    } else {
+                        // second == ':'，验证类型提示标签 @type 和 @desc
+                        static const std::unordered_set<std::string> TYPE_HINT_TAGS = {
+                            "type", "desc"
+                        };
+
+                        if (TYPE_HINT_TAGS.contains(tagName))
+                            return {
+                                .type     = TokenType::TYPE_HINT,
+                                .pos      = start,
+                                .lexeme   = std::move(value),
+                                .category = TokenCategory::ANNOTATION
+                            };
+                    }
+                }
+            }
+        }
+
+        // 降级为普通注释
+        return {TokenType::HEX_COMMENT, start, std::move(value), TokenCategory::COMMENT};
+    }
+
+    Token Lexer::extractSlashComment() const {
+        std::string value = "//";
+        pos_.move(2, 2);
+
+        const auto start = pos_;
+
+        while (inScope() && *current() != '\n') {
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
+        }
+
+        return {TokenType::SLASH_COMMENT, start, std::move(value), TokenCategory::COMMENT};
+    }
+
+    Token Lexer::extractSymbol() {
+        const auto start = pos_;
+        const auto ch    = std::string(1, *current());
+
+        if (const auto it = SYMBOL_MAP.find(ch); it != SYMBOL_MAP.end()) {
+            pos_.next(static_cast<unsigned char>(*current()));
+            return {it->second, start, ch, TokenCategory::SYMBOL};
+        }
+
+        reporter_.errorWith<IMsgId::IEL1_1>(start, endPos(start, ch), ch);
+        pos_.next(static_cast<unsigned char>(*current()));
+        return {TokenType::UNKNOWN, start, ch, TokenCategory::INVALID};
+    }
+
+    Token Lexer::extractDevice() const {
+        const auto start = pos_;
+
+        std::string value = "d";
+        pos_.next(static_cast<unsigned char>('d'));
+
+        int deviceIdx = *current() - '0';
+        value += *current();
+        pos_.next(static_cast<unsigned char>(*current()));
+
+        if (deviceIdx > 5)
+            reporter_.warn<IC10MsgId::IWL3>(start, stationeers::endPos(start, value));
+
+        return {
+            deviceIdx > 5 ? TokenType::IDENTIFIER : TokenType::DEVICE, start, std::move(value),
+            TokenCategory::LITERAL
+        };
+    }
+
+    Token Lexer::extractRegister() const {
+        const auto start = pos_;
+
+        std::string value = "r";
+        pos_.next(static_cast<unsigned char>('r'));
+
+        int registerIdx = *current() - '0';
+        value += *current();
+        pos_.next(static_cast<unsigned char>(*current()));
+
+        if (inScope() && isAsciiDigit(*current())) {
+            registerIdx *= 10;
+            registerIdx += *current() - '0';
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
+        }
+
+        if (registerIdx > 15)
+            reporter_.warn<IC10MsgId::IWL2>(start, stationeers::endPos(start, value));
+
+        return {
+            registerIdx > 15 ? TokenType::IDENTIFIER : TokenType::REGISTER, start, std::move(value),
+            TokenCategory::LITERAL
+        };
+    }
+
+}  // namespace stationeers::ic10

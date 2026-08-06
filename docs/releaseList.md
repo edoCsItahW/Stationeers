@@ -20,10 +20,10 @@
 
 #### node侧
 1. [ ] IC10的node绑定代码编译通过
-2. [ ] ic10-node-api测试通过
+2. [ ] ic10c-node测试通过
 3. [ ] IC10的node绑定代码注释文档没有疏漏或中英异义
-4. [ ] ic10-node-api的类型声明文件已更新
-5. [ ] ic10-node-api的package.json中版本号与内容已更新
+4. [ ] ic10c-node的类型声明文件已更新
+5. [ ] ic10c-node的package.json中版本号与内容已更新
 
 #### python侧
 1. [ ] IC10的python绑定代码编译通过
@@ -58,10 +58,10 @@
 
 #### Node.js Side
 1. [ ] IC10 Node.js binding code compiles successfully
-2. [ ] ic10-node-api tests pass
+2. [ ] ic10c-node tests pass
 3. [ ] IC10 Node.js binding code comments have no omissions or Chinese‑English ambiguities
-4. [ ] ic10-node-api type declaration files have been updated
-5. [ ] ic10-node-api package.json version and content have been updated
+4. [ ] ic10c-node type declaration files have been updated
+5. [ ] ic10c-node package.json version and content have been updated
 
 #### Python Side
 1. [ ] IC10 Python binding code compiles successfully

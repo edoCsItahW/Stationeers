@@ -6,8 +6,8 @@
 ![C++](https://img.shields.io/badge/C%2B%2B-23-blue)
 ![License](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey)
 
-A modern C++23 compiler suite for **IC10** and **StationScript**, the scripting languages used in the game [Stationeers](https://store.steampowered.com/app/544550/Stationeers/).
-This project provides lexical analysis, syntax analysis, semantic analysis, linking, incremental compilation, an extensible infrastructure with async coroutine support, and Node.js / Python bindings.
+A modern C++23 compiler suite for **IC10** — the assembly-level scripting language used in [Stationeers](https://store.steampowered.com/app/544550/Stationeers/) — and **Aero**, its companion high-level language that compiles to IC10 bytecode. 
+This project provides lexical analysis, syntax analysis, semantic analysis, linking, incremental compilation, an extensible infrastructure with async coroutine support, and Node.js / Python / Java bindings.
 
 ---
 
@@ -34,53 +34,51 @@ This project provides lexical analysis, syntax analysis, semantic analysis, link
 
 ```
 Stationeers/
-├── code/backend/compiler/              # Main compiler source code
-│   ├── CMakeLists.txt                  # Top-level CMake
-│   ├── common/                         # Shared utilities library
-│   │   ├── include/common/async/       # Coroutine tasks, promises, futures
-│   │   ├── include/common/exception/   # Error & diagnostic hierarchy
-│   │   ├── include/common/locals/      # Internationalization framework
-│   │   └── include/common/utils/       # FStr, BiMap, enum_to_str, type lists, etc.
-│   ├── IC10/                           # IC10 compiler core
-│   │   ├── include/ic10/lexer/         # Token & Lexer
-│   │   ├── include/ic10/parser/ast/    # AST node definitions (nullary to senary)
-│   │   ├── include/ic10/semantic/      # SymbolTable, Analyser, type system
-│   │   ├── include/ic10/link/          # Linker (multi-unit symbol merging)
-│   │   ├── include/ic10/incremental/   # IncLexer, IncParser, IncCompiler
-│   │   ├── include/ic10/locals/        # Language resources (en_us, zh_hans)
-│   │   ├── src/                        # Implementation files
-│   │   ├── main.cpp                    # CLI entry point (ic10c)
-│   │   └── main.hpp                    # Doxygen mainpage & specialized docs
-│   ├── StationScript/                  # StationScript compiler (WIP)
-│   ├── exports/                        # Language bindings
-│   │   ├── common/node/                # Common Node.js adapter utilities
-│   │   ├── common/python/             # Common Python adapter utilities
-│   │   ├── IC10/node/                  # IC10 Node.js bindings (11 adapters)
-│   │   └── IC10/python/                # IC10 Python bindings
-│   ├── tests/                          # Unit tests
-│   │   ├── ic10/                       # C++ tests (lexer, parser, semantic, linker, incremental)
-│   │   │   ├── node/                   # Node.js binding tests (Jest + TypeScript)
-│   │   │   └── python/                 # Python binding tests (pytest)
-│   │   └── node/ic10/                  # Node.js package (ic10-node-api)
-│   ├── scripts/                        # Build scripts (PowerShell)
-│   ├── cmake/                          # CMake modules (node.cmake, pybind11.cmake)
-│   ├── .clang-format                   # Code style configuration (4-space indent)
-│   └── .clang-tidy                     # Static analysis configuration
-├── code/backend/mateDatas/             # Game metadata (instructions, enums, types)
-├── code/plugins/vscode/                # VS Code language support extension
-│   └── ic10-language-support/         # Extension source (LSP server + client)
-│       ├── server/                    # Language server (handlers: completion, hover, signature, diagnostic, format, semantic)
-│       ├── client/                    # VS Code extension client
-│       ├── syntaxes/                  # TextMate grammar
-│       └── package.json               # Extension manifest (v1.0.2)
-├── docs/                               # Documentation & Doxygen resources
-├── .github/workflows/                  # CI/CD workflows
-├── CHANGELOG.md                        # Changelog (English)
-├── CHANGELOG.zh.md                     # Changelog (Chinese)
-├── CONTRIBUTING.md                     # Contributing guidelines (English)
-├── CONTRIBUTING.zh.md                  # Contributing guidelines (Chinese)
-├── VERSION                             # Current version
-└── LICENSE                             # License file
+├── code/
+│   ├── IC10/                              # IC10 language (low-level bytecode / assembly)
+│   │   ├── assets/                        # Game metadata & resource files
+│   │   │   ├── ic/                        # .ic fixtures (stdLib.ic, grammarTest.ic)
+│   │   │   └── mateDatas/                 # Game metadata (instructions, enums, types)
+│   │   ├── backend/
+│   │   │   └── compiler/                  # IC10 compiler source tree
+│   │   │       ├── CMakeLists.txt         # Top-level CMake
+│   │   │       ├── core/                  # IC10 compiler core (was compiler/IC10/)
+│   │   │       │   ├── include/ic10/      # Headers — lexer, parser, ast, semantic, link, incremental, locals
+│   │   │       │   ├── src/               # Implementation files
+│   │   │       │   ├── main.cpp           # CLI entry point (ic10c)
+│   │   │       │   └── main.hpp           # Doxygen mainpage & specialized docs
+│   │   │       ├── exports/              # IC10-specific language bindings (Node.js / Python / Java)
+│   │   │       ├── publish/              # Per-language publishable packages
+│   │   │       │   ├── node/              # npm package (ic10c-node)
+│   │   │       │   ├── python/            # pip package (ic10-python)
+│   │   │       │   └── java/              # Maven package (ic10-java)
+│   │   │       ├── tests/                # Unit & integration tests
+│   │   │       │   ├── cpp/               # C++ tests (GoogleTest — lexer, parser, semantic, linker, incremental)
+│   │   │       │   ├── node/              # Node.js binding tests (Jest + TypeScript)
+│   │   │       │   ├── python/            # Python binding tests (pytest)
+│   │   │       │   └── java/              # Java binding tests (JUnit + Gradle)
+│   │   │       ├── scripts/               # Build scripts (PowerShell)
+│   │   │       ├── cmake/                 # CMake modules (core_artifact.cmake)
+│   │   │       ├── .clang-format          # Code style (4-space indent)
+│   │   │       └── .clang-tidy            # Static analysis configuration
+│   │   └── plugins/
+│   │       └── vscode/                    # VS Code language support extension
+│   │           └── ic10-language-support/  # Extension source (LSP server + client)
+│   ├── Aero/                              # Aero language (high-level language targeting IC10)
+│   └── common/                            # Shared infrastructure
+│       ├── cmake/                         # Shared CMake modules (node.cmake, pybind11.cmake, fbjni.cmake)
+│       └── cpp/                           # Shared C++ libraries & adapters
+│           ├── core/                      # Common utility library (async coroutines, diagnostics, i18n, utils)
+│           ├── export/                    # Shared language-binding adapter wrappers
+│           └── tests/                     # Shared code tests
+├── docs/                                  # Documentation & Doxygen resources
+├── .github/workflows/                     # CI/CD workflows
+├── CHANGELOG.md                           # Changelog (English)
+├── CHANGELOG.zh.md                        # Changelog (Chinese)
+├── CONTRIBUTING.md                        # Contributing guidelines (English)
+├── CONTRIBUTING.zh.md                     # Contributing guidelines (Chinese)
+├── VERSION                                # Current version
+└── LICENSE                                # License
 ```
 
 ---
@@ -145,20 +143,20 @@ pnpm exec node-gyp install   # or: npm exec node-gyp install
 ### 3. Install Node.js dependencies
 
 ```bash
-cd code/backend/compiler
+cd code/IC10/backend/compiler
 pnpm i --ignore-workspace
 ```
 
 ### 4. Configure with CMake
 
 ```bash
-cmake -B build -S code/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake -B build -S code/IC10/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Release
 ```
 
 On Windows (MSVC) you may need to specify the generator:
 
 ```powershell
-cmake -B build -S code/backend/compiler -G "Visual Studio 17 2022" -A x64
+cmake -B build -S code/IC10/backend/compiler -G "Visual Studio 17 2022" -A x64
 ```
 
 ### 5. Build
@@ -168,8 +166,8 @@ cmake --build build --parallel
 ```
 
 The executable `ic10c` will be placed in `build/bin/`.
-The Node.js native module `ic10-node-api.node` will be placed in `build/exports/IC10/node/`.
-The Python native module will be placed in `build/exports/IC10/python/`.
+The Node.js native module `ic10c-node.node` will be placed in `build/exports/node/`.
+The Python native module will be placed in `build/exports/python/`.
 
 ### 6. Run tests
 
@@ -183,14 +181,14 @@ ctest --output-on-failure
 #### Node.js tests
 
 ```bash
-cd code/backend/compiler
+cd code/IC10/backend/compiler
 pnpm test
 ```
 
 #### Python tests
 
 ```bash
-cd code/backend/compiler/tests/ic10/python
+cd code/IC10/backend/compiler/tests/python
 pytest -v
 ```
 
@@ -229,10 +227,10 @@ start:
 
 ### Node.js
 
-The `ic10-node-api` package provides JavaScript/TypeScript bindings:
+The `ic10c-node` package provides JavaScript/TypeScript bindings:
 
 ```typescript
-import { Lexer, Parser, Analyser, IC10Local } from 'ic10-node-api';
+import { Lexer, Parser, Analyser, IC10Local } from 'ic10c-node';
 
 // Set language (optional, default English)
 IC10Local.setLanguage('zh-hans');
@@ -264,7 +262,7 @@ console.log(analyser.diagnostics);
 **Linker usage:**
 
 ```typescript
-import { Linker } from 'ic10-node-api';
+import { Linker } from 'ic10c-node';
 
 const linker = new Linker();
 linker.addUnit(source1, 'file1.ic');
@@ -276,7 +274,7 @@ console.log(linker.diagnostics);
 **Incremental compiler usage:**
 
 ```typescript
-import { IncCompiler } from 'ic10-node-api';
+import { IncCompiler } from 'ic10c-node';
 
 const compiler = new IncCompiler();
 const result1 = compiler.compileFull(source);
@@ -314,7 +312,7 @@ Search for "IC10" in the VS Code Extensions panel, or install from the command l
 code --install-extension edocsitahw.ic10
 ```
 
-> The extension bundles the pre-built C++ compiler core as a Node.js native addon (`ic10-node-api`). No external C++ toolchain, CMake, or compiler installation is needed.
+> The extension bundles the pre-built C++ compiler core as a Node.js native addon (`ic10c-node`). No external C++ toolchain, CMake, or compiler installation is needed.
 
 **Features at a glance:**
 
@@ -331,7 +329,7 @@ code --install-extension edocsitahw.ic10
 | Bilingual UI | English (`en-us`) and Simplified Chinese (`zh-hans`); switch in settings |
 | Type annotations | `#:` type hint syntax and `#>` doc comment syntax for device/enum type declarations |
 
-See the extension's [README](code/plugins/vscode/ic10-language-support/README.md) for full details and configuration options.
+See the extension's [README](code/IC10/plugins/vscode/ic10-language-support/README.md) for full details and configuration options.
 
 ---
 
@@ -380,7 +378,7 @@ You may not use this software for commercial purposes without the author's permi
 
 ## Author
 
-Xiao Songtao (edocsitahw) – [edocsitahw@qq.com](mailto:edocsitahw@qq.com)
+**edocsitahw** – [edocsitahw@qq.com](mailto:edocsitahw@qq.com)
 
 ---
 

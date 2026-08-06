@@ -1,0 +1,17 @@
+{
+	"scripts": {
+		"test": "jest",
+		"test:watch": "jest --watch"
+	},
+	"dependencies": {
+		"node-addon-api": "^8.8.0"
+	},
+	"devDependencies": {
+		"@types/jest": "^30.0.0",
+		"@types/node": "^25.9.3",
+		"ic10c-node": "link:publish/node",
+		"jest": "^30.4.2",
+		"ts-jest": "^29.4.11",
+		"verdaccio": "^6.7.4"
+	}
+}
