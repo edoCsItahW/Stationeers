@@ -1,0 +1,49 @@
+plugins {
+    id("org.jetbrains.changelog")
+    id("org.jetbrains.intellij.platform")
+}
+
+group = 'io.github.stationeers.jetbrains'
+version = "1.0.0"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+// Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
+repositories {
+    mavenLocal()
+
+    mavenCentral()
+
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
+dependencies {
+    testImplementation(libs.junit)
+
+    implementation("io.github.stationeers:ic10:1.0.0")
+    implementation("com.google.code.gson:gson:2.11.0")
+
+    intellijPlatform {
+        intellijIdea("2026.2.0.1")
+    }
+}
+
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            sinceBuild = '253.0'
+        }
+        name = 'IC10'
+        vendor { url = 'https://github.com/edocsitahw/stationeers' }
+    }
+}
+
+tasks.withType(org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask).configureEach {
+    systemProperty("idea.ultimate.enabled", "true")
+}

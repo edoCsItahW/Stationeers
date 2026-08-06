@@ -1,0 +1,817 @@
+{
+    "#": {
+        "desc": "./locals/instructions.#.desc",
+        "signature": "# str",
+        "type": "Instruction"
+    },
+    "abs": {
+        "desc": "./locals/instructions.abs.desc",
+        "signature": "abs r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "acos": {
+        "desc": "./locals/instructions.acos.desc",
+        "signature": "acos r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "add": {
+        "desc": "./locals/instructions.add.desc",
+        "signature": "add r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "alias": {
+        "desc": "./locals/instructions.alias.desc",
+        "signature": "alias str r?|d?",
+        "type": "Instruction"
+    },
+    "and": {
+        "desc": "./locals/instructions.and.desc",
+        "signature": "and r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "asin": {
+        "desc": "./locals/instructions.asin.desc",
+        "signature": "asin r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "atan": {
+        "desc": "./locals/instructions.atan.desc",
+        "signature": "atan r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "atan2": {
+        "desc": "./locals/instructions.atan2.desc",
+        "signature": "atan2 r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "bap": {
+        "desc": "./locals/instructions.bap.desc",
+        "signature": "bap a(r?|num) b(r?|num) c(r?|num) d(r?|num)",
+        "type": "Instruction"
+    },
+    "bapal": {
+        "desc": "./locals/instructions.bapal.desc",
+        "signature": "bapal a(r?|num) b(r?|num) c(r?|num) d(r?|num)",
+        "type": "Instruction"
+    },
+    "bapz": {
+        "desc": "./locals/instructions.bapz.desc",
+        "signature": "bapz a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bapzal": {
+        "desc": "./locals/instructions.bapzal.desc",
+        "signature": "bapzal a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bdns": {
+        "desc": "./locals/instructions.bdns.desc",
+        "signature": "bdns device(d?|r?|id) a(r?|num)",
+        "type": "Instruction"
+    },
+    "bdnsal": {
+        "desc": "./locals/instructions.bdnsal.desc",
+        "signature": "bdnsal device(d?|r?|id) a(r?|num)",
+        "type": "Instruction"
+    },
+    "bdnvl": {
+        "desc": "./locals/instructions.bdnvl.desc",
+        "signature": "bdnvl device(d?|r?|id) logicType a(r?|num)",
+        "type": "Instruction"
+    },
+    "bdnvs": {
+        "desc": "./locals/instructions.bdnvs.desc",
+        "signature": "bdnvs device(d?|r?|id) logicType a(r?|num)",
+        "type": "Instruction"
+    },
+    "bdse": {
+        "desc": "./locals/instructions.bdse.desc",
+        "signature": "bdse device(d?|r?|id) a(r?|num)",
+        "type": "Instruction"
+    },
+    "bdseal": {
+        "desc": "./locals/instructions.bdseal.desc",
+        "signature": "bdseal device(d?|r?|id) a(r?|num)",
+        "type": "Instruction"
+    },
+    "beq": {
+        "desc": "./locals/instructions.beq.desc",
+        "signature": "beq a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "beqal": {
+        "desc": "./locals/instructions.beqal.desc",
+        "signature": "beqal a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "beqz": {
+        "desc": "./locals/instructions.beqz.desc",
+        "signature": "beqz a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "beqzal": {
+        "desc": "./locals/instructions.beqzal.desc",
+        "signature": "beqzal a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "bge": {
+        "desc": "./locals/instructions.bge.desc",
+        "signature": "bge a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bgeal": {
+        "desc": "./locals/instructions.bgeal.desc",
+        "signature": "bgeal a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bgez": {
+        "desc": "./locals/instructions.bgez.desc",
+        "signature": "bgez a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "bgezal": {
+        "desc": "./locals/instructions.bgezal.desc",
+        "signature": "bgezal a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "bgt": {
+        "desc": "./locals/instructions.bgt.desc",
+        "signature": "bgt a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bgtal": {
+        "desc": "./locals/instructions.bgtal.desc",
+        "signature": "bgtal a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bgtz": {
+        "desc": "./locals/instructions.bgtz.desc",
+        "signature": "bgtz a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "bgtzal": {
+        "desc": "./locals/instructions.bgtzal.desc",
+        "signature": "bgtzal a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "binary_number": {
+        "desc": "./locals/instructions.binary_number.desc",
+        "signature": "%...",
+        "type": "Macro"
+    },
+    "ble": {
+        "desc": "./locals/instructions.ble.desc",
+        "signature": "ble a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bleal": {
+        "desc": "./locals/instructions.bleal.desc",
+        "signature": "bleal a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "blez": {
+        "desc": "./locals/instructions.blez.desc",
+        "signature": "blez a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "blezal": {
+        "desc": "./locals/instructions.blezal.desc",
+        "signature": "blezal a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "blt": {
+        "desc": "./locals/instructions.blt.desc",
+        "signature": "blt a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bltal": {
+        "desc": "./locals/instructions.bltal.desc",
+        "signature": "bltal a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bltz": {
+        "desc": "./locals/instructions.bltz.desc",
+        "signature": "bltz a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "bltzal": {
+        "desc": "./locals/instructions.bltzal.desc",
+        "signature": "bltzal a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "bna": {
+        "desc": "./locals/instructions.bna.desc",
+        "signature": "bna a(r?|num) b(r?|num) c(r?|num) d(r?|num)",
+        "type": "Instruction"
+    },
+    "bnaal": {
+        "desc": "./locals/instructions.bnaal.desc",
+        "signature": "bnaal a(r?|num) b(r?|num) c(r?|num) d(r?|num)",
+        "type": "Instruction"
+    },
+    "bnan": {
+        "desc": "./locals/instructions.bnan.desc",
+        "signature": "bnan a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "bnaz": {
+        "desc": "./locals/instructions.bnaz.desc",
+        "signature": "bnaz a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bnazal": {
+        "desc": "./locals/instructions.bnazal.desc",
+        "signature": "bnazal a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bne": {
+        "desc": "./locals/instructions.bne.desc",
+        "signature": "bne a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bneal": {
+        "desc": "./locals/instructions.bneal.desc",
+        "signature": "bneal a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "bnez": {
+        "desc": "./locals/instructions.bnez.desc",
+        "signature": "bnez a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "bnezal": {
+        "desc": "./locals/instructions.bnezal.desc",
+        "signature": "bnezal a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "brap": {
+        "desc": "./locals/instructions.brap.desc",
+        "signature": "brap a(r?|num) b(r?|num) c(r?|num) d(r?|num)",
+        "type": "Instruction"
+    },
+    "brapz": {
+        "desc": "./locals/instructions.brapz.desc",
+        "signature": "brapz a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "brdns": {
+        "desc": "./locals/instructions.brdns.desc",
+        "signature": "brdns device(d?|r?|id) a(r?|num)",
+        "type": "Instruction"
+    },
+    "brdse": {
+        "desc": "./locals/instructions.brdse.desc",
+        "signature": "brdse device(d?|r?|id) a(r?|num)",
+        "type": "Instruction"
+    },
+    "breq": {
+        "desc": "./locals/instructions.breq.desc",
+        "signature": "breq a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "breqz": {
+        "desc": "./locals/instructions.breqz.desc",
+        "signature": "breqz a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "brge": {
+        "desc": "./locals/instructions.brge.desc",
+        "signature": "brge a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "brgez": {
+        "desc": "./locals/instructions.brgez.desc",
+        "signature": "brgez a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "brgt": {
+        "desc": "./locals/instructions.brgt.desc",
+        "signature": "brgt a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "brgtz": {
+        "desc": "./locals/instructions.brgtz.desc",
+        "signature": "brgtz a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "brle": {
+        "desc": "./locals/instructions.brle.desc",
+        "signature": "brle a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "brlez": {
+        "desc": "./locals/instructions.brlez.desc",
+        "signature": "brlez a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "brlt": {
+        "desc": "./locals/instructions.brlt.desc",
+        "signature": "brlt a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "brltz": {
+        "desc": "./locals/instructions.brltz.desc",
+        "signature": "brltz a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "brna": {
+        "desc": "./locals/instructions.brna.desc",
+        "signature": "brna a(r?|num) b(r?|num) c(r?|num) d(r?|num)",
+        "type": "Instruction"
+    },
+    "brnan": {
+        "desc": "./locals/instructions.brnan.desc",
+        "signature": "brnan a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "brnaz": {
+        "desc": "./locals/instructions.brnaz.desc",
+        "signature": "brnaz a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "brne": {
+        "desc": "./locals/instructions.brne.desc",
+        "signature": "brne a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "brnez": {
+        "desc": "./locals/instructions.brnez.desc",
+        "signature": "brnez a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "ceil": {
+        "desc": "./locals/instructions.ceil.desc",
+        "signature": "ceil r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "clamp": {
+        "desc": "./locals/instructions.clamp.desc",
+        "signature": "clamp r? a(r?|num) min(r?|num) max(r?|num)",
+        "type": "Instruction"
+    },
+    "clr": {
+        "desc": "./locals/instructions.clr.desc",
+        "signature": "clr d?",
+        "type": "Instruction"
+    },
+    "clrd": {
+        "desc": "./locals/instructions.clrd.desc",
+        "signature": "clrd id(r?|num)",
+        "type": "Instruction"
+    },
+    "cos": {
+        "desc": "./locals/instructions.cos.desc",
+        "signature": "cos r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "define": {
+        "desc": "./locals/instructions.define.desc",
+        "signature": "define str num",
+        "type": "Instruction"
+    },
+    "deg2rad": {
+        "desc": "./locals/instructions.deg2rad.desc",
+        "signature": "deg2rad",
+        "type": "Constant"
+    },
+    "div": {
+        "desc": "./locals/instructions.div.desc",
+        "signature": "div r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "epsilon": {
+        "desc": "./locals/instructions.epsilon.desc",
+        "signature": "epsilon",
+        "type": "Constant"
+    },
+    "exp": {
+        "desc": "./locals/instructions.exp.desc",
+        "signature": "exp r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "ext": {
+        "desc": "./locals/instructions.ext.desc",
+        "signature": "ext r? a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "floor": {
+        "desc": "./locals/instructions.floor.desc",
+        "signature": "floor r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "get": {
+        "desc": "./locals/instructions.get.desc",
+        "signature": "get r? device(d?|r?|id) address(r?|num)",
+        "type": "Instruction"
+    },
+    "hash": {
+        "desc": "./locals/instructions.hash.desc",
+        "signature": "HASH(\"...\")",
+        "type": "Macro"
+    },
+    "hash_number": {
+        "desc": "./locals/instructions.hash_number.desc",
+        "signature": "$...",
+        "type": "Macro"
+    },
+    "hcf": {
+        "desc": "./locals/instructions.hcf.desc",
+        "signature": "hcf",
+        "type": "Instruction"
+    },
+    "ins": {
+        "desc": "./locals/instructions.ins.desc",
+        "signature": "ins r? a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "j": {
+        "desc": "./locals/instructions.j.desc",
+        "signature": "j int",
+        "type": "Instruction"
+    },
+    "jal": {
+        "desc": "./locals/instructions.jal.desc",
+        "signature": "jal int",
+        "type": "Instruction"
+    },
+    "jr": {
+        "desc": "./locals/instructions.jr.desc",
+        "signature": "jr int",
+        "type": "Instruction"
+    },
+    "l": {
+        "desc": "./locals/instructions.l.desc",
+        "signature": "l r? device(d?|r?|id) logicType",
+        "type": "Instruction"
+    },
+    "lb": {
+        "desc": "./locals/instructions.lb.desc",
+        "signature": "lb r? deviceHash logicType batchMode",
+        "type": "Instruction"
+    },
+    "lbn": {
+        "desc": "./locals/instructions.lbn.desc",
+        "signature": "lbn r? deviceHash nameHash logicType batchMode",
+        "type": "Instruction"
+    },
+    "lbns": {
+        "desc": "./locals/instructions.lbns.desc",
+        "signature": "lbns r? deviceHash nameHash slotIndex logicSlotType batchMode",
+        "type": "Instruction"
+    },
+    "lbs": {
+        "desc": "./locals/instructions.lbs.desc",
+        "signature": "lbs r? deviceHash slotIndex logicSlotType batchMode",
+        "type": "Instruction"
+    },
+    "lerp": {
+        "desc": "./locals/instructions.lerp.desc",
+        "signature": "lerp r? a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "log": {
+        "desc": "./locals/instructions.log.desc",
+        "signature": "log r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "lr": {
+        "desc": "./locals/instructions.lr.desc",
+        "signature": "lr r? device(d?|r?|id) reagentMode int",
+        "type": "Instruction"
+    },
+    "ls": {
+        "desc": "./locals/instructions.ls.desc",
+        "signature": "ls r? device(d?|r?|id) slotIndex logicSlotType",
+        "type": "Instruction"
+    },
+    "max": {
+        "desc": "./locals/instructions.max.desc",
+        "signature": "max r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "min": {
+        "desc": "./locals/instructions.min.desc",
+        "signature": "min r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "mod": {
+        "desc": "./locals/instructions.mod.desc",
+        "signature": "mod r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "move": {
+        "desc": "./locals/instructions.move.desc",
+        "signature": "move r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "mul": {
+        "desc": "./locals/instructions.mul.desc",
+        "signature": "mul r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "nan": {
+        "desc": "./locals/instructions.nan.desc",
+        "signature": "nan",
+        "type": "Constant"
+    },
+    "ninf": {
+        "desc": "./locals/instructions.ninf.desc",
+        "signature": "ninf",
+        "type": "Constant"
+    },
+    "nor": {
+        "desc": "./locals/instructions.nor.desc",
+        "signature": "nor r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "not": {
+        "desc": "./locals/instructions.not.desc",
+        "signature": "not r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "or": {
+        "desc": "./locals/instructions.or.desc",
+        "signature": "or r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "peek": {
+        "desc": "./locals/instructions.peek.desc",
+        "signature": "peek r?",
+        "type": "Instruction"
+    },
+    "pi": {
+        "desc": "./locals/instructions.pi.desc",
+        "signature": "pi",
+        "type": "Constant"
+    },
+    "pinf": {
+        "desc": "./locals/instructions.pinf.desc",
+        "signature": "pinf",
+        "type": "Constant"
+    },
+    "poke": {
+        "desc": "./locals/instructions.poke.desc",
+        "signature": "poke address(r?|num) value(r?|num)",
+        "type": "Instruction"
+    },
+    "pop": {
+        "desc": "./locals/instructions.pop.desc",
+        "signature": "pop r?",
+        "type": "Instruction"
+    },
+    "pow": {
+        "desc": "./locals/instructions.pow.desc",
+        "signature": "pow r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "push": {
+        "desc": "./locals/instructions.push.desc",
+        "signature": "push a(r?|num)",
+        "type": "Instruction"
+    },
+    "put": {
+        "desc": "./locals/instructions.put.desc",
+        "signature": "put device(d?|r?|id) address(r?|num) value(r?|num)",
+        "type": "Instruction"
+    },
+    "rad2deg": {
+        "desc": "./locals/instructions.rad2deg.desc",
+        "signature": "rad2deg",
+        "type": "Constant"
+    },
+    "rand": {
+        "desc": "./locals/instructions.rand.desc",
+        "signature": "rand r?",
+        "type": "Instruction"
+    },
+    "rgas": {
+        "desc": "./locals/instructions.rgas.desc",
+        "signature": "rgas",
+        "type": "Constant"
+    },
+    "rmap": {
+        "desc": "./locals/instructions.rmap.desc",
+        "signature": "rmap r? d? reagentHash(r?|num)",
+        "type": "Instruction"
+    },
+    "rol": {
+        "desc": "./locals/instructions.rol.desc",
+        "signature": "rol r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "ror": {
+        "desc": "./locals/instructions.ror.desc",
+        "signature": "ror r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "round": {
+        "desc": "./locals/instructions.round.desc",
+        "signature": "round r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "s": {
+        "desc": "./locals/instructions.s.desc",
+        "signature": "s device(d?|r?|id) logicType r?",
+        "type": "Instruction"
+    },
+    "sap": {
+        "desc": "./locals/instructions.sap.desc",
+        "signature": "sap r? a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "sapz": {
+        "desc": "./locals/instructions.sapz.desc",
+        "signature": "sapz r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "sb": {
+        "desc": "./locals/instructions.sb.desc",
+        "signature": "sb deviceHash logicType r?",
+        "type": "Instruction"
+    },
+    "sbn": {
+        "desc": "./locals/instructions.sbn.desc",
+        "signature": "sbn deviceHash nameHash logicType r?",
+        "type": "Instruction"
+    },
+    "sbs": {
+        "desc": "./locals/instructions.sbs.desc",
+        "signature": "sbs deviceHash slotIndex logicSlotType r?",
+        "type": "Instruction"
+    },
+    "sdns": {
+        "desc": "./locals/instructions.sdns.desc",
+        "signature": "sdns r? device(d?|r?|id)",
+        "type": "Instruction"
+    },
+    "sdse": {
+        "desc": "./locals/instructions.sdse.desc",
+        "signature": "sdse r? device(d?|r?|id)",
+        "type": "Instruction"
+    },
+    "select": {
+        "desc": "./locals/instructions.select.desc",
+        "signature": "select r? a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "seq": {
+        "desc": "./locals/instructions.seq.desc",
+        "signature": "seq r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "seqz": {
+        "desc": "./locals/instructions.seqz.desc",
+        "signature": "seqz r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "sge": {
+        "desc": "./locals/instructions.sge.desc",
+        "signature": "sge r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "sgez": {
+        "desc": "./locals/instructions.sgez.desc",
+        "signature": "sgez r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "sgn": {
+        "desc": "./locals/instructions.sgn.desc",
+        "signature": "sgn r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "sgt": {
+        "desc": "./locals/instructions.sgt.desc",
+        "signature": "sgt r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "sgtz": {
+        "desc": "./locals/instructions.sgtz.desc",
+        "signature": "sgtz r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "sin": {
+        "desc": "./locals/instructions.sin.desc",
+        "signature": "sin r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "sla": {
+        "desc": "./locals/instructions.sla.desc",
+        "signature": "sla r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "sle": {
+        "desc": "./locals/instructions.sle.desc",
+        "signature": "sle r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "sleep": {
+        "desc": "./locals/instructions.sleep.desc",
+        "signature": "sleep a(r?|num)",
+        "type": "Instruction"
+    },
+    "slez": {
+        "desc": "./locals/instructions.slez.desc",
+        "signature": "slez r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "sll": {
+        "desc": "./locals/instructions.sll.desc",
+        "signature": "sll r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "slt": {
+        "desc": "./locals/instructions.slt.desc",
+        "signature": "slt r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "sltz": {
+        "desc": "./locals/instructions.sltz.desc",
+        "signature": "sltz r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "sna": {
+        "desc": "./locals/instructions.sna.desc",
+        "signature": "sna r? a(r?|num) b(r?|num) c(r?|num)",
+        "type": "Instruction"
+    },
+    "snan": {
+        "desc": "./locals/instructions.snan.desc",
+        "signature": "snan r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "snanz": {
+        "desc": "./locals/instructions.snanz.desc",
+        "signature": "snanz r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "snaz": {
+        "desc": "./locals/instructions.snaz.desc",
+        "signature": "snaz r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "sne": {
+        "desc": "./locals/instructions.sne.desc",
+        "signature": "sne r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "snez": {
+        "desc": "./locals/instructions.snez.desc",
+        "signature": "snez r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "sqrt": {
+        "desc": "./locals/instructions.sqrt.desc",
+        "signature": "sqrt r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "sra": {
+        "desc": "./locals/instructions.sra.desc",
+        "signature": "sra r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "srl": {
+        "desc": "./locals/instructions.srl.desc",
+        "signature": "srl r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "ss": {
+        "desc": "./locals/instructions.ss.desc",
+        "signature": "ss device(d?|r?|id) slotIndex logicSlotType r?",
+        "type": "Instruction"
+    },
+    "str": {
+        "desc": "./locals/instructions.str.desc",
+        "signature": "STR(\"...\")",
+        "type": "Macro"
+    },
+    "sub": {
+        "desc": "./locals/instructions.sub.desc",
+        "signature": "sub r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "tan": {
+        "desc": "./locals/instructions.tan.desc",
+        "signature": "tan r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "tau": {
+        "desc": "./locals/instructions.tau.desc",
+        "signature": "tau",
+        "type": "Constant"
+    },
+    "trunc": {
+        "desc": "./locals/instructions.trunc.desc",
+        "signature": "trunc r? a(r?|num)",
+        "type": "Instruction"
+    },
+    "xor": {
+        "desc": "./locals/instructions.xor.desc",
+        "signature": "xor r? a(r?|num) b(r?|num)",
+        "type": "Instruction"
+    },
+    "yield": {
+        "desc": "./locals/instructions.yield.desc",
+        "signature": "yield",
+        "type": "Instruction"
+    }
+}

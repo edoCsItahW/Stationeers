@@ -1,0 +1,21 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>org.stationeers.ic10-language-support</id>
+    <name>IC10</name>
+    <vendor url="https://github.com/edocsitahw/stationeers">Stationeers</vendor>
+
+    <description><![CDATA[
+        Language support for IC10 (Stationeers in-game scripting language).<br>
+        <em>Provides hover tooltips for .ic10 files.</em>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <extensions defaultExtensionNs="com.intellij">
+
+        <fileType name="IC10 File" implementationClass="io.github.stationeers.jetbrains.ic10.IC10FileType" fieldName="INSTANCE" language="IC10" extensions="ic"/>
+
+        <platform.lsp.integrationProvider implementation="io.github.stationeers.jetbrains.ic10.IC10LspIntegrationProvider"/>
+
+    </extensions>
+
+</idea-plugin>
