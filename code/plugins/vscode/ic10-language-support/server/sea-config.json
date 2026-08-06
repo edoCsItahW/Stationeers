@@ -1,0 +1,8 @@
+{
+    "main": "./bundle.js",
+    "output": "ic10-lsp.exe",
+    "assets": {
+        "ic10-node-api.node": "./node_modules/ic10-node-api/src/ic10-node-api.node",
+        "stdLib.ic.json": "./node_modules/ic10-node-api/static/stdLib.ic.json"
+    }
+}
