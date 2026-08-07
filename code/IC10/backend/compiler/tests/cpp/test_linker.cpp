@@ -53,8 +53,8 @@ namespace {
     class LinkerTestFixture : public ::testing::Test {
     protected:
         static void SetUpTestSuite() {
-            ILoc::registerLanguage<ZhHans>("zh-hans");
-            ILoc::setLanguage("zh-hans");
+            ICLoc::registerLanguage<ZhHans>("zh-hans");
+            ICLoc::setLanguage("zh-hans");
         }
 
         /// @brief 手动构建 Program（绕过 addUnit(string)） / Build a Program manually

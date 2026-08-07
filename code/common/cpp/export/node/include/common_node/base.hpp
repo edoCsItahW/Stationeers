@@ -30,14 +30,12 @@
 #pragma once
 
 #include "common/async/task.hpp"
-
 #include <napi.h>
 
 
 namespace node = Napi;
 
 namespace st = stationeers;
-
 
 namespace stationeers {
 
@@ -160,6 +158,10 @@ namespace stationeers {
      */
     template<typename T>
     node::Value to(node::Env env, const std::vector<T>& vec);
+
+    template<typename T, typename... Args, typename F>
+        requires std::is_base_of_v<node::Value, T>
+    node::Function to(node::Env env, F&& func);
 
     /**
      * @if zh
@@ -595,7 +597,15 @@ namespace stationeers {
  */
 #define EXPORT_D_METHOD_VOID(name)    EXPORT_D_METHOD(name, void)
 
-// #define EXPORT_ATTR(attr)
+#define EXPORT_D_INIT()               static node::Object init(node::Env env, node::Object exports);
+
+#define EXPORT_D_FROM(result)         static result from(const node::Object& obj);
+
+#define EXPORT_D_TO(type)             static node::Object to(node::Env env, const type& value);
+
+#define EXPORT_D_TRANS(type)                                                                       \
+    EXPORT_D_FROM(type)                                                                            \
+    EXPORT_D_TO(type)
 
 #include "base.inl"
 

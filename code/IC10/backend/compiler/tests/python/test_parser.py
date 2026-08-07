@@ -27,7 +27,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "publish", "python"))
 
 from ic10c_python import (
-    IC10Local,
+    IC10CompilerLocal,
     TokenType,
     Lexer,
     Parser,
@@ -37,7 +37,7 @@ from ic10c_python import (
 
 def setup_module(module):
     """Set up test module: configure locale."""
-    IC10Local.setLanguage("zh-hans")
+    IC10CompilerLocal.setLanguage("zh-hans")
 
 
 # ============================================================

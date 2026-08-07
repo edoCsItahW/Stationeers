@@ -20,17 +20,17 @@
 
 namespace stationeers::ic10 {
 
-    void JIC10Local::setLanguage(java::alias_ref<java::JClass>, std::string name) {
-        IC10Local::setLanguage(name);
+    void JIC10CompilerLocal::setLanguage(java::alias_ref<java::JClass>, std::string name) {
+        ICLoc::setLanguage(name);
     }
 
-    void JIC10Local::registerNatives() {
-        IC10Local::registerLanguage<ZhHans>("zh-hans");
-        IC10Local::registerLanguage<EnUs>("en-us");
-        IC10Local::setLanguage("en-us");
+    void JIC10CompilerLocal::registerNatives() {
+        ICLoc::registerLanguage<ZhHans>("zh-hans");
+        ICLoc::registerLanguage<EnUs>("en-us");
+        ICLoc::setLanguage("en-us");
 
         javaClassStatic()->registerNatives({
-            makeNativeMethod("setLanguage", JIC10Local::setLanguage),
+            makeNativeMethod("setLanguage", JIC10CompilerLocal::setLanguage),
         });
     }
 

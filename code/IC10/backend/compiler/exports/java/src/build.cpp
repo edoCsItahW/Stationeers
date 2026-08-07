@@ -92,7 +92,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
          ic::JLexer::registerNatives();
          ic::JParser::registerNatives();
          ic::JAnalyser::registerNatives();
-         ic::JIC10Local::registerNatives();
+         ic::JIC10CompilerLocal::registerNatives();
          ic::JTypeOfNode::registerNatives();
          ic::JLinker::registerNatives();
          ic::JIncLexer::registerNatives();

@@ -36,8 +36,8 @@ namespace stationeers {
 
             return constructor.New({
                 node::String::New(env, error.message()),
-                PosAdapter::to(env, error.getStart()),
-                PosAdapter::to(env, error.getEnd()),
+                PosAdapter::to(env, error.getStart().value_or(Pos{})),
+                PosAdapter::to(env, error.getEnd().value_or(Pos{})),
             });
         }
 
