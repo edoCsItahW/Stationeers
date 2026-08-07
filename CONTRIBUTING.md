@@ -35,15 +35,15 @@ By participating, you agree to uphold a respectful and inclusive environment. Pl
 5. **Run tests** locally:
    ```bash
    # C++ tests
-   cmake -B build -S code/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Debug
+   cmake -B build -S code/IC10/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Debug
    cmake --build build --parallel
    cd build && ctest --output-on-failure
 
    # Node.js tests
-   cd code/backend/compiler && pnpm test
+   cd code/IC10/backend/compiler && pnpm test
 
    # Python tests
-   cd code/backend/compiler/tests/ic10/python && pytest -v
+   cd code/IC10/backend/compiler/tests/python && pytest -v
    ```
 6. **Ensure code style** – The project uses `clang-format` (4-space indentation). Run:
    ```bash
@@ -100,7 +100,7 @@ ci: add Python workflow
 ## Coding Standards
 
 - **Language**: C++23 (use coroutines, concepts, ranges where appropriate).
-- **Style**: Follow `.clang-format` (4-space indentation, braces on same line, 100-column limit). See [`.clang-format`](code/backend/compiler/.clang-format) for full configuration.
+- **Style**: Follow `.clang-format` (4-space indentation, braces on same line, 100-column limit). See [`.clang-format`](code/IC10/backend/compiler/.clang-format) for full configuration.
 - **Naming**:
     - Types: `PascalCase` (e.g., `Lexer`, `SymbolTable`, `IncCompiler`)
     - Functions/variables: `camelCase` (e.g., `extractHexNumber`, `pos_`)
@@ -117,9 +117,9 @@ ci: add Python workflow
     ILoc::msgFormat<IMsgId::IWL1>(charValue)
     ```
 - **Testing**: Add unit tests for new features:
-    - C++ tests: `code/backend/compiler/tests/ic10/`
-    - Node.js tests: `code/backend/compiler/tests/ic10/node/__tests__/`
-    - Python tests: `code/backend/compiler/tests/ic10/python/`
+    - C++ tests: `code/IC10/backend/compiler/tests/cpp/`
+    - Node.js tests: `code/IC10/backend/compiler/tests/node/`
+    - Python tests: `code/IC10/backend/compiler/tests/python/`
 - **Documentation**: Use Doxygen-style comments with bilingual (`@if zh / @elseif en`) tags for public API.
 
 ## Module Overview
@@ -147,23 +147,23 @@ ci: add Python workflow
 
 - **Static analysis** (clang-tidy):
   ```bash
-  cmake -B build -S code/backend/compiler -G Ninja \
+  cmake -B build -S code/IC10/backend/compiler -G Ninja \
     -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_CXX_CLANG_TIDY="clang-tidy;--config-file=code/backend/compiler/.clang-tidy"
+    -DCMAKE_CXX_CLANG_TIDY="clang-tidy;--config-file=code/IC10/backend/compiler/.clang-tidy"
   cmake --build build
   ```
 
 - **cppcheck**:
   ```bash
   cppcheck --enable=all --suppress=missingIncludeSystem --std=c++23 \
-    -I code/backend/compiler/common/include \
-    -I code/backend/compiler/IC10/include \
-    code/backend/compiler/IC10/src/
+    -I code/common/cpp/core/include \
+    -I code/IC10/backend/compiler/core/include \
+    code/IC10/backend/compiler/core/src/
   ```
 
 - **Address sanitizer** (Linux):
   ```bash
-  cmake -B build-san -S code/backend/compiler -G Ninja \
+  cmake -B build-san -S code/IC10/backend/compiler -G Ninja \
     -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer"
   ```

@@ -82,12 +82,11 @@ jobs:
             -   name: Configure CMake | 配置 CMake
                 shell: bash
                 run: |
-                    CMAKE_ARGS="-B build -S code/backend/compiler"
+                    CMAKE_ARGS="-B build -S code/IC10/backend/compiler"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=23"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_STATIONSCRIPT=OFF"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_NODE_BINDINGS=OFF"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DBUILD_TESTS=${{ inputs.run-tests && 'ON' || 'OFF' }}"
@@ -111,7 +110,7 @@ jobs:
                 shell: bash
                 run: |
                     if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
-                      cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target ic10_python common_python
+                      cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target ic10c_python common_python
                     else
                       cmake --build build --config ${{ inputs.build-type }} --parallel 4
                     fi
@@ -154,6 +153,6 @@ jobs:
                 with:
                     name: ${{ steps.artifact.outputs.name }}
                     path: |
-                        build/exports/IC10/python/**
+                        build/exports/python/**
                         build/bin/**
                     retention-days: 7

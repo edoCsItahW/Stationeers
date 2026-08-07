@@ -123,7 +123,7 @@ runs:
             uses: actions/cache@v6
             with:
                 path: ${{ steps.cache-config.outputs.ccache-dir }}
-                key: ${{ inputs.cache-key-prefix }}-${{ inputs.os }}-${{ steps.cache-config.outputs.cache-tool }}-${{ hashFiles('code/backend/compiler/CMakeLists.txt', 'code/backend/compiler/**/CMakeLists.txt', 'code/backend/compiler/**/*.hpp', 'code/backend/compiler/**/*.cpp') }}
+                key: ${{ inputs.cache-key-prefix }}-${{ inputs.os }}-${{ steps.cache-config.outputs.cache-tool }}-${{ hashFiles('code/IC10/backend/compiler/CMakeLists.txt', 'code/IC10/backend/compiler/**/CMakeLists.txt', 'code/IC10/backend/compiler/**/*.hpp', 'code/IC10/backend/compiler/**/*.cpp', 'code/common/**/CMakeLists.txt', 'code/common/**/*.hpp', 'code/common/**/*.cpp') }}
                 restore-keys: |
                     ${{ inputs.cache-key-prefix }}-${{ inputs.os }}-${{ steps.cache-config.outputs.cache-tool }}-
  
@@ -132,7 +132,7 @@ runs:
             uses: actions/cache@v6
             with:
                 path: ~/.local/share/pnpm/store
-                key: ${{ inputs.cache-key-prefix }}-pnpm-${{ hashFiles('code/backend/compiler/pnpm-lock.yaml') }}
+                key: ${{ inputs.cache-key-prefix }}-pnpm-${{ hashFiles('code/IC10/backend/compiler/pnpm-lock.yaml') }}
                 restore-keys: |
                     ${{ inputs.cache-key-prefix }}-pnpm-
  

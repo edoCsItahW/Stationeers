@@ -29,11 +29,11 @@ jobs:
 
             # 使用 npm 安装所有依赖（根 + common + client + server）
             -   name: Install dependencies | 安装依赖
-                working-directory: code/plugins/vscode/ic10-language-support
+                working-directory: code/IC10/plugins/vscode/ic10-language-support
                 run: npm run install:npm
 
             -   name: Compile TypeScript | 编译 TypeScript
-                working-directory: code/plugins/vscode/ic10-language-support
+                working-directory: code/IC10/plugins/vscode/ic10-language-support
                 run: npm run compile
 
             -   name: Install VSCE tool | 安装 VSCE 工具
@@ -50,7 +50,7 @@ jobs:
                     echo "Tag: $TAG_NAME, Version: $VERSION"
 
             -   name: Package VSIX | 打包 VSIX
-                working-directory: code/plugins/vscode/ic10-language-support
+                working-directory: code/IC10/plugins/vscode/ic10-language-support
                 run: vsce package --out ic10-${{ steps.version.outputs.version }}.vsix
                 env:
                     VSCE_PAT: ${{ secrets.VSCE_PAT }}
@@ -59,7 +59,7 @@ jobs:
                 uses: actions/upload-artifact@v6
                 with:
                     name: vscode-extension-vsix
-                    path: code/plugins/vscode/ic10-language-support/*.vsix
+                    path: code/IC10/plugins/vscode/ic10-language-support/*.vsix
                     retention-days: 7
 
             # 根据 tag 名称判断是否为预发布版本
@@ -93,9 +93,9 @@ jobs:
                         ```
 
                         ### 变更日志 / Changelog
-                        详见 [CHANGELOG.md](https://github.com/edoCsItahW/Stationeers/blob/main/code/plugins/vscode/ic10-language-support/CHANGELOG.md)
+                        详见 [CHANGELOG.md](https://github.com/edoCsItahW/Stationeers/blob/main/code/IC10/plugins/vscode/ic10-language-support/CHANGELOG.md)
                     files: |
-                        code/plugins/vscode/ic10-language-support/*.vsix
+                        code/IC10/plugins/vscode/ic10-language-support/*.vsix
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

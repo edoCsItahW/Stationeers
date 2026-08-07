@@ -1,0 +1,110 @@
+// Copyright (c) 2026. All rights reserved.
+// This source code is licensed under the CC BY-NC-SA
+// (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
+// This software is protected by copyright law. Reproduction, distribution, or use for commercial
+// purposes is prohibited without the author's permission. If you have any questions or require
+// permission, please contact the author: edocsitahw@qq.com
+
+/**
+ * @file analyser_adapter.cpp
+ * @author edocsitahw
+ * @version 1.1
+ * @date 2026/06/22 18:07
+ * @brief
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * */
+#include "common_node/diagnostic_adapter.hpp"
+#include "ic10_compiler_node/semantic/symbol_table_adapter.hpp"
+#include "ic10_compiler_node/semantic/type_table_adapter.hpp"
+#include "ic10_compiler_node/semantic/analyser_adapter.hpp"
+#include "ic10_compiler/semantic/analyser.hpp"
+#include "ic10_compiler_node/parser/ast_adapter.hpp"
+
+
+namespace stationeers::ic10 {
+
+    AnalyserAdapter::AnalyserAdapter(const node::CallbackInfo& info)
+        : ObjectWrap(info) {}
+
+    node::Object AnalyserAdapter::init(node::Env env, node::Object exports) {
+        node::Function func = DefineClass(
+            env, "Analyser",
+            {
+// reslove MSVC ICE C1001
+#ifdef _MSC_VER
+                InstanceAccessor("symbolTable", &AnalyserAdapter::getSymbolTable, nullptr),
+                InstanceAccessor("typeTable", &AnalyserAdapter::getTypeTable, nullptr),
+                InstanceAccessor("diagnostics", &AnalyserAdapter::getDiagnostics, nullptr),
+#else
+                InstanceAccessor<&AnalyserAdapter::getSymbolTable>("symbolTable"),
+                InstanceAccessor<&AnalyserAdapter::getTypeTable>("typeTable"),
+                InstanceAccessor<&AnalyserAdapter::getDiagnostics>("diagnostics"),
+#endif
+                StaticMethod<&analyse>("analyse"),
+                InstanceMethod<&AnalyserAdapter::visit>("visit"),
+            }
+        );
+
+        auto constructor = std::make_unique<node::FunctionReference>();
+
+        *constructor = node::Persistent(func);
+
+        constructor->SuppressDestruct();
+
+        (void)exports.Set("Analyser", func);
+
+        return exports;
+    }
+
+    node::Value AnalyserAdapter::analyse(const node::CallbackInfo& info) {
+        Arguments args(info);
+
+        auto program = ProgramAdapter::from(args.getWithCheck<node::Object>(0));
+
+        auto deferred = node::Promise::Deferred::New(info.Env());
+
+        auto* worker = new TaskWorker<void>(deferred, [program] -> Task<> {
+            return Analyser::analyse(program);
+        });
+
+        worker->Queue();
+
+        return deferred.Promise();
+    }
+
+    node::Value AnalyserAdapter::getSymbolTable(const node::CallbackInfo& info) {
+        return SymbolTableAdapter::to(info.Env(), analyser_.getSymbolTable());
+    }
+
+    node::Value AnalyserAdapter::getTypeTable(const node::CallbackInfo& info) {
+        return TypeTableAdapter::to(info.Env(), analyser_.getTypeTable());
+    }
+
+    node::Value AnalyserAdapter::getDiagnostics(const node::CallbackInfo& info) {
+        auto diagnostics = analyser_.getDiagnostics();
+
+        auto size   = diagnostics.size();
+        auto result = node::Array::New(info.Env(), size);
+
+        for (std::size_t i = 0; i < size; i++) result[i] = DiagnosticAdapter::to(info.Env(), diagnostics[i]);
+
+        return result;
+    }
+
+    node::Value AnalyserAdapter::visit(const node::CallbackInfo& info) {
+        Arguments args(info);
+
+        auto program = ProgramAdapter::from(args.getWithCheck<node::Object>(0));
+
+        auto deferred = node::Promise::Deferred::New(info.Env());
+
+        auto* worker = new TaskWorker<void>(deferred, [this, program] -> Task<> {
+            return analyser_.visit(program);
+        });
+
+        worker->Queue();
+
+        return deferred.Promise();
+    }
+
+}  // namespace stationeers::ic10
