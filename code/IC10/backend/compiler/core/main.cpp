@@ -206,7 +206,7 @@ namespace stationeers::ic10 {
             }
             if (arg == "-o" || arg == "--output") {
                 if (i + 1 >= args.size())
-                    return std::unexpected(ILoc::msgFormat<IMsgId::IIO1_1>(arg));
+                    return std::unexpected(ICLoc::msgFormat<ICMsgId::IIO1_1>(arg));
                 opts.outputFile = args[++i];
                 continue;
             }
@@ -232,20 +232,20 @@ namespace stationeers::ic10 {
             }
             if (arg == "--locale") {
                 if (i + 1 >= args.size())
-                    return std::unexpected(ILoc::msgFormat<IMsgId::IIO1_1>(arg));
+                    return std::unexpected(ICLoc::msgFormat<ICMsgId::IIO1_1>(arg));
                 opts.locale = args[++i];
                 continue;
             }
-            if (arg.starts_with("-")) return std::unexpected(ILoc::msgFormat<IMsgId::IIO2_1>(arg));
+            if (arg.starts_with("-")) return std::unexpected(ICLoc::msgFormat<ICMsgId::IIO2_1>(arg));
             // link 模式下允许多个输入文件；非 link 模式仅允许一个
             // Multiple input files are allowed in link mode; only one is allowed otherwise.
             if (!opts.link && !opts.inputFiles.empty())
-                return std::unexpected(ILoc::msgFormat<IMsgId::IIO3_1>(arg));
+                return std::unexpected(ICLoc::msgFormat<ICMsgId::IIO3_1>(arg));
             opts.inputFiles.emplace_back(arg);
         }
 
         if (!opts.showHelp && !opts.showVersion && opts.inputFiles.empty())
-            return std::unexpected(ILoc::msgStr<IMsgId::IIO4>());
+            return std::unexpected(ICLoc::msgStr<ICMsgId::IIO4>());
 
         // --link 模式强制执行符号表输出，忽略 emit-tokens/emit-ast
         // --link mode forces symbol-table output; emit-tokens/emit-ast are ignored.
@@ -266,7 +266,7 @@ namespace stationeers::ic10 {
     // -------------------------------------------------------------------------
 
     static void printHelp(std::string_view programName) {
-        std::cout << ILoc::msgFormat<IMsgId::IIO0_1>(programName);
+        std::cout << ICLoc::msgFormat<ICMsgId::IIO0_1>(programName);
     }
 
     static void printVersion() { std::cout << "ic10c version 2.0.0\n"; }
@@ -508,17 +508,17 @@ namespace stationeers::ic10 {
         CLoc::registerLanguage<stationeers::EnUs>("en-us");
         CLoc::registerLanguage<stationeers::ZhHans>("zh-hans");
 
-        ILoc::registerLanguage<EnUs>("en-us");
-        ILoc::registerLanguage<ZhHans>("zh-hans");
+        ICLoc::registerLanguage<EnUs>("en-us");
+        ICLoc::registerLanguage<ZhHans>("zh-hans");
 
         CLoc::setLanguage("en-us");
-        ILoc::setLanguage("en-us");
+        ICLoc::setLanguage("en-us");
 
         // 解析命令行参数
         std::span args(argv + 1, static_cast<std::size_t>(argc - 1));
         auto parseResult = parseArgs(args);
         if (!parseResult) {
-            std::cerr << ILoc::msgFormat<IMsgId::IIO5_1>(parseResult.error());
+            std::cerr << ICLoc::msgFormat<ICMsgId::IIO5_1>(parseResult.error());
             return 1;
         }
 
@@ -527,10 +527,10 @@ namespace stationeers::ic10 {
         // 根据用户指定的locale切换语言
         if (opts.locale == "zh-hans" || opts.locale == "zh_hans") {
             CLoc::setLanguage("zh-hans");
-            ILoc::setLanguage("zh-hans");
+            ICLoc::setLanguage("zh-hans");
 
         } else if (opts.locale != "en-us" && opts.locale != "en_us") {
-            std::cerr << ILoc::msgFormat<IMsgId::IIO6_1>(opts.locale);
+            std::cerr << ICLoc::msgFormat<ICMsgId::IIO6_1>(opts.locale);
 
             return 1;
         }

@@ -14,25 +14,25 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_compiler_node/locals/local_adapter.hpp"
-#include "ic10_compiler/locals/languages/zh_hans.hpp"
 #include "ic10_compiler/locals/languages/en_us.hpp"
+#include "ic10_compiler/locals/languages/zh_hans.hpp"
 #include "ic10_compiler/locals/local.hpp"
 
 namespace ic = st::ic10;
 
 namespace stationeers::ic10 {
 
-    IC10LocalAdapter::IC10LocalAdapter(const node::CallbackInfo& info)
+    IC10CompilerLocalAdapter::IC10CompilerLocalAdapter(const node::CallbackInfo& info)
         : ObjectWrap(info) {}
 
-    node::Object IC10LocalAdapter::init(node::Env env, node::Object exports) {
-        IC10Local::registerLanguage<ZhHans>("zh-hans");
-        IC10Local::registerLanguage<EnUs>("en-us");
+    node::Object IC10CompilerLocalAdapter::init(node::Env env, node::Object exports) {
+        ICLoc::registerLanguage<ZhHans>("zh-hans");
+        ICLoc::registerLanguage<EnUs>("en-us");
 
-        IC10Local::setLanguage("en-us");
+        ICLoc::setLanguage("en-us");
 
         node::Function func =
-            DefineClass(env, "IC10Local", {StaticMethod("setLanguage", &setLanguage)});
+            DefineClass(env, "IC10CompilerLocal", {StaticMethod("setLanguage", &setLanguage)});
 
         auto constructor = std::make_unique<node::FunctionReference>();
 
@@ -40,15 +40,15 @@ namespace stationeers::ic10 {
 
         constructor->SuppressDestruct();
 
-        (void)exports.Set("IC10Local", func);
+        (void)exports.Set("IC10CompilerLocal", func);
 
         return exports;
     }
 
-    void IC10LocalAdapter::setLanguage(const node::CallbackInfo& info) {
+    void IC10CompilerLocalAdapter::setLanguage(const node::CallbackInfo& info) {
         Arguments args(info);
 
-        IC10Local::setLanguage(args.getWithCheck<node::String>(0));
+        ICLoc::setLanguage(args.getWithCheck<node::String>(0));
     }
 
 }  // namespace stationeers::ic10

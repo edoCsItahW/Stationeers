@@ -338,7 +338,7 @@ namespace stationeers::ic10 {
         SymbolTable symbolTable_;
 
         /** @if zh @brief 主诊断报告器，收集所有单元的合并诊断信息 @else @brief Main diagnostic reporter collecting merged diagnostics from all units @endif */
-        DiagnosticReporter<IC10MsgPack> reporter_;
+        DiagnosticReporter<IC10CompilerMsgPack> reporter_;
 
         /** @if zh @brief 已添加的编译单元列表 @else @brief List of added compilation units @endif */
         std::vector<Program> units_;
@@ -358,7 +358,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        std::vector<std::unique_ptr<DiagnosticReporter<IC10MsgPack>>> unitReporters_;
+        std::vector<std::unique_ptr<DiagnosticReporter<IC10CompilerMsgPack>>> unitReporters_;
     };
 
 }  // namespace stationeers::ic10

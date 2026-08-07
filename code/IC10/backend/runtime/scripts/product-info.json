@@ -1,0 +1,26 @@
+{
+    "IC10Node": {
+        "BuildConfig": "Release",
+        "CMakeTarget": "IC10_Runtime_Node",
+        "ArtifactSource": "build/exports/node/Release/ic10r-node.node",
+        "PackageRoot": "publish/node",
+        "PackageName": "ic10r-node",
+        "TestDir": "tests/node"
+    },
+    "IC10Python": {
+        "BuildConfig": "Release",
+        "CMakeTarget": "ic10r_python",
+        "ArtifactSource": "build/exports/python/Release/ic10c_python.pyd",
+        "PackageRoot": "publish/python",
+        "PackageName": "ic10r_python",
+        "TestDir": "tests/python"
+    },
+    "IC10Java": {
+        "BuildConfig": "Release",
+        "CMakeTarget": "IC10_Runtime_Java",
+        "ArtifactSource": "build/exports/java/Release/ic10r_java.dll",
+        "PackageRoot": "publish/java",
+        "PackageName": "ic10r_java",
+        "TestDir": "tests/java"
+    }
+}

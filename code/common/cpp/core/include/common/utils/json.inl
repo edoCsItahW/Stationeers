@@ -14,7 +14,6 @@
 #include <sstream>
 #include <utility>
 
-
 namespace stationeers {
 
     /**
@@ -33,19 +32,18 @@ namespace stationeers {
         result.reserve(str.size());
         for (char c : str) {
             switch (c) {
-                case '"':  result += "\\\""; break;
+                case '"': result += "\\\""; break;
                 case '\\': result += "\\\\"; break;
-                case '\b': result += "\\b";  break;
-                case '\f': result += "\\f";  break;
-                case '\n': result += "\\n";  break;
-                case '\r': result += "\\r";  break;
-                case '\t': result += "\\t";  break;
+                case '\b': result += "\\b"; break;
+                case '\f': result += "\\f"; break;
+                case '\n': result += "\\n"; break;
+                case '\r': result += "\\r"; break;
+                case '\t': result += "\\t"; break;
                 default:
-                    if (static_cast<unsigned char>(c) < 0x20) {
+                    if (static_cast<unsigned char>(c) < 0x20)
                         result += std::format("\\u{:04x}", static_cast<unsigned char>(c));
-                    } else {
+                    else
                         result += c;
-                    }
                     break;
             }
         }
@@ -57,8 +55,7 @@ namespace stationeers {
         static auto fmt = [](const std::string& str) -> std::string {
             if (!str.empty()) {
                 // 已经是 JSON 字面量（对象、数组、字符串），直接返回
-                if (str[0] == '"' || str[0] == '[' || str[0] == '{')
-                    return str;
+                if (str[0] == '"' || str[0] == '[' || str[0] == '{') return str;
                 return '"' + escapeJsonString(str) + '"';
             }
             return "\"\"";
@@ -83,6 +80,13 @@ namespace stationeers {
         return {};
     }
 
+    template<JsonStringAble T>
+    static void helper(std::stringstream& ss, const std::string& key, T&& value, bool& first) {
+        if (!first) ss << ", ";
+        ss << '"' << key << "\": " << toJsonString(std::forward<T>(value));
+        first = false;
+    }
+
     template<FString... Vs, JsonArgsAble... Args>
         requires(sizeof...(Vs) == sizeof...(Args))
     std::string toJson(Args&&... args) {
@@ -98,24 +102,17 @@ namespace stationeers {
              if constexpr (std::is_same_v<T, std::nullopt_t>) return;
 
              if constexpr (IsOptional<T>) {
-                 if (value.has_value()) {
-                     if (!first) ss << ", ";
-                     ss << '"' << std::string(V) << "\": " << toJsonString(value);
-                     first = false;
-                 }
+                 if (value.has_value()) helper(ss, std::string(V), value, first);
              }
 
-             else if constexpr (std::is_arithmetic_v<T> || std::is_same_v<T, std::string> || std::is_constructible_v<std::string, T>) {
-                 if (!first) ss << ", ";
-
-                 ss << '"' << std::string(V) << "\": " << toJsonString(value);
-
-                 first = false;
-             }
+             else if constexpr (
+                 std::is_arithmetic_v<T> || std::is_same_v<T, std::string>
+                 || std::is_constructible_v<std::string, T>
+             )
+                 helper(ss, std::string(V), value, first);
 
              else
                  std::unreachable();
-
          }.template operator()<Vs>(std::forward<Args>(args))),
          ...);
 
@@ -124,6 +121,79 @@ namespace stationeers {
         return ss.str();
     }
 
-}  // namespace stationeers::ic10
+    template<JsonArgsAble T>
+    std::string toJson(std::unordered_map<std::string, T> map) {
+        std::stringstream ss;
+
+        ss << "{";
+
+        bool first = true;
+
+        if constexpr (std::is_same_v<T, std::nullopt_t>) {
+            ss << "}";
+
+            return ss.str();
+        }
+
+        for (const auto& [key, value] : map)
+            if constexpr (IsOptional<T>) {
+                if (value.has_value()) helper(ss, key, value, first);
+            }
+
+            else if constexpr (
+                std::is_arithmetic_v<T> || std::is_same_v<T, std::string>
+                || std::is_constructible_v<std::string, T>
+            )
+                helper(ss, key, value, first);
+
+            else
+                std::unreachable();
+
+        ss << "}";
+
+        return ss.str();
+    }
+
+    template<JsonArgsAble T>
+    std::string toJson(std::vector<T> vec) {
+        std::stringstream ss;
+
+        ss << "[";
+
+        bool first = true;
+
+        if constexpr (std::is_same_v<T, std::nullopt_t>) {
+            ss << "]";
+
+            return ss.str();
+        }
+
+        for (const auto& value : vec)
+            if constexpr (IsOptional<T>) {
+                if (value.has_value()) {
+                    if (!first) ss << ", ";
+                    ss << toJsonString(value);
+                    first = false;
+                }
+            }
+
+            else if constexpr (
+                std::is_arithmetic_v<T> || std::is_same_v<T, std::string>
+                || std::is_constructible_v<std::string, T>
+            ) {
+                if (!first) ss << ", ";
+                ss << toJsonString(value);
+                first = false;
+            }
+
+            else
+                std::unreachable();
+
+        ss << "]";
+
+        return ss.str();
+    }
+
+}  // namespace stationeers
 
 #endif  // COMPILER_JSON_INL

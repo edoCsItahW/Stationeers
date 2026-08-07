@@ -155,6 +155,15 @@ namespace stationeers::ic10 {
          */
         static SymbolTable from(const node::Object& obj);
 
+        /**
+         * @if zh
+         * @brief 获取内部 SymbolTable 对象的只读引用
+         * @elseif en
+         * @brief Get a read-only reference to the internal SymbolTable object
+         * @endif
+         */
+        [[nodiscard]] const SymbolTable& getSymbolTable() const { return symbolTable_; }
+
     private:
         /**
          * @if zh

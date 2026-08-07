@@ -23,12 +23,12 @@ import {setupUTF8Console} from '../utils';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const {IC10Local, TokenType, Lexer, Program, Parser, Analyser, SymbolTable, BasicType} = IC10NodeAPI;
+const {IC10CompilerLocal, TokenType, Lexer, Program, Parser, Analyser, SymbolTable, BasicType} = IC10NodeAPI;
 
 beforeAll(() => {
     setupUTF8Console();
-    if (typeof IC10Local.setLanguage === 'function')
-        IC10Local.setLanguage('zh-hans');
+    if (typeof IC10CompilerLocal.setLanguage === 'function')
+        IC10CompilerLocal.setLanguage('zh-hans');
 });
 
 // ============================================================

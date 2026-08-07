@@ -9,14 +9,14 @@
 import IC10NodeAPI = require('ic10c-node');
 import {setupUTF8Console} from "../utils";
 
-const {IC10Local, Token, TokenType, TokenCategory, Pos, Lexer, Program, Parser, Analyser, SymbolTable, Linker, TypeTable} = IC10NodeAPI;
+const {IC10CompilerLocal, Token, TokenType, TokenCategory, Pos, Lexer, Program, Parser, Analyser, SymbolTable, Linker, TypeTable} = IC10NodeAPI;
 
 
 beforeAll(() => {
     setupUTF8Console();
 
-    if (typeof IC10Local.setLanguage === 'function')
-        IC10Local.setLanguage('zh-hans');
+    if (typeof IC10CompilerLocal.setLanguage === 'function')
+        IC10CompilerLocal.setLanguage('zh-hans');
 });
 
 

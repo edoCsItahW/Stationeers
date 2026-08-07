@@ -31,20 +31,20 @@ namespace stationeers::ic10 {
 
     /**
      * @if zh
-     * @class JIC10Local
+     * @class JIC10CompilerLocal
      * @brief IC10本地化Java适配器类
      * @details 提供IC10编译器本地化功能的Java绑定，支持Java层设置编译器语言环境。
      *          语言注册(中文简体、美式英语)在registerNatives中完成。
      * @elseif en
-     * @class JIC10Local
+     * @class JIC10CompilerLocal
      * @brief IC10 localization Java adapter class
      * @details Provides Java bindings for IC10 compiler localization, supporting Java layer to set compiler language.
      *          Language registration (Simplified Chinese, American English) is done in registerNatives.
      * @endif
      */
-    class JIC10Local : public java::JavaClass<JIC10Local> {
+    class JIC10CompilerLocal : public java::JavaClass<JIC10CompilerLocal> {
     public:
-        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/IC10Local;";
+        static constexpr auto kJavaDescriptor = "Lio/github/stationeers/ic10/IC10CompilerLocal;";
 
         /**
          * @if zh

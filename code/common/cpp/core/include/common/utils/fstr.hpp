@@ -30,7 +30,7 @@
 #pragma once
 
 #include <array>
-
+#include <string>
 
 namespace stationeers {
 
@@ -441,7 +441,7 @@ namespace stationeers {
      * @public @memberof stationeers
      */
     template<typename T>
-    inline constexpr bool isFString_v = isFString<T>::value;
+    inline constexpr bool isFString_v = isFString<std::remove_cvref_t<T>>::value;
 
     /**
      * @if zh

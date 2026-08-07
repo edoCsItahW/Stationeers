@@ -34,7 +34,7 @@ namespace ic = stationeers::ic10;
 node::Object Init(node::Env env, node::Object exports) {
     commonInit(env, exports);
 
-    ic::IC10LocalAdapter::init(env, exports);
+    ic::IC10CompilerLocalAdapter::init(env, exports);
 
     ic::TokenAdapter::init(env, exports);
 

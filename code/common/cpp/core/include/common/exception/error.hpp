@@ -26,14 +26,12 @@
 #define COMPILER_ERROR_HPP
 #pragma once
 
-#include <source_location>
-#include <exception>
-#include <string>
-#include <memory>
-
-#include "common/utils/position.hpp"
 #include "common/utils/fstr.hpp"
-
+#include "common/utils/position.hpp"
+#include <exception>
+#include <memory>
+#include <source_location>
+#include <string>
 
 namespace stationeers {
 
@@ -50,7 +48,8 @@ namespace stationeers {
      *
      * @class ErrorBase
      * @brief Error base class template
-     * @details Base class for all compiler errors, stores error location information and error message
+     * @details Base class for all compiler errors, stores error location information and error
+     * message
      *
      * @tparam T Derived class type, used in CRTP pattern
      *
@@ -65,7 +64,7 @@ namespace stationeers {
          * @brief Error start position
          * @endif
          */
-        Pos start;
+        std::optional<Pos> start;
 
         /**
          * @if zh
@@ -74,7 +73,16 @@ namespace stationeers {
          * @brief Error end position
          * @endif
          */
-        Pos end;
+        std::optional<Pos> end;
+
+        ErrorBase(
+            std::string_view message,
+            const std::source_location& loc = std::source_location::current()
+        );
+
+        ErrorBase(
+            std::string message, const std::source_location& loc = std::source_location::current()
+        );
 
         /**
          * @if zh
@@ -216,7 +224,8 @@ namespace stationeers {
      *
      * @class Error
      * @brief Error type-erased wrapper class
-     * @details Uses type erasure pattern to store arbitrary error types, supporting runtime polymorphic error handling
+     * @details Uses type erasure pattern to store arbitrary error types, supporting runtime
+     * polymorphic error handling
      *
      * @endif
      */
@@ -253,7 +262,7 @@ namespace stationeers {
              *
              * @endif
              */
-            [[nodiscard]] virtual const Pos& getStart() const noexcept = 0;
+            [[nodiscard]] virtual std::optional<Pos> getStart() const noexcept = 0;
 
             /**
              * @if zh
@@ -268,7 +277,7 @@ namespace stationeers {
              *
              * @endif
              */
-            [[nodiscard]] virtual const Pos& getEnd() const noexcept = 0;
+            [[nodiscard]] virtual std::optional<Pos> getEnd() const noexcept = 0;
 
             /**
              * @if zh
@@ -356,9 +365,9 @@ namespace stationeers {
              */
             Model(const Derived& self);
 
-            [[nodiscard]] const Pos& getStart() const noexcept override;
+            [[nodiscard]] std::optional<Pos> getStart() const noexcept override;
 
-            [[nodiscard]] const Pos& getEnd() const noexcept override;
+            [[nodiscard]] std::optional<Pos> getEnd() const noexcept override;
 
             [[nodiscard]] std::string_view getName() const noexcept override;
 
@@ -385,9 +394,9 @@ namespace stationeers {
         template<typename Derived>
         Error(const Derived& self);
 
-        [[nodiscard]] const Pos& getStart() const noexcept;
+        [[nodiscard]] std::optional<Pos> getStart() const noexcept;
 
-        [[nodiscard]] const Pos& getEnd() const noexcept;
+        [[nodiscard]] std::optional<Pos> getEnd() const noexcept;
 
         [[nodiscard]] std::string_view getName() const noexcept;
 
@@ -569,6 +578,24 @@ namespace stationeers {
          * @endif
          */
         static constexpr auto name = "RuntimeError"_fs;
+
+        using ErrorBase::ErrorBase;
+    };
+
+    struct StackOverflowError : public ErrorBase<StackOverflowError> {
+        static constexpr auto name = "StackOverflowError"_fs;
+
+        using ErrorBase::ErrorBase;
+    };
+
+    struct ValueError : public ErrorBase<ValueError> {
+        static constexpr auto name = "ValueError"_fs;
+
+        using ErrorBase::ErrorBase;
+    };
+
+    struct RangeError : public ErrorBase<RangeError> {
+        static constexpr auto name = "RangeError"_fs;
 
         using ErrorBase::ErrorBase;
     };
