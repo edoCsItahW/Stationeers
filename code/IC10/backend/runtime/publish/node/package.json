@@ -1,0 +1,47 @@
+{
+    "name": "ic10r-node",
+    "version": "1.0.0",
+    "description": "IC10 Runtime Node.js Native Bindings - IC10 program execution engine | IC10 运行时 Node.js 原生绑定 - IC10 程序执行引擎",
+    "main": "src/ic10r-node.node",
+    "types": "types/index.d.ts",
+    "files": [
+        "src/",
+        "types/",
+        "tsconfig.json",
+        "CHANGELOG.md"
+    ],
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "ic10",
+        "stationeers",
+        "runtime",
+        "engine",
+        "executor",
+        "native-addon",
+        "node-addon-api",
+        "n-api"
+    ],
+    "author": "edocsitahw <edocsitahw@qq.com>",
+    "contributors": [
+        "edocsitahw"
+    ],
+    "license": "CC BY-NC-SA",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/edoCsItahW/Stationeers.git",
+        "directory": "code/IC10/backend/runtime/publish/node"
+    },
+    "homepage": "https://github.com/edoCsItahW/Stationeers/blob/main/README.md",
+    "bugs": {
+        "url": "https://github.com/edoCsItahW/Stationeers/issues",
+        "email": "2257699870@qq.com"
+    },
+    "devDependencies": {
+        "@types/node": "^26.1.1"
+    }
+}

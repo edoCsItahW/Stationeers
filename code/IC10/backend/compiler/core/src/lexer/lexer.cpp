@@ -73,6 +73,32 @@ namespace stationeers::ic10 {
 
         if (*c == '/' && peek().value_or(' ') == '/') return extractSlashComment();
 
+        // 处理负数：- 后紧跟数字、$ 或 % 时，合并为负数字面量
+        if (*c == '-' && peek().has_value()) {
+            const auto nextChar = *peek();
+            if (isAsciiDigit(nextChar)) {
+                pos_.next('-');
+                auto token = extractNumber();
+                token.lexeme = "-" + token.lexeme;
+                token.pos = start;
+                return token;
+            }
+            if (nextChar == '$' && peek(2).has_value() && isAsciiHexDigit(*peek(2))) {
+                pos_.next('-');
+                auto token = extractHexNumber();
+                token.lexeme = "-" + token.lexeme;
+                token.pos = start;
+                return token;
+            }
+            if (nextChar == '%' && peek(2).has_value() && isAsciiBinDigit(*peek(2))) {
+                pos_.next('-');
+                auto token = extractBinaryNumber();
+                token.lexeme = "-" + token.lexeme;
+                token.pos = start;
+                return token;
+            }
+        }
+
         if (SYMBOLS.contains(*c)) return extractSymbol();
 
         if (*c == 'd' && isAsciiDigit(peek().value_or(' ')) && isAsciiSpace(peek(2).value_or(' ')))
@@ -168,7 +194,7 @@ namespace stationeers::ic10 {
         // finally:
         // 令牌边界检查：数字后若紧跟字母/数字/下划线，说明缺少空白分隔
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
-            reporter_.errorWith<IMsgId::IEL3_2>(
+            reporter_.errorWith<ICMsgId::IEL3_2>(
                 pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
             );
         }
@@ -190,11 +216,13 @@ namespace stationeers::ic10 {
             pos_.next(static_cast<unsigned char>(*current()));
         }
 
-        // 令牌边界检查
+        // 令牌边界检查：非法字符跟在数字后面（如 $FFG），消耗它以保持令牌完整
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
-            reporter_.errorWith<IMsgId::IEL3_2>(
+            reporter_.errorWith<ICMsgId::IEL3_2>(
                 pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
             );
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         return {TokenType::HEX_NUMBER, start, value, TokenCategory::LITERAL};
@@ -211,11 +239,13 @@ namespace stationeers::ic10 {
             pos_.next(static_cast<unsigned char>(*current()));
         }
 
-        // 令牌边界检查
+        // 令牌边界检查：非法字符跟在数字后面（如 %5），消耗它以保持令牌完整
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
-            reporter_.errorWith<IMsgId::IEL3_2>(
+            reporter_.errorWith<ICMsgId::IEL3_2>(
                 pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
             );
+            value += *current();
+            pos_.next(static_cast<unsigned char>(*current()));
         }
 
         return {TokenType::BINARY_NUMBER, start, value, TokenCategory::LITERAL};
@@ -245,7 +275,7 @@ namespace stationeers::ic10 {
 
         // 未闭合字符串：到达输入末尾或遇到换行符
         if (!inScope() || *current() == '\n') {
-            reporter_.errorWith<IMsgId::IEL2_1>(
+            reporter_.errorWith<ICMsgId::IEL2_1>(
                 start, stationeers::endPos(start, value), std::string{1, '\"'}
             );
 
@@ -258,7 +288,7 @@ namespace stationeers::ic10 {
 
         // 令牌边界检查：字符串后若紧跟字母/数字/下划线，说明缺少空白分隔
         if (inScope() && (std::isalnum(*current()) || *current() == '_')) {
-            reporter_.errorWith<IMsgId::IEL3_2>(
+            reporter_.errorWith<ICMsgId::IEL3_2>(
                 pos_, stationeers::endPos(pos_, 1, 1), value, std::string(1, *current())
             );
         }
@@ -356,7 +386,7 @@ namespace stationeers::ic10 {
             return {it->second, start, ch, TokenCategory::SYMBOL};
         }
 
-        reporter_.errorWith<IMsgId::IEL1_1>(start, endPos(start, ch), ch);
+        reporter_.errorWith<ICMsgId::IEL1_1>(start, endPos(start, ch), ch);
         pos_.next(static_cast<unsigned char>(*current()));
         return {TokenType::UNKNOWN, start, ch, TokenCategory::INVALID};
     }
@@ -372,7 +402,7 @@ namespace stationeers::ic10 {
         pos_.next(static_cast<unsigned char>(*current()));
 
         if (deviceIdx > 5)
-            reporter_.warn<IC10MsgId::IWL3>(start, stationeers::endPos(start, value));
+            reporter_.warn<IC10CompilerMsgId::IWL3>(start, stationeers::endPos(start, value));
 
         return {
             deviceIdx > 5 ? TokenType::IDENTIFIER : TokenType::DEVICE, start, std::move(value),
@@ -398,7 +428,7 @@ namespace stationeers::ic10 {
         }
 
         if (registerIdx > 15)
-            reporter_.warn<IC10MsgId::IWL2>(start, stationeers::endPos(start, value));
+            reporter_.warn<IC10CompilerMsgId::IWL2>(start, stationeers::endPos(start, value));
 
         return {
             registerIdx > 15 ? TokenType::IDENTIFIER : TokenType::REGISTER, start, std::move(value),

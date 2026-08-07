@@ -29,8 +29,8 @@ using namespace stationeers::ic10;
 class IntegrationTestFixture : public ::testing::Test {
 protected:
     static void SetUpTestSuite() {
-        ILoc::registerLanguage<ZhHans>("zh-hans");
-        ILoc::setLanguage("zh-hans");
+        ICLoc::registerLanguage<ZhHans>("zh-hans");
+        ICLoc::setLanguage("zh-hans");
     }
 
     /// 完整编译流水线：Lexer → Parser → Analyser

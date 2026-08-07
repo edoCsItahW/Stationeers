@@ -155,6 +155,15 @@ namespace stationeers::ic10 {
          */
         static Program from(const node::Object& obj);
 
+        /**
+         * @if zh
+         * @brief 获取内部 Program 对象的只读引用
+         * @elseif en
+         * @brief Get a read-only reference to the internal Program object
+         * @endif
+         */
+        [[nodiscard]] const Program& getProgram() const { return program_; }
+
     private:
         /**
          * @if zh

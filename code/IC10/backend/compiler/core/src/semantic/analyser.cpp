@@ -19,7 +19,7 @@
 namespace stationeers::ic10 {
 
     Analyser::Analyser(
-        TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10MsgPack>& reporter,
+        TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10CompilerMsgPack>& reporter,
         bool deferFailAllPending
     )
         : typeTable_(&typeTable)
@@ -30,7 +30,7 @@ namespace stationeers::ic10 {
     Analyser::Analyser()
         : typeTable_(new TypeTable())
         , symbolTable_(new SymbolTable())
-        , reporter_(new DiagnosticReporter<IC10MsgPack>())
+        , reporter_(new DiagnosticReporter<IC10CompilerMsgPack>())
         , ownsResources_(true) {}
 
     Analyser::~Analyser() {
@@ -95,9 +95,9 @@ namespace stationeers::ic10 {
         try {
             std::rethrow_exception(exception);
         } catch (const Error& e) {
-            reporter_->errorWith<IMsgId::IE0_1>(e.getStart(), e.getEnd(), e.message());
+            reporter_->errorWith<ICMsgId::IE0_1>(*e.getStart(), *e.getEnd(), e.message());
         } catch (const std::exception& e) {
-            reporter_->errorWith<IMsgId::IE0_1>(
+            reporter_->errorWith<ICMsgId::IE0_1>(
                 pos, endPos(pos, name), std::string(e.what())
             );
         }
@@ -107,7 +107,7 @@ namespace stationeers::ic10 {
     void Analyser::defineSymbol(const Identifier& identifier, Symbol&& symbol) const {
         if (auto res = symbolTable_->define(identifier.value, std::make_shared<Symbol>(symbol));
             !res.has_value())
-            reporter_->errorWith<IMsgId::IEA2_1>(
+            reporter_->errorWith<ICMsgId::IEA2_1>(
                 identifier.start(), identifier.end(), identifier.value
             );
     }
@@ -123,7 +123,7 @@ namespace stationeers::ic10 {
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
         else
-            reporter_->errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<ICMsgId::IEA1_2>(
                 labelDef.start(), labelDef.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(labelDef.identifier).nodeName.value.data()
             );
@@ -154,7 +154,7 @@ namespace stationeers::ic10 {
 
                     // 不允许为别名定义别名
                     if constexpr (std::is_same_v<V, Identifier>) {
-                        reporter_->error<IMsgId::IEA4>(
+                        reporter_->error<ICMsgId::IEA4>(
                             aliasDirective.start(), aliasDirective.end()
                         );
                         symbol.type = {};
@@ -203,7 +203,7 @@ namespace stationeers::ic10 {
                             using U = std::remove_cvref_t<T>;
 
                             if constexpr (std::is_same_v<U, EnumType>)
-                                reporter_->errorWith<IMsgId::IEA7_1>(
+                                reporter_->errorWith<ICMsgId::IEA7_1>(
                                     aliasDirective.start(), aliasDirective.end(), identifier.value
                                 );
                         },
@@ -214,7 +214,7 @@ namespace stationeers::ic10 {
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
         else
-            reporter_->errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<ICMsgId::IEA1_2>(
                 aliasDirective.start(), aliasDirective.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(aliasDirective.identifier).nodeName.value.data()
             );
@@ -243,7 +243,7 @@ namespace stationeers::ic10 {
                     symbol.name = identifier.value;
 
                     if constexpr (std::is_same_v<V, Identifier>)
-                        reporter_->errorWith<IMsgId::IEA5_1>(
+                        reporter_->errorWith<ICMsgId::IEA5_1>(
                             defineDirective.start(), defineDirective.end(), ins.value
                         );
 
@@ -287,7 +287,7 @@ namespace stationeers::ic10 {
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
         else
-            reporter_->errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<ICMsgId::IEA1_2>(
                 defineDirective.start(), defineDirective.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(defineDirective.identifier).nodeName.value.data()
             );
@@ -327,7 +327,7 @@ namespace stationeers::ic10 {
     Task<> Analyser::operator()(const StrCall& strCall) {
         // value 解析失败，上报类型不匹配
         if (std::holds_alternative<ErrorNode>(strCall.value))
-            reporter_->errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<ICMsgId::IEA1_2>(
                 strCall.start(), strCall.end(), String::nodeName.value.data(),
                 std::get<ErrorNode>(strCall.value).nodeName.value.data()
             );
@@ -339,7 +339,7 @@ namespace stationeers::ic10 {
     Task<> Analyser::operator()(const HashCall& hashCall) {
         // value 解析失败，上报类型不匹配
         if (std::holds_alternative<ErrorNode>(hashCall.value))
-            reporter_->errorWith<IMsgId::IEA1_2>(
+            reporter_->errorWith<ICMsgId::IEA1_2>(
                 hashCall.start(), hashCall.end(), String::nodeName.value.data(),
                 std::get<ErrorNode>(hashCall.value).nodeName.value.data()
             );

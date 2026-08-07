@@ -26,7 +26,7 @@ class IncrementalTest {
 
     @BeforeAll
     static void setupLanguage() {
-        IC10Local.setLanguage("zh-hans");
+        IC10CompilerLocal.setLanguage("zh-hans");
     }
 
     private static final String SRC_BASELINE = String.join("\n",

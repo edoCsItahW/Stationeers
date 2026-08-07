@@ -27,7 +27,7 @@ class LexerTest {
 
     @BeforeAll
     static void setupLanguage() {
-        IC10Local.setLanguage("zh-hans");
+        IC10CompilerLocal.setLanguage("zh-hans");
     }
 
     // ---- Helpers ----

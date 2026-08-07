@@ -378,6 +378,9 @@ namespace stationeers {
         return (std::is_same_v<Ts, T> || ...);
     }(static_cast<Variant*>(nullptr));
 
+    template<IsVariant NarrowType, IsVariant WideType>
+    bool variantContains(const WideType& wide);
+
     /**
      * @if zh
      *
@@ -399,5 +402,7 @@ namespace stationeers {
     concept IsEnum = std::is_enum_v<T>;
 
 }  // namespace stationeers
+
+#include "common.inl"
 
 #endif  // COMPILER_COMMON_HPP

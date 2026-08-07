@@ -235,7 +235,7 @@ namespace stationeers {
 #ifdef _MSC_VER
         {
             diagnostics_.push_back(
-                {DiagnosticLevel::Error, std::string(enumToStr(I)), error.getStart(), error.getEnd(),
+                {DiagnosticLevel::Error, std::string(enumToStr(I)), *error.getStart(), *error.getEnd(),
                  error.message()}
             );
         }

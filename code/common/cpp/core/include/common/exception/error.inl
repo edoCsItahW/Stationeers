@@ -25,6 +25,16 @@ namespace stationeers {
     // ErrorBase
 
     template<typename Derived>
+    ErrorBase<Derived>::ErrorBase(std::string_view message, const std::source_location& loc)
+        : message_(std::format("{}: {}", std::string_view(Derived::name), message))
+        , loc_(loc) {}
+
+    template<typename Derived>
+    ErrorBase<Derived>::ErrorBase(std::string message, const std::source_location& loc)
+        : message_(std::format("{}: {}", std::string_view(Derived::name), message))
+        , loc_(loc) {}
+
+    template<typename Derived>
     ErrorBase<Derived>::ErrorBase(
         std::string_view message, Pos start, Pos end, const std::source_location& loc
     )
@@ -76,12 +86,12 @@ namespace stationeers {
         : self_(self) {}
 
     template<typename Derived>
-    const Pos& Error::Model<Derived>::getStart() const noexcept {
+    std::optional<Pos> Error::Model<Derived>::getStart() const noexcept {
         return self_.start;
     }
 
     template<typename Derived>
-    const Pos& Error::Model<Derived>::getEnd() const noexcept {
+    std::optional<Pos> Error::Model<Derived>::getEnd() const noexcept {
         return self_.end;
     }
 

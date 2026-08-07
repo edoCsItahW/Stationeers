@@ -309,7 +309,7 @@ namespace stationeers::ic10 {
          * @details Collects errors, warnings and other diagnostic information during parsing
          * @endif
          */
-        DiagnosticReporter<IC10MsgPack> reporter_;
+        DiagnosticReporter<IC10CompilerMsgPack> reporter_;
 
         /**
          * @if zh

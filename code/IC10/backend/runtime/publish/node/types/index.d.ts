@@ -5,21 +5,17 @@
 // purposes is prohibited without the author's permission. If you have any questions or require
 // permission, please contact the author: edocsitahw@qq.com
 
-package io.github.stationeers.ic10;
-
 /**
+ * @file index.d.ts
  * @author edocsitahw
- * @version 1.0.0
- * - file IC10Local.java
- * - date 2026/08/02
- * - copyright CC BY-NC-SA 2026. All rights reserved.
- */
-
-public class IC10Local {
-
-    public static native void setLanguage(String name);
-
-    static {
-        IC10Native.ensureLoaded();
-    }
-}
+ * @version 1.1
+ * @date 2026/08/12 14:46
+ * @desc
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * */
+export * from "./config";
+export * from "./context";
+export * from "./device";
+export * from "./engine";
+export * from "./manager";
+export * from "./memory";

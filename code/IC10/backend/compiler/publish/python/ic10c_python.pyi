@@ -440,7 +440,7 @@ class Symbol(TypedDict):
 # IC10Local - Localization
 # ============================================================================
 
-class IC10Local:
+class IC10CompilerLocal:
     """IC10 compiler localization settings."""
 
     @staticmethod

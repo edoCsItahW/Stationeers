@@ -21,7 +21,7 @@
  *
  * @public
  */
-export class IC10Local {
+export class IC10CompilerLocal {
     /**
      * @summary 设置编译器的语言环境
      *

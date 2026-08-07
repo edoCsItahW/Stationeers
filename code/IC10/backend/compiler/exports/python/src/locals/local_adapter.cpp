@@ -23,14 +23,14 @@ namespace stationeers::ic10 {
     void initLocal(py::module_& m) {
         // 注册语言支持
         // Register language support
-        IC10Local::registerLanguage<ZhHans>("zh-hans");
-        IC10Local::registerLanguage<EnUs>("en-us");
+        ICLoc::registerLanguage<ZhHans>("zh-hans");
+        ICLoc::registerLanguage<EnUs>("en-us");
 
         // 设置默认语言为美式英语
         // Set default language to American English
-        IC10Local::setLanguage("en-us");
+        ICLoc::setLanguage("en-us");
 
-        py::class_<IC10Local>(m, "IC10Local")
+        py::class_<IC10CompilerLocal>(m, "IC10CompilerLocal")
             /**
              * @if zh
              * @brief 设置当前语言
@@ -41,7 +41,7 @@ namespace stationeers::ic10 {
              * @endif
              */
             .def_static("setLanguage", [](const std::string& code) {
-                IC10Local::setLanguage(code);
+                ICLoc::setLanguage(code);
             }, py::arg("code"));
     }
 
