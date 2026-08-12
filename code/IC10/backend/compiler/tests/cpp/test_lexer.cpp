@@ -30,8 +30,8 @@ namespace {
 void initLocale() {
     static bool initialized = false;
     if (!initialized) {
-        ILoc::registerLanguage<ZhHans>("zh-hans");
-        ILoc::setLanguage("zh-hans");
+        ICLoc::registerLanguage<ZhHans>("zh-hans");
+        ICLoc::setLanguage("zh-hans");
         initialized = true;
     }
 }
@@ -230,6 +230,85 @@ TEST(LexerTest, BinaryNumberAllOnes) {
     ASSERT_EQ(toks.size(), 1u);
     EXPECT_EQ(toks[0]->type, TokenType::BINARY_NUMBER);
     EXPECT_EQ(toks[0]->lexeme, "%11111111");
+}
+
+// ============================================================
+// 负数测试
+// ============================================================
+
+TEST(LexerTest, NegativeInteger) {
+    initLocale();
+    auto tokens = tokenize("-42");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::INTEGER);
+    EXPECT_EQ(toks[0]->lexeme, "-42");
+    EXPECT_EQ(toks[0]->category, TokenCategory::LITERAL);
+}
+
+TEST(LexerTest, NegativeZero) {
+    initLocale();
+    auto tokens = tokenize("-0");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::INTEGER);
+    EXPECT_EQ(toks[0]->lexeme, "-0");
+}
+
+TEST(LexerTest, NegativeFloat) {
+    initLocale();
+    auto tokens = tokenize("-3.14");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::FLOAT);
+    EXPECT_EQ(toks[0]->lexeme, "-3.14");
+}
+
+TEST(LexerTest, NegativeFloatScientific) {
+    initLocale();
+    auto tokens = tokenize("-1.5e10");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::FLOAT);
+    EXPECT_EQ(toks[0]->lexeme, "-1.5e10");
+}
+
+TEST(LexerTest, NegativeFloatScientificWithMinusExp) {
+    initLocale();
+    auto tokens = tokenize("-3.14e-2");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::FLOAT);
+    EXPECT_EQ(toks[0]->lexeme, "-3.14e-2");
+}
+
+TEST(LexerTest, NegativeHexNumber) {
+    initLocale();
+    auto tokens = tokenize("-$FF");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::HEX_NUMBER);
+    EXPECT_EQ(toks[0]->lexeme, "-$FF");
+}
+
+TEST(LexerTest, NegativeBinaryNumber) {
+    initLocale();
+    auto tokens = tokenize("-%1010");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::BINARY_NUMBER);
+    EXPECT_EQ(toks[0]->lexeme, "-%1010");
+}
+
+TEST(LexerTest, NegativeNumberInInstruction) {
+    initLocale();
+    auto tokens = tokenize("move r0 -42");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 3u);
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_MOVE);
+    EXPECT_EQ(toks[1]->type, TokenType::REGISTER);
+    EXPECT_EQ(toks[2]->type, TokenType::INTEGER);
+    EXPECT_EQ(toks[2]->lexeme, "-42");
 }
 
 // ============================================================
@@ -961,6 +1040,26 @@ TEST(LexerTest, StringFollowedByIdentifierNoSpace) {
     Lexer lexer("\"hello\"world");
     (void)lexer.scan();
     EXPECT_FALSE(lexer.getDiagnostics().empty());
+}
+
+TEST(LexerTest, BinaryNumberInvalidDigit) {
+    initLocale();
+    // %5: 5不是有效的二进制数字，应消耗到token中并报错
+    auto tokens = tokenize("%5");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::BINARY_NUMBER);
+    EXPECT_EQ(toks[0]->lexeme, "%5");
+}
+
+TEST(LexerTest, HexNumberInvalidDigit) {
+    initLocale();
+    // $G: G不是有效的十六进制数字，应消耗到token中并报错
+    auto tokens = tokenize("$G");
+    auto toks = tokensWithoutEnd(tokens);
+    ASSERT_EQ(toks.size(), 1u);
+    EXPECT_EQ(toks[0]->type, TokenType::HEX_NUMBER);
+    EXPECT_EQ(toks[0]->lexeme, "$G");
 }
 
 TEST(LexerTest, NumberFollowedBySymbolNoError) {

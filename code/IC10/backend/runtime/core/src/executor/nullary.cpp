@@ -6,21 +6,22 @@
 // permission, please contact the author: edocsitahw@qq.com
 
 /**
- * @file core.hpp 
- * @author edocsitahw 
+ * @file nullary.cpp
+ * @author edocsitahw
  * @version 1.1
- * @date 2026/08/07 13:36
+ * @date 2026/08/09 17:10
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef RUNTIME_CORE_HPP
-#define RUNTIME_CORE_HPP
-#pragma once
+#include "ic10_runtime/executor/executor.hpp"
 
 namespace stationeers::ic10 {
 
+    void Executor::executeIns(const HcfInstruction&, Flag& flag) {
+        ctx_.halt();
+        flag.halted = true;
+    }
 
+    void Executor::executeIns(const YieldInstruction&, Flag&) {}
 
-}
-
-#endif //RUNTIME_CORE_HPP
+}  // namespace stationeers::ic10

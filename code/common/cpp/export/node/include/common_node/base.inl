@@ -60,6 +60,25 @@ namespace stationeers {
         return arr;
     }
 
+    template<typename T, typename... Args, typename F>
+        requires std::is_base_of_v<node::Value, T>
+    node::Function to(node::Env env, F&& func) {
+        return node::Function::New(env, [&](const node::CallbackInfo& info) -> T {
+            Arguments args(info);
+
+            using Params = std::tuple<Args...>;
+
+            Params params;
+
+            [&]<std::size_t... I>(std::index_sequence<I...>) {
+                ((std::get<I>(params) = args.getWithCheck<std::tuple_element_t<I, Params>>(I)),
+                 ...);
+            }(std::make_index_sequence<sizeof...(Args)>());
+
+            return T::New(env, std::apply(func, params));
+        });
+    }
+
     // Arguments
 
     template<BaseOfValue T>

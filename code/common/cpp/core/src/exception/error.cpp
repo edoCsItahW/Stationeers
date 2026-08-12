@@ -20,9 +20,9 @@ namespace stationeers {
 
     // Error
 
-    const Pos& Error::getStart() const noexcept { return pimpl_->getStart(); }
+    std::optional<Pos> Error::getStart() const noexcept { return pimpl_->getStart(); }
 
-    const Pos& Error::getEnd() const noexcept { return pimpl_->getEnd(); }
+    std::optional<Pos> Error::getEnd() const noexcept { return pimpl_->getEnd(); }
 
     std::string_view Error::getName() const noexcept { return pimpl_->getName(); }
 

@@ -84,13 +84,13 @@ namespace stationeers::ic10 {
 
     /**
      * @if zh
-     * @enum IC10MsgId
+     * @enum IC10CompilerMsgId
      * @brief IC10编译器诊断消息ID枚举
      * @details 定义了所有编译器诊断消息的唯一标识符，遵循严格的命名规范。
      *          每个消息ID对应一个可本地化的消息模板。
      *
      * @elseif en
-     * @enum IC10MsgId
+     * @enum IC10CompilerMsgId
      * @brief IC10 compiler diagnostic message ID enum
      * @details Defines unique identifiers for all compiler diagnostic messages,
      *          following a strict naming convention. Each message ID corresponds
@@ -98,7 +98,7 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    enum class IC10MsgId : uint32_t {
+    enum class IC10CompilerMsgId : uint32_t {
         /** @if zh @brief 内部错误占位符 @else @brief Internal error placeholder @endif */
         IE0_1,
 
@@ -321,7 +321,7 @@ namespace stationeers::ic10 {
 
     /**
      * @if zh
-     * @struct IC10MsgMap
+     * @struct IC10CompilerMsgMap
      * @brief IC10消息映射模板
      * @details 用于将消息ID和语言类型映射到具体的本地化消息字符串。
      *          通过模板特化在语言文件中定义具体的消息内容。
@@ -330,7 +330,7 @@ namespace stationeers::ic10 {
      * @tparam MsgId 消息ID枚举值
      *
      * @elseif en
-     * @struct IC10MsgMap
+     * @struct IC10CompilerMsgMap
      * @brief IC10 message mapping template
      * @details Maps message ID and language type to specific localized message strings.
      *          Concrete message content is defined in language files through template
@@ -341,8 +341,8 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    template<typename, IC10MsgId>
-    struct IC10MsgMap;
+    template<typename, IC10CompilerMsgId>
+    struct IC10CompilerMsgMap;
 
     /**
      * @if zh
@@ -360,17 +360,17 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    using IC10MsgPack = MsgPack<IC10MsgId, IC10MsgMap>;
+    using IC10CompilerMsgPack = MsgPack<IC10CompilerMsgId, IC10CompilerMsgMap>;
 
     /**
      * @if zh
-     * @class IC10Local
+     * @class IC10CompilerLocal
      * @brief IC10本地化服务类
      * @details 继承自通用Local模板，提供IC10编译器的本地化消息查询接口。
      *          支持根据消息ID和语言类型获取本地化消息。
      *
      * @elseif en
-     * @class IC10Local
+     * @class IC10CompilerLocal
      * @brief IC10 localization service class
      * @details Inherits from the generic Local template, providing localized message
      *          query interface for the IC10 compiler. Supports retrieving localized
@@ -378,7 +378,7 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    class IC10Local : public Local<IC10MsgPack> {};
+    class IC10CompilerLocal : public Local<IC10CompilerMsgPack> {};
 
     /**
      * @if zh
@@ -393,7 +393,7 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    using IMsgId = IC10MsgId;
+    using ICMsgId = IC10CompilerMsgId;
 
     /**
      * @if zh
@@ -408,7 +408,7 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    using ILoc = IC10Local;
+    using ICLoc = IC10CompilerLocal;
 
     /**
      * @def IC10_LOCAL_MSG(type, id, _msg)
@@ -449,9 +449,9 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-#define IC10_LOCAL_MSG(type, id, _msg)                                                             \
+#define IC10_COMPILER_LOCAL_MSG(type, id, _msg)                                                             \
     template<>                                                                                     \
-    struct IC10MsgMap<type, IC10MsgId::id> {                                                       \
+    struct IC10CompilerMsgMap<type, IC10CompilerMsgId::id> {                                                       \
         static constexpr auto msg = _msg##_fs;                                                     \
     };
 

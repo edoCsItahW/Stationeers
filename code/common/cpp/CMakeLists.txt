@@ -1,3 +1,7 @@
+cmake_minimum_required(VERSION 3.28.1)
+
+project(Common VERSION 1.0.0)
+
 # 公共基础库，静态库形式
 add_library(common STATIC)
 

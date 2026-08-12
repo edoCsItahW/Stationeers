@@ -68,7 +68,7 @@ namespace stationeers::ic10 {
 
         for (std::size_t i = 0; i < size; ++i) {
             if (!unitReporters_[i])
-                unitReporters_[i] = std::make_unique<DiagnosticReporter<IC10MsgPack>>();
+                unitReporters_[i] = std::make_unique<DiagnosticReporter<IC10CompilerMsgPack>>();
 
             auto analyser = std::shared_ptr<Analyser>(
                 new Analyser(typeTable_, symbolTable_, *unitReporters_[i], true)

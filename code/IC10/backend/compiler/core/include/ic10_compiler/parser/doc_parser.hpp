@@ -55,7 +55,7 @@ namespace stationeers::ic10 {
     public:
         DocParser(
             const std::vector<std::shared_ptr<Token>>& tokens, std::size_t& idx,
-            DiagnosticReporter<IC10MsgPack>& reporter
+            DiagnosticReporter<IC10CompilerMsgPack>& reporter
         );
 
         Errorable<DocComment> parseDocCommentBlock();
@@ -65,7 +65,7 @@ namespace stationeers::ic10 {
 
         std::size_t& idx_;
 
-        DiagnosticReporter<IC10MsgPack>& reporter_;
+        DiagnosticReporter<IC10CompilerMsgPack>& reporter_;
 
         static std::unordered_map<std::string, DocTagType> tags_;
 

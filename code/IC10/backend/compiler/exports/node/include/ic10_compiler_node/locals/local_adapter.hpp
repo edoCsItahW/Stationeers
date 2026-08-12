@@ -31,7 +31,7 @@
 namespace stationeers::ic10 {
 
     /**
-     * @class IC10LocalAdapter
+     * @class IC10CompilerLocalAdapter
      * @if zh
      *
      * @brief IC10本地化Node.js适配器类
@@ -48,7 +48,7 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    class IC10LocalAdapter : public node::ObjectWrap<IC10LocalAdapter> {
+    class IC10CompilerLocalAdapter : public node::ObjectWrap<IC10CompilerLocalAdapter> {
     public:
         /**
          * @if zh
@@ -69,9 +69,9 @@ namespace stationeers::ic10 {
          *
          * @endif
          *
-         * @public @memberof IC10LocalAdapter
+         * @public @memberof IC10CompilerLocalAdapter
          */
-        IC10LocalAdapter(const node::CallbackInfo& info);
+        IC10CompilerLocalAdapter(const node::CallbackInfo& info);
 
         /**
          * @if zh
@@ -96,7 +96,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          *
-         * @public @memberof IC10LocalAdapter
+         * @public @memberof IC10CompilerLocalAdapter
          */
         static node::Object init(node::Env env, node::Object exports);
 
@@ -120,7 +120,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          *
-         * @private @memberof IC10LocalAdapter
+         * @private @memberof IC10CompilerLocalAdapter
          */
         static void setLanguage(const node::CallbackInfo& info);
     };

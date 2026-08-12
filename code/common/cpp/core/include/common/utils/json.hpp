@@ -18,8 +18,9 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief JSON formatting utilities
- * @details Provides compile-time safe JSON string construction tools, supporting key-value pair JSON object building.
- *        Achieves compile-time key name validation through FStr type constraints, avoiding runtime string errors.
+ * @details Provides compile-time safe JSON string construction tools, supporting key-value pair
+ * JSON object building. Achieves compile-time key name validation through FStr type constraints,
+ * avoiding runtime string errors.
  * @note Key names must be FStr type, values support strings, numbers, and optional types
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -30,8 +31,11 @@
 
 #include "common.hpp"
 #include "fstr.hpp"
+
+#include <unordered_map>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace stationeers {
 
@@ -131,7 +135,13 @@ namespace stationeers {
         requires(sizeof...(Vs) == sizeof...(Args))
     std::string toJson(Args&&... args);
 
-}  // namespace stationeers::ic10
+    template<JsonArgsAble T>
+    std::string toJson(std::unordered_map<std::string, T> map);
+
+    template<JsonArgsAble T>
+    std::string toJson(std::vector<T> vec);
+
+}  // namespace stationeers
 
 #include "json.inl"
 

@@ -54,7 +54,7 @@ namespace stationeers::ic10 {
         }
         // 已定义则报错
         else if (it->second.ready())
-            return std::unexpected{ILoc::msgFormat<IMsgId::IEA2_1>(name)};
+            return std::unexpected{ICLoc::msgFormat<ICMsgId::IEA2_1>(name)};
 
         // Future已决，通知所有等待者
         else
@@ -98,7 +98,7 @@ namespace stationeers::ic10 {
                 entry.promise.setException(
                     std::make_exception_ptr(Error(
                         UndefinedSymbolError{
-                            ILoc::msgFormat<IMsgId::IEA3_1>(name), entry.pos,
+                            ICLoc::msgFormat<ICMsgId::IEA3_1>(name), entry.pos,
                             endPos(entry.pos, name)
                         }
                     ))

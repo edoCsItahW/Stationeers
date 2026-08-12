@@ -185,7 +185,7 @@ namespace stationeers::ic10 {
 
         friend class Linker;
 
-        Analyser(TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10MsgPack>& reporter, bool deferFailAllPending = false);
+        Analyser(TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10CompilerMsgPack>& reporter, bool deferFailAllPending = false);
 
         bool ownsResources_ = false;
 
@@ -212,7 +212,7 @@ namespace stationeers::ic10 {
 
         std::optional<DeviceSymbol> pendingDeviceSymbol_;
 
-        mutable DiagnosticReporter<IC10MsgPack>* reporter_;
+        mutable DiagnosticReporter<IC10CompilerMsgPack>* reporter_;
 
         /**
          * @if zh
@@ -567,7 +567,7 @@ namespace stationeers::ic10 {
             );
         };
 
-        template<IMsgId I, auto... Vs>
+        template<ICMsgId I, auto... Vs>
         requires (... && (std::is_same_v<decltype(Vs), BasicType> || std::is_same_v<decltype(Vs), TypeCategory>))
         bool checkOperandType(const std::shared_ptr<Symbol>& symbol, auto&& arg) const;
 

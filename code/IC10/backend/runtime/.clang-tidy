@@ -1,0 +1,169 @@
+# Generated from CLion Inspection settings
+---
+Checks: '-*',  # 首先禁用所有检查，然后显式启用下面列出的检查
+
+# ========== Bugprone（易错代码检查）==========
+  bugprone-argument-comment,  # 检查函数调用时参数注释是否正确
+  bugprone-assert-side-effect,  # 检查assert中是否有副作用
+  bugprone-bad-signal-to-kill-thread,  # 检查使用信号终止线程的不安全用法
+  bugprone-branch-clone,  # 检查重复的代码分支
+  bugprone-copy-constructor-init,  # 检查拷贝构造函数是否正确初始化基类
+  bugprone-dangling-handle,  # 检查悬空句柄
+  bugprone-dynamic-static-initializers,  # 检查动态静态初始化问题
+  bugprone-fold-init-type,  # 检查折叠初始化类型问题
+  bugprone-forward-declaration-namespace,  # 检查前向声明中的命名空间问题
+  bugprone-forwarding-reference-overload,  # 检查转发引用重载问题
+  bugprone-inaccurate-erase,  # 检查容器擦除操作的准确性
+  bugprone-incorrect-roundings,  # 检查不正确的舍入操作
+  bugprone-integer-division,  # 检查整数除法可能导致精度丢失
+  bugprone-lambda-function-name,  # 检查lambda函数命名问题
+  bugprone-macro-parentheses,  # 检查宏定义中缺失括号
+  bugprone-macro-repeated-side-effects,  # 检查宏中重复的副作用
+  bugprone-misplaced-operator-in-strlen-in-alloc,  # 检查strlen在alloc中的错误使用
+  bugprone-misplaced-pointer-arithmetic-in-alloc,  # 检查alloc中指针算术的错误使用
+  bugprone-misplaced-widening-cast,  # 检查不正确的宽类型转换
+  bugprone-move-forwarding-reference,  # 检查移动转发引用问题
+  bugprone-multiple-statement-macro,  # 检查多语句宏的安全问题
+  bugprone-no-escape,  # 检查可能未逃逸的指针
+  bugprone-parent-virtual-call,  # 检查父类虚函数调用问题
+  bugprone-posix-return,  # 检查POSIX函数返回值处理
+  bugprone-reserved-identifier,  # 检查使用了保留标识符
+  bugprone-sizeof-container,  # 检查对容器使用sizeof（应为size()）
+  bugprone-sizeof-expression,  # 检查sizeof表达式的问题
+  bugprone-spuriously-wake-up-functions,  # 检查虚假唤醒函数问题
+  bugprone-string-constructor,  # 检查字符串构造函数使用问题
+  bugprone-string-integer-assignment,  # 检查字符串与整数赋值问题
+  bugprone-string-literal-with-embedded-nul,  # 检查字符串字面量中包含空字符
+  bugprone-suspicious-enum-usage,  # 检查可疑的枚举使用
+  bugprone-suspicious-include,  # 检查可疑的include
+  bugprone-suspicious-memset-usage,  # 检查memset使用问题
+  bugprone-suspicious-missing-comma,  # 检查缺失逗号的问题
+  bugprone-suspicious-semicolon,  # 检查多余的分号
+  bugprone-suspicious-string-compare,  # 检查可疑的字符串比较
+  bugprone-suspicious-memory-comparison,  # 检查可疑的内存比较
+  bugprone-suspicious-realloc-usage,  # 检查realloc使用问题
+  bugprone-swapped-arguments,  # 检查参数顺序是否可能错误
+  bugprone-terminating-continue,  # 检查可能导致循环终止的continue
+  bugprone-throw-keyword-missing,  # 检查是否遗漏throw关键字
+  bugprone-too-small-loop-variable,  # 检查循环变量是否可能溢出
+  bugprone-undefined-memory-manipulation,  # 检查未定义的内存操作
+  bugprone-undelegated-constructor,  # 检查未委托的构造函数
+  bugprone-unhandled-self-assignment,  # 检查未处理的自赋值
+  bugprone-unused-raii,  # 检查未使用的RAII对象
+  bugprone-unused-return-value,  # 检查未使用的返回值
+  bugprone-use-after-move,  # 检查移动后使用对象
+  bugprone-virtual-near-miss,  # 检查虚函数近似错误（如签名不匹配）
+  
+  # ========== CERT安全编码标准==========
+  cert-dcl21-cpp,  # CERT DCL21-CPP：避免宏定义产生副作用
+  cert-dcl58-cpp,  # CERT DCL58-CPP：不要修改标准命名空间
+  cert-err34-c,    # CERT ERR34-C：检查错误处理
+  cert-err52-cpp,  # CERT ERR52-CPP：不要使用setjmp/longjmp
+  cert-err60-cpp,  # CERT ERR60-CPP：异常对象不要抛出指针
+  cert-flp30-c,    # CERT FLP30-C：浮点数精度问题
+  cert-msc50-cpp,  # CERT MSC50-CPP：不要使用rand()生成安全随机数
+  cert-msc51-cpp,  # CERT MSC51-CPP：确保随机数生成器正确种子化
+  cert-str34-c,    # CERT STR34-C：确保字符串转换安全
+  
+  # ========== C++ Core Guidelines==========
+  cppcoreguidelines-interfaces-global-init,  # 全局初始化顺序问题
+  cppcoreguidelines-narrowing-conversions,   # 检查窄化转换
+  cppcoreguidelines-pro-type-member-init,    # 要求成员变量初始化
+  cppcoreguidelines-pro-type-static-cast-downcast,  # 检查向下转型
+  cppcoreguidelines-slicing,  # 检查对象切片问题
+  
+  # ========== Google编码规范==========
+  google-default-arguments,  # 检查默认参数使用（Google风格不推荐）
+  google-runtime-operator,   # 检查operator重载（Google风格限制）
+  
+  # ========== High Integrity C++==========
+  hicpp-exception-baseclass,  # 异常应继承自std::exception
+  hicpp-multiway-paths-covered,  # 检查多路分支覆盖
+  
+  # ========== 杂项检查==========
+  misc-misplaced-const,  # 检查const位置是否正确
+  misc-new-delete-overloads,  # 检查new/delete重载问题
+  misc-non-copyable-objects,  # 检查不可拷贝对象的使用
+  misc-throw-by-value-catch-by-reference,  # 按值抛出，按引用捕获
+  misc-unconventional-assign-operator,  # 检查赋值运算符的非常规使用
+  misc-uniqueptr-reset-release,  # 检查unique_ptr的reset/release使用
+  
+  # ========== 现代化检查==========
+  modernize-avoid-bind,  # 建议使用lambda替代bind
+  modernize-concat-nested-namespaces,  # 建议合并嵌套命名空间
+  modernize-deprecated-headers,  # 检查已弃用的C头文件（如<stdio.h>应使用<cstdio>）
+  modernize-deprecated-ios-base-aliases,  # 检查已弃用的ios_base别名
+  modernize-loop-convert,  # 建议使用范围for循环
+  modernize-make-shared,  # 建议使用make_shared
+  modernize-make-unique,  # 建议使用make_unique
+  modernize-pass-by-value,  # 建议按值传递小对象
+  modernize-raw-string-literal,  # 建议使用原始字符串字面量
+  modernize-redundant-void-arg,  # 移除多余的void参数
+  modernize-replace-auto-ptr,  # 建议用unique_ptr替换auto_ptr
+  modernize-replace-disallow-copy-and-assign-macro,  # 替换禁止拷贝的宏
+  modernize-replace-random-shuffle,  # 替换已弃用的random_shuffle
+  modernize-return-braced-init-list,  # 建议使用大括号初始化列表返回
+  modernize-shrink-to-fit,  # 建议使用shrink_to_fit
+  modernize-unary-static-assert,  # 建议使用单参数static_assert
+  modernize-use-auto,  # 建议使用auto
+  modernize-use-bool-literals,  # 建议使用布尔字面量
+  modernize-use-emplace,  # 建议使用emplace替代insert/push_back
+  modernize-use-equals-default,  # 建议使用= default
+  modernize-use-equals-delete,  # 建议使用= delete
+  modernize-use-nodiscard,  # 建议为重要函数添加[[nodiscard]]
+  modernize-use-noexcept,  # 建议使用noexcept
+  modernize-use-nullptr,  # 建议使用nullptr
+  modernize-use-override,  # 建议使用override
+  modernize-use-transparent-functors,  # 建议使用透明仿函数
+  modernize-use-uncaught-exceptions,  # 检查uncaught_exceptions使用
+  
+  # ========== MPI相关检查==========
+  mpi-buffer-deref,  # 检查MPI缓冲区解引用
+  mpi-type-mismatch,  # 检查MPI类型不匹配
+  
+  # ========== OpenMP相关检查==========
+  openmp-use-default-none,  # 建议OpenMP使用default(none)
+  
+  # ========== 性能检查==========
+  performance-faster-string-find,  # 建议使用更快的字符串查找方法
+  performance-for-range-copy,  # 检查范围for循环中的不必要拷贝
+  performance-implicit-conversion-in-loop,  # 检查循环中的隐式转换
+  performance-inefficient-algorithm,  # 检查低效算法使用
+  performance-inefficient-string-concatenation,  # 检查低效字符串拼接
+  performance-inefficient-vector-operation,  # 检查低效的vector操作
+  performance-move-const-arg,  # 检查移动const参数的问题
+  performance-move-constructor-init,  # 检查移动构造函数初始化
+  performance-no-automatic-move,  # 检查未自动移动的情况
+  performance-noexcept-move-constructor,  # 建议移动构造函数标记noexcept
+  performance-trivially-destructible,  # 检查平凡析构类型
+  performance-type-promotion-in-math-fn,  # 检查数学函数中的类型提升
+  performance-unnecessary-copy-initialization,  # 检查不必要的拷贝初始化
+  performance-unnecessary-value-param,  # 检查不必要的值传递参数
+  
+  # ========== 可移植性检查==========
+  portability-simd-intrinsics,  # 检查SIMD内在函数的使用
+  
+  # ========== 可读性检查==========
+  readability-avoid-const-params-in-decls,  # 避免函数声明中的const值参数
+  readability-const-return-type,  # 检查const返回类型
+  readability-container-size-empty,  # 建议使用empty()而非size()检查容器为空
+  readability-convert-member-functions-to-static,  # 将可静态化的成员函数转为静态
+  readability-delete-null-pointer,  # 检查删除空指针（多余操作）
+  readability-deleted-default,  # 检查删除的默认函数
+  readability-inconsistent-declaration-parameter-name,  # 声明与定义参数名不一致
+  readability-make-member-function-const,  # 将不修改成员的函数标记为const
+  readability-misleading-indentation,  # 检查误导性缩进
+  readability-misplaced-array-index,  # 检查数组索引位置错误
+  readability-non-const-parameter,  # 检查非const参数
+  readability-redundant-control-flow,  # 检查多余的控制流
+  readability-redundant-declaration,  # 检查多余的声明
+  readability-redundant-function-ptr-dereference,  # 检查多余的函数指针解引用
+  readability-redundant-smartptr-get,  # 检查多余的smartptr.get()
+  readability-redundant-string-cstr,  # 检查多余的string::c_str()
+  readability-redundant-string-init,  # 检查多余的字符串初始化
+  readability-simplify-subscript-expr,  # 简化下标表达式
+  readability-static-accessed-through-instance,  # 检查通过实例访问静态成员
+  readability-static-definition-in-anonymous-namespace,  # 静态函数应在匿名命名空间中定义
+  readability-string-compare,  # 建议使用字符串比较方法而非操作符
+  readability-uniqueptr-delete-release,  # 检查unique_ptr的delete release问题
+  readability-use-anyofallof  # 建议使用any_of/all_of算法

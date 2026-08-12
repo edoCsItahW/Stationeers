@@ -55,8 +55,8 @@ namespace {
     class SemanticTestFixture : public ::testing::Test {
     protected:
         static void SetUpTestSuite() {
-            ILoc::registerLanguage<ZhHans>("zh-hans");
-            ILoc::setLanguage("zh-hans");
+            ICLoc::registerLanguage<ZhHans>("zh-hans");
+            ICLoc::setLanguage("zh-hans");
         }
 
         /// @brief 完整编译流水线结果 / Full compilation pipeline result
@@ -547,8 +547,8 @@ TEST_F(SemanticTestFixture, UndefinedDeviceAliasReportsIE0_1) {
 class SymbolTableTestFixture : public ::testing::Test {
 protected:
     static void SetUpTestSuite() {
-        ILoc::registerLanguage<ZhHans>("zh-hans");
-        ILoc::setLanguage("zh-hans");
+        ICLoc::registerLanguage<ZhHans>("zh-hans");
+        ICLoc::setLanguage("zh-hans");
     }
 
     /// @brief 创建一个整数类型符号 / Create an integer type symbol
@@ -811,8 +811,8 @@ TEST_F(SymbolTableTestFixture, SymbolWithTypeNameToJSON) {
 class TypeTableTestFixture : public ::testing::Test {
 protected:
     static void SetUpTestSuite() {
-        ILoc::registerLanguage<ZhHans>("zh-hans");
-        ILoc::setLanguage("zh-hans");
+        ICLoc::registerLanguage<ZhHans>("zh-hans");
+        ICLoc::setLanguage("zh-hans");
     }
 };
 
