@@ -230,7 +230,7 @@ namespace stationeers {
          * @endif
          */
         template<BaseOfValue T>
-        const T getWithCheck(std::size_t index) const;
+        T getWithCheck(std::size_t index) const;
 
         /**
          * @if zh

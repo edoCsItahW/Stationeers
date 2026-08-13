@@ -48,13 +48,15 @@ namespace stationeers::ic10 {
     template<typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>
     double Memory::getStack(T index) {
-        return arithmeticTrans<double>(stack_[index]);
+        // LIFO: index 0 = 栈顶（最近 push 的值）
+        return arithmeticTrans<double>(stack_[static_cast<std::size_t>(sp_ - 1 - index)]);
     }
 
     template<typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>
     void Memory::setStack(std::size_t index, T&& val) {
-        stack_[index] = arithmeticTrans<double>(std::forward<T>(val));
+        // LIFO: index 0 = 栈顶
+        stack_[static_cast<std::size_t>(sp_ - 1 - index)] = arithmeticTrans<double>(std::forward<T>(val));
     }
 
 }  // namespace stationeers::ic10

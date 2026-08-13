@@ -10,14 +10,14 @@ import IC10C = require('ic10c-node');
 import IC10R = require('ic10r-node');
 import {setupUTF8Console} from "../utils";
 
-const {IC10Local, Lexer, Parser, Analyser} = IC10C;
+const {IC10CompilerLocal, Lexer, Parser, Analyser} = IC10C;
 const {Engine} = IC10R;
 
 beforeAll(() => {
     setupUTF8Console();
 
-    if (typeof IC10Local.setLanguage === 'function')
-        IC10Local.setLanguage('zh-hans');
+    if (typeof IC10CompilerLocal.setLanguage === 'function')
+        IC10CompilerLocal.setLanguage('zh-hans');
 });
 
 /**
@@ -35,7 +35,7 @@ async function compile(source: string): Promise<{
     const engine = new Engine(program, analyser.symbolTable);
     return {
         engine,
-        reg: (name: string) => engine.getReg(name)
+        reg: (name: string) => engine.context.memory.getReg(name)
     };
 }
 
@@ -139,7 +139,7 @@ describe('Engine empty program', () => {
     it('should handle empty program', async () => {
         const {engine} = await compile('');
         engine.runFull();
-        expect(engine.halted).toBe(true);
+        expect(engine.context.halted).toBe(true);
     });
 });
 
@@ -167,11 +167,11 @@ describe('Engine runTick', () => {
         const engine = new Engine(program, analyser.symbolTable, {maxInstructions: 1});
 
         engine.runTick();  // execute move r0 1
-        expect(engine.getReg('r0')).toBe(1);
+        expect(engine.context.memory.getReg('r0')).toBe(1);
         engine.runTick();  // execute move r0 2
-        expect(engine.getReg('r0')).toBe(2);
+        expect(engine.context.memory.getReg('r0')).toBe(2);
         engine.runTick();  // execute move r0 3
-        expect(engine.getReg('r0')).toBe(3);
+        expect(engine.context.memory.getReg('r0')).toBe(3);
     });
 });
 
@@ -183,13 +183,13 @@ describe('Engine state', () => {
     it('should be halted after hcf', async () => {
         const {engine} = await compile('hcf\n');
         engine.runFull();
-        expect(engine.halted).toBe(true);
+        expect(engine.context.halted).toBe(true);
     });
 
     it('should be sleeping after sleep', async () => {
         const {engine} = await compile('sleep 1\nhcf\n');
         engine.runFull();
-        expect(engine.sleeping).toBe(true);
+        expect(engine.context.isSleeping).toBe(true);
     });
 });
 
@@ -205,6 +205,6 @@ describe('Engine pc', () => {
             'hcf\n'
         );
         engine.runFull();
-        expect(typeof engine.pc).toBe('number');
+        expect(typeof engine.context.pc).toBe('number');
     });
 });

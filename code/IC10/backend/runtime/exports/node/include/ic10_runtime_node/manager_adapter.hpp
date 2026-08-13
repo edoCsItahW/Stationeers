@@ -30,12 +30,24 @@ namespace stationeers::ic10 {
 
         static Manager from(const node::Object& obj);
 
+        /**
+         * @brief 基于已存在的 Manager 构造 JS 包装器（引用模式），不拷贝。
+         */
+        static node::Object toExisting(node::Env env, Manager* manager);
+
         static node::Object to(node::Env env, const Manager& manager);
 
     private:
         static node::FunctionReference constructor;
 
+        /// 值模式：JS 直接 new Manager() 时拥有的副本
         Manager manager_;
+
+        /// 引用模式：指向 Context 内部真实 Manager，不拥有
+        Manager* mgrPtr_ = nullptr;
+
+        [[nodiscard]] Manager& mgr() { return mgrPtr_ ? *mgrPtr_ : manager_; }
+        [[nodiscard]] const Manager& mgr() const { return mgrPtr_ ? *mgrPtr_ : manager_; }
 
         EXPORT_D_METHOD_VALUE(getDevice)
 

@@ -1,34 +1,15 @@
-# 创建针对 IC10 编译器的测试可执行文件
-add_executable(ic10_tests
-        cpp/test_lexer.cpp
-        cpp/test_parser.cpp
-        cpp/test_incremental.cpp
-        cpp/test_integration.cpp
-        cpp/test_system.cpp
-        cpp/test_semantic.cpp
-        cpp/test_linker.cpp
-)
+project(IC10_Compiler_Test VERSION 1.0)
 
-# 链接必要的库
-target_link_libraries(ic10_tests
-        PRIVATE
-        common                # 公共基础库
-        ic10_lib              # 链接静态库
-        gtest_main            # GoogleTest 主函数
-)
+st_source(IC10_COMPILER_TEST_SRC ${CMAKE_CURRENT_SOURCE_DIR}/cpp)
+add_executable(IC10_Compiler_Tests ${IC10_COMPILER_TEST_SRC})
 
+target_link_libraries(IC10_Compiler_Tests PRIVATE Common::Core IC10::Compiler::Core GTest::gtest_main)
 
-# 指定包含路径（如有需要）
-target_include_directories(ic10_tests PRIVATE
-        ${CMAKE_SOURCE_DIR}/core/include
-        ${CMAKE_SOURCE_DIR}/../../../common/cpp/core/include
-)
+st_apply_compile_options(IC10_Compiler_Tests)
 
-# 添加测试
-add_test(NAME ic10_tests COMMAND ic10_tests)
+add_test(NAME IC10_Compiler_Tests COMMAND IC10_Compiler_Tests)
 
-# 为 IC10 测试单独设置超时、工作目录等
-set_tests_properties(ic10_tests PROPERTIES
+set_tests_properties(IC10_Compiler_Tests PROPERTIES
         TIMEOUT 120
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

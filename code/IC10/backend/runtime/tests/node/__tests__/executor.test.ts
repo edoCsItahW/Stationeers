@@ -10,14 +10,14 @@ import IC10C = require('ic10c-node');
 import IC10R = require('ic10r-node');
 import {setupUTF8Console} from "../utils";
 
-const {IC10Local, Lexer, Parser, Analyser} = IC10C;
+const {IC10CompilerLocal, Lexer, Parser, Analyser} = IC10C;
 const {Engine} = IC10R;
 
 beforeAll(() => {
     setupUTF8Console();
 
-    if (typeof IC10Local.setLanguage === 'function')
-        IC10Local.setLanguage('zh-hans');
+    if (typeof IC10CompilerLocal.setLanguage === 'function')
+        IC10CompilerLocal.setLanguage('zh-hans');
 });
 
 /**
@@ -36,7 +36,7 @@ async function compileStepByStep(source: string): Promise<{
     const engine = new Engine(program, analyser.symbolTable, { maxInstructions: 1 });
     return {
         engine,
-        reg: (name: string) => engine.getReg(name),
+        reg: (name: string) => engine.context.memory.getReg(name),
         step: () => engine.runTick()
     };
 }
@@ -56,7 +56,7 @@ async function compile(source: string): Promise<{
     const engine = new Engine(program, analyser.symbolTable);
     return {
         engine,
-        reg: (name: string) => engine.getReg(name)
+        reg: (name: string) => engine.context.memory.getReg(name)
     };
 }
 
@@ -68,15 +68,15 @@ describe('Nullary instructions', () => {
     it('should halt on hcf', async () => {
         const {engine, step} = await compileStepByStep('hcf\n');
         step();
-        expect(engine.halted).toBe(true);
+        expect(engine.context.halted).toBe(true);
     });
 
     it('should advance PC on yield', async () => {
         const {engine, step} = await compileStepByStep('yield\nyield\nhcf\n');
         step();  // yield
-        expect(engine.pc).toBe(1);
+        expect(engine.context.pc).toBe(1);
         step();  // yield
-        expect(engine.pc).toBe(2);
+        expect(engine.context.pc).toBe(2);
     });
 });
 
@@ -633,7 +633,7 @@ describe('Branch — with link', () => {
             'hcf\n'
         );
         step();
-        expect(engine.getReg('ra')).toBe(1);
+        expect(engine.context.memory.getReg('ra')).toBe(1);
     });
 });
 
@@ -797,7 +797,7 @@ describe('Sign-based branches', () => {
             'hcf\n'
         );
         step();
-        expect(engine.getReg('ra')).toBe(1);
+        expect(engine.context.memory.getReg('ra')).toBe(1);
     });
 });
 
@@ -867,7 +867,7 @@ describe('Sleep and jal', () => {
             'hcf\n'
         );
         step();
-        expect(engine.sleeping).toBe(true);
+        expect(engine.context.isSleeping).toBe(true);
     });
 
     it('jal sets ra and jumps', async () => {
@@ -877,7 +877,7 @@ describe('Sleep and jal', () => {
             'hcf\n'
         );
         step();
-        expect(engine.getReg('ra')).toBe(1);
+        expect(engine.context.memory.getReg('ra')).toBe(1);
     });
 });
 

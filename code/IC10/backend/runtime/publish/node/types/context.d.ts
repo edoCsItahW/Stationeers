@@ -28,4 +28,12 @@ export class Context {
 
     get manager(): Manager;
 
+    halt(): void;
+
+    get halted(): boolean;
+
+    sleep(seconds: number): void;
+
+    get isSleeping(): boolean;
+
 }

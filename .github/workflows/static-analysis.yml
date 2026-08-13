@@ -87,6 +87,8 @@ jobs:
                     if [[ "${{ inputs.analyze-ic10 }}" == "true" ]]; then
                       SRC_DIRS="$SRC_DIRS code/IC10/backend/compiler/core/src"
                       INC_DIRS="$INC_DIRS code/IC10/backend/compiler/core/include"
+                      SRC_DIRS="$SRC_DIRS code/IC10/backend/runtime/core/src"
+                      INC_DIRS="$INC_DIRS code/IC10/backend/runtime/core/include"
                     fi
                     echo "src-dirs=$(echo $SRC_DIRS | xargs)" >> $GITHUB_OUTPUT
                     echo "inc-dirs=$(echo $INC_DIRS | xargs)" >> $GITHUB_OUTPUT
@@ -111,14 +113,21 @@ jobs:
                 if: inputs.run-clang-tidy
                 shell: bash
                 run: |
-                    cmake -B build-tidy -S code/IC10/backend/compiler -G Ninja \
-                      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-                      -DCMAKE_CXX_STANDARD=23 \
-                      -DBUILD_IC10=${{ inputs.analyze-ic10 && 'ON' || 'OFF' }} \
-                      -DBUILD_NODE_BINDINGS=OFF \
-                      -DBUILD_PYTHON_BINDINGS=OFF \
-                      -DBUILD_TESTS=OFF \
-                      -DENABLE_CCACHE=OFF
+                    CMAKE_ARGS="-B build-tidy -S code -G Ninja"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=23"
+                    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
+                    if [[ "${{ inputs.analyze-ic10 }}" == "true" ]]; then
+                      CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_COMPILER_CORE=ON"
+                      CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_RUNTIME_CORE=ON"
+                    fi
+                    if [[ "${{ inputs.analyze-common }}" == "true" ]]; then
+                      # common 被 ic10 依赖，所以上面已经间接启用了
+                      true
+                    fi
+                    CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CCACHE=OFF"
+                    echo "CMake args: $CMAKE_ARGS"
+                    cmake $CMAKE_ARGS
 
             -   name: Clang-tidy analysis | Clang-tidy 分析
                 if: inputs.run-clang-tidy
@@ -136,11 +145,16 @@ jobs:
                     SRC_DIRS="${{ steps.sources.outputs.src-dirs }}"
                     INC_DIRS="${{ steps.sources.outputs.inc-dirs }}"
                     ALL_DIRS="$SRC_DIRS $INC_DIRS"
+                    # 收集所有需要检查的文件
+                    ALL_FILES=""
                     for dir in $ALL_DIRS; do
                       [ -d "$dir" ] || continue
-                      find "$dir" \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.inl' \)
-                    done | xargs clang-format --dry-run --Werror \
-                      --style=file:code/IC10/backend/compiler/.clang-format 2> clang-format-report.txt
+                      FILES=$(find "$dir" \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.inl' \) 2>/dev/null)
+                      ALL_FILES="$ALL_FILES $FILES"
+                    done
+                    # 使用 file 自动查找最近的 .clang-format（每个子目录有自己的）
+                    echo "$ALL_FILES" | xargs -r clang-format --dry-run --Werror \
+                      --style=file 2> clang-format-report.txt
                 continue-on-error: true
 
             -   name: Upload analysis reports | 上传分析报告

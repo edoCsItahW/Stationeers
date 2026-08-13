@@ -30,12 +30,31 @@ namespace stationeers::ic10 {
 
         EXPORT_D_FROM(Context)
 
+        /**
+         * @brief 基于已存在的 Context 构造 JS 包装器（引用模式，不拷贝数据）。
+         * @details 用于 EngineAdapter 缓存 Context：返回的 JS 对象内部 ctxPtr_ 直接指向
+         *          Engine 内部的 Context，避免每次 getter 都 constructor.New 造成的深拷贝
+         *          和 N-API 句柄爆炸。同时 memoryRef_/managerRef_ 会缓存子适配器对象。
+         */
+        static node::Object toExisting(node::Env env, Context* ctx);
+
         static node::Object to(node::Env env, const Context& ctx);
 
     private:
         static node::FunctionReference constructor;
 
+        /// 值模式：JS 直接 new Context(program, symbols, cfg) 时拥有的副本
         Context context_;
+
+        /// 引用模式：指向 Engine 内部真实 Context，不拥有
+        Context* ctxPtr_ = nullptr;
+
+        /// 缓存子适配器（引用模式下使用，避免每次 getter 新对象）
+        node::ObjectReference memoryRef_;
+        node::ObjectReference managerRef_;
+
+        [[nodiscard]] Context& ctx() { return ctxPtr_ ? *ctxPtr_ : context_; }
+        [[nodiscard]] const Context& ctx() const { return ctxPtr_ ? *ctxPtr_ : context_; }
 
         EXPORT_D_ATTR(PC)
 
@@ -44,6 +63,14 @@ namespace stationeers::ic10 {
         EXPORT_D_ATTR_GETTER(Manager)
 
         EXPORT_D_ATTR(Config)
+
+        EXPORT_D_METHOD_VOID(halt)
+
+        EXPORT_D_ATTR_GETTER(Halted)
+
+        EXPORT_D_METHOD_VOID(sleep)
+
+        EXPORT_D_ATTR_GETTER(IsSleeping)
     };
 
 }  // namespace stationeers::ic10

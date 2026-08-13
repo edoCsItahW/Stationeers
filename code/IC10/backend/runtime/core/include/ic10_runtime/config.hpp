@@ -16,6 +16,8 @@ namespace stationeers::ic10 {
         double tickDuration = 0.5;
         int maxInstructions = 128;
         int maxStackSize = 512;
+        /// runFull() 总指令数熔断阈值（防止死循环/无限 sleep），0 = 不限制
+        int maxTotalInstructions = 1'000'000;
     };
 
 }  // namespace stationeers::ic10
