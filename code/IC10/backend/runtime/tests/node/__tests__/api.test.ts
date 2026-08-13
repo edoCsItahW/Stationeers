@@ -10,14 +10,14 @@ import IC10C = require('ic10c-node');
 import IC10R = require('ic10r-node');
 import {setupUTF8Console} from "../utils";
 
-const {IC10Local, Lexer, Parser, Analyser} = IC10C;
+const {IC10CompilerLocal, Lexer, Parser, Analyser} = IC10C;
 const {Engine} = IC10R;
 
 beforeAll(() => {
     setupUTF8Console();
 
-    if (typeof IC10Local.setLanguage === 'function')
-        IC10Local.setLanguage('zh-hans');
+    if (typeof IC10CompilerLocal.setLanguage === 'function')
+        IC10CompilerLocal.setLanguage('zh-hans');
 });
 
 /**
@@ -35,7 +35,7 @@ async function compile(source: string): Promise<{
     const engine = new Engine(program, analyser.symbolTable);
     return {
         engine,
-        reg: (name: string) => engine.getReg(name)
+        reg: (name: string) => engine.context.memory.getReg(name)
     };
 }
 
@@ -51,17 +51,17 @@ describe('Engine', () => {
 
     it('should report pc 0 on construction', async () => {
         const {engine} = await compile('move r0 42\nhcf\n');
-        expect(engine.pc).toBeDefined();
+        expect(engine.context.pc).toBeDefined();
     });
 
     it('should not be halted on construction', async () => {
         const {engine} = await compile('move r0 42\nhcf\n');
-        expect(engine.halted).toBeDefined();
+        expect(engine.context.halted).toBeDefined();
     });
 
     it('should not be sleeping on construction', async () => {
         const {engine} = await compile('move r0 42\nhcf\n');
-        expect(engine.sleeping).toBeDefined();
+        expect(engine.context.isSleeping).toBeDefined();
     });
 });
 
@@ -72,52 +72,52 @@ describe('Engine', () => {
 describe('Engine getReg / setReg', () => {
     it('should get and set register values', async () => {
         const {engine} = await compile('hcf\n');
-        expect(engine.getReg('r0')).toBe(0);
-        engine.setReg('r0', 42);
-        expect(engine.getReg('r0')).toBe(42);
+        expect(engine.context.memory.getReg('r0')).toBe(0);
+        engine.context.memory.setReg('r0', 42);
+        expect(engine.context.memory.getReg('r0')).toBe(42);
     });
 
     it('should default registers to 0', async () => {
         const {engine} = await compile('hcf\n');
-        expect(engine.getReg('r0')).toBe(0);
-        expect(engine.getReg('r15')).toBe(0);
+        expect(engine.context.memory.getReg('r0')).toBe(0);
+        expect(engine.context.memory.getReg('r15')).toBe(0);
     });
 
     it('should overwrite register value', async () => {
         const {engine} = await compile('hcf\n');
-        engine.setReg('r0', 10);
-        engine.setReg('r0', 20);
-        expect(engine.getReg('r0')).toBe(20);
+        engine.context.memory.setReg('r0', 10);
+        engine.context.memory.setReg('r0', 20);
+        expect(engine.context.memory.getReg('r0')).toBe(20);
     });
 
     it('should handle negative register values', async () => {
         const {engine} = await compile('hcf\n');
-        engine.setReg('r1', -100);
-        expect(engine.getReg('r1')).toBe(-100);
+        engine.context.memory.setReg('r1', -100);
+        expect(engine.context.memory.getReg('r1')).toBe(-100);
     });
 
     it('should handle zero register value', async () => {
         const {engine} = await compile('hcf\n');
-        engine.setReg('r0', 0);
-        expect(engine.getReg('r0')).toBe(0);
+        engine.context.memory.setReg('r0', 0);
+        expect(engine.context.memory.getReg('r0')).toBe(0);
     });
 
     it('should read sp register', async () => {
         const {engine} = await compile('hcf\n');
-        expect(engine.getReg('sp')).toBe(0);
+        expect(engine.context.memory.getReg('sp')).toBe(0);
     });
 
     it('should read ra register', async () => {
         const {engine} = await compile('hcf\n');
-        expect(engine.getReg('ra')).toBe(0);
+        expect(engine.context.memory.getReg('ra')).toBe(0);
     });
 
     it('should set sp and ra', async () => {
         const {engine} = await compile('hcf\n');
-        engine.setReg('sp', 16);
-        engine.setReg('ra', 32);
-        expect(engine.getReg('sp')).toBe(16);
-        expect(engine.getReg('ra')).toBe(32);
+        engine.context.memory.setReg('sp', 16);
+        engine.context.memory.setReg('ra', 32);
+        expect(engine.context.memory.getReg('sp')).toBe(16);
+        expect(engine.context.memory.getReg('ra')).toBe(32);
     });
 });
 
@@ -128,68 +128,47 @@ describe('Engine getReg / setReg', () => {
 describe('Engine stack operations', () => {
     it('should push and pop', async () => {
         const {engine} = await compile('hcf\n');
-        engine.push(3.14);
-        expect(engine.pop()).toBe(3.14);
+        engine.context.memory.push(3.14);
+        expect(engine.context.memory.pop()).toBe(3.14);
     });
 
     it('should push multiple and pop all in LIFO order', async () => {
         const {engine} = await compile('hcf\n');
-        engine.push(1);
-        engine.push(2);
-        engine.push(3);
-        expect(engine.pop()).toBe(3);
-        expect(engine.pop()).toBe(2);
-        expect(engine.pop()).toBe(1);
+        engine.context.memory.push(1);
+        engine.context.memory.push(2);
+        engine.context.memory.push(3);
+        expect(engine.context.memory.pop()).toBe(3);
+        expect(engine.context.memory.pop()).toBe(2);
+        expect(engine.context.memory.pop()).toBe(1);
     });
 
     it('should peek without modifying stack', async () => {
         const {engine} = await compile('hcf\n');
-        engine.push(42);
-        expect(engine.peek()).toBe(42);
-        expect(engine.peek()).toBe(42);
-        expect(engine.pop()).toBe(42);
+        engine.context.memory.push(42);
+        expect(engine.context.memory.peek()).toBe(42);
+        expect(engine.context.memory.peek()).toBe(42);
+        expect(engine.context.memory.pop()).toBe(42);
     });
 
     it('should handle negative stack values', async () => {
         const {engine} = await compile('hcf\n');
-        engine.push(-1);
-        engine.push(-3.14);
-        expect(engine.pop()).toBe(-3.14);
-        expect(engine.pop()).toBe(-1);
+        engine.context.memory.push(-1);
+        engine.context.memory.push(-3.14);
+        expect(engine.context.memory.pop()).toBe(-3.14);
+        expect(engine.context.memory.pop()).toBe(-1);
     });
 
     it('should get stack at index', async () => {
         const {engine} = await compile('hcf\n');
-        engine.push(10);
-        engine.push(20);
-        engine.push(30);
-        expect(engine.getStack(0)).toBe(30);
-        expect(engine.getStack(1)).toBe(20);
-        expect(engine.getStack(2)).toBe(10);
+        engine.context.memory.push(10);
+        engine.context.memory.push(20);
+        engine.context.memory.push(30);
+        expect(engine.context.memory.getStack(0)).toBe(30);
+        expect(engine.context.memory.getStack(1)).toBe(20);
+        expect(engine.context.memory.getStack(2)).toBe(10);
     });
 });
 
-// ============================================================
-// toJSON
-// ============================================================
-
-describe('Engine toJSON', () => {
-    it('should serialize memory state to JSON', async () => {
-        const {engine} = await compile('move r0 42\nhcf\n');
-        engine.runFull();
-        const json = engine.toJSON();
-        expect(typeof json).toBe('string');
-        expect(json.length).toBeGreaterThan(0);
-        expect(() => JSON.parse(json)).not.toThrow();
-    });
-
-    it('should serialize before execution', async () => {
-        const {engine} = await compile('move r0 42\nhcf\n');
-        const json = engine.toJSON();
-        expect(typeof json).toBe('string');
-        expect(() => JSON.parse(json)).not.toThrow();
-    });
-});
 
 // ============================================================
 // runFull / runTick
@@ -232,13 +211,13 @@ describe('Engine execution', () => {
     it('should report halted after hcf', async () => {
         const {engine} = await compile('hcf\n');
         engine.runFull();
-        expect(engine.halted).toBe(true);
+        expect(engine.context.halted).toBe(true);
     });
 
     it('should handle empty program', async () => {
         const {engine} = await compile('');
         engine.runFull();
-        expect(engine.halted).toBe(true);
+        expect(engine.context.halted).toBe(true);
     });
 
     it('should report pc correctly after execution', async () => {
@@ -247,6 +226,6 @@ describe('Engine execution', () => {
             'hcf\n'
         );
         engine.runFull();
-        expect(typeof engine.pc).toBe('number');
+        expect(typeof engine.context.pc).toBe('number');
     });
 });

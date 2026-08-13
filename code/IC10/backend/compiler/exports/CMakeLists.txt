@@ -1,16 +1,11 @@
-# IC10 语言绑定导出
-# 先添加公共绑定库（common_java, common_node, common_python）
-add_subdirectory(../../../../common/cpp/export ${CMAKE_BINARY_DIR}/common_export)
-
-# IC10 专属绑定
-if(BUILD_JAVA_BINDINGS)
-    add_subdirectory(java)
-endif()
-
-if(BUILD_NODE_BINDINGS)
+if (ANY_NODE)
     add_subdirectory(node)
-endif()
+endif ()
 
-if(BUILD_PYTHON_BINDINGS)
+if (ANY_PYTHON)
     add_subdirectory(python)
-endif()
+endif ()
+
+if (ANY_JAVA)
+    add_subdirectory(java)
+endif ()

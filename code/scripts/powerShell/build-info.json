@@ -1,0 +1,47 @@
+{
+    "rootDir": "../..",
+    "IC10_Compiler_Core": {
+        "BuildDir": "build",
+        "SourceDir": ".",
+        "Target": "IC10_Compiler_Tests",
+        "Config": "Release",
+        "TestDir": ".",
+        "TestExe": "build/IC10/backend/compiler/tests/Release/IC10_Compiler_Tests.exe"
+    },
+    "IC10_Compiler_Node": {
+        "BuildDir": "build",
+        "SourceDir": ".",
+        "Target": "ic10_compiler_node",
+        "Config": "Release",
+        "ArtifactPath": "build/IC10/backend/compiler/exports/node/Release/ic10c-node.node",
+        "PublishDir":  "IC10/backend/compiler/publish/node/src",
+        "TestDir": "IC10/backend/compiler"
+    },
+    "IC10_Compiler_Python": {
+        "BuildDir": "build",
+        "SourceDir": ".",
+        "Target": "ic10c_python",
+        "Config": "Release",
+        "ArtifactPath": "build/IC10/backend/compiler/exports/python/Release/ic10c_python.pyd",
+        "PublishDir":  "IC10/backend/compiler/publish/python",
+        "TestDir": "IC10/backend/compiler/tests/python"
+    },
+    "IC10_Compiler_Java": {
+        "BuildDir": "build",
+        "SourceDir": ".",
+        "Target": "ic10_compiler_java",
+        "Config": "Release",
+        "ArtifactPath": "build/IC10/backend/compiler/exports/java/Release/ic10c_java.dll",
+        "PublishDir":  "IC10/backend/compiler/publish/java/src/main/resources/native",
+        "TestDir": "IC10/backend/compiler/tests/java"
+    },
+    "IC10_Runtime_Node": {
+        "BuildDir": "build",
+        "SourceDir": ".",
+        "Target": "ic10_runtime_node",
+        "Config": "Release",
+        "ArtifactPath": "build/IC10/backend/runtime/exports/node/Release/ic10r-node.node",
+        "PublishDir":  "IC10/backend/runtime/publish/node/src",
+        "TestDir": "IC10/backend/runtime"
+    }
+}

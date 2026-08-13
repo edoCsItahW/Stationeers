@@ -10,14 +10,14 @@ import IC10C = require('ic10c-node');
 import IC10R = require('ic10r-node');
 import {setupUTF8Console} from "../utils";
 
-const {IC10Local, Lexer, Parser, Analyser} = IC10C;
+const {IC10CompilerLocal, Lexer, Parser, Analyser} = IC10C;
 const {Engine} = IC10R;
 
 beforeAll(() => {
     setupUTF8Console();
 
-    if (typeof IC10Local.setLanguage === 'function')
-        IC10Local.setLanguage('zh-hans');
+    if (typeof IC10CompilerLocal.setLanguage === 'function')
+        IC10CompilerLocal.setLanguage('zh-hans');
 });
 
 /**
@@ -31,7 +31,7 @@ async function runAndGetReg(source: string, regName: string): Promise<number> {
     await analyser.visit(program);
     const engine = new Engine(program, analyser.symbolTable);
     engine.runFull();
-    return engine.getReg(regName);
+    return engine.context.memory.getReg(regName);
 }
 
 /**
@@ -49,7 +49,7 @@ async function compile(source: string): Promise<{
     const engine = new Engine(program, analyser.symbolTable);
     return {
         engine,
-        reg: (name: string) => engine.getReg(name)
+        reg: (name: string) => engine.context.memory.getReg(name)
     };
 }
 
@@ -253,8 +253,8 @@ describe('Compilation pipeline integration', () => {
         await analyser.visit(program);
 
         expect(program).toBeDefined();
-        expect(program.diagnostics).toBeDefined();
-        expect(Array.isArray(program.diagnostics)).toBe(true);
+        expect(parser.diagnostics).toBeDefined();
+        expect(Array.isArray(parser.diagnostics)).toBe(true);
         expect(analyser.symbolTable).toBeDefined();
     });
 
@@ -280,6 +280,6 @@ describe('Compilation pipeline integration', () => {
         await analyser.visit(program);
         const engine = new Engine(program, analyser.symbolTable);
         engine.runFull();
-        expect(engine.getReg('r0')).toBe(42);
+        expect(engine.context.memory.getReg('r0')).toBe(42);
     });
 });

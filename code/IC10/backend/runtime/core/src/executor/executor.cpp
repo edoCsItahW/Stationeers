@@ -47,7 +47,8 @@ namespace stationeers::ic10 {
                 try {
                     executeIns(std::forward<T>(ins), flag);
                 } catch (const std::exception& e) {
-                    std::cerr << e.what() << " - when execute ins: " << ins.toString() << std::endl;
+                    std::cerr << e.what() << " in " << ins.start().line() << ":" << std::endl;
+                    std::cerr << "\t" << ins.toString() << std::endl;
                 }
             },
             stmt->get()
@@ -55,7 +56,7 @@ namespace stationeers::ic10 {
 
         if (!flag.jumped && !flag.halted && !flag.paused) ctx_.advancePC();
 
-        return !flag.halted;
+        return !flag.halted && !flag.paused;
     }
 
     std::optional<double> Executor::operandValue(const std::shared_ptr<Symbol>& symbol) {

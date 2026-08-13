@@ -1,0 +1,88 @@
+name: C++ Component Workflow
+run-name: Build C++ Component | 构建C++组件
+
+on:
+    workflow_call:
+        inputs:
+            os:
+                description: "Operating System | 操作系统"
+                type: string
+                required: false
+                default: "ubuntu-latest"
+
+            cmake-version:
+                description: "CMake Version | CMake版本"
+                type: string
+                required: false
+                default: "4.2.1"
+
+            script-dir:
+                description: "Script Directory | 脚本目录"
+                type: string
+                required: true
+
+            script-name:
+                description: "Script Name | 脚本名称"
+                type: string
+                required: true
+
+jobs:
+    build:
+        name: Build | 构建
+        runs-on: ${{ inputs.os }}
+        steps:
+            -   name: "[Auto] Show arguments | 显示参数"
+                run: |
+                    echo "OS: ${{ inputs.os }}"
+                    echo "CMake Version: ${{ inputs.cmake-version }}"
+                    echo "Script Directory: ${{ inputs.script-dir }}"
+                    echo "Script Name: ${{ inputs.script-name }}"
+
+            -   name: "[Auto] Checkout source code | 检出源码"
+                uses: actions/checkout@v7
+
+            -   name: "[Auto] Setup C++ Environment | 设置C++环境"
+                uses: ./.github/actions/setup-cpp
+                with:
+                    os: ${{ inputs.os }}
+                    cmake-version: ${{ inputs.cmake-version }}
+                    cache-key-prefix: 'STATIONEERS-CPP'
+
+            -   id: stationeers-artifacts-dir
+                uses: ./.github/actions/join-path
+                with:
+                    path1: ${{ vars.STATIONEERS_CODE_DIR }}
+                    path2: ${{ vars.STATIONEERS_ARTIFACTS_DIR }}
+
+            -   id: stationeers-dep-cache-dir
+                uses: ./.github/actions/join-path
+                with:
+                    path1: ${{ vars.STATIONEERS_CODE_DIR }}
+                    path2: ${{ vars.STATIONEERS_DEP_CACHE_DIR }}
+
+            -   name: "[Auto] Cache artifacts | 缓存工件"
+                uses: actions/cache@v6
+                with:
+                    path: ${{ steps.stationeers-artifacts-dir.outputs.result }}
+                    key: STATIONEERS-ARTIFACTS-${{ runner.os }}
+                    restore-keys: STATIONEERS-ARTIFACTS-${{ runner.os }}
+
+            -   name: "[Auto] Cache dependencies | 缓存依赖"
+                uses: actions/cache@v6
+                with:
+                    path: ${{ steps.stationeers-dep-cache-dir.outputs.result }}
+                    key: STATIONEERS-DEPENDENCIES
+                    restore-keys: STATIONEERS-DEPENDENCIES
+
+            -   name: "[Linux] Build | 构建"
+                if: inputs.os == 'ubuntu-latest'
+                run: |
+                    cd ${{ inputs.script-dir }}
+                    chmod +x ${{ inputs.script-name }}
+                    ./${{ inputs.script-name }} -DSTATIONEERS_ARTIFACTS_DIR=${{ vars.STATIONEERS_ARTIFACTS_DIR }}
+
+            -   name: "[Windows] Build | 构建"
+                if: inputs.os == 'windows-latest'
+                run: |
+                    cd ${{ inputs.script-dir }}
+                    pwsh ./${{ inputs.script-name }} -DSTATIONEERS_ARTIFACTS_DIR=${{ vars.STATIONEERS_ARTIFACTS_DIR }}
