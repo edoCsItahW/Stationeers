@@ -82,14 +82,28 @@ namespace stationeers {
     // Arguments
 
     template<BaseOfValue T>
-    const T Arguments::getWithCheck(std::size_t index) const {
-        if (auto num = info_.Length(); index >= num)
+    T Arguments::getWithCheck(std::size_t index) const {
+        if (auto num = info_.Length(); index >= num) {
             node::Error::New(
                 info_.Env(), std::format("expected {} arguments, but got {}", index + 1, num)
             )
                 .ThrowAsJavaScriptException();
 
-        return info_[index].As<T>();
+            return T{};
+        }
+
+        const node::Value val = info_[index];
+        if (!val.IsEmpty() && !val.StrictEquals(info_.Env().Undefined())) {
+            try {
+                return val.As<T>();
+
+            } catch (const node::Error& e) {
+                e.ThrowAsJavaScriptException();
+                return T{};
+            }
+        }
+
+        return val.As<T>();
     }
 
     // TaskWorker

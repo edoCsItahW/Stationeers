@@ -1,0 +1,29 @@
+name: Join Path
+description: Join two paths | 拼接两个路径
+
+inputs:
+    path1:
+        description: Path 1 | 路径 1
+        required: true
+
+    path2:
+        description: Path 2 | 路径 2
+        required: true
+
+outputs:
+    result:
+        description: Result | 结果
+        value: ${{ steps.join-path.outputs.joined-path }}
+
+
+runs:
+    using: composite
+
+    steps:
+        -
+            id: join-path
+            shell: bash
+            run: |
+                p1="$(echo "${{ inputs.path1 }}" | sed -e 's:^/*::' -e 's:/*$::' -e 's:^\./::')"
+                p2="$(echo "${{ inputs.path2 }}" | sed -e 's:^/*::' -e 's:/*$::' -e 's:^\./::')"
+                echo "joined-path=$p1/$p2" >> $GITHUB_OUTPUT

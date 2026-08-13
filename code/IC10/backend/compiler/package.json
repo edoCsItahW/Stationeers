@@ -3,9 +3,6 @@
 		"test": "jest",
 		"test:watch": "jest --watch"
 	},
-	"dependencies": {
-		"node-addon-api": "^8.8.0"
-	},
 	"devDependencies": {
 		"@types/jest": "^30.0.0",
 		"@types/node": "^25.9.3",

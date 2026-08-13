@@ -65,14 +65,14 @@ jobs:
             -   name: Configure CMake | 配置 CMake
                 shell: bash
                 run: |
-                    CMAKE_ARGS="-B build -S code/IC10/backend/compiler"
+                    CMAKE_ARGS="-B build -S code"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=23"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_NODE_BINDINGS=OFF"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=OFF"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_TESTS=${{ inputs.run-tests && 'ON' || 'OFF' }}"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_COMPILER_CORE=ON"
+                    if [[ "${{ inputs.run-tests }}" == "true" ]]; then
+                      CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_COMPILER_TESTS=ON"
+                    fi
                     CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CCACHE=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
 
@@ -87,9 +87,9 @@ jobs:
             -   name: Build core libraries | 编译核心库
                 shell: bash
                 run: |
-                    BUILD_TARGETS="common ic10_lib"
+                    BUILD_TARGETS="common_core ic10_compiler_core"
                     if [[ "${{ inputs.run-tests }}" == "true" ]]; then
-                      BUILD_TARGETS="$BUILD_TARGETS ic10_tests"
+                      BUILD_TARGETS="$BUILD_TARGETS IC10_Compiler_Tests"
                     fi
                     if [[ "${{ inputs.build-compiler }}" == "true" ]]; then
                       BUILD_TARGETS="$BUILD_TARGETS IC10_Compiler_CLI"
@@ -139,17 +139,21 @@ jobs:
             -   name: Copy libraries | 复制库文件
                 shell: bash
                 run: |
+                    # 收集所有库文件到统一目录
+                    LIB_DIR="artifacts/lib"
+                    mkdir -p "$LIB_DIR"
                     if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
-                      cp -f build/common/${{ inputs.build-type }}/common.lib artifacts/lib/common/${{ inputs.build-type }}/ || echo "common.lib not found in expected path"
-                      cp -f build/core/${{ inputs.build-type }}/ic10_lib.lib artifacts/lib/core/${{ inputs.build-type }}/ || echo "ic10_lib.lib not found in expected path"
+                      # Windows: 多配置生成器，库在 build-type 子目录
+                      find build -name "common_core.lib" -o -name "ic10_compiler_core.lib" 2>/dev/null | while read -r f; do
+                        cp -f "$f" "$LIB_DIR/" 2>/dev/null && echo "Copied: $f"
+                      done
+                      ls -la "$LIB_DIR/" 2>/dev/null || echo "No libs found"
                     else
-                      cp -f build/common/libcommon.a artifacts/lib/common/${{ inputs.build-type }}/ 2>/dev/null || \
-                      cp -f build/common/${{ inputs.build-type }}/libcommon.a artifacts/lib/common/${{ inputs.build-type }}/ 2>/dev/null || \
-                      echo "libcommon.a not found"
-
-                      cp -f build/core/libic10_lib.a artifacts/lib/core/${{ inputs.build-type }}/ 2>/dev/null || \
-                      cp -f build/core/${{ inputs.build-type }}/libic10_lib.a artifacts/lib/core/${{ inputs.build-type }}/ 2>/dev/null || \
-                      echo "libic10_lib.a not found"
+                      # Linux: 单配置生成器
+                      find build -name "libcommon_core.a" -o -name "libic10_compiler_core.a" 2>/dev/null | while read -r f; do
+                        cp -f "$f" "$LIB_DIR/" 2>/dev/null && echo "Copied: $f"
+                      done
+                      ls -la "$LIB_DIR/" 2>/dev/null || echo "No libs found"
                     fi
 
             -   name: Copy compiler executable | 复制编译器可执行文件
@@ -158,12 +162,11 @@ jobs:
                 run: |
                     if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
                       # Windows: 查找 .exe 文件
-                      cp -f build/bin/ic10c.exe artifacts/bin/ 2>/dev/null || \
-                      cp -f build/bin/${{ inputs.build-type }}/ic10c.exe artifacts/bin/ 2>/dev/null || \
+                      find build -name "ic10c.exe" 2>/dev/null | head -1 | xargs -I{} cp -f {} artifacts/bin/ 2>/dev/null || \
                       echo "ic10c.exe not found"
                     else
                       # Linux: 可执行文件无扩展名
-                      cp -f build/bin/ic10c artifacts/bin/ 2>/dev/null || \
+                      find build -name "ic10c" -type f 2>/dev/null | head -1 | xargs -I{} cp -f {} artifacts/bin/ 2>/dev/null || \
                       echo "ic10c not found"
                     fi
                     ls -la artifacts/bin/ || true

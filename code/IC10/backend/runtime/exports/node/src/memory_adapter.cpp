@@ -22,9 +22,10 @@ namespace stationeers::ic10 {
 
     MemoryAdapter::MemoryAdapter(const node::CallbackInfo& info)
         : ObjectWrap(info)
-        , memory_([&] -> Memory {
+        , memory_([&]() -> Memory {
+            // 支持 0 参数构造（toExisting 模式）：用默认 Config 构造
+            if (info.Length() == 0) return Memory{Config{}};
             Arguments args(info);
-
             return {ConfigAdapter::from(args.getWithCheck<node::Object>(0))};
         }()) {}
 
@@ -43,6 +44,10 @@ namespace stationeers::ic10 {
                 InstanceMethod<&MemoryAdapter::setReg>("setReg"),
                 InstanceMethod<&MemoryAdapter::getStack>("getStack"),
                 InstanceMethod<&MemoryAdapter::setStack>("setStack"),
+                InstanceMethod<&MemoryAdapter::push>("push"),
+                InstanceMethod<&MemoryAdapter::pop>("pop"),
+                InstanceMethod<&MemoryAdapter::peek>("peek"),
+                InstanceMethod<&MemoryAdapter::poke>("poke"),
                 InstanceMethod<&MemoryAdapter::toJSON>("toJSON")
             }
         );
@@ -59,7 +64,17 @@ namespace stationeers::ic10 {
     Memory MemoryAdapter::from(const node::Object& obj) {
         MemoryAdapter* wrapper = Unwrap(obj);
 
-        return wrapper->memory_;
+        return wrapper->mem();
+    }
+
+    node::Object MemoryAdapter::toExisting(node::Env env, Memory* memory) {
+        node::Object obj = constructor.New({});
+
+        MemoryAdapter* wrapper = Unwrap(obj);
+
+        wrapper->memPtr_ = memory;
+
+        return obj;
     }
 
     node::Object MemoryAdapter::to(node::Env env, const Memory& memory) {
@@ -73,17 +88,17 @@ namespace stationeers::ic10 {
     }
 
     node::Value MemoryAdapter::toJSON(const node::CallbackInfo& info) {
-        return node::String::New(info.Env(), memory_.toJSON());
+        return node::String::New(info.Env(), mem().toJSON());
     }
 
     node::Value MemoryAdapter::getConfig(const node::CallbackInfo& info) {
-        return ConfigAdapter::to(info.Env(), memory_.cfg);
+        return ConfigAdapter::to(info.Env(), mem().cfg);
     }
 
     void MemoryAdapter::setConfig(const node::CallbackInfo& info, const node::Value&) {
         Arguments args(info);
 
-        memory_.cfg = ConfigAdapter::from(args.getWithCheck<node::Object>(0));
+        mem().cfg = ConfigAdapter::from(args.getWithCheck<node::Object>(0));
     }
 
     node::Value MemoryAdapter::getReg(const node::CallbackInfo& info) {
@@ -91,7 +106,7 @@ namespace stationeers::ic10 {
 
         auto name = args.getWithCheck<node::String>(0);
 
-        return node::Number::New(info.Env(), memory_.getReg(name));
+        return node::Number::New(info.Env(), mem().getReg(name));
     }
 
     void MemoryAdapter::setReg(const node::CallbackInfo& info) {
@@ -100,11 +115,11 @@ namespace stationeers::ic10 {
         auto name = args.getWithCheck<node::String>(0);
         auto value = args.getWithCheck<node::Number>(1);
 
-        memory_.setReg(name, value.Int64Value());
+        mem().setReg(name, value.DoubleValue());
     }
 
     node::Value MemoryAdapter::getSP(const node::CallbackInfo& info) {
-        return node::Number::New(info.Env(), memory_.getSP());
+        return node::Number::New(info.Env(), mem().getSP());
     }
 
     void MemoryAdapter::setSP(const node::CallbackInfo& info, const node::Value& value) {
@@ -112,7 +127,7 @@ namespace stationeers::ic10 {
 
         auto val = args.getWithCheck<node::Number>(0);
 
-        memory_.setSP(val.Int64Value());
+        mem().setSP(val.DoubleValue());
     }
 
     node::Value MemoryAdapter::getStack(const node::CallbackInfo& info) {
@@ -120,7 +135,7 @@ namespace stationeers::ic10 {
 
         auto idx = args.getWithCheck<node::Number>(0);
 
-        return node::Number::New(info.Env(), memory_.getStack(idx.Int64Value()));
+        return node::Number::New(info.Env(), mem().getStack(idx.Int64Value()));
     }
 
     void MemoryAdapter::setStack(const node::CallbackInfo& info) {
@@ -129,7 +144,33 @@ namespace stationeers::ic10 {
         auto idx = args.getWithCheck<node::Number>(0);
         auto val = args.getWithCheck<node::Number>(1);
 
-        memory_.setStack(idx.Int64Value(), val.Int64Value());
+        mem().setStack(idx.Int64Value(), val.DoubleValue());
+    }
+
+    void MemoryAdapter::push(const node::CallbackInfo& info) {
+        Arguments args(info);
+
+        auto val = args.getWithCheck<node::Number>(0).DoubleValue();
+
+        mem().push(val);
+    }
+
+    node::Value MemoryAdapter::pop(const node::CallbackInfo& info) {
+        return node::Number::New(info.Env(), mem().pop());
+    }
+
+    node::Value MemoryAdapter::peek(const node::CallbackInfo& info) {
+        return node::Number::New(info.Env(), mem().peek());
+    }
+
+    void MemoryAdapter::poke(const node::CallbackInfo& info) {
+        Arguments args(info);
+
+        auto idx = args.getWithCheck<node::Number>(0).Int64Value();
+
+        auto val = args.getWithCheck<node::Number>(1).DoubleValue();
+
+        mem().poke(idx, val);
     }
 
 }  // namespace stationeers::ic10

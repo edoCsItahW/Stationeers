@@ -48,7 +48,17 @@ namespace stationeers::ic10 {
     Manager ManagerAdapter::from(const node::Object& obj) {
         ManagerAdapter* wrapper = Unwrap(obj);
 
-        return std::move(wrapper->manager_);
+        return std::move(wrapper->mgr());
+    }
+
+    node::Object ManagerAdapter::toExisting(node::Env env, Manager* manager) {
+        node::Object obj = constructor.New({});
+
+        ManagerAdapter* wrapper = Unwrap(obj);
+
+        wrapper->mgrPtr_ = manager;
+
+        return obj;
     }
 
     node::Object ManagerAdapter::to(node::Env env, const Manager& manager) {
@@ -60,7 +70,7 @@ namespace stationeers::ic10 {
     node::Value ManagerAdapter::getDevice(const node::CallbackInfo& info) {
         Arguments args(info);
 
-        IDevice* device = manager_.getDevice(args.getWithCheck<node::String>(0).Utf8Value());
+        IDevice* device = mgr().getDevice(args.getWithCheck<node::String>(0).Utf8Value());
 
         if (!device) return info.Env().Null();
 
@@ -70,20 +80,20 @@ namespace stationeers::ic10 {
     void ManagerAdapter::setExternalDevice(const node::CallbackInfo& info) {
         Arguments args(info);
 
-        manager_.setExternalDevice(
+        mgr().setExternalDevice(
             args.getWithCheck<node::String>(0).Utf8Value(), std::make_unique<VirtualDevice>()
         );
     }
 
     void ManagerAdapter::setChipDevice(const node::CallbackInfo& info) {
-        manager_.setChipDevice(std::make_unique<VirtualDevice>());
+        mgr().setChipDevice(std::make_unique<VirtualDevice>());
     }
 
     node::Value ManagerAdapter::findDeviceByType(const node::CallbackInfo& info) {
         Arguments args(info);
 
         IDevice* device =
-            manager_.findDeviceByType(args.getWithCheck<node::Number>(0).Int64Value());
+            mgr().findDeviceByType(args.getWithCheck<node::Number>(0).Int64Value());
 
         if (!device) return info.Env().Null();
 
@@ -93,7 +103,7 @@ namespace stationeers::ic10 {
     node::Value ManagerAdapter::findDeviceByTypeAndName(const node::CallbackInfo& info) {
         Arguments args(info);
 
-        IDevice* device = manager_.findDeviceByTypeAndName(
+        IDevice* device = mgr().findDeviceByTypeAndName(
             args.getWithCheck<node::Number>(0).Int64Value(),
             args.getWithCheck<node::Number>(1).Int64Value()
         );
@@ -106,7 +116,7 @@ namespace stationeers::ic10 {
     node::Value ManagerAdapter::findDevicesByType(const node::CallbackInfo& info) {
         Arguments args(info);
 
-        auto devices = manager_.findDevicesByType(args.getWithCheck<node::Number>(0).Int64Value());
+        auto devices = mgr().findDevicesByType(args.getWithCheck<node::Number>(0).Int64Value());
 
         auto result = node::Array::New(info.Env());
 
@@ -119,7 +129,7 @@ namespace stationeers::ic10 {
     node::Value ManagerAdapter::findDevicesByTypeAndName(const node::CallbackInfo& info) {
         Arguments args(info);
 
-        auto devices = manager_.findDevicesByTypeAndName(
+        auto devices = mgr().findDevicesByTypeAndName(
             args.getWithCheck<node::Number>(0).Int64Value(),
             args.getWithCheck<node::Number>(1).Int64Value()
         );
@@ -132,6 +142,6 @@ namespace stationeers::ic10 {
         return result;
     }
 
-    void ManagerAdapter::tick(const node::CallbackInfo& info) { manager_.tick(); }
+    void ManagerAdapter::tick(const node::CallbackInfo& info) { mgr().tick(); }
 
 }  // namespace stationeers::ic10

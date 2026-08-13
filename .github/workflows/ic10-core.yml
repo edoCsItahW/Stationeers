@@ -60,16 +60,18 @@ jobs:
             -   name: Configure CMake | 配置 CMake
                 shell: bash
                 run: |
-                    CMAKE_ARGS="-B build -S code/IC10/backend/compiler"
+                    CMAKE_ARGS="-B build -S code"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=23"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_NODE_BINDINGS=OFF"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=OFF"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_TESTS=${{ inputs.run-tests && 'ON' || 'OFF' }}"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_COMPILER_CORE=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_RUNTIME_CORE=ON"
+                    if [[ "${{ inputs.run-tests }}" == "true" ]]; then
+                      CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_COMPILER_TESTS=ON"
+                      CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_RUNTIME_TESTS=ON"
+                    fi
                     CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CCACHE=ON"
- 
+
                     if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
                       CMAKE_ARGS="$CMAKE_ARGS -G Ninja"
                       CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld"

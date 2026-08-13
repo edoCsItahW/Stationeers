@@ -19,7 +19,7 @@ import { Config } from "./config";
 
 export class Engine {
 
-    constructor(program: Program, symbols: SymbolTable, config: Config);
+    constructor(program: Program, symbols: SymbolTable, config?: Partial<Config>);
 
     runTick(): void;
 

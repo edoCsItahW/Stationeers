@@ -78,22 +78,17 @@ jobs:
             -   name: Configure CMake | 配置 CMake
                 shell: bash
                 run: |
-                    CMAKE_ARGS="-B build -S code/IC10/backend/compiler"
+                    CMAKE_ARGS="-B build -S code"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD=23"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_STANDARD_REQUIRED=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_NODE_BINDINGS=OFF"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_PYTHON_BINDINGS=OFF"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_JAVA_BINDINGS=ON"
-                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_TESTS=${{ inputs.run-tests && 'ON' || 'OFF' }}"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_COMPILER_CORE=ON"
+                    CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_COMPILER_EXPORTS_JAVA=ON"
+                    if [[ "${{ inputs.run-tests }}" == "true" ]]; then
+                      CMAKE_ARGS="$CMAKE_ARGS -DBUILD_IC10_COMPILER_TESTS=ON"
+                    fi
                     CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CCACHE=ON"
                     CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
-
-                    if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
-                      CMAKE_ARGS="$CMAKE_ARGS -DIC10_CORE_ARTIFACT_DIR=$GITHUB_WORKSPACE/core-artifact"
-                      echo "Using prebuilt core artifact from: $GITHUB_WORKSPACE/core-artifact"
-                    fi
 
                     if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
                       CMAKE_ARGS="$CMAKE_ARGS -G Ninja"
@@ -106,11 +101,11 @@ jobs:
             -   name: Build | 编译
                 shell: bash
                 run: |
-                    if [[ "${{ inputs.core-artifact-name }}" != "" ]]; then
-                      cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target IC10_Compiler_Java common_java
-                    else
-                      cmake --build build --config ${{ inputs.build-type }} --parallel 4
+                    BUILD_TARGETS="ic10_compiler_java common_java"
+                    if [[ "${{ inputs.run-tests }}" == "true" ]]; then
+                      BUILD_TARGETS="$BUILD_TARGETS IC10_Compiler_Tests"
                     fi
+                    cmake --build build --config ${{ inputs.build-type }} --parallel 4 --target $BUILD_TARGETS
 
             -   name: (Linux) Show ccache/sccache stats | 显示缓存统计
                 if: inputs.os == 'ubuntu-latest'
@@ -134,7 +129,7 @@ jobs:
                 shell: bash
                 run: |
                     cd build
-                    ctest --output-on-failure --parallel 4 -C ${{ inputs.build-type }} -R ic10
+                    ctest --output-on-failure --parallel 4 -C ${{ inputs.build-type }}
 
             -   name: Copy native library to Java package | 复制原生库到 Java 包
                 shell: bash
@@ -142,16 +137,19 @@ jobs:
                     LIBS_DIR="code/IC10/backend/compiler/publish/java/src/main/resources/native"
                     mkdir -p "$LIBS_DIR"
                     if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
-                      cp -f build/exports/java/Release/ic10c_java.dll "$LIBS_DIR/" 2>/dev/null || \
-                      cp -f build/exports/java/ic10c_java.dll "$LIBS_DIR/" 2>/dev/null || \
+                      # Windows: 多配置生成器
+                      find build -name "ic10c_java.dll" 2>/dev/null | head -1 | xargs -I{} cp -f {} "$LIBS_DIR/" 2>/dev/null || \
                       echo "WARNING: ic10c_java.dll not found"
                     else
-                      cp -f build/exports/java/libic10c_java.so "$LIBS_DIR/" 2>/dev/null || \
+                      # Linux
+                      find build -name "libic10c_java.so" 2>/dev/null | head -1 | xargs -I{} cp -f {} "$LIBS_DIR/" 2>/dev/null || \
                       echo "WARNING: libic10c_java.so not found"
-                      echo "--- ldd check ---"
-                      ldd "$LIBS_DIR/libic10c_java.so" 2>&1 || true
+                      if [ -f "$LIBS_DIR/libic10c_java.so" ]; then
+                        echo "--- ldd check ---"
+                        ldd "$LIBS_DIR/libic10c_java.so" 2>&1 || true
+                      fi
                     fi
-                    ls -la "$LIBS_DIR/"
+                    ls -la "$LIBS_DIR/" 2>/dev/null || echo "Directory is empty or missing"
 
             -   name: Run Gradle tests | 运行 Gradle 测试
                 if: inputs.run-tests

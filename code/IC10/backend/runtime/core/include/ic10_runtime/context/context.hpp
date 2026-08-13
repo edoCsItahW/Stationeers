@@ -59,9 +59,9 @@ namespace stationeers::ic10 {
 
         std::optional<std::shared_ptr<Symbol>> resolve(const std::string& name) const;
 
-        const Program* program;
+        Program program;
 
-        const SymbolTable* symbols;
+        SymbolTable symbols;
 
         Memory memory;
 
