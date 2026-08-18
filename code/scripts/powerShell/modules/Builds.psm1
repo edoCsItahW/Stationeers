@@ -1,6 +1,11 @@
 Import-Module "$PSScriptRoot\Locale.psm1"
 Import-Module "$PSScriptRoot\Debug.psm1" -Force
 
+# Detect OS key for build-info.json field lookup (windows / linux)
+function Get-OSKey {
+    if ($IsWindows -or $env:OS -eq "Windows_NT") { "windows" } else { "linux" }
+}
+
 function Find-FileExists {
     param(
         [string]$Path,
@@ -86,10 +91,24 @@ function Copy-Artifact {
         throw (__ "Build.Copy.SourceNotFound" -Arguments $Source)
     }
 
-    $parent = Split-Path $Destination -Parent
+    $isDir = $Destination.EndsWith('\') -or $Destination.EndsWith('/') -or (Test-Path -Path $Destination -PathType Container)
 
-    if (-not (Test-Path $parent)) {
-        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    # If source is a file and destination doesn't exist yet, treat as directory
+    # so the file is copied INTO it (e.g. .../native/).
+    if (-not $isDir -and (Test-Path $Source -PathType Leaf) -and -not (Test-Path $Destination)) {
+        $isDir = $true
+    }
+
+    if ($isDir) {
+        if (-not (Test-Path $Destination)) {
+            New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+        }
+    }
+    else {
+        $parent = Split-Path $Destination -Parent
+        if (-not [string]::IsNullOrEmpty($parent) -and -not (Test-Path $parent)) {
+            New-Item -ItemType Directory -Path $parent -Force | Out-Null
+        }
     }
 
     Copy-Item -Path $Source -Destination $Destination -Force:$Force
@@ -102,5 +121,22 @@ function Copy-Artifact {
     }
 }
 
+# Resolve artifact path across platforms.
+# Multi-config generators (Visual Studio) create Release/ subdirectories;
+# single-config generators (Ninja/Makefile on Linux) do not.
+# This function tries the path as-is, then without /Release/.
+function Resolve-ArtifactPath {
+    param([string]$ArtifactPath)
 
-Export-ModuleMember -Function Invoke-CMakeConfigure, Invoke-CMakeBuild, Copy-Artifact
+    if (Test-Path $ArtifactPath) {
+        return $ArtifactPath
+    }
+    $stripped = $ArtifactPath -replace '/Release/', '/'
+    if (Test-Path $stripped) {
+        return $stripped
+    }
+    return $ArtifactPath
+}
+
+
+Export-ModuleMember -Function Invoke-CMakeConfigure, Invoke-CMakeBuild, Copy-Artifact, Resolve-ArtifactPath, Get-OSKey

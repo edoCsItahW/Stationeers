@@ -38,7 +38,7 @@ macro(enable_compiler_cache)
         set(CMAKE_CXX_COMPILER_LAUNCHER ${SCCACHE_PROGRAM} CACHE STRING "" FORCE)
         set(CMAKE_CXX_COMPILER_LAUNCHER ${SCCACHE_PROGRAM})
 
-        st_l_info_fmt(ICommonSettings0 "sccache")
+        st_l_info_fmt(ICommonSettings0 "sccache" "${CMAKE_CXX_COMPILER_LAUNCHER}")
 
     else ()
         find_program(CCACHE_PROGRAM ccache)
@@ -47,7 +47,7 @@ macro(enable_compiler_cache)
             set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM} CACHE STRING "" FORCE)
             set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
 
-            st_l_info_fmt(ICommonSettings0 "ccache")
+            st_l_info_fmt(ICommonSettings0 "ccache" "${CMAKE_CXX_COMPILER_LAUNCHER}")
 
         endif ()
 

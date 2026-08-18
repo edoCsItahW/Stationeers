@@ -25,7 +25,7 @@ set(ST_DFunctions5 "将'{0}'的缓存更新为'{1}'")
 set(ST_EFunctions6 "文件'{0}'不存在")
 
 # ---- CommonSettings ----
-set(ST_ICommonSettings0 "使用'{0}'")
+set(ST_ICommonSettings0 "使用'{0}'，位于'{1}'")
 
 # ---- Node (FindNode + FindNodeAddonApi) ----
 # Doc strings (D 前缀) — 用于 option / cache 变量说明

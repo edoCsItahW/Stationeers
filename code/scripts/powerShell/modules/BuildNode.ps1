@@ -16,11 +16,14 @@ try {
 
     Write-ST-Phase (__ "Node.Copy")
 
-    Copy-Artifact -Source $Config.ArtifactPath -Destination $Config.PublishDir
+    $resolved = Resolve-ArtifactPath $Config.ArtifactPath
+    Copy-Artifact -Source $resolved -Destination $Config.PublishDir
 
     Write-ST-Phase (__ "Node.Test")
 
     Set-Location $Config.TestDir
+
+    pnpm install --ignore-scripts
 
     pnpm run test
 } catch {

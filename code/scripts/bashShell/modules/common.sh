@@ -2,6 +2,15 @@
 source "$(dirname "${BASH_SOURCE[0]}")/debug.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/locale.sh"
 
+# Detect OS key for build-info.json field lookup (windows / linux)
+detect_os() {
+    if [[ -n "$WINDIR" || "$OS" == "Windows_NT" ]]; then
+        echo "windows"
+    else
+        echo "linux"
+    fi
+}
+
 find_file_exists() {
     local path="$1" name="$2"
     find "$path" -type f -name "$name" 2>/dev/null | grep -q .
@@ -56,7 +65,17 @@ invoke_cmake_build() {
 copy_artifact() {
     local src="$1" dst="$2"
     [[ -f "$src" ]] || { write_st_error "$(get_text "Build.Copy.SourceNotFound" "$src")"; exit 1; }
-    mkdir -p "$(dirname "$dst")"
+
+    if [[ "$dst" == */ ]] || [[ -d "$dst" ]]; then
+        mkdir -p "$dst"
+    elif [[ ! -e "$dst" ]]; then
+        # Source is a file and destination doesn't exist yet — treat as
+        # directory so the file is copied INTO it (e.g. .../native/).
+        mkdir -p "$dst"
+    else
+        mkdir -p "$(dirname "$dst")"
+    fi
+
     cp "$src" "$dst" || {
         write_st_error "$(get_text "Build.Copy.Error" "$?")"
         exit 1
@@ -65,49 +84,20 @@ copy_artifact() {
 }
 
 # Resolve artifact path across platforms.
-# build-info.json stores Windows paths (with Release/ subdirectory and .dll/.pyd extensions).
-# On Linux (single-config generators), the path differs (no Release/, .so extension with lib prefix).
+# Multi-config generators (Visual Studio) create Release/ subdirectories;
+# single-config generators (Ninja/Makefile on Linux) do not.
+# This function tries the path as-is, then without /Release/.
 resolve_artifact_path() {
     local artifact="$1"
-    # 1. Try the path as-is (works on Windows or if already correct)
     if [[ -f "$artifact" ]]; then
         echo "$artifact"
         return 0
     fi
-    # 2. Try without Release/ subdirectory (Linux single-config generator)
     local stripped="${artifact/\/Release\///}"
     if [[ -f "$stripped" ]]; then
         echo "$stripped"
         return 0
     fi
-    # 3. Try finding by filename (for Linux where path structure may differ)
-    local filename
-    filename=$(basename "$artifact")
-    local found
-    found=$(find build -name "$filename" -type f 2>/dev/null | head -1)
-    if [[ -n "$found" ]]; then
-        echo "$found"
-        return 0
-    fi
-    # 4. For Java: .dll -> lib*.so on Linux
-    if [[ "$filename" == *.dll ]]; then
-        local base="${filename%.dll}"
-        found=$(find build -name "lib${base}.so" -type f 2>/dev/null | head -1)
-        if [[ -n "$found" ]]; then
-            echo "$found"
-            return 0
-        fi
-    fi
-    # 5. For Windows executables: .exe -> no extension on Linux
-    if [[ "$filename" == *.exe ]]; then
-        local base="${filename%.exe}"
-        found=$(find build -name "$base" -type f 2>/dev/null | head -1)
-        if [[ -n "$found" ]]; then
-            echo "$found"
-            return 0
-        fi
-    fi
-    # Not found, return original path (copy_artifact will report the error)
     echo "$artifact"
     return 1
 }
