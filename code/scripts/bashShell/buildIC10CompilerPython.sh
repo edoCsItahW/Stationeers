@@ -7,7 +7,7 @@ source "$SCRIPT_DIR/modules/buildPython.sh"
 
 initialize_locale "${STATIONEERS_LANG:-"zh-hans"}"
 
-CONFIG_FILE="$SCRIPT_DIR/build-info.json"
+CONFIG_FILE="$SCRIPT_DIR/../build-info.json"
 [[ -f "$CONFIG_FILE" ]] || { write_st_error "build-info.json not found!"; exit 1; }
 
 ROOT_DIR_REL=$(jq -r ".rootDir" "$CONFIG_FILE")

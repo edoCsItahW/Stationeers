@@ -82,6 +82,7 @@ if (NOT pybind11_FOUND AND PYBIND11_AUTO_INSTALL)
         if (_pybind11_result EQUAL 0 AND _pybind11_cmake_dir)
             file(TO_CMAKE_PATH "${_pybind11_cmake_dir}" _pybind11_cmake_dir)
 
+            st_localize(DPybind112 _PYBIND11_MSG)
             set(pybind11_DIR "${_pybind11_cmake_dir}" CACHE PATH ${_PYBIND11_MSG} FORCE)
 
             st_l_info_fmt(IPybind117 ${pybind11_DIR})
@@ -105,14 +106,14 @@ endif ()
 
 include(FindPackageHandleStandardArgs)
 
-find_package_handle_standard_args(pybind11
+find_package_handle_standard_args(Pybind11
         REQUIRED_VARS pybind11_DIR Python_EXECUTABLE
         VERSION_VAR pybind11_VERSION
         HANDLE_COMPONENTS
 )
 
 
-if (NOT pybind11_FOUND)
+if (NOT Pybind11_FOUND)
     st_l_info(IPybind1110)
 
     return()

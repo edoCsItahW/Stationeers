@@ -10,15 +10,16 @@ build_core() {
     local target=$(jq -r '.Target' <<<"$config_json")
     local config_type=$(jq -r '.Config' <<<"$config_json")
     local test_dir=$(jq -r '.TestDir' <<<"$config_json")
-    local test_exe=$(jq -r '.TestExe' <<<"$config_json")
+    local test_exe_dir=$(jq -r '.TestExeDir' <<<"$config_json")
+    local os=$(detect_os)
+    local test_exe_name=$(jq -r ".TestExeName.${os}" <<<"$config_json")
+    local test_exe="${test_exe_dir}/${test_exe_name}"
 
     invoke_cmake_configure "$target" "$build_dir" "$source_dir" "${extra_args[@]}"
     invoke_cmake_build "$build_dir" "$target" "$config_type"
 
     write_st_phase "$(get_text "Core.Test")"
 
-    # Resolve the test executable path across platforms (Linux has no Release/
-    # subdirectory and no .exe suffix with single-config generators like Ninja).
     local actual_test_exe
     actual_test_exe=$(resolve_artifact_path "$test_exe")
 

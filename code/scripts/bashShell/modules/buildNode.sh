@@ -22,7 +22,7 @@ build_node() {
     copy_artifact "$resolved_artifact" "$publish_dir"
 
     write_st_phase "$(get_text "Node.Test")"
-    (cd "$test_dir" && pnpm run test) || {
+    (cd "$test_dir" && pnpm install --ignore-scripts && pnpm run test) || {
         write_st_error "$(get_text "Node.Error" "$?")"
         exit 1
     }

@@ -13,7 +13,11 @@ target_include_directories(ic10c_python PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inclu
 
 target_link_libraries(ic10c_python PRIVATE Common::Core IC10::Compiler::Core Common::Python)
 
-set_target_properties(ic10c_python PROPERTIES SUFFIX ".pyd")
+if (WIN32)
+    set_target_properties(ic10c_python PROPERTIES SUFFIX ".pyd")
+else ()
+    set_target_properties(ic10c_python PROPERTIES SUFFIX ".so")
+endif ()
 
 st_apply_compile_options(ic10c_python)
 

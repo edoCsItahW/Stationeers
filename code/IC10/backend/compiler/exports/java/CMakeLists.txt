@@ -1,7 +1,7 @@
 project(IC10_Compiler_Java VERSION 1.0)
 
 st_source(IC10_COMPILER_JAVA_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-st_auto_library(ic10_compiler_java "${IC10_COMPILER_JAVA_SRC}" ${CMAKE_CURRENT_SOURCE_DIR}/include JNI::JNI fbjni::fbjni IC10::Compiler::Core Common::Java LIBRARY_TYPE SHARED)
+st_auto_library(ic10_compiler_java "${IC10_COMPILER_JAVA_SRC}" ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE_LINK JNI::JNI fbjni::fbjni IC10::Compiler::Core Common::Java LIBRARY_TYPE SHARED)
 
 set_target_properties(ic10_compiler_java PROPERTIES OUTPUT_NAME "ic10c_java")
 

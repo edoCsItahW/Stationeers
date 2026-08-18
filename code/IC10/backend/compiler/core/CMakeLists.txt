@@ -13,9 +13,7 @@ st_apply_compile_options(ic10_compiler_core)
 
 st_alias(IC10::Compiler::Core ic10_compiler_core)
 
-
-add_executable(IC10_Compiler_CLI main.cpp)
-target_link_libraries(IC10_Compiler_CLI PRIVATE Common::Core IC10::Compiler::Core)
+st_auto_executable(IC10_Compiler_CLI "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" "" PRIVATE_LINK Common::Core IC10::Compiler::Core)
 
 set_target_properties(IC10_Compiler_CLI PROPERTIES OUTPUT_NAME "ic10c" RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 

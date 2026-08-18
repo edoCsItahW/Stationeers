@@ -16,9 +16,17 @@ try {
 
     Write-ST-Phase (__ "Core.Test")
 
+    $os = Get-OSKey
+    $testExe = Join-Path $Config.TestExeDir $Config.TestExeName.$os
+    $actualTestExe = Resolve-ArtifactPath $testExe
+
+    if (-not (Test-Path $actualTestExe)) {
+        throw (__ "Build.Copy.SourceNotFound" -Arguments $actualTestExe)
+    }
+
     Set-Location $Config.TestDir
 
-    . $Config.TestExe
+    . $actualTestExe
 } catch {
     Write-ST-Error (__ "Core.Error" -Arguments $_.Exception.Message)
 

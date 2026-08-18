@@ -9,37 +9,126 @@ on:
     workflow_dispatch:  # 手动触发
 
 jobs:
-    ic10-compiler-core:
-        name: IC10 Compiler Core | IC10编译器核心
-        strategy:
-            matrix:
-                include:
-                    -   os: ubuntu-latest
-                        script-dir: /bashShell
-                        script-name: buildIC10CompilerCore.sh
-                    -   os: windows-latest
-                        script-dir: /powerShell
-                        script-name: BuildIC10CompilerCore.ps1
+    detect-changes:
+        name: "[Auto] Detect source changes | 检测源代码变化"
+        runs-on: ubuntu-latest
+        outputs:
+            ic10-compiler-core: ${{ steps.path-filter.outputs.ic10-compiler-core }}
+            ic10-compiler-node: ${{ steps.path-filter.outputs.ic10-compiler-node }}
+            ic10-compiler-python: ${{ steps.path-filter.outputs.ic10-compiler-python }}
+            ic10-compiler-java: ${{ steps.path-filter.outputs.ic10-compiler-java }}
+        steps:
+            -   name: "[Auto] Checkout source code | 检出源码"
+                uses: actions/checkout@v7
+
+            -   name: "[Auto] Detect changes | 检测变更"
+                id: path-filter
+                uses: ./.github/actions/detect-changes
+
+    ic10-compiler-core-linux:
+        name: "[Linux] IC10 Compiler Core | IC10编译器核心"
+        needs: detect-changes
+        if: needs.detect-changes.outputs.ic10-compiler-core == 'true'
         uses: ./.github/workflows/cpp-workflow.yml
         with:
-            os: ${{ matrix.os }}
-            script-dir: code/scripts${{ matrix.script-dir }}
-            script-name: ${{ matrix.script-name }}
+            os: ubuntu-latest
+            script-dir: code/scripts/bashShell
+            script-name: buildIC10CompilerCore.sh
 
-#    ic10-compiler-node:
-#        name: IC10 Compiler Node.js Bindings | IC10编译器Node.js绑定
-#        needs: ic10-compiler-core
-#        strategy:
-#            matrix:
-#                include:
-#                    -   os: ubuntu-latest
-#                        script-dir: /bashShell
-#                        script-name: buildIC10CompilerNode.sh
-#                    -   os: windows-latest
-#                        script-dir: /powerShell
-#                        script-name: BuildIC10CompilerNode.ps1
-#        uses: ./.github/workflows/node-workflow.yml
-#        with:
-#            os: ${{ matrix.os }}
-#            script-dir: code/scripts${{ matrix.script-dir }}
-#            script-name: ${{ matrix.script-name }}
+    ic10-compiler-core-windows:
+        name: "[Windows] IC10 Compiler Core | IC10编译器核心"
+        needs: detect-changes
+        if: needs.detect-changes.outputs.ic10-compiler-core == 'true'
+        uses: ./.github/workflows/cpp-workflow.yml
+        with:
+            os: windows-latest
+            script-dir: code/scripts/powerShell
+            script-name: BuildIC10CompilerCore.ps1
+
+    ic10-compiler-node-linux:
+        name: "[Linux] IC10 Compiler Node.js Bindings | IC10编译器Node.js绑定"
+        needs: [detect-changes, ic10-compiler-core-linux]
+        if: needs.detect-changes.outputs.ic10-compiler-node == 'true'
+        uses: ./.github/workflows/node-workflow.yml
+        with:
+            os: ubuntu-latest
+            script-dir: code/scripts/bashShell
+            script-name: buildIC10CompilerNode.sh
+
+    ic10-compiler-node-windows:
+        name: "[Windows] IC10 Compiler Node.js Bindings | IC10编译器Node.js绑定"
+        needs: [detect-changes, ic10-compiler-core-windows]
+        if: needs.detect-changes.outputs.ic10-compiler-node == 'true'
+        uses: ./.github/workflows/node-workflow.yml
+        with:
+            os: windows-latest
+            script-dir: code/scripts/powerShell
+            script-name: BuildIC10CompilerNode.ps1
+
+    ic10-compiler-python-linux:
+        name: "[Linux] IC10 Compiler Python Bindings | IC10编译器Python绑定"
+        needs: [detect-changes, ic10-compiler-core-linux]
+        if: needs.detect-changes.outputs.ic10-compiler-python == 'true'
+        uses: ./.github/workflows/python-workflow.yml
+        with:
+            os: ubuntu-latest
+            script-dir: code/scripts/bashShell
+            script-name: buildIC10CompilerPython.sh
+
+    ic10-compiler-python-windows:
+        name: "[Windows] IC10 Compiler Python Bindings | IC10编译器Python绑定"
+        needs: [detect-changes, ic10-compiler-core-windows]
+        if: needs.detect-changes.outputs.ic10-compiler-python == 'true'
+        uses: ./.github/workflows/python-workflow.yml
+        with:
+            os: windows-latest
+            script-dir: code/scripts/powerShell
+            script-name: BuildIC10CompilerPython.ps1
+
+    ic10-compiler-java-linux:
+        name: "[Linux] IC10 Compiler Java Bindings | IC10编译器Java绑定"
+        needs: [detect-changes, ic10-compiler-core-linux]
+        if: needs.detect-changes.outputs.ic10-compiler-java == 'true'
+        uses: ./.github/workflows/java-workflow.yml
+        with:
+            os: ubuntu-latest
+            script-dir: code/scripts/bashShell
+            script-name: buildIC10CompilerJava.sh
+
+    ic10-compiler-java-windows:
+        name: "[Windows] IC10 Compiler Java Bindings | IC10编译器Java绑定"
+        needs: [detect-changes, ic10-compiler-core-windows]
+        if: needs.detect-changes.outputs.ic10-compiler-java == 'true'
+        uses: ./.github/workflows/java-workflow.yml
+        with:
+            os: windows-latest
+            script-dir: code/scripts/powerShell
+            script-name: BuildIC10CompilerJava.ps1
+
+    ci-verification:
+        name: "[Auto] CI Verification | CI验证"
+        needs:
+            - ic10-compiler-core-linux
+            - ic10-compiler-core-windows
+            - ic10-compiler-node-linux
+            - ic10-compiler-node-windows
+            - ic10-compiler-python-linux
+            - ic10-compiler-python-windows
+            - ic10-compiler-java-linux
+            - ic10-compiler-java-windows
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            -   name: "[Auto] Check all build status | 检查所有构建状态"
+                run: |
+                    FAILED_JOBS=""
+                    for job in ${{ join(needs.*.result, ' ') }}; do
+                        if [[ $job == "failure" || $job == "cancelled" ]]; then
+                            FAILED_JOBS="$FAILED_JOBS $job"
+                        fi
+                    done
+                    if [[ -n "$FAILED_JOBS" ]]; then
+                        echo "::error::Some jobs failed/cancelled: $FAILED_JOBS | 某些工作失败/取消: $FAILED_JOBS"
+                        exit 1
+                    fi
+                    echo "All jobs passed successfully | 所有工作成功通过"

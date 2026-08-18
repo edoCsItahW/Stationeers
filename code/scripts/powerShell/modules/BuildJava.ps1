@@ -16,17 +16,17 @@ try {
 
     Write-ST-Phase (__ "Java.Copy")
 
-    Copy-Artifact -Source $Config.ArtifactPath -Destination $Config.PublishDir
+    $os = Get-OSKey
+    $artifactPath = Join-Path $Config.ArtifactPath $Config.ArtifactName.$os
+    $resolved = Resolve-ArtifactPath $artifactPath
+    Copy-Artifact -Source $resolved -Destination $Config.PublishDir
 
     Write-ST-Phase (__ "Java.Test")
 
     Set-Location $Config.TestDir
 
-    if (Test-Path "gradlew.bat") {
-        .\gradlew.bat test
-    } else {
-        gradle test
-    }
+    $gradlewPath = "../../publish/java/$($Config.TestScript.$os)"
+    & $gradlewPath test --no-daemon --stacktrace
 } catch {
     Write-ST-Error (__ "Java.Error" -Arguments $_.Exception.Message)
 

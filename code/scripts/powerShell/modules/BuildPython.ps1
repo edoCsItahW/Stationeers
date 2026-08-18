@@ -16,11 +16,18 @@ try {
 
     Write-ST-Phase (__ "Python.Copy")
 
-    Copy-Artifact -Source $Config.ArtifactPath -Destination $Config.PublishDir
+    $os = Get-OSKey
+    $artifactPath = Join-Path $Config.ArtifactPath $Config.ArtifactName.$os
+    $resolved = Resolve-ArtifactPath $artifactPath
+    Copy-Artifact -Source $resolved -Destination $Config.PublishDir
 
     Write-ST-Phase (__ "Python.Test")
 
-    python -m pytest $Config.TestDir
+    Set-Location $Config.TestDir
+
+    pip install --no-input pytest
+
+    python -m pytest
 } catch {
     Write-ST-Error (__ "Python.Error" -Arguments $_.Exception.Message)
 
