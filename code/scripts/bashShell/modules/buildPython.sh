@@ -9,7 +9,10 @@ build_python() {
     local source_dir=$(jq -r '.SourceDir' <<<"$config_json")
     local target=$(jq -r '.Target' <<<"$config_json")
     local config_type=$(jq -r '.Config' <<<"$config_json")
-    local artifact=$(jq -r '.ArtifactPath' <<<"$config_json")
+    local artifact_dir=$(jq -r '.ArtifactPath' <<<"$config_json")
+    local os=$(detect_os)
+    local artifact_name=$(jq -r ".ArtifactName.${os}" <<<"$config_json")
+    local artifact="${artifact_dir}/${artifact_name}"
     local publish_dir=$(jq -r '.PublishDir' <<<"$config_json")
     local test_dir=$(jq -r '.TestDir' <<<"$config_json")
 
@@ -22,7 +25,7 @@ build_python() {
     copy_artifact "$resolved_artifact" "$publish_dir"
 
     write_st_phase "$(get_text "Python.Test")"
-    (cd "$test_dir" && python -m pytest) || {
+    (cd "$test_dir" && pip install --no-input pytest && python -m pytest) || {
         write_st_error "$(get_text "Python.Error" "$?")"
         exit 1
     }

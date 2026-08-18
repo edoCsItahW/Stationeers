@@ -14,7 +14,7 @@ if (WIN32)
 endif ()
 
 st_auto_library(ic10_compiler_node "${IC10_COMPILER_NODE_SRC}" ${CMAKE_CURRENT_SOURCE_DIR}/include
-        Common::Core IC10::Compiler::Core Node::Node Node::NAPI Common::Node
+        PRIVATE_LINK Common::Core IC10::Compiler::Core Node::Node Node::NAPI Common::Node
         LIBRARY_TYPE SHARED
         COMPILE_DEFINITIONS ${_node_compile_defs}
 )

@@ -318,7 +318,7 @@ namespace stationeers::ic10 {
          * @brief Input token sequence
          * @endif
          */
-        std::vector<std::shared_ptr<Token>> tokens_;
+        std::vector<std::shared_ptr<Token>> tokens_{};
 
         /**
          * @if zh

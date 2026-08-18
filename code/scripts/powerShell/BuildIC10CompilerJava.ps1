@@ -2,7 +2,7 @@ param(
     [string[]]$ExtraArgs = @()
 )
 
-$Project = Get-Content "$PSScriptRoot\build-info.json" | ConvertFrom-Json
+$Project = Get-Content "$PSScriptRoot\..\build-info.json" | ConvertFrom-Json
 $Config = $Project.IC10_Compiler_Java
 
 Set-Location $Project.rootDir
