@@ -1,24 +1,11 @@
-# 创建运行时库目标
-add_library(ic10_runtime_lib STATIC)
+include(CommonSettings)
+include(Functions)
 
-file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp"
-)
+project(IC10_Runtime_Core)
 
-target_sources(ic10_runtime_lib PRIVATE ${SOURCE})
-target_include_directories(ic10_runtime_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${COMMON_INCLUDE_DIR})
-target_link_libraries(ic10_runtime_lib PRIVATE ic10_lib common)
+st_source(IC10_RUNTIME_CORE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+st_auto_library(ic10_runtime_core "${IC10_RUNTIME_CORE_SRC}" ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE_LINK Common::Core IC10::Compiler::Core)
 
-# 编译选项优化
-if (MSVC)
-    target_compile_options(ic10_runtime_lib PRIVATE /MP /W4)
-    target_compile_options(ic10_runtime_lib PRIVATE $<$<NOT:$<CONFIG:Debug>>:/O1>)
+st_apply_compile_options(ic10_runtime_core)
 
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(ic10_runtime_lib PRIVATE -O1 -Wall -Wextra)
-
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(ic10_runtime_lib PRIVATE -O1 -Wall -Wextra)
-
-endif ()
+st_alias(IC10::Runtime::Core ic10_runtime_core)

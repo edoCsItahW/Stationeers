@@ -10,14 +10,14 @@ import IC10C = require('ic10c-node');
 import IC10R = require('ic10r-node');
 import {setupUTF8Console} from "../utils";
 
-const {IC10Local, Lexer, Parser, Analyser} = IC10C;
+const {IC10CompilerLocal, Lexer, Parser, Analyser} = IC10C;
 const {Engine} = IC10R;
 
 beforeAll(() => {
     setupUTF8Console();
 
-    if (typeof IC10Local.setLanguage === 'function')
-        IC10Local.setLanguage('zh-hans');
+    if (typeof IC10CompilerLocal.setLanguage === 'function')
+        IC10CompilerLocal.setLanguage('zh-hans');
 });
 
 /**
@@ -35,7 +35,7 @@ async function compile(source: string): Promise<{
     const engine = new Engine(program, analyser.symbolTable);
     return {
         engine,
-        reg: (name: string) => engine.getReg(name)
+        reg: (name: string) => engine.context.memory.getReg(name)
     };
 }
 
@@ -163,19 +163,19 @@ describe('Boundary cases', () => {
     it('should handle empty program', async () => {
         const {engine} = await compile('');
         engine.runFull();
-        expect(engine.halted).toBe(true);
+        expect(engine.context.halted).toBe(true);
     });
 
     it('should handle program with only comments', async () => {
         const {engine} = await compile('# Just a comment\nhcf\n');
         engine.runFull();
-        expect(engine.halted).toBe(true);
+        expect(engine.context.halted).toBe(true);
     });
 
     it('should handle program with empty lines', async () => {
         const {engine} = await compile('\n\n\nhcf\n');
         engine.runFull();
-        expect(engine.halted).toBe(true);
+        expect(engine.context.halted).toBe(true);
     });
 
     it('should handle single statement without trailing newline', async () => {
@@ -218,7 +218,7 @@ describe('Error scenarios', () => {
             'hcf\n'
         );
         engine.runFull();
-        expect(engine.halted).toBe(true);
+        expect(engine.context.halted).toBe(true);
     });
 });
 
@@ -235,7 +235,7 @@ describe('Engine toJSON', () => {
             'hcf\n'
         );
         engine.runFull();
-        const json = engine.toJSON();
+        const json = engine.context.memory.toJSON();
         expect(typeof json).toBe('string');
         const parsed = JSON.parse(json);
         expect(parsed).toBeDefined();
@@ -244,7 +244,7 @@ describe('Engine toJSON', () => {
     it('should serialize stack after push', async () => {
         const {engine} = await compile('push 1\npush 2\nhcf\n');
         engine.runFull();
-        const json = engine.toJSON();
+        const json = engine.context.memory.toJSON();
         expect(typeof json).toBe('string');
         const parsed = JSON.parse(json);
         expect(parsed).toBeDefined();
@@ -252,7 +252,7 @@ describe('Engine toJSON', () => {
 
     it('should serialize before execution', async () => {
         const {engine} = await compile('move r0 42\nhcf\n');
-        const json = engine.toJSON();
+        const json = engine.context.memory.toJSON();
         expect(typeof json).toBe('string');
         expect(() => JSON.parse(json)).not.toThrow();
     });
@@ -272,7 +272,7 @@ describe('Engine configuration', () => {
         const engine = new Engine(program, analyser.symbolTable, {tickDuration: 1.0});
         expect(engine).toBeInstanceOf(Engine);
         engine.runFull();
-        expect(engine.getReg('r0')).toBe(42);
+        expect(engine.context.memory.getReg('r0')).toBe(42);
     });
 
     it('should accept custom maxInstructions', async () => {
@@ -283,9 +283,9 @@ describe('Engine configuration', () => {
         await analyser.visit(program);
         const engine = new Engine(program, analyser.symbolTable, {maxInstructions: 1});
         engine.runTick();
-        expect(engine.getReg('r0')).toBe(1);
+        expect(engine.context.memory.getReg('r0')).toBe(1);
         engine.runTick();
-        expect(engine.getReg('r0')).toBe(2);
+        expect(engine.context.memory.getReg('r0')).toBe(2);
     });
 
     it('should accept custom maxStackSize', async () => {
@@ -296,6 +296,6 @@ describe('Engine configuration', () => {
         await analyser.visit(program);
         const engine = new Engine(program, analyser.symbolTable, {maxStackSize: 256});
         engine.runFull();
-        expect(engine.peek()).toBe(1);
+        expect(engine.context.memory.peek()).toBe(1);
     });
 });

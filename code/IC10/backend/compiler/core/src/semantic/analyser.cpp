@@ -349,27 +349,27 @@ namespace stationeers::ic10 {
 
     // 以下为叶节点访问器：这些节点无子节点需要遍历，也无需符号解析，直接返回
 
-    Task<> Analyser::operator()(const Constant& constant) { co_return; }
+    Task<> Analyser::operator()(const Constant&) { co_return; }
 
-    Task<> Analyser::operator()(const Device& device) { co_return; }
+    Task<> Analyser::operator()(const Device&) { co_return; }
 
-    Task<> Analyser::operator()(const Register& register_) { co_return; }
+    Task<> Analyser::operator()(const Register&) { co_return; }
 
-    Task<> Analyser::operator()(const String& string) { co_return; }
+    Task<> Analyser::operator()(const String&) { co_return; }
 
     // Identifier 叶节点访问器：保留作为防御性兜底
     // 正常流程中 Identifier 会在指令访问器内被直接 resolveSymbol，不会走到此分支
-    Task<> Analyser::operator()(const Identifier& identifier) { co_return; }
+    Task<> Analyser::operator()(const Identifier&) { co_return; }
 
-    Task<> Analyser::operator()(const BinaryNumber& binaryNumber) { co_return; }
+    Task<> Analyser::operator()(const BinaryNumber&) { co_return; }
 
-    Task<> Analyser::operator()(const HexNumber& hexNumber) { co_return; }
+    Task<> Analyser::operator()(const HexNumber&) { co_return; }
 
-    Task<> Analyser::operator()(const Float& float_) { co_return; }
+    Task<> Analyser::operator()(const Float&) { co_return; }
 
-    Task<> Analyser::operator()(const Integer& integer) { co_return; }
+    Task<> Analyser::operator()(const Integer&) { co_return; }
 
     // ErrorNode 叶节点访问器：Parser 已上报，此处跳过避免重复诊断
-    Task<> Analyser::operator()(const ErrorNode& errorNode) { co_return; }
+    Task<> Analyser::operator()(const ErrorNode&) { co_return; }
 
 }  // namespace stationeers::ic10

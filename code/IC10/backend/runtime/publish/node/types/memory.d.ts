@@ -32,6 +32,14 @@ export class Memory {
 
     setStack(index: number, value: number): void;
 
+    push(value: number): void;
+
+    pop(): number;
+
+    peek(): number;
+
+    poke(index: number, value: number): number;
+
 }
 
 export interface MemoryInfo {

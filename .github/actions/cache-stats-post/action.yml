@@ -1,0 +1,9 @@
+name: cache-stats-post
+author: Lenovo
+description: cache-stats-post
+runs:
+    using: node24
+    main:
+        index.js
+    post:
+        post.js

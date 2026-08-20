@@ -1,74 +1,20 @@
-# 创建库目标
-add_library(ic10_lib STATIC)
+include(CommonSettings)
+include(Functions)
 
-# 源文件：所有 .cpp
-file(GLOB_RECURSE COMPILER_SOURCES
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp"
-)
+project(IC10_Compiler_Core)
 
-target_sources(ic10_lib PRIVATE ${COMPILER_SOURCES})
-target_include_directories(ic10_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${COMMON_INCLUDE_DIR})
-target_link_libraries(ic10_lib PRIVATE common)
+set(IC10_COMPILER_CORE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# 预编译头（同时为静态库和可执行文件启用）
-if (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    file(GLOB_RECURSE PCH_HEADERS
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/ic10_compiler/pch/*.hpp"
-    )
-    target_precompile_headers(ic10_lib PRIVATE ${PCH_HEADERS})
-endif ()
+st_source(IC10_COMPILER_CORE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+file(GLOB_RECURSE IC10_COMPILER_CORE_PCH CONFIGURE_DEPENDS "${IC10_COMPILER_CORE_INCLUDE_DIR}/ic10_compiler/pch/*.hpp")
+st_auto_library(ic10_compiler_core "${IC10_COMPILER_CORE_SRC}" "${IC10_COMPILER_CORE_INCLUDE_DIR}" PUBLIC_LINK Common::Core PCH_MODE PRIVATE PCH "${IC10_COMPILER_CORE_PCH}")
 
-# 编译选项优化
-if (MSVC)
-    target_compile_options(ic10_lib PRIVATE /MP /O1 /W4)
+st_apply_compile_options(ic10_compiler_core)
 
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(ic10_lib PRIVATE -O1 -Wall -Wextra)
+st_alias(IC10::Compiler::Core ic10_compiler_core)
 
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(ic10_lib PRIVATE -O1 -Wall -Wextra)
+st_auto_executable(IC10_Compiler_CLI "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" "" PRIVATE_LINK Common::Core IC10::Compiler::Core)
 
-endif ()
+set_target_properties(IC10_Compiler_CLI PROPERTIES OUTPUT_NAME "ic10c" RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# 保留可执行文件（单独编译 main.cpp）
-add_executable(IC10_Compiler_CLI main.cpp)
-target_link_libraries(IC10_Compiler_CLI PRIVATE ic10_lib common)
-
-# 头文件路径
-target_include_directories(IC10_Compiler_CLI
-        PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${COMMON_INCLUDE_DIR}
-)
-
-target_compile_definitions(IC10_Compiler_CLI PRIVATE IC10_SIMPLE_MODE)
-
-# 可执行文件编译选项
-if (MSVC)
-    target_compile_options(IC10_Compiler_CLI PRIVATE /MP /O1 /W4)
-    target_link_options(IC10_Compiler_CLI PRIVATE LINKER:/pdbpagesize:16384)
-    add_compile_options(/wd4514)
-
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(IC10_Compiler_CLI PRIVATE -O1 -Wall -Wextra)
-    target_link_options(IC10_Compiler_CLI PRIVATE LINKER:/pdbpagesize:16384)
-
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(IC10_Compiler_CLI PRIVATE -O1 -Wall -Wextra)
-    target_link_options(IC10_Compiler_CLI PRIVATE -static-libstdc++ -static-libgcc)
-
-elseif (MINGW)
-    target_link_options(IC10_Compiler_CLI PRIVATE -static-libstdc++ -static-libgcc)
-
-endif ()
-
-# PCH重用
-if (MSVC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    target_precompile_headers(IC10_Compiler_CLI REUSE_FROM ic10_lib)
-endif ()
-
-# 设置可执行文件输出目录
-set_target_properties(IC10_Compiler_CLI PROPERTIES
-        OUTPUT_NAME "ic10c"
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
+st_apply_compile_options(IC10_Compiler_CLI)

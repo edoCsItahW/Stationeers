@@ -1,28 +1,24 @@
+include(CommonSettings)
+include(Functions)
+
+
 project(IC10_Compiler_Python VERSION 1.0)
 
-# ============================================================================
-# 依赖查找（pybind11）
-# ============================================================================
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../common/cmake/pybind11.cmake)
 
-# ============================================================================
-# 主要构建目标
-# ============================================================================
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+st_source(IC10_COMPILER_PYTHON_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-file(GLOB SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cpp")
+pybind11_add_module(ic10c_python ${IC10_COMPILER_PYTHON_SRC})
 
-pybind11_add_module(ic10c_python ${SOURCE})
+target_include_directories(ic10c_python PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# 设置输出文件后缀为.pyd,去掉pybind11默认添加的ABI标签(如.cp313-win_amd64)
-# Set output suffix to .pyd, removing pybind11's default ABI tag (e.g. .cp313-win_amd64)
-set_target_properties(ic10c_python PROPERTIES SUFFIX ".pyd")
+target_link_libraries(ic10c_python PRIVATE Common::Core IC10::Compiler::Core Common::Python)
 
-# 链接依赖库
-# Link dependencies
-target_link_libraries(ic10c_python
-        PRIVATE
-        common_python        # common Python适配器(Pos/Error)
-        ic10_lib             # IC10编译器核心库
-        common               # 公共库
-)
+if (WIN32)
+    set_target_properties(ic10c_python PROPERTIES SUFFIX ".pyd")
+else ()
+    set_target_properties(ic10c_python PROPERTIES SUFFIX ".so")
+endif ()
+
+st_apply_compile_options(ic10c_python)
+
+st_alias(IC10::Compiler::Python ic10c_python)

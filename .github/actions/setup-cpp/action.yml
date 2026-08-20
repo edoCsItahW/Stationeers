@@ -1,0 +1,159 @@
+name: Setup C++ Env
+description: Setup C++ Environment | 安装C++环境
+
+inputs:
+    os:
+        description: Operating system | 操作系统
+        required: false
+        default: "ubuntu-latest"
+
+    cmake-version:
+        description: CMake version | CMake版本
+        required: true
+        default: "4.2.1"
+
+    cache-key-prefix:
+        description: Prefix for cache key | 缓存键前缀
+        required: false
+        default: "build-cache"
+
+runs:
+    using: composite
+    steps:
+        # 移除不稳定源，排除随机性
+        -   name: "[Linux] Source preferred | 源优选"
+            if: inputs.os == 'ubuntu-latest'
+            shell: bash
+            run: |
+                if [ -f /etc/apt/apt-mirrors.txt ]; then
+                    echo "https://archive.ubuntu.com/ubuntu/" | sudo tee /etc/apt/apt-mirrors.txt
+                fi
+                sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/sources.list 2>/dev/null || true
+                sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources 2>/dev/null || true
+                echo 'Acquire::Retries "2"; Acquire::http::Timeout "10"; Acquire::https::Timeout "10";' | sudo tee /etc/apt/apt.conf.d/99ci-timeout
+
+        -   name: "[Linux] Add toolchain PPA | 添加工具链PPA"
+            if: inputs.os == 'ubuntu-latest'
+            shell: bash
+            run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+
+        -   name: "[Linux] Reload dependencies cache | 重载依赖缓存"
+            if: inputs.os == 'ubuntu-latest'
+            uses: awalsh128/cache-apt-pkgs-action@latest
+            with:
+                packages: g++-15 gcc-15 ninja-build ccache lld
+                version: 1.0
+                execute_install_scripts: true
+
+        -   name: "[Linux] Install dependencies | 安装依赖"
+            if: inputs.os == 'ubuntu-latest'
+            shell: bash
+            run: |
+                sudo apt-get update
+                sudo apt-get install -y \
+                    g++-15              \
+                    gcc-15              \
+                    ninja-build         \
+                    ccache              \
+                    lld
+                sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-15 100
+                sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 100
+
+        -   name: "[Windows] Install dependencies | 安装依赖"
+            if: inputs.os == 'windows-latest'
+            shell: pwsh
+            run: |
+                choco install ninja -y
+                choco install ccache -y
+                choco install sccache -y --no-progress
+
+        -   name: "[Windows] Configure MSVC environment | 配置MSVC环境"
+            if: inputs.os == 'windows-latest'
+            uses: ilammy/msvc-dev-cmd@v1.13.0
+
+        -   name: "[Auto] Install CMake | 安装CMake"
+            uses: lukka/get-cmake@latest
+            with:
+                cmakeVersion: ${{ inputs.cmake-version }}
+
+        -   name: "[Auto] Determine cache directory | 确定缓存目录"
+            id: cache-config
+            shell: bash
+            run: |
+                if [ "${{ inputs.os }}" = "ubuntu-latest" ]; then
+                    echo "ccache-dir=$HOME/.ccache" >> $GITHUB_OUTPUT
+                    echo "cache-tool=ccache" >> $GITHUB_OUTPUT
+                elif [ "${{ inputs.os }}" = "windows-latest" ]; then
+                    if command -v sccache >/dev/null 2>&1; then
+                        echo "ccache-dir=$LOCALAPPDATA/Mozilla/sccache" >> $GITHUB_OUTPUT
+                        echo "cache-tool=sccache" >> $GITHUB_OUTPUT
+                    elif command -v ccache >/dev/null 2>&1; then
+                        echo "ccache-dir=$HOME/.ccache" >> $GITHUB_OUTPUT
+                        echo "cache-tool=ccache" >> $GITHUB_OUTPUT
+                    else
+                        echo "ccache-dir=" >> $GITHUB_OUTPUT
+                        echo "cache-tool=none" >> $GITHUB_OUTPUT
+                    fi
+                fi
+
+        -   name: "[Auto] Restore ccache/sccache cache | 恢复ccache/sccache缓存"
+            if: steps.cache-config.outputs.cache-tool != 'none'
+            uses: actions/cache@v6
+            with:
+                path: ${{ steps.cache-config.outputs.ccache-dir }}
+                key: ${{ inputs.cache-key-prefix }}-${{ inputs.os }}-${{ steps.cache-config.outputs.cache-tool }}
+                restore-keys: ${{ inputs.cache-key-prefix }}-${{ inputs.os }}-${{ steps.cache-config.outputs.cache-tool }}
+
+        -   name: "[Linux] Configure ccache | 配置ccache"
+            if: inputs.os == 'ubuntu-latest'
+            shell: bash
+            run: |
+                ccache --set-config=max_size=2G
+                ccache --set-config=compression=true
+                ccache --zero-stats
+                ccache --show-stats
+                echo "ST_CACHE_TOOL=ccache" >> $GITHUB_ENV
+                echo "ST_CACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
+
+        -   name: "[Windows] Configure sccache | 配置sccache"
+            if: inputs.os == 'windows-latest' && steps.cache-config.outputs.cache-tool == 'sccache'
+            shell: pwsh
+            run: |
+                sccache --stop-server 2>$null
+                $env:SCCACHE_DIR = "$env:LOCALAPPDATA\Mozilla\sccache"
+                sccache --start-server
+                sccache --show-stats
+                echo "ST_CACHE_TOOL=sccache" | Add-Content -Path $env:GITHUB_ENV
+                echo "ST_CACHE_DIR=$env:SCCACHE_DIR" | Add-Content -Path $env:GITHUB_ENV
+
+        -   name: "[Windows] Configure ccache | 配置ccache"
+            if: inputs.os == 'windows-latest' && steps.cache-config.outputs.cache-tool == 'ccache'
+            shell: pwsh
+            run: |
+                ccache --set-config=max_size=2G
+                ccache --set-config=compression=true
+                ccache --zero-stats
+                ccache --show-stats
+                echo "ST_CACHE_TOOL=ccache" | Add-Content -Path $env:GITHUB_ENV
+                echo "ST_CACHE_DIR=$HOME\.ccache" | Add-Content -Path $env:GITHUB_ENV
+
+        -   name: "[Linux] Verify toolchain | 验证工具链"
+            if: inputs.os == 'ubuntu-latest'
+            shell: bash
+            run: |
+                cmake --version
+                ninja --version 2>/dev/null || echo "ninja not available"
+                gcc --version | head -1
+                g++ --version | head -1
+                ccache --version | head -1
+
+        -   name: "[Windows] Verify toolchain | 验证工具链"
+            if: inputs.os == 'windows-latest'
+            shell: pwsh
+            run: |
+                cmake --version
+                &ninja --version 2> $null
+                if ($LASTEXITCODE -ne 0) { Write-Host "ninja not available" }
+
+        -   name: "[Auto] Show cache stats | 显示缓存统计"
+            uses: ./.github/actions/cache-stats-post

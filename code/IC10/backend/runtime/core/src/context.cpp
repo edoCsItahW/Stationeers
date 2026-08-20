@@ -18,8 +18,8 @@
 namespace stationeers::ic10 {
 
     Context::Context(const Program& program, const SymbolTable& symbols, const Config& config)
-        : program(&program)
-        , symbols(&symbols)
+        : program(program)
+        , symbols(symbols)
         , pc_(0)
         , halted_(false)
         , memory(config)
@@ -30,7 +30,7 @@ namespace stationeers::ic10 {
     void Context::advancePC() { ++pc_; }
 
     void Context::buildAddrs() {
-        auto size = program->statements.size();
+        auto size = program.statements.size();
 
         for (std::size_t i{0}; i < size; ++i)
             std::visit([this, &i](const auto& stmt) {
@@ -39,7 +39,7 @@ namespace stationeers::ic10 {
 
                 else
                     addrs_[stmt.position.line()] = i;
-            }, program->statements[i]);
+            }, program.statements[i]);
     }
 
     void Context::halt() { halted_ = true; }
@@ -55,13 +55,13 @@ namespace stationeers::ic10 {
     void Context::tick() { ++currentTick_; }
 
     std::optional<std::reference_wrapper<const Statement>> Context::currentStatement() const {
-        if (!program || pc_ >= program->statements.size()) return std::nullopt;
+        if (pc_ >= program.statements.size()) return std::nullopt;
 
-        return std::cref(program->statements[pc_]);
+        return std::cref(program.statements[pc_]);
     }
 
     std::optional<std::shared_ptr<Symbol>> Context::resolve(const std::string& name) const {
-        if (const auto& it = symbols->find(name); it != symbols->end() && it->second.ready())
+        if (const auto& it = symbols.find(name); it != symbols.end() && it->second.ready())
             return *it->second.future.get();
 
         return std::nullopt;

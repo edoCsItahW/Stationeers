@@ -1,0 +1,92 @@
+name: Detect Changes
+description: Encapsulation of code change detection for CI | 对CI的代码变更检测的封装
+
+
+outputs:
+    cmake:
+        description: "CMake files changed mark || CMake文件变更标记"
+        value: ${{ steps.filter.outputs.cmake }}
+
+    scripts:
+        description: "Scripts files changed mark || 脚本文件变更标记"
+        value: ${{ steps.filter.outputs.scripts }}
+
+    workflow:
+        description: "Workflow files changed mark || 工作流文件变更标记"
+        value: ${{ steps.filter.outputs.workflow }}
+
+    full:
+        description: "Full changed mark || 全部变更标记"
+        value: ${{ steps.filter.outputs.shared }}
+
+    ic10-compiler-core:
+        description: "IC10 compiler core files changed mark || IC10编译器核心文件变更标记"
+        value: ${{ steps.filter.outputs.shared || steps.filter.outputs.common-core || steps.filter.outputs.ic10-compiler-core }}
+    ic10-compiler-node:
+        description: "IC10 compiler Node.js binding files changed mark || IC10编译器Node.js绑定文件变更标记"
+        value: ${{ steps.filter.outputs.shared || steps.filter.outputs.common-core || steps.filter.outputs.common-node || steps.filter.outputs.ic10-compiler-core || steps.filter.outputs.ic10-compiler-node }}
+    ic10-compiler-python:
+        description: "IC10 compiler Python binding files changed mark || IC10编译器Python绑定文件变更标记"
+        value: ${{ steps.filter.outputs.shared || steps.filter.outputs.common-core || steps.filter.outputs.common-python || steps.filter.outputs.ic10-compiler-core || steps.filter.outputs.ic10-compiler-python }}
+    ic10-compiler-java:
+        description: "IC10 compiler Java binding files changed mark || IC10编译器Java绑定文件变更标记"
+        value: ${{ steps.filter.outputs.shared || steps.filter.outputs.common-core || steps.filter.outputs.common-java || steps.filter.outputs.ic10-compiler-core || steps.filter.outputs.ic10-compiler-java }}
+
+runs:
+    using: composite
+    steps:
+        -   name: "[Auto] Path filter | 路径过滤"
+            id: filter
+            uses: dorny/paths-filter@v4
+            with:
+                filters: |
+                    shared:
+                        - code/cmake/**
+                        - code/scripts/**
+                        - code/.github/workflows/**
+                        - code/.github/actions/**
+                    common-core:
+                        - code/common/CMakeLists.txt
+                        - code/common/cpp/CMakeLists.txt
+                        - code/common/cpp/core/**
+                    common-node:
+                        - code/common/cpp/exports/CMakeLists.txt
+                        - code/common/cpp/exports/node/**
+                    common-python:
+                        - code/common/cpp/exports/CMakeLists.txt
+                        - code/common/cpp/exports/python/**
+                    common-java:
+                        - code/common/cpp/exports/CMakeLists.txt
+                        - code/common/cpp/exports/java/**
+                    ic10-compiler-core:
+                        - code/IC10/CMakeLists.txt
+                        - code/IC10/backend/CMakeLists.txt
+                        - code/IC10/backend/compiler/CMakeLists.txt
+                        - code/IC10/backend/compiler/core/**
+                        - code/IC10/backend/compiler/tests/cpp/**
+                        - code/IC10/backend/compiler/tests/CMakeLists.txt
+                        - code/IC10/assets/ic/grammarTest.ic
+                    ic10-compiler-node:
+                        - code/IC10/CMakeLists.txt
+                        - code/IC10/backend/CMakeLists.txt
+                        - code/IC10/backend/compiler/CMakeLists.txt
+                        - code/IC10/backend/compiler/exports/node/**
+                        - code/IC10/backend/compiler/tests/node/**
+                        - code/IC10/backend/compiler/jest.config.js
+                        - code/IC10/backend/compiler/package.json
+                        - code/IC10/backend/compiler/tsconfig.json
+                        - code/IC10/backend/compiler/publish/node/**
+                    ic10-compiler-python:
+                        - code/IC10/CMakeLists.txt
+                        - code/IC10/backend/CMakeLists.txt
+                        - code/IC10/backend/compiler/CMakeLists.txt
+                        - code/IC10/backend/compiler/exports/python/**
+                        - code/IC10/backend/compiler/tests/python/**
+                        - code/IC10/backend/compiler/publish/python/**
+                    ic10-compiler-java:
+                        - code/IC10/CMakeLists.txt
+                        - code/IC10/backend/CMakeLists.txt
+                        - code/IC10/backend/compiler/CMakeLists.txt
+                        - code/IC10/backend/compiler/exports/java/**
+                        - code/IC10/backend/compiler/tests/java/**
+                        - code/IC10/backend/compiler/publish/java/**

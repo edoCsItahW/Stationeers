@@ -25,7 +25,7 @@ namespace stationeers {
     bool isAsciiDigit(const unsigned char c) noexcept { return c >= '0' && c <= '9'; }
 
     bool isAsciiHexDigit(const unsigned char c) noexcept {
-        return c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F';
+        return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
     }
 
     bool isAsciiAlpha(const unsigned char c) noexcept {

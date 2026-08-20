@@ -28,7 +28,10 @@ namespace stationeers::ic10 {
 
         std::size_t count = 0;
         while (!context_.halted() && count < cfg_.maxInstructions) {
-            if (!executor_.execute()) break;
+            if (!executor_.execute()) {
+                context_.halt();
+                break;
+            }
 
             ++count;
         }
@@ -37,8 +40,18 @@ namespace stationeers::ic10 {
     }
 
     void Engine::runFull() {
-        while (!context_.halted())
-            if (!executor_.execute()) break;
+        std::size_t total = 0;
+        while (!context_.halted()) {
+            if (!executor_.execute()) {
+                context_.halt();
+                break;
+            }
+            if (cfg_.maxTotalInstructions > 0 &&
+                ++total >= static_cast<std::size_t>(cfg_.maxTotalInstructions)) {
+                context_.halt();
+                break;
+            }
+        }
     }
 
     Context& Engine::getContext() { return context_; }

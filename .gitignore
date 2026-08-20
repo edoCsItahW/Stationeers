@@ -2,6 +2,8 @@
 **/cmake-build-*/
 **/build/
 **/dist/
+code/third-party/
+code/artifacts/
 
 # nodejs
 **/node_modules/
@@ -19,6 +21,7 @@
 
 # Java
 **/.gradle/
+**/fbjni-src/
 *.dll
 
 # IDE

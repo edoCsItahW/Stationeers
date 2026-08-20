@@ -96,11 +96,16 @@ namespace stationeers::ic10 {
         static node::Object init(node::Env env, node::Object exports);
 
     private:
+        static node::FunctionReference constructor;
+
         Engine engine_;
 
-        EXPORT_D_METHOD_VALUE(runTick)
+        /// 缓存 ContextAdapter 的 JS 句柄，避免每次 getContext() 都 constructor.New
+        node::ObjectReference contextRef_;
 
-        EXPORT_D_METHOD_VALUE(runFull)
+        EXPORT_D_METHOD_VOID(runTick)
+
+        EXPORT_D_METHOD_VOID(runFull)
 
         EXPORT_D_ATTR_GETTER(Context)
     };

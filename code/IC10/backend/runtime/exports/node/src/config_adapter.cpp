@@ -18,13 +18,16 @@
 namespace stationeers::ic10 {
 
     Config ConfigAdapter::from(const node::Object& obj) {
-        Config config;
+        Config config{};
 
-        config.tickDuration = obj.Get("tickDuration").As<node::Number>();
+        if (auto tickDuration = obj.Get("tickDuration"); tickDuration.IsNumber())
+            config.tickDuration = tickDuration.ToNumber();
 
-        config.maxInstructions = obj.Get("maxInstructions").As<node::Number>();
+        if (auto maxInstructions = obj.Get("maxInstructions"); maxInstructions.IsNumber())
+            config.maxInstructions = maxInstructions.ToNumber();
 
-        config.maxStackSize = obj.Get("maxStackSize").As<node::Number>();
+        if (auto maxStackSize = obj.Get("maxStackSize"); maxStackSize.IsNumber())
+            config.maxStackSize = maxStackSize.ToNumber();
 
         return config;
     }

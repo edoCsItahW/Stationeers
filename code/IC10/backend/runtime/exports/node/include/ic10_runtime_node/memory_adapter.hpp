@@ -30,12 +30,26 @@ namespace stationeers::ic10 {
 
         static Memory from(const node::Object& obj);
 
+        /**
+         * @brief 基于已存在的 Memory 构造 JS 包装器（引用模式），不拷贝。
+         * @details 用于 ContextAdapter 的 memory getter：返回的 JS 对象直接指向
+         *          Context 内部 Memory，读写都立即反映在 Engine 的运行时状态中。
+         */
+        static node::Object toExisting(node::Env env, Memory* memory);
+
         static node::Object to(node::Env env, const Memory& memory);
 
     private:
         static node::FunctionReference constructor;
 
+        /// 值模式：JS 直接 new Memory(cfg) 时拥有的副本
         Memory memory_;
+
+        /// 引用模式：指向 Context 内部真实 Memory，不拥有
+        Memory* memPtr_ = nullptr;
+
+        [[nodiscard]] Memory& mem() { return memPtr_ ? *memPtr_ : memory_; }
+        [[nodiscard]] const Memory& mem() const { return memPtr_ ? *memPtr_ : memory_; }
 
         EXPORT_D_METHOD_VALUE(toJSON)
 
@@ -50,6 +64,14 @@ namespace stationeers::ic10 {
         EXPORT_D_METHOD_VALUE(getStack)
 
         EXPORT_D_METHOD_VOID(setStack)
+
+        EXPORT_D_METHOD_VOID(push)
+
+        EXPORT_D_METHOD_VALUE(pop)
+
+        EXPORT_D_METHOD_VOID(poke)
+
+        EXPORT_D_METHOD_VALUE(peek)
 
     };
 
