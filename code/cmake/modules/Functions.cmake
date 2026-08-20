@@ -295,7 +295,7 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
         st_l_info_fmt(IFunctions3 ${TARGET} ${HASH})
     else ()
         set(CACHE_HIT FALSE)
-        st_l_info_fmt(IFunctions4 ${TARGET})
+        st_l_info_fmt(IFunctions4 ${TARGET} ${HASH})
     endif ()
 
     if (CACHE_HIT)
