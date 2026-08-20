@@ -19,12 +19,12 @@ set(ST_EFunctions0 "The source code directory '{0}' does not exist")
 set(ST_EFunctions1 "Parent '{0}' of '{1}' not found in feature paths")
 set(ST_EFunctions2 "No root found in feature paths")
 set(ST_IFunctions3 "Target '{0}' cache hit (hash '{1}')")
-set(ST_IFunctions4 "Target '{0}' cache miss, building from source")
+set(ST_IFunctions4 "Target '{0}' cache miss, building from source(expected hash '{1}')")
 set(ST_DFunctions5 "Update cache for '{0}' to '{1}'")
 set(ST_EFunctions6 "File '{0}' does not exist")
 
 # ---- CommonSettings ----
-set(ST_ICommonSettings0 "Using '{0}'")
+set(ST_ICommonSettings0 "Using '{0}', with '{1}'")
 
 # ---- Node (FindNode + FindNodeAddonApi) ----
 # Doc strings (D prefix) — option / cache variable docs
