@@ -1,0 +1,37 @@
+name: Find and Upload Artifacts
+description: Find files by glob patterns and upload them as artifacts in post | 查找文件并上传为artifacts
+
+inputs:
+    search-dir:
+        description: 'Directory to search recursively | 要递归搜索的目录'
+        required: true
+    patterns:
+        description: 'Glob patterns to match files, comma or newline separated | 要匹配的文件的glob模式，逗号或换行分隔'
+        required: true
+    exclude-dirs:
+        description: 'Directory names or relative paths to exclude, comma or newline separated | 要排除的目录名称或相对路径，逗号或换行分隔'
+        required: false
+        default: 'node_modules'
+    artifact-name:
+        description: 'Artifact name to upload in post. Leave empty to skip upload | 要在post中上传的artifact名称。留空跳过上传'
+        required: false
+        default: ''
+    retention-days:
+        description: 'Artifact retention days. 0 means default retention days | artifact保留天数。0表示默认保留天数'
+        required: false
+        default: '0'
+    if-no-files-found:
+        description: 'Action to take when no files found: warn or notice | 当没有找到文件时采取的行动：警告或通知'
+        required: false
+        default: 'warn'
+
+outputs:
+    files:
+        description: 'Found files separated by newlines | 找到的文件，以换行符分隔'
+    count:
+        description: 'Number of found files | 找到的文件数'
+
+runs:
+    using: node24
+    main: dist/main.js
+    post: dist/post.js

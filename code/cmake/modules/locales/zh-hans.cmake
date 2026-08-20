@@ -20,7 +20,7 @@ set(ST_EFunctions0 "源码目录'{0}'不存在")
 set(ST_EFunctions1 "在特性路径中找不到'{1}'的父路径'{0}'")
 set(ST_EFunctions2 "在特性路径中找不到根")
 set(ST_IFunctions3 "目标'{0}'缓存命中（哈希'{1}'）")
-set(ST_IFunctions4 "目标'{0}'缓存未命中，从源代码构建")
+set(ST_IFunctions4 "目标'{0}'缓存未命中，从源代码构建（期望哈希'{1}'）")
 set(ST_DFunctions5 "将'{0}'的缓存更新为'{1}'")
 set(ST_EFunctions6 "文件'{0}'不存在")
 
