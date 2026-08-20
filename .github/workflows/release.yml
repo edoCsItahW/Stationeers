@@ -7,179 +7,127 @@ on:
             # 仅匹配 v 后紧跟数字的标签（如 v1.0.0, v2.3.1-rc.1）
             # 排除 vscode-ic10-language-support-v* 等子项目标签
             - 'v[0-9]*'
+    workflow_dispatch:
 
 concurrency:
     group: release-${{ github.ref }}
     cancel-in-progress: false
 
 jobs:
-    # 1. 构建 IC10 核心库和编译器二进制（Linux + Windows）
-    build-core-linux:
-        name: (linux) ic10-core-artifact | IC10 核心构件
-        uses: ./.github/workflows/ic10-core-artifact.yml
+    build-ic10-compiler-cli:
+        name: "[Auto] Build IC10 Compiler CLI | 构建IC10编译器CLI"
+        strategy:
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        script-dir: /bashShell
+                        script-name: buildIC10CompilerCLI.sh
+                        artifact-name: ic10c
+                    -   os: windows-latest
+                        script-dir: /powerShell
+                        script-name: BuildIC10CompilerCLI.ps1
+                        artifact-name: ic10c.exe
+        uses: ./.github/workflows/cpp-workflow.yml
         with:
-            os: ubuntu-latest
-            build-type: Release
-            run-tests: false
-            upload-artifact: true
-            build-compiler: true
-            artifact-name: ic10-core
+            os: ${{ strategy.os }}
+            script-dir: ${{ strategy.script-dir }}
+            script-name: ${{ strategy.script-name }}
+            artifact-name: ${{ strategy.artifact-name }}
 
-    build-core-windows:
-        name: (windows) ic10-core-artifact | IC10 核心构件
-        uses: ./.github/workflows/ic10-core-artifact.yml
+    build-ic10-compiler-node:
+        name: "[Auto] Build IC10 Compiler Node.js Bindings | 构建IC10编译器Node.js绑定"
+        strategy:
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        script-dir: /bashShell
+                        script-name: buildIC10CompilerNode.sh
+                    -   os: windows-latest
+                        script-dir: /powerShell
+                        script-name: BuildIC10CompilerNode.ps1
+        uses: ./.github/workflows/node-workflow.yml
         with:
-            os: windows-latest
-            build-type: Release
-            run-tests: false
-            upload-artifact: true
-            build-compiler: true
-            artifact-name: ic10-core
+            os: ${{ strategy.os }}
+            script-dir: ${{ strategy.script-dir }}
+            script-name: ${{ strategy.script-name }}
+            artifact-name: ic10c-node.node
 
-    # 2. 构建 Node.js 绑定（Linux + Windows），依赖核心库
-    build-node-linux:
-        name: (linux) ic10-node | IC10 Node 绑定
-        needs: build-core-linux
-        uses: ./.github/workflows/ic10-node.yml
+    build-ic10-compiler-python:
+        name: "[Auto] Build IC10 Compiler Python Bindings | 构建IC10编译器Python绑定"
+        strategy:
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        script-dir: /bashShell
+                        script-name: buildIC10CompilerPython.sh
+                        artifact-name: ic10c-python.os
+                    -   os: windows-latest
+                        script-dir: /powerShell
+                        script-name: BuildIC10CompilerPython.ps1
+                        artifact-name: ic10c-python.pyd
+        uses: ./.github/workflows/python-workflow.yml
         with:
-            os: ubuntu-latest
-            build-type: Release
-            run-tests: false
-            upload-artifact: true
-            artifact-name: ic10-node
-            core-artifact-name: ${{ needs.build-core-linux.outputs.artifact-name }}
+            os: ${{ strategy.os }}
+            script-dir: ${{ strategy.script-dir }}
+            script-name: ${{ strategy.script-name }}
+            artifact-name: ${{ strategy.artifact-name }}
 
-    build-node-windows:
-        name: (windows) ic10-node | IC10 Node 绑定
-        needs: build-core-windows
-        uses: ./.github/workflows/ic10-node.yml
+    build-ic10-compiler-java:
+        name: "[Auto] Build IC10 Compiler Java Bindings | 构建IC10编译器Java绑定"
+        strategy:
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        script-dir: /bashShell
+                        script-name: buildIC10CompilerJava.sh
+                        artifact-name: ic10c-java.os
+                    -   os: windows-latest
+                        script-dir: /powerShell
+                        script-name: BuildIC10CompilerJava.ps1
+                        artifact-name: ic10c-java.dll
+        uses: ./.github/workflows/java-workflow.yml
         with:
-            os: windows-latest
-            build-type: Release
-            run-tests: false
-            upload-artifact: true
-            artifact-name: ic10-node
-            core-artifact-name: ${{ needs.build-core-windows.outputs.artifact-name }}
-
-    # 3. 构建 Python 绑定（Linux + Windows），依赖核心库
-    build-python-linux:
-        name: (linux) ic10-python | IC10 Python 绑定
-        needs: build-core-linux
-        uses: ./.github/workflows/ic10-python.yml
-        with:
-            os: ubuntu-latest
-            build-type: Release
-            run-tests: false
-            upload-artifact: true
-            artifact-name: ic10-python
-            core-artifact-name: ${{ needs.build-core-linux.outputs.artifact-name }}
-
-    build-python-windows:
-        name: (windows) ic10-python | IC10 Python 绑定
-        needs: build-core-windows
-        uses: ./.github/workflows/ic10-python.yml
-        with:
-            os: windows-latest
-            build-type: Release
-            run-tests: false
-            upload-artifact: true
-            artifact-name: ic10-python
-            core-artifact-name: ${{ needs.build-core-windows.outputs.artifact-name }}
+            os: ${{ strategy.os }}
+            script-dir: ${{ strategy.script-dir }}
+            script-name: ${{ strategy.script-name }}
+            artifact-name: ${{ strategy.artifact-name }}
 
     # 4. 汇总所有产物并发布到 GitHub Release
     upload-release:
-        name: upload release | 上传发布产物
+        name: "[Auto] Upload release assets | 上传发布产物"
         needs:
-            - build-core-linux
-            - build-core-windows
-            - build-node-linux
-            - build-node-windows
-            - build-python-linux
-            - build-python-windows
+            - build-ic10-compiler-cli
+            - build-ic10-compiler-node
+            - build-ic10-compiler-python
+            - build-ic10-compiler-java
         runs-on: ubuntu-latest
-        permissions:
-            contents: write   # 允许创建 Release 和上传附件
         steps:
-            -   name: Checkout source code | 检出源码
-                uses: actions/checkout@v6
+            -   name: "[Auto] Checkout source code | 检出源码"
+                uses: actions/checkout@v7
 
-            # 下载所有 artifacts 到各自以 artifact 名称命名的子目录
-            -   name: Download all artifacts | 下载所有产物
-                uses: actions/download-artifact@v6
+            -   name: "[Auto] Download all artifacts | 下载所有产物"
+                uses: actions/download-artifact@v8.0.0
                 with:
                     path: artifacts
 
-            # 整理产物结构，按平台分类
-            -   name: Organize release assets | 整理发布产物
+            -   name: "[Auto] Organize release assets | 组织发布产物"
                 shell: bash
                 run: |
-                    echo "=== Artifact structure ==="
-                    ls -R artifacts
+                    mkdir -p release-assets/linux release-assets/windows
+                    
+                    cp -r artifacts/ic10c release-assets/linux
+                    cp -r artifacts/ic10c.exe release-assets/windows
 
-                    mkdir -p release-assets/linux
-                    mkdir -p release-assets/windows
+                    cp -r artifacts/ic10c-node.node release-assets/linux
+                    cp -r artifacts/ic10c-node.node release-assets/windows
 
-                    # Linux 核心库
-                    if [[ -d "artifacts/ic10-core-ubuntu-latest-Release" ]]; then
-                        cp -r artifacts/ic10-core-ubuntu-latest-Release release-assets/linux/ic10-core
-                    fi
+                    cp -r artifacts/ic10c-python.os release-assets/linux
+                    cp -r artifacts/ic10c-python.pyd release-assets/windows
 
-                    # Windows 核心库
-                    if [[ -d "artifacts/ic10-core-windows-latest-Release" ]]; then
-                        cp -r artifacts/ic10-core-windows-latest-Release release-assets/windows/ic10-core
-                    fi
-
-                    # Linux Node 绑定
-                    if [[ -d "artifacts/ic10-node-ubuntu-latest" ]]; then
-                        cp -r artifacts/ic10-node-ubuntu-latest release-assets/linux/ic10-node
-                    fi
-
-                    # Windows Node 绑定
-                    if [[ -d "artifacts/ic10-node-windows-latest" ]]; then
-                        cp -r artifacts/ic10-node-windows-latest release-assets/windows/ic10-node
-                    fi
-
-                    # Linux Python 绑定
-                    if [[ -d "artifacts/ic10-python-ubuntu-latest" ]]; then
-                        cp -r artifacts/ic10-python-ubuntu-latest release-assets/linux/ic10-python
-                    fi
-
-                    # Windows Python 绑定
-                    if [[ -d "artifacts/ic10-python-windows-latest" ]]; then
-                        cp -r artifacts/ic10-python-windows-latest release-assets/windows/ic10-python
-                    fi
-
-                    # 编译器二进制可执行文件
-                    # Linux: ic10c (重命名为 ic10c-linux)
-                    if [[ -f "artifacts/ic10-core-ubuntu-latest-Release/bin/ic10c" ]]; then
-                        cp -f artifacts/ic10-core-ubuntu-latest-Release/bin/ic10c release-assets/ic10c-linux
-                        echo "Found Linux ic10c"
-                    else
-                        echo "::warning::Linux ic10c not found"
-                    fi
-
-                    # Windows: ic10c.exe (重命名为 ic10c.exe)
-                    if [[ -f "artifacts/ic10-core-windows-latest-Release/bin/ic10c.exe" ]]; then
-                        cp -f artifacts/ic10-core-windows-latest-Release/bin/ic10c.exe release-assets/ic10c.exe
-                        echo "Found Windows ic10c.exe"
-                    else
-                        echo "::warning::Windows ic10c.exe not found"
-                    fi
-
-                    # 创建各平台压缩包
-                    cd release-assets
-                    zip -r ic10-core-linux.zip linux/ic10-core/
-                    zip -r ic10-core-windows.zip windows/ic10-core/
-                    zip -r ic10-node-linux.zip linux/ic10-node/
-                    zip -r ic10-node-windows.zip windows/ic10-node/
-                    zip -r ic10-python-linux.zip linux/ic10-python/
-                    zip -r ic10-python-windows.zip windows/ic10-python/
-
-                    echo "=== Final release assets ==="
-                    ls -la
-
-            # 根据 tag 名称判断是否为预发布版本
-            -   name: Determine prerelease status | 确定预发布状态
+                    cp -r artifacts/ic10c-java.os release-assets/linux
+                    cp -r artifacts/ic10c-java.dll release-assets/windows
+                    
+            -   name: "[Auto] Determine prerelease status | 确定预发布状态"
                 id: prerelease
                 shell: bash
                 run: |
@@ -189,56 +137,53 @@ jobs:
                         IS_PRERELEASE=true
                     fi
                     echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
-                    echo "Tag: $TAG_NAME, Prerelease: $IS_PRERELEASE"
 
-            # 上传到 GitHub Release（草稿模式，人工核对后再发布）
-            -   name: Upload to Release | 上传到 Release
+            -   name: "[Auto] Create GitHub Release | 创建GitHub Release"
                 uses: softprops/action-gh-release@v2
                 with:
                     draft: true
                     prerelease: ${{ steps.prerelease.outputs.is_prerelease }}
-                    name: IC10 Compiler ${{ github.ref_name }}
+                    name: ${{ github.ref_name }}
                     body: |
-                        ## IC10 Compiler ${{ github.ref_name }}
-
-                        ### 产物列表
-                        - **ic10c-linux** — Linux 编译器二进制可执行文件
-                        - **ic10c.exe** — Windows 编译器二进制可执行文件
-                        - **ic10-core-linux.zip** — Linux 核心库 (libcommon.a, libic10_lib.a, 头文件)
-                        - **ic10-core-windows.zip** — Windows 核心库 (common.lib, ic10_lib.lib, 头文件)
-                        - **ic10-node-linux.zip** — Linux Node.js 绑定 (.node 文件)
-                        - **ic10-node-windows.zip** — Windows Node.js 绑定 (.node 文件)
-                        - **ic10-python-linux.zip** — Linux Python 绑定 (.so 文件)
-                        - **ic10-python-windows.zip** — Windows Python 绑定 (.pyd 文件)
-
-                        ### 安装说明
-                        详见项目文档。
-                    files: |
-                        release-assets/ic10c-linux
-                        release-assets/ic10c.exe
-                        release-assets/ic10-core-linux.zip
-                        release-assets/ic10-core-windows.zip
-                        release-assets/ic10-node-linux.zip
-                        release-assets/ic10-node-windows.zip
-                        release-assets/ic10-python-linux.zip
-                        release-assets/ic10-python-windows.zip
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            -   name: Summary | 发布摘要
-                shell: bash
-                run: |
-                    echo "### Release ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-                    echo "" >> $GITHUB_STEP_SUMMARY
-                    echo "**Draft**: true (请手动核对后发布)" >> $GITHUB_STEP_SUMMARY
-                    echo "**Prerelease**: ${{ steps.prerelease.outputs.is_prerelease }}" >> $GITHUB_STEP_SUMMARY
-                    echo "" >> $GITHUB_STEP_SUMMARY
-                    echo "#### 产物" >> $GITHUB_STEP_SUMMARY
-                    echo "- ic10c-linux (Linux 编译器二进制)" >> $GITHUB_STEP_SUMMARY
-                    echo "- ic10c.exe (Windows 编译器二进制)" >> $GITHUB_STEP_SUMMARY
-                    echo "- ic10-core-linux.zip" >> $GITHUB_STEP_SUMMARY
-                    echo "- ic10-core-windows.zip" >> $GITHUB_STEP_SUMMARY
-                    echo "- ic10-node-linux.zip" >> $GITHUB_STEP_SUMMARY
-                    echo "- ic10-node-windows.zip" >> $GITHUB_STEP_SUMMARY
-                    echo "- ic10-python-linux.zip" >> $GITHUB_STEP_SUMMARY
-                    echo "- ic10-python-windows.zip" >> $GITHUB_STEP_SUMMARY
+                        # ${{ github.ref_name }}
+                        
+                        <details>
+                            <summary>中文</summary>
+                        
+                        # 发布版本 vx.x.x
+                        **发布日期**: ${{ github.event.pushed_at }}
+                        **完整更新日志**: 
+                        
+                        ---
+                        
+                        ## 概述
+                        
+                        ## 🚀 新增功能
+                        
+                        ## 🐛 问题修复
+                        
+                        ## 📚 文档更新
+                        
+                        ## 🔧 版本信息
+                        
+                        ## 贡献者
+                        - **edocsitahw** — 
+                        </details>
+                        
+                        **Release Date**: ${{ github.event.pushed_at }}
+                        **Full Changelog**: 
+  
+                        ---
+                        
+                        ## Overview
+                        
+                        ## 🚀 New Features
+                        
+                        ## 🐛 Bug Fixes
+                        
+                        ## 📚 Documentation Updates
+                        
+                        ## 🔧 Version Information
+  
+                        ## Contributors
+                        - **edocsitahw** — 

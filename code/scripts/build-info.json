@@ -1,5 +1,17 @@
 {
     "rootDir": "../..",
+    "IC10_Compiler_CLI": {
+        "BuildDir": "build",
+        "SourceDir": ".",
+        "Target": "IC10_Compiler_CLI",
+        "Config": "Release",
+        "TestDir": ".",
+        "TestExeDir": "build/bin/Release",
+        "TestExeName": {
+            "windows": "ic10c.exe",
+            "linux": "ic10c"
+        }
+    },
     "IC10_Compiler_Core": {
         "BuildDir": "build",
         "SourceDir": ".",

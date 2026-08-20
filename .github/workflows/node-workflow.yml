@@ -32,6 +32,13 @@ on:
                 type: string
                 required: true
 
+            artifact-name:
+                description: "Artifact Name | 工件名称（为空跳过）"
+                type: string
+                required: false
+                default: ""
+
+
 jobs:
     build:
         name: Build | 构建
@@ -98,3 +105,11 @@ jobs:
                 run: |
                     cd ${{ inputs.script-dir }}
                     pwsh ./${{ inputs.script-name }} -DSTATIONEERS_ARTIFACTS_DIR=${{ vars.STATIONEERS_ARTIFACTS_DIR }}
+
+            -   name: "[Auto] Upload artifacts | 上传工件"
+                if: inputs.artifact-name != ''
+                uses: ./.github/actions/find-artifacts
+                with:
+                    artifact-name: ${{ inputs.artifact-name }}
+                    patterns: ${{ inputs.artifact-name }}
+                    search-dir: ${{ vars.STATIONEERS_CODE_DIR }}
