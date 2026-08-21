@@ -40,7 +40,7 @@ namespace stationeers::ic10 {
         bool first = true;
 
         for (const auto& [name, type] : types_) {
-            if (!first)
+            if (!first) [[likely]]
                 ss << ", ";
 
             ss << std::format(R"("{}": )", name);

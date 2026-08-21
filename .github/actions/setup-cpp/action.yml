@@ -85,7 +85,7 @@ runs:
                     echo "cache-tool=ccache" >> $GITHUB_OUTPUT
                 elif [ "${{ inputs.os }}" = "windows-latest" ]; then
                     if command -v sccache >/dev/null 2>&1; then
-                        echo "ccache-dir=$LOCALAPPDATA/Mozilla/sccache" >> $GITHUB_OUTPUT
+                        echo "ccache-dir=$LOCALAPPDATA\\Mozilla\\sccache" >> $GITHUB_OUTPUT
                         echo "cache-tool=sccache" >> $GITHUB_OUTPUT
                     elif command -v ccache >/dev/null 2>&1; then
                         echo "ccache-dir=$HOME/.ccache" >> $GITHUB_OUTPUT
@@ -119,8 +119,9 @@ runs:
             if: inputs.os == 'windows-latest' && steps.cache-config.outputs.cache-tool == 'sccache'
             shell: pwsh
             run: |
-                sccache --stop-server 2>$null
                 $env:SCCACHE_DIR = "$env:LOCALAPPDATA\Mozilla\sccache"
+                New-Item -ItemType Directory -Force -Path $env:SCCACHE_DIR | Out-Null
+                sccache --stop-server 2>$null
                 sccache --start-server
                 sccache --show-stats
                 echo "ST_CACHE_TOOL=sccache" | Add-Content -Path $env:GITHUB_ENV
