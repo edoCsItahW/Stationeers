@@ -6,17 +6,17 @@
 // permission, please contact the author: edocsitahw@qq.com
 
 /**
- * @file index.d.ts
+ * @file value.d.ts
  * @author edocsitahw
  * @version 1.1
- * @date 2026/08/12 14:46
+ * @date 2026/08/21 13:56
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-export * from "./config";
-export * from "./context";
-export * from "./device";
-export * from "./engine";
-export * from "./manager";
-export * from "./memory";
-export * from "./value";
+export function hashValue(value: string): number;
+
+export function strValue(str: string): number;
+
+export function constantValue(keyword: string): number | undefined;
+
+export const EPSILON_TIMES_8: number;
