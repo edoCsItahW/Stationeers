@@ -18,6 +18,8 @@ st_l_options(ENABLE_CCACHE DC0 ON)
 st_l_options(ENABLE_PAPALLEL DC1 ON)
 st_l_options(ENABLE_ARTIFACTS DC2 ON)
 st_l_options(ENABLE_DEP_CACHE DC3 ON)
+st_l_options(LIMIT_LINKED_MEMORY DC4 OFF)
+st_l_options(ENABLE_AUTO_LINKER DC5 ON)
 # STATIONEERS_ARTIFACTS_DIR
 # CMAKE_BUILD_PARALLEL_LEVEL
 
@@ -60,6 +62,14 @@ if (ANY_BUILD)
 
     if (ENABLE_PAPALLEL AND NOT DEFINED CMAKE_BUILD_PARALLEL_LEVEL)
         set(CMAKE_BUILD_PARALLEL_LEVEL 4)
+    endif ()
+
+    if (LIMIT_LINKED_MEMORY)
+        limit_linked_memory()
+    endif ()
+
+    if (ENABLE_AUTO_LINKER)
+        auto_find_linker()
     endif ()
 
     if (ANY_NODE)

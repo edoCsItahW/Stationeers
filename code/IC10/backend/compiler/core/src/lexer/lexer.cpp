@@ -42,7 +42,7 @@ namespace stationeers::ic10 {
     }
 
     std::optional<char> Lexer::current() const noexcept {
-        if (inScope()) return src_[pos_.offset()];
+        if (inScope()) [[likely]] return src_[pos_.offset()];
 
         return std::nullopt;
     }
@@ -52,7 +52,7 @@ namespace stationeers::ic10 {
 
         const auto start = pos_;
 
-        if (!inScope()) return {TokenType::END, start, "", TokenCategory::END};
+        if (!inScope()) [[unlikely]] return {TokenType::END, start, "", TokenCategory::END};
 
         const auto c = current();
 
@@ -207,7 +207,7 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractHexNumber() const {
         std::string value = "$";
-        pos_.next(static_cast<unsigned char>('$'));
+        pos_.next('$');
 
         const auto start = pos_;
 
@@ -230,7 +230,7 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractBinaryNumber() const {
         std::string value = "%";
-        pos_.next(static_cast<unsigned char>('%'));
+        pos_.next('%');
 
         const auto start = pos_;
 
@@ -253,7 +253,7 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractString() {
         std::string value = "\"";
-        pos_.next(static_cast<unsigned char>('"'));
+        pos_.next('"');
 
         const auto start = pos_;
 
@@ -261,7 +261,7 @@ namespace stationeers::ic10 {
         // 换行符作为同步点：IC10中字符串不应跨行，遇到换行说明字符串未闭合
         while (inScope() && *current() != '"' && *current() != '\n') {
             // 处理转义字符
-            if (const auto it = WHITESPACE_MAP.find(*current()); it != WHITESPACE_MAP.end()) {
+            if (const auto it = WHITESPACE_MAP.find(*current()); it != WHITESPACE_MAP.end()) [[unlikely]] {
                 value += '\\';
                 value += it->second;
                 // 循环末尾的 pos_.next() 会推进到下一个字符，无需额外处理
@@ -298,7 +298,7 @@ namespace stationeers::ic10 {
 
     Token Lexer::extractHashComment() const {
         std::string value = "#";
-        pos_.next(static_cast<unsigned char>('#'));
+        pos_.next('#');
 
         const auto start = pos_;
 
@@ -381,7 +381,7 @@ namespace stationeers::ic10 {
         const auto start = pos_;
         const auto ch    = std::string(1, *current());
 
-        if (const auto it = SYMBOL_MAP.find(ch); it != SYMBOL_MAP.end()) {
+        if (const auto it = SYMBOL_MAP.find(ch); it != SYMBOL_MAP.end()) [[likely]] {
             pos_.next(static_cast<unsigned char>(*current()));
             return {it->second, start, ch, TokenCategory::SYMBOL};
         }
@@ -395,13 +395,13 @@ namespace stationeers::ic10 {
         const auto start = pos_;
 
         std::string value = "d";
-        pos_.next(static_cast<unsigned char>('d'));
+        pos_.next('d');
 
         int deviceIdx = *current() - '0';
         value += *current();
         pos_.next(static_cast<unsigned char>(*current()));
 
-        if (deviceIdx > 5)
+        if (deviceIdx > 5) [[unlikely]]
             reporter_.warn<IC10CompilerMsgId::IWL3>(start, stationeers::endPos(start, value));
 
         return {
@@ -414,7 +414,7 @@ namespace stationeers::ic10 {
         const auto start = pos_;
 
         std::string value = "r";
-        pos_.next(static_cast<unsigned char>('r'));
+        pos_.next('r');
 
         int registerIdx = *current() - '0';
         value += *current();
@@ -427,7 +427,7 @@ namespace stationeers::ic10 {
             pos_.next(static_cast<unsigned char>(*current()));
         }
 
-        if (registerIdx > 15)
+        if (registerIdx > 15) [[unlikely]]
             reporter_.warn<IC10CompilerMsgId::IWL2>(start, stationeers::endPos(start, value));
 
         return {

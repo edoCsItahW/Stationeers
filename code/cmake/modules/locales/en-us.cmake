@@ -13,6 +13,8 @@ set(ST_DC0 "Enable ccache/sccache")
 set(ST_DC1 "Enable parallel builds")
 set(ST_DC2 "Enable artifact caching for components")
 set(ST_DC3 "Enable third-party dependency caching")
+set(ST_DC4 "Enable linked memory limit")
+set(ST_DC5 "Enable automatic link finder")
 
 # ---- Functions ----
 set(ST_EFunctions0 "The source code directory '{0}' does not exist")

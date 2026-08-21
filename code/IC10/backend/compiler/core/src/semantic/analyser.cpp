@@ -115,14 +115,14 @@ namespace stationeers::ic10 {
     // 标签定义：将标签名定义为 INTEGER 符号
     Task<> Analyser::operator()(const LabelDef& labelDef) {
         // Identifier: 定义为新符号
-        if (std::holds_alternative<Identifier>(labelDef.identifier)) {
+        if (std::holds_alternative<Identifier>(labelDef.identifier)) [[likely]] {
             const auto identifier = std::get<Identifier>(labelDef.identifier);
 
             defineSymbol(identifier, {identifier.value, type_of<LabelDef>, std::to_string(labelDef.position.line())});
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
-        else
+        else [[unlikely]]
             reporter_->errorWith<ICMsgId::IEA1_2>(
                 labelDef.start(), labelDef.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(labelDef.identifier).nodeName.value.data()
@@ -134,7 +134,7 @@ namespace stationeers::ic10 {
     // alias 指令：为寄存器或设备定义别名
     Task<> Analyser::operator()(const AliasDirective& aliasDirective) {
         // Identifier: 按寄存器/设备类型定义别名
-        if (std::holds_alternative<Identifier>(aliasDirective.identifier)) {
+        if (std::holds_alternative<Identifier>(aliasDirective.identifier)) [[likely]] {
             // 若 registerOrDevice 为 Identifier，需先解析（检查是否已定义）
             // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
             if (std::holds_alternative<Identifier>(aliasDirective.registerOrDevice)) {
@@ -213,7 +213,7 @@ namespace stationeers::ic10 {
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
-        else
+        else  [[unlikely]]
             reporter_->errorWith<ICMsgId::IEA1_2>(
                 aliasDirective.start(), aliasDirective.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(aliasDirective.identifier).nodeName.value.data()
@@ -224,7 +224,7 @@ namespace stationeers::ic10 {
 
     // define 指令：定义常量符号，其值由 operand 决定
     Task<> Analyser::operator()(const DefineDirective& defineDirective) {
-        if (std::holds_alternative<Identifier>(defineDirective.identifier)) {
+        if (std::holds_alternative<Identifier>(defineDirective.identifier)) [[likely]] {
             // 若 operand 为 Identifier，需先解析（检查是否已定义）
             // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
             if (std::holds_alternative<Identifier>(defineDirective.operand)) {
@@ -286,7 +286,7 @@ namespace stationeers::ic10 {
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
-        else
+        else [[unlikely]]
             reporter_->errorWith<ICMsgId::IEA1_2>(
                 defineDirective.start(), defineDirective.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(defineDirective.identifier).nodeName.value.data()
@@ -326,7 +326,7 @@ namespace stationeers::ic10 {
     // STR 宏调用：仅检查 value 是否为 ErrorNode
     Task<> Analyser::operator()(const StrCall& strCall) {
         // value 解析失败，上报类型不匹配
-        if (std::holds_alternative<ErrorNode>(strCall.value))
+        if (std::holds_alternative<ErrorNode>(strCall.value))  [[unlikely]]
             reporter_->errorWith<ICMsgId::IEA1_2>(
                 strCall.start(), strCall.end(), String::nodeName.value.data(),
                 std::get<ErrorNode>(strCall.value).nodeName.value.data()
@@ -338,7 +338,7 @@ namespace stationeers::ic10 {
     // HASH 宏调用：仅检查 value 是否为 ErrorNode
     Task<> Analyser::operator()(const HashCall& hashCall) {
         // value 解析失败，上报类型不匹配
-        if (std::holds_alternative<ErrorNode>(hashCall.value))
+        if (std::holds_alternative<ErrorNode>(hashCall.value)) [[unlikely]]
             reporter_->errorWith<ICMsgId::IEA1_2>(
                 hashCall.start(), hashCall.end(), String::nodeName.value.data(),
                 std::get<ErrorNode>(hashCall.value).nodeName.value.data()

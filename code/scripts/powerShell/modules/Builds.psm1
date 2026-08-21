@@ -66,10 +66,20 @@ function Invoke-CMakeBuild {
     Write-ST-Info (__ "Build.Build.Config" -Arguments $Config)
 
     # 检查目标是否为 IMPORTED（缓存命中，不生成 vcxproj）
-    $vcxproj = Get-ChildItem -Path $BuildDir -Recurse -Filter "$Target.vcxproj" -ErrorAction SilentlyContinue | Select-Object -First 1
-    if (-not $vcxproj) {
-        Write-ST-Info (__ "Build.Build.Cache" -Arguments $Target)
-        return
+    # 仅对 Visual Studio 生成器有意义：VS 生成器会把 cmake --build 翻译成
+    # msbuild <target>.vcxproj，若目标为 IMPORTED 则 .vcxproj 不存在，msbuild 报 MSB1009。
+    # Ninja/Makefile 等单配置生成器对 IMPORTED 目标会直接成功，无需此检测。
+    $generator = ""
+    if (Test-Path "$BuildDir/CMakeCache.txt") {
+        $line = Select-String -Path "$BuildDir/CMakeCache.txt" -Pattern "^CMAKE_GENERATOR:INTERNAL=(.+)$" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($line) { $generator = $line.Matches[0].Groups[1].Value }
+    }
+    if ($generator -like "Visual Studio*") {
+        $vcxproj = Get-ChildItem -Path $BuildDir -Recurse -Filter "$Target.vcxproj" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if (-not $vcxproj) {
+            Write-ST-Info (__ "Build.Build.Cache" -Arguments $Target)
+            return
+        }
     }
 
     cmake --build $BuildDir --target $Target --config $Config

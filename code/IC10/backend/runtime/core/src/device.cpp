@@ -34,19 +34,19 @@ namespace stationeers::ic10 {
         return logicProps_.contains(prop);
     }
 
-    bool VirtualDevice::canWriteLogic(const std::string& prop) const { return true; }
+    bool VirtualDevice::canWriteLogic(const std::string& prop [[maybe_unused]]) const { return true; }
 
-    double VirtualDevice::readSlot(std::size_t index, const std::string& slot) {
+    double VirtualDevice::readSlot(std::size_t index, const std::string& slot [[maybe_unused]]) {
         return readStack(index);
     }
 
-    void VirtualDevice::writeSlot(std::size_t index, const std::string& slot, double value) {
+    void VirtualDevice::writeSlot(std::size_t index, const std::string& slot [[maybe_unused]], double value) {
         writeStack(index, value);
     }
 
-    double VirtualDevice::readReagent(int mode) { return 0.0; }
+    double VirtualDevice::readReagent(int mode [[maybe_unused]]) { return 0.0; }
 
-    double VirtualDevice::queryReagentAmount(int64_t reagentHash) { return 0.0; }
+    double VirtualDevice::queryReagentAmount(int64_t reagentHash [[maybe_unused]]) { return 0.0; }
 
     int64_t VirtualDevice::getTypeHash() const { return 0; }
 
