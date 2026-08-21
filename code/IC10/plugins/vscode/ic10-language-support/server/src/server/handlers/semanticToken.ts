@@ -31,11 +31,10 @@ import {
     BasicType,
     ErrorNode,
     SymbolMap,
-    Position,
     Program
 } from "ic10c-node";
 
-import { Console, debug, upperBound } from "common";
+import { Console, debug, upperBound, Position } from "common";
 import { DocumentCache } from "../cache";
 import { t } from "../../locals";
 

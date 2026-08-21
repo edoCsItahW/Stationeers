@@ -14,6 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Optional } from "type-fest";
+import { Position } from "common";
 import {
     PureExeInstructionNode,
     DefineDirectiveNode,
@@ -23,7 +24,6 @@ import {
     OperandNode,
     OperandType,
     TokenType,
-    Position,
     Program,
     Token
 } from "ic10c-node";
@@ -159,16 +159,13 @@ export function operandToString(node: OperandNode): string {
     );
 }
 
-
 export function end(node: OperandNode): Position;
 export function end(token: Token): Position;
 export function end(item: OperandNode | Token): Position {
-    if ("pos" in item)
-        return { line: item.pos.line /* 无换行 */, column: item.pos.column + item.lexeme.length };
+    if ("pos" in item) return { line: item.pos.line /* 无换行 */, column: item.pos.column + item.lexeme.length };
 
-    return { line: item.position.line /* 无换行 */, column: item.position.column + operandValueLength(item) };
+    return item.end;
 }
-
 
 export function getOperandType(ins: PureExeInstructionNode, idx: number): Optional<OperandType> {
     return (ins as any)[`type${idx}`];
@@ -182,6 +179,14 @@ export function isDirectiveNode(stmt: StatementNode): stmt is AliasDirectiveNode
     return stmt.type.endsWith("Directive");
 }
 
+/**
+ * @summary 寻找所在列附近范围内的token
+ *
+ * @desc column位于单词中间则curr为该单词在tokens的索引，否则为-1表示没有，prev总是为curr之前的单词索引，无论curr是否命中单词
+ *
+ * @param tokens 某代码行对应的token数组
+ * @param column 该代码中的某一列（应为1-based）
+ * */
 export function findRangeTokens(
     tokens: Token[],
     column: number
@@ -193,16 +198,25 @@ export function findRangeTokens(
     const result = { prev: -1, curr: -1, next: -1 };
 
     tokens.some((token, i) => {
-        const idx = (
-            token.category === TokenCategory.WHITESPACE
-            || token.category === TokenCategory.COMMENT
-            || token.type === TokenType.END
-        ) ? -1 : i;
+        // 排除空内容token
+        const idx =
+            token.category === TokenCategory.WHITESPACE ||
+            token.category === TokenCategory.COMMENT ||
+            token.type === TokenType.END
+                ? -1
+                : i;
+
+        // 列前的
         if (end(token).column <= column) result.prev = idx;
+
+        // 列后的
         else if (token.pos.column >= column) {
             result.next = idx;
             return true;
-        } else result.curr = idx;
+        }
+
+        // 否则为当前的
+        else result.curr = idx;
     });
 
     return result;

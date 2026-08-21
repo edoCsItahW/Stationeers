@@ -71,6 +71,18 @@
                     "default": "en-us",
                     "description": "The language displayed to users by this plugin also includes the language used by the IC10 compiler core | 该插件向用户展示的语言，也包括IC10编译器核心使用的语言"
                 },
+                "ic10.hoverRenderer": {
+                    "enum": [
+                        "svg",
+                        "markdown"
+                    ],
+                    "enumDescriptions": [
+                        "SVG",
+                        "Markdown"
+                    ],
+                    "default": "svg",
+                    "description": "The modes for rendering hover information have their own characteristics | 渲染悬停信息的模式，各有特点"
+                },
                 "ic10.format.useTab": {
                     "type": "boolean",
                     "default": false,
