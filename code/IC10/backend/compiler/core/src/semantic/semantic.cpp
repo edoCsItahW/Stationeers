@@ -53,7 +53,7 @@ namespace stationeers::ic10 {
             symbols_[name] = {std::move(promise), future};
         }
         // 已定义则报错
-        else if (it->second.ready())
+        else if (it->second.ready()) [[unlikely]]
             return std::unexpected{ICLoc::msgFormat<ICMsgId::IEA2_1>(name)};
 
         // Future已决，通知所有等待者
@@ -78,7 +78,7 @@ namespace stationeers::ic10 {
         for (const auto& [key, entry] : symbols_ )
             if (entry.ready())
                 if (entry.future.get().has_value()) {
-                    if (!first)
+                    if (!first) [[likely]]
                         ss << ", ";
 
                     ss << '\"' << key << "\": " << entry.future.get().value()->toJSON();

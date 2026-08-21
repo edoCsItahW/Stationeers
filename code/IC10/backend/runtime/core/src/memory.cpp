@@ -29,7 +29,7 @@ namespace stationeers::ic10 {
         const double val,
         const std::optional<std::function<StackOverflowError(std::string)>>& onOverflow
     ) {
-        if (sp_ >= cfg.maxStackSize) {
+        if (sp_ >= cfg.maxStackSize) [[unlikely]] {
             if (onOverflow.has_value()) throw(*onOverflow)(IRLoc::msgStr<IRMsgId::IEM0>());
 
             throw StackOverflowError(IRLoc::msgStr<IRMsgId::IEM0>());
@@ -43,7 +43,7 @@ namespace stationeers::ic10 {
     double Memory::pop(
         const std::optional<std::function<StackOverflowError(std::string)>>& onOverflow
     ) {
-        if (sp_ <= 0) {
+        if (sp_ <= 0) [[unlikely]] {
             if (onOverflow.has_value()) throw(*onOverflow)(IRLoc::msgStr<IRMsgId::IEM1>());
 
             throw StackOverflowError(IRLoc::msg<IRMsgId::IEM1>());
@@ -57,7 +57,7 @@ namespace stationeers::ic10 {
     double Memory::peek(
         const std::optional<std::function<StackOverflowError(std::string)>>& onOverflow
     ) const {
-        if (sp_ <= 0) {
+        if (sp_ <= 0) [[unlikely]] {
             if (onOverflow.has_value()) throw(*onOverflow)(IRLoc::msgStr<IRMsgId::IEM0>());
 
             throw StackOverflowError(IRLoc::msg<IRMsgId::IEM0>());
@@ -70,7 +70,7 @@ namespace stationeers::ic10 {
         const std::size_t idx, const double val,
         const std::optional<std::function<RangeError(std::string)>>& onRange
     ) {
-        if (idx >= cfg.maxStackSize) {
+        if (idx >= cfg.maxStackSize) [[unlikely]] {
             if (onRange.has_value()) throw(*onRange)(IRLoc::msgStr<IRMsgId::IEM3_1>());
 
             throw RangeError(IRLoc::msgStr<IRMsgId::IEM3_1>());

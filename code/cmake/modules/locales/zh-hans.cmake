@@ -14,6 +14,8 @@ set(ST_DC0 "启用ccache/sccache")
 set(ST_DC1 "启用并行编译")
 set(ST_DC2 "启用工件缓存")
 set(ST_DC3 "启用三方依赖缓存")
+set(ST_DC4 "启用链接内存限制")
+set(ST_DC5 "启用自寻连接器")
 
 # ---- Functions ----
 set(ST_EFunctions0 "源码目录'{0}'不存在")

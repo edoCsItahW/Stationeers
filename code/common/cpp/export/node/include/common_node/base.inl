@@ -63,7 +63,7 @@ namespace stationeers {
     template<typename T, typename... Args, typename F>
         requires std::is_base_of_v<node::Value, T>
     node::Function to(node::Env env, F&& func) {
-        return node::Function::New(env, [&](const node::CallbackInfo& info) -> T {
+        return node::Function::New(env, [&func](const node::CallbackInfo& info) -> T {
             Arguments args(info);
 
             using Params = std::tuple<Args...>;
@@ -75,7 +75,7 @@ namespace stationeers {
                  ...);
             }(std::make_index_sequence<sizeof...(Args)>());
 
-            return T::New(env, std::apply(func, params));
+            return T::New(info.Env(), std::apply(func, params));
         });
     }
 

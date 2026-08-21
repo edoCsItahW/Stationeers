@@ -32,7 +32,7 @@ namespace stationeers::ic10 {
         skip();
 
         while (inScope()) {
-            if (current()->type == TokenType::END) return program;
+            if (current()->type == TokenType::END) [[unlikely]] return program;
 
             program.statements.push_back(parseStatement());
 
@@ -40,7 +40,7 @@ namespace stationeers::ic10 {
             while (inScope() && current()->category == TokenCategory::COMMENT) consume();
 
             // 除最后一个语句可以直接以END结尾
-            if (current()->type == TokenType::END) break;
+            if (current()->type == TokenType::END) [[unlikely]] break;
 
             // 语句之间必须以换行分隔
             // 参考IC10.g4: program : statement (NEWLINE+ statement)* NEWLINE* EOF;
@@ -63,9 +63,9 @@ namespace stationeers::ic10 {
     }
 
     Statement Parser::parseStatement() {
-        if (debug_) Console::log(std::format("Statement: {}", current()->toString()));
+        if (debug_) [[unlikely]] Console::log(std::format("Statement: {}", current()->toString()));
 
-        if (!current()) {
+        if (!current()) [[unlikely]] {
             reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
@@ -89,14 +89,14 @@ namespace stationeers::ic10 {
                 return ErrorNode{errToken, ICLoc::msgFormat<ICMsgId::IEP1_1>(tokenTypeStr)};
             }
             case IDENTIFIER: return wide_cast<Statement>(parseLabelDef(layer));
-            case KEYWORD_ALIAS:
+            case KEYWORD_ALIAS: [[fallthrough]];
             case KEYWORD_DEFINE: return wide_cast<Statement>(parsePreprocessorDirective(layer));
             default: return wide_cast<Statement>(parseExecutableInstruction(layer));
         }
     }
 
     ShallowErrorable<LabelDef> Parser::parseLabelDef(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "Label");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Label");
 
         LabelDef labelDef{current()->pos};
 
@@ -140,25 +140,23 @@ namespace stationeers::ic10 {
                 if (content[valueStart] == '"') {
                     // 引号包裹的值：查找匹配的闭合引号（支持空格）
                     valueEnd = content.find('"', valueStart + 1);
-                    if (valueEnd != std::string::npos) {
+                    if (valueEnd != std::string::npos)
                         ++valueEnd;  // 包含闭合引号
-                    } else {
+                    else
                         valueEnd = content.size();  // 未闭合引号，取到末尾
-                    }
-                } else {
+                } else
                     // 非引号值：取到下一个 @ 或末尾，支持带空格的描述文本
                     // 如 @desc Constant value 应得到 "Constant value" 而非 "Constant"
                     valueEnd = content.find('@', valueStart);
-                }
+
                 if (valueEnd == std::string::npos) valueEnd = content.size();
                 value = content.substr(valueStart, valueEnd - valueStart);
                 // 去除值尾部空白（如 Windows CRLF 残留的 '\r'）
                 while (!value.empty() && std::isspace(static_cast<unsigned char>(value.back())))
                     value.pop_back();
                 pos = content.find_first_not_of(" \t", valueEnd);
-            } else {
+            } else
                 pos = valueStart;
-            }
 
             if (tagName == "type" && !value.empty())
                 result.type = value;
@@ -170,14 +168,14 @@ namespace stationeers::ic10 {
     }
 
     PreprocessorDirective Parser::parsePreprocessorDirective(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "PreprocessorDirective");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "PreprocessorDirective");
 
         ++layer;
 
-        if (current()->type == TokenType::KEYWORD_ALIAS)
+        if (current()->type == TokenType::KEYWORD_ALIAS)  [[likely]]
             return wide_cast<PreprocessorDirective>(parseAliasDirective(layer));
 
-        if (current()->type == TokenType::KEYWORD_DEFINE)
+        if (current()->type == TokenType::KEYWORD_DEFINE)  [[likely]]
             return wide_cast<PreprocessorDirective>(parseDefineDirective(layer));
 
         reporter_.errorWith<ICMsgId::IEP2_1>(
@@ -190,7 +188,7 @@ namespace stationeers::ic10 {
     }
 
     ShallowErrorable<AliasDirective> Parser::parseAliasDirective(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "AliasDirective");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "AliasDirective");
 
         ++layer;
 
@@ -222,7 +220,7 @@ namespace stationeers::ic10 {
     }
 
     ExecutableInstruction Parser::parseExecutableInstruction(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "ExecutableInstruction");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "ExecutableInstruction");
 
         ++layer;
 
@@ -247,13 +245,15 @@ namespace stationeers::ic10 {
         if (SenaryInstructionMap::contains(current()->type))
             return wide_cast<ExecutableInstruction>(parseSenaryInstruction(layer));
 
-        reporter_.errorWith<ICMsgId::IEP3_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+        else [[unlikely]] {
+            reporter_.errorWith<ICMsgId::IEP3_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        auto errToken = *current();
-        consume();
-        return ErrorNode{errToken, ICLoc::msgFormat<ICMsgId::IEP3_1>(enumToStr(errToken.type))};
+            auto errToken = *current();
+            consume();
+            return ErrorNode{errToken, ICLoc::msgFormat<ICMsgId::IEP3_1>(enumToStr(errToken.type))};
+        }
     }
 
 #define VARIANT_TRANS_FACTORY(narrowType, wideType, ...)                                           \
@@ -279,7 +279,7 @@ namespace stationeers::ic10 {
 #endif
 
     NullaryInstruction Parser::parseNullaryInstruction(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "NullaryInstruction");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "NullaryInstruction");
 
         const auto c = current();
 
@@ -289,7 +289,7 @@ namespace stationeers::ic10 {
     }
 
     UnaryInstruction Parser::parseUnaryInstruction(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "UnaryInstruction");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "UnaryInstruction");
 
         ++layer;
 
@@ -323,16 +323,19 @@ namespace stationeers::ic10 {
         INSTRUCTION_CASE(
             UnaryInstructionMap_JT, UnaryInstruction, c->type, c->pos, parseJumpTarget(layer)
         )
+        
+        else [[unlikely]] {
+            reporter_.errorWith<ICMsgId::IEP4_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        reporter_.errorWith<ICMsgId::IEP4_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP4_1>(enumToStr(c->type))};
+        }
 
-        return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP4_1>(enumToStr(c->type))};
     }
 
     BinaryInstruction Parser::parseBinaryInstruction(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "BinaryInstruction");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "BinaryInstruction");
 
         ++layer;
 
@@ -359,16 +362,18 @@ namespace stationeers::ic10 {
             BinaryInstructionMap_RON_RON, BinaryInstruction, c->type, c->pos,
             parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
         )
+        
+        else [[unlikely]] {
+            reporter_.errorWith<ICMsgId::IEP5_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        reporter_.errorWith<ICMsgId::IEP5_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
-
-        return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP5_1>(enumToStr(c->type))};
+            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP5_1>(enumToStr(c->type))};
+        }
     }
 
     TernaryInstruction Parser::parseTernaryInstruction(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "TernaryInstruction");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "TernaryInstruction");
 
         ++layer;
 
@@ -423,16 +428,18 @@ namespace stationeers::ic10 {
             TernaryInstructionMap_RON_RON_RON, TernaryInstruction, c->type, c->pos,
             parseRegisterOrNumber(layer), parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
         )
+        
+        else [[unlikely]] {
+            reporter_.errorWith<ICMsgId::IEP6_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        reporter_.errorWith<ICMsgId::IEP6_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
-
-        return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP6_1>(enumToStr(c->type))};
+            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP6_1>(enumToStr(c->type))};
+        }
     }
 
     QuaternaryInstruction Parser::parseQuaternaryInstruction(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "QuaternaryInstruction");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "QuaternaryInstruction");
 
         ++layer;
 
@@ -487,16 +494,18 @@ namespace stationeers::ic10 {
             parseRegisterOrIdentifier(layer), parseDeviceReference(layer), parseReagentMode(layer),
             parseJumpTarget(layer)
         )
+        
+        else [[unlikely]] {
+            reporter_.errorWith<ICMsgId::IEP7_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        reporter_.errorWith<ICMsgId::IEP7_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
-
-        return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP7_1>(enumToStr(c->type))};
+            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP7_1>(enumToStr(c->type))};
+        }
     }
 
     QuinaryInstruction Parser::parseQuinaryInstruction(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "QuinaryInstruction");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "QuinaryInstruction");
 
         ++layer;
 
@@ -515,16 +524,18 @@ namespace stationeers::ic10 {
             parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer), parseSlotIndex(layer),
             parseLogicSlotType(layer), parseBatchMode(layer)
         )
+        
+        else [[unlikely]] {
+            reporter_.errorWith<ICMsgId::IEP8_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        reporter_.errorWith<ICMsgId::IEP8_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
-
-        return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP8_1>(enumToStr(c->type))};
+            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP8_1>(enumToStr(c->type))};
+        }
     }
 
     SenaryInstruction Parser::parseSenaryInstruction(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "SenaryInstruction");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "SenaryInstruction");
 
         ++layer;
 
@@ -539,15 +550,17 @@ namespace stationeers::ic10 {
             parseBatchMode(layer)
         )
 
-        reporter_.errorWith<ICMsgId::IEP9_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+        else [[unlikely]] {
+            reporter_.errorWith<ICMsgId::IEP9_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP9_1>(enumToStr(c->type))};
+            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP9_1>(enumToStr(c->type))};
+        }
     }
 
     ShallowErrorable<DefineDirective> Parser::parseDefineDirective(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "DefineDirective");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "DefineDirective");
 
         ++layer;
 
@@ -579,7 +592,7 @@ namespace stationeers::ic10 {
     }
 
     Operand Parser::parseOperand(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "Operand");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Operand");
 
         ++layer;
 
@@ -595,23 +608,23 @@ namespace stationeers::ic10 {
                 using enum TokenType;
                 case REGISTER: return wide_cast<Operand>(parseRegister(layer));
                 case DEVICE: return wide_cast<Operand>(parseDevice(layer));
-                case INTEGER:
-                case FLOAT:
-                case HEX_NUMBER:
+                case INTEGER: [[fallthrough]];
+                case FLOAT: [[fallthrough]];
+                case HEX_NUMBER: [[fallthrough]];
                 case BINARY_NUMBER: return wide_cast<Operand>(parseNumber(layer));
                 case IDENTIFIER: return wide_cast<Operand>(parseIdentifier(layer));
-                case KEYWORD_HASH:
+                case KEYWORD_HASH: [[fallthrough]];
                 case KEYWORD_STR: return wide_cast<Operand>(parseMacroCall(layer));
-                case KEYWORD_NAN:
-                case KEYWORD_PINF:
-                case KEYWORD_NINF:
-                case KEYWORD_PI:
-                case KEYWORD_TAU:
-                case KEYWORD_DEG2RAD:
-                case KEYWORD_RAD2DEG:
-                case KEYWORD_EPSILON:
+                case KEYWORD_NAN: [[fallthrough]];
+                case KEYWORD_PINF: [[fallthrough]];
+                case KEYWORD_NINF: [[fallthrough]];
+                case KEYWORD_PI: [[fallthrough]];
+                case KEYWORD_TAU: [[fallthrough]];
+                case KEYWORD_DEG2RAD: [[fallthrough]];
+                case KEYWORD_RAD2DEG: [[fallthrough]];
+                case KEYWORD_EPSILON: [[fallthrough]];
                 case KEYWORD_RGAS: return wide_cast<Operand>(parseConstant(layer));
-                default: {
+                default: [[unlikely]] {
                     // 理论上不会到这里，isStartToken 已过滤
                     reporter_.errorWith<ICMsgId::IEP10_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
@@ -631,19 +644,21 @@ namespace stationeers::ic10 {
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP17>()};
         }
+        
+        else [[unlikely]] {
+            // 情况3：坏 token → 消耗，继续尝试
+            reporter_.errorWith<ICMsgId::IEP10_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<ICMsgId::IEP10_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            consume();
 
-        consume();
-
-        return parseOperand(layer);
+            return parseOperand(layer);
+        }
     }
 
     ShallowErrorable<Register> Parser::parseRegister(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "Register");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Register");
 
         Register reg{current()->pos};
 
@@ -656,7 +671,7 @@ namespace stationeers::ic10 {
     }
 
     RegisterOrDevice Parser::parseRegisterOrDevice(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "RegisterOrDevice");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "RegisterOrDevice");
 
         ++layer;
 
@@ -676,19 +691,21 @@ namespace stationeers::ic10 {
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP18>()};
         }
+        
+        else [[unlikely]] {
+            // 情况3：坏 token → 消耗，继续尝试
+            reporter_.errorWith<ICMsgId::IEP11_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<ICMsgId::IEP11_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            consume();
 
-        consume();
-
-        return parseRegisterOrDevice(layer);
+            return parseRegisterOrDevice(layer);
+        }
     }
 
     RegisterOrIdentifier Parser::parseRegisterOrIdentifier(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "RegisterOrIdentifier");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "RegisterOrIdentifier");
 
         ++layer;
 
@@ -708,19 +725,21 @@ namespace stationeers::ic10 {
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP19>()};
         }
+        
+        else [[unlikely]] {
+            // 情况3：坏 token → 消耗，继续尝试
+            reporter_.errorWith<ICMsgId::IEP12_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<ICMsgId::IEP12_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            consume();
 
-        consume();
-
-        return parseRegisterOrIdentifier(layer);
+            return parseRegisterOrIdentifier(layer);
+        }
     }
 
     DeviceReference Parser::parseDeviceReference(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "DeviceReference");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "DeviceReference");
 
         ++layer;
 
@@ -735,9 +754,9 @@ namespace stationeers::ic10 {
             switch (current()->type) {
                 using enum TokenType;
                 case DEVICE: return wide_cast<DeviceReference>(parseDevice(layer));
-                case IDENTIFIER:
+                case IDENTIFIER:  [[fallthrough]];
                 case REGISTER: return wide_cast<DeviceReference>(parseRegisterOrIdentifier(layer));
-                default: {
+                default: [[unlikely]] {
                     reporter_.errorWith<ICMsgId::IEP13_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
@@ -756,23 +775,25 @@ namespace stationeers::ic10 {
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP20>()};
         }
+        
+        else [[unlikely]] {
+            // 情况3：坏 token → 消耗，继续尝试
+            reporter_.errorWith<ICMsgId::IEP13_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<ICMsgId::IEP13_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            consume();
 
-        consume();
-
-        return parseDeviceReference(layer);
+            return parseDeviceReference(layer);
+        }
     }
 
     RegisterOrNumber Parser::parseRegisterOrNumber(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "RegisterOrNumber");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "RegisterOrNumber");
 
         ++layer;
 
-        if (!current()) {
+        if (!current()) [[unlikely]] {
             reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
@@ -782,25 +803,25 @@ namespace stationeers::ic10 {
         if (isStartToken<RegisterOrNumber>(current()->type)) {
             switch (current()->type) {
                 using enum TokenType;
-                case REGISTER:
+                case REGISTER: [[fallthrough]];
                 case IDENTIFIER:
                     return wide_cast<RegisterOrNumber>(parseRegisterOrIdentifier(layer));
-                case INTEGER:
-                case FLOAT:
-                case HEX_NUMBER:
+                case INTEGER: [[fallthrough]];
+                case FLOAT: [[fallthrough]];
+                case HEX_NUMBER: [[fallthrough]];
                 case BINARY_NUMBER: return wide_cast<RegisterOrNumber>(parseNumber(layer));
-                case KEYWORD_HASH:
+                case KEYWORD_HASH: [[fallthrough]];
                 case KEYWORD_STR: return wide_cast<RegisterOrNumber>(parseMacroCall(layer));
-                case KEYWORD_NAN:
-                case KEYWORD_PINF:
-                case KEYWORD_NINF:
-                case KEYWORD_PI:
-                case KEYWORD_TAU:
-                case KEYWORD_DEG2RAD:
-                case KEYWORD_RAD2DEG:
-                case KEYWORD_EPSILON:
+                case KEYWORD_NAN: [[fallthrough]];
+                case KEYWORD_PINF: [[fallthrough]];
+                case KEYWORD_NINF: [[fallthrough]];
+                case KEYWORD_PI: [[fallthrough]];
+                case KEYWORD_TAU: [[fallthrough]];
+                case KEYWORD_DEG2RAD: [[fallthrough]];
+                case KEYWORD_RAD2DEG: [[fallthrough]];
+                case KEYWORD_EPSILON: [[fallthrough]];
                 case KEYWORD_RGAS: return wide_cast<RegisterOrNumber>(parseConstant(layer));
-                default: {
+                default: [[unlikely]] {
                     reporter_.errorWith<ICMsgId::IEP10_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
@@ -819,23 +840,25 @@ namespace stationeers::ic10 {
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP17>()};
         }
+        
+        else [[unlikely]] {
+            // 情况3：坏 token → 消耗，继续尝试
+            reporter_.errorWith<ICMsgId::IEP10_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<ICMsgId::IEP10_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            consume();
 
-        consume();
-
-        return parseRegisterOrNumber(layer);
+            return parseRegisterOrNumber(layer);
+        }
     }
 
     NumberValue Parser::parseNumberValue(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "NumberValue");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "NumberValue");
 
         ++layer;
 
-        if (!current()) {
+        if (!current()) [[unlikely]] {
             reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
@@ -845,23 +868,23 @@ namespace stationeers::ic10 {
         if (isStartToken<NumberValue>(current()->type)) {
             switch (current()->type) {
                 using enum TokenType;
-                case INTEGER:
-                case FLOAT:
-                case HEX_NUMBER:
+                case INTEGER: [[fallthrough]];
+                case FLOAT: [[fallthrough]];
+                case HEX_NUMBER: [[fallthrough]];
                 case BINARY_NUMBER: return wide_cast<NumberValue>(parseNumber(layer));
                 case IDENTIFIER: return wide_cast<NumberValue>(parseIdentifier(layer));
-                case KEYWORD_HASH:
+                case KEYWORD_HASH: [[fallthrough]];
                 case KEYWORD_STR: return wide_cast<NumberValue>(parseMacroCall(layer));
-                case KEYWORD_NAN:
-                case KEYWORD_PINF:
-                case KEYWORD_NINF:
-                case KEYWORD_PI:
-                case KEYWORD_TAU:
-                case KEYWORD_DEG2RAD:
-                case KEYWORD_RAD2DEG:
-                case KEYWORD_EPSILON:
+                case KEYWORD_NAN: [[fallthrough]];
+                case KEYWORD_PINF: [[fallthrough]];
+                case KEYWORD_NINF: [[fallthrough]];
+                case KEYWORD_PI: [[fallthrough]];
+                case KEYWORD_TAU: [[fallthrough]];
+                case KEYWORD_DEG2RAD: [[fallthrough]];
+                case KEYWORD_RAD2DEG: [[fallthrough]];
+                case KEYWORD_EPSILON: [[fallthrough]];
                 case KEYWORD_RGAS: return wide_cast<NumberValue>(parseConstant(layer));
-                default: {
+                default: [[unlikely]] {
                     reporter_.errorWith<ICMsgId::IEP15_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
@@ -880,38 +903,40 @@ namespace stationeers::ic10 {
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP22>()};
         }
+        
+        else [[unlikely]] {
+            // 情况3：坏 token → 消耗，继续尝试
+            reporter_.errorWith<ICMsgId::IEP15_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<ICMsgId::IEP15_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            consume();
 
-        consume();
-
-        return parseNumberValue(layer);
+            return parseNumberValue(layer);
+        }
     }
 
     JumpTarget Parser::parseJumpTarget(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "JumpTarget");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "JumpTarget");
 
-        if (!current()) {
+        if (!current()) [[unlikely]] {
             reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
         }
 
-        if (current()->type == TokenType::REGISTER)
+        if (current()->type == TokenType::REGISTER) [[likely]]
             return wide_cast<JumpTarget>(parseRegister(layer));
-
+        
         return wide_cast<JumpTarget>(parseNumberValue(layer));
     }
 
     DeviceAliasRef Parser::parseDeviceAliasRef(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "DeviceAliasRef");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "DeviceAliasRef");
 
         ++layer;
 
-        if (!current()) {
+        if (!current()) [[unlikely]] {
             reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
@@ -923,7 +948,7 @@ namespace stationeers::ic10 {
                 using enum TokenType;
                 case DEVICE: return wide_cast<DeviceAliasRef>(parseDevice(layer));
                 case IDENTIFIER: return wide_cast<DeviceAliasRef>(parseIdentifier(layer));
-                default: {
+                default: [[unlikely]] {
                     reporter_.errorWith<ICMsgId::IEP13_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
@@ -942,19 +967,21 @@ namespace stationeers::ic10 {
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP20>()};
         }
+        
+        else [[unlikely]] {
+            // 情况3：坏 token → 消耗，继续尝试
+            reporter_.errorWith<ICMsgId::IEP13_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<ICMsgId::IEP13_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            consume();
 
-        consume();
-
-        return parseDeviceAliasRef(layer);
+            return parseDeviceAliasRef(layer);
+        }
     }
 
     MacroCall Parser::parseMacroCall(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "MacroCall");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "MacroCall");
 
         ++layer;
 
@@ -974,19 +1001,21 @@ namespace stationeers::ic10 {
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP21>()};
         }
+        
+        else [[unlikely]] {
+            // 情况3：坏 token → 消耗，继续尝试
+            reporter_.errorWith<ICMsgId::IEP14_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<ICMsgId::IEP14_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            consume();
 
-        consume();
-
-        return parseMacroCall(layer);
+            return parseMacroCall(layer);
+        }
     }
 
     ShallowErrorable<HashCall> Parser::parseHashCall(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "HashCall");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "HashCall");
 
         HashCall hashCall{current()->pos};
 
@@ -1002,7 +1031,7 @@ namespace stationeers::ic10 {
     }
 
     ShallowErrorable<StrCall> Parser::parseStrCall(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "StrCall");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "StrCall");
 
         StrCall strCall{current()->pos};
 
@@ -1021,7 +1050,7 @@ namespace stationeers::ic10 {
     }
 
     ShallowErrorable<Constant> Parser::parseConstant(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "Constant");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Constant");
 
         Constant constant{current()->pos};
 
@@ -1036,31 +1065,31 @@ namespace stationeers::ic10 {
     }
 
     LogicType Parser::parseLogicType(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "LogicType");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "LogicType");
 
         return parseIdentifierOrNumber(++layer);
     }
 
     SlotIndex Parser::parseSlotIndex(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "SlotIndex");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "SlotIndex");
 
         return parseNumber(++layer);
     }
 
     LogicSlotType Parser::parseLogicSlotType(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "LogicSlotType");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "LogicSlotType");
 
         return parseIdentifierOrNumber(++layer);
     }
 
     BatchMode Parser::parseBatchMode(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "BatchMode");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "BatchMode");
 
         return parseIdentifierOrNumber(++layer);
     }
 
     ReagentMode Parser::parseReagentMode(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "ReagentMode");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "ReagentMode");
 
         return parseIdentifierOrNumber(++layer);
     }
@@ -1068,7 +1097,7 @@ namespace stationeers::ic10 {
     Errorable<Identifier, Number> Parser::parseIdentifierOrNumber(int layer) {
         ++layer;
 
-        if (!current()) {
+        if (!current()) [[unlikely]] {
             reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
@@ -1080,12 +1109,12 @@ namespace stationeers::ic10 {
                 using enum TokenType;
                 case IDENTIFIER:
                     return wide_cast<Errorable<Identifier, Number>>(parseIdentifier(layer));
-                case INTEGER:
-                case FLOAT:
-                case HEX_NUMBER:
+                case INTEGER: [[fallthrough]];
+                case FLOAT: [[fallthrough]];
+                case HEX_NUMBER: [[fallthrough]];
                 case BINARY_NUMBER:
                     return wide_cast<Errorable<Identifier, Number>>(parseNumber(layer));
-                default: {
+                default: [[unlikely]] {
                     reporter_.errorWith<ICMsgId::IEP15_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
@@ -1104,19 +1133,21 @@ namespace stationeers::ic10 {
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP22>()};
         }
+        
+        else [[unlikely]] {
+            // 情况3：坏 token → 消耗，继续尝试
+            reporter_.errorWith<ICMsgId::IEP15_1>(
+                current()->pos, endPos(*current()), enumToStr(current()->type)
+            );
 
-        // 情况3：坏 token → 消耗，继续尝试
-        reporter_.errorWith<ICMsgId::IEP15_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
-        );
+            consume();
 
-        consume();
-
-        return parseIdentifierOrNumber(layer);
+            return parseIdentifierOrNumber(layer);
+        }
     }
 
     ShallowErrorable<Device> Parser::parseDevice(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "Device");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Device");
 
         Device device{current()->pos};
 
@@ -1129,7 +1160,7 @@ namespace stationeers::ic10 {
     }
 
     ShallowErrorable<String> Parser::parseString(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "String");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "String");
 
         String string{current()->pos};
 
@@ -1142,7 +1173,7 @@ namespace stationeers::ic10 {
     }
 
     ShallowErrorable<Identifier> Parser::parseIdentifier(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "Identifier");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Identifier");
 
         Identifier identifier{current()->pos};
 
@@ -1158,12 +1189,12 @@ namespace stationeers::ic10 {
     }
 
     Number Parser::parseNumber(int layer) {
-        if (debug_) Console::log(std::string(layer * 4, ' ') + "Number");
+        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Number");
 
         try {
             ++layer;
 
-            if (!current()) {
+            if (!current()) [[unlikely]] {
                 reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
 
                 return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
@@ -1175,7 +1206,7 @@ namespace stationeers::ic10 {
                 case FLOAT: return wide_cast<Number>(parseFloat(layer));
                 case HEX_NUMBER: return wide_cast<Number>(parseHexNumber(layer));
                 case BINARY_NUMBER: return wide_cast<Number>(parseBinaryNumber(layer));
-                default: {
+                default: [[unlikely]] {
                     reporter_.errorWith<ICMsgId::IEP16_1>(
                         current()->pos, endPos(*current()), enumToStr(current()->type)
                     );
@@ -1246,7 +1277,7 @@ namespace stationeers::ic10 {
     }
 
     void Parser::consume() const {
-        if (inScope()) idx_++;
+        if (inScope()) [[likely]] idx_++;
     }
 
     void Parser::gotoNextLine() const {
