@@ -31,8 +31,9 @@ import {
     TypeOfNode,
     BasicType
 } from "ic10c-node";
-import {  } from "ic10r-node";
+import { hashValue, strValue, constantValue } from "ic10r-node";
 
+import { formatBasicType, formatOperand, isInstruction, isInsideNode, findOperand, formatType } from "./utils";
 import { INS_LOCAL_MAP, INS_META_MAP } from "../../../mateData";
 import type { HoverContext, IHoverProvider } from "./types";
 import { operandValueLength } from "../../../utils";
@@ -41,7 +42,6 @@ import type { Nullable, Optional } from "common";
 import { SettingsManager } from "../../services";
 import { t } from "../../../locals";
 import { s } from "../../../style";
-import { formatBasicType, formatOperand, isInstruction, isInsideNode, findOperand, formatType } from "./utils";
 
 type HoverRendererKey = SettingsManager["hoverRenderer"];
 
@@ -125,12 +125,21 @@ abstract class HoverOperand extends HoverProvider<HoverRendererKey> {
         if (!isInsideNode(operand.position.column, operandValueLength(operand), ctx.character)) return { contents: [] };
 
         let type: string;
+        let value: Optional<string>;
+
         switch (operand.type) {
+            case "Constant":
+                const result = constantValue(operand.keyword);
+                if (result) value = result.toString();
             case "Device":
             case "Register":
-            case "Constant":
             case "Error":
                 type = ctx.t(`hover.operandType.${operand.type.toLowerCase()}` as any);
+                break;
+            case "HashCall":
+            case "StrCall":
+                value = hashValue(operand.value.value).toString();
+                type = ctx.t("hover.operandType.number");
                 break;
             default:
                 type = ctx.t("hover.operandType.number");
@@ -151,7 +160,7 @@ abstract class HoverOperand extends HoverProvider<HoverRendererKey> {
         return {
             contents: {
                 kind: "markdown",
-                value: this.renderer()
+                value: this.renderer() + (value ? `  \n**${ctx.t("hover.common.value")}**: ${value}` : "")
             }
         };
     }
@@ -283,11 +292,13 @@ export class AliasDirectiveHoverProvider extends HoverOperand {
             svg: [{ text: ` = ${formatOperand(stmt.registerOrDevice)}` }],
             markdown: [` = ${formatOperand(stmt.registerOrDevice)}`]
         })
-
+        
+        const descPart = stmt.desc ? `  \n**${ctx.t("hover.common.description")}**: ${stmt.desc}` : "";
+        
         return {
             contents: {
                 kind: "markdown",
-                value: `${this.renderer()}  \n${stmt.desc ? "---\n" + `**${ctx.t("hover.common.description")}**: ${stmt.desc}` : ""}`
+                value: this.renderer() + descPart
             }
         };
     }
@@ -319,6 +330,7 @@ export class DefineDirectiveHoverProvider extends HoverOperand {
         const stmt = node as DefineDirectiveNode;
         if (ctx.character > stmt.number.position.column + operandValueLength(stmt.number)) return null;
 
+        // 悬停keyword
         if (ctx.character < stmt.position.column + 6) {
             const ins = INS_META_MAP.get("define");
             if (!ins) return null;
@@ -334,7 +346,10 @@ export class DefineDirectiveHoverProvider extends HoverOperand {
                         `**${ctx.t("hover.instruction.details")}**: _${desc ?? "---"}_`
                 }
             };
-        } else if (ctx.character < stmt.number.position.column)
+        }
+        
+        // 悬停自定义标识符
+        else if (ctx.character < stmt.number.position.column)
             this.supplement({
                 svg: [
                     [
@@ -352,12 +367,34 @@ export class DefineDirectiveHoverProvider extends HoverOperand {
                     `(${ctx.t("hover.defineDirective.type")}) **${stmt.identifier.value}**: ${(ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) || stmt.number.type} = ${formatOperand(stmt.number)}`
                 ]
             });
+        
+        // 复用操作数悬停
         else return this.provideOperandHover(stmt.number, ctx);
+        
+        const descPart = stmt.desc ? `  \n**${ctx.t("hover.common.description")}**: ${stmt.desc}` : "";
+
+        let value: Optional<string>;
+
+        switch (stmt.number.type) {
+            case "Constant":
+                value = constantValue(stmt.number.keyword)?.toString();
+                break;
+            case "HashCall":
+            case "StrCall":
+                value = stmt.number.value.type === "String" ? (
+                    stmt.number.type === "HashCall"
+                        ? hashValue(stmt.number.value.value)
+                        : strValue(stmt.number.value.value)
+                ).toString() : undefined;
+                break;
+        }
+
+        const valuePart = value ? `  \n**${ctx.t("hover.common.value")}**: ${value}` : "";
 
         return {
             contents: {
                 kind: "markdown",
-                value: `${this.renderer()}\n${stmt.desc ? "---\n" + `**${ctx.t("hover.common.description")}**: ${stmt.desc}` : ""}`
+                value: this.renderer() + descPart + valuePart
             }
         };
     }
@@ -476,6 +513,7 @@ export class InstructionHoverProvider extends HoverOperand {
 
         let prefix = "";
         let color = "";
+        let value: Optional<string>;
 
         switch (symbol.type) {
             case BasicType.DEVICE:
@@ -494,6 +532,12 @@ export class InstructionHoverProvider extends HoverOperand {
             case TypeCategory.LABEL:
                 prefix = `(${ctx.t("hover.labelDef.type")}) `;
                 color = s("hover.labelDef.identifier");
+                break;
+            case TypeCategory.HASH_CALL:
+            case TypeCategory.STR_CALL:
+                const result = symbol.value ? /'(?<value>\w+?)'/.exec(symbol.value) : undefined;
+                if (result && result.groups)
+                    value = (symbol.category === TypeCategory.HASH_CALL ? hashValue(result.groups.value) : strValue(result.groups.value)).toString();
                 break;
         }
 
@@ -521,11 +565,12 @@ export class InstructionHoverProvider extends HoverOperand {
             });
 
         const descPart = symbol.desc ? `  \n**${ctx.t("hover.common.description")}**: ${symbol.desc}` : "";
+        const valuePart = value ? `  \n**${ctx.t("hover.common.value")}**: ${value}` : "";
 
         return {
             contents: {
                 kind: "markdown",
-                value: this.renderer() + descPart
+                value: this.renderer() + descPart + valuePart
             }
         };
     }
