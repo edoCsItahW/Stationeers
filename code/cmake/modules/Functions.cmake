@@ -96,7 +96,7 @@ endfunction()
 function(_st_configure_target TARGET SOURCES INCLUDE_DIR)
     set(options)
     set(oneValueArgs SOURCES_MODE INCLUDE_MODE PCH_MODE)
-    set(multiValueArgs PCH PRIVATE_LINK PUBLIC_LINK COMPILE_DEFINITIONS EXTRA_LIBS)
+    set(multiValueArgs PCH PRIVATE_LINK PUBLIC_LINK COMPILE_DEFINITIONS EXTRA_LIBS LINK_OPTIONS)
 
     cmake_parse_arguments(PARSE_ARGV 3 ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}")
 
@@ -125,6 +125,10 @@ function(_st_configure_target TARGET SOURCES INCLUDE_DIR)
 
     if (DEFINED ARGS_COMPILE_DEFINITIONS)
         target_compile_definitions(${TARGET} PRIVATE ${ARGS_COMPILE_DEFINITIONS})
+    endif ()
+
+    if (ARGS_LINK_OPTIONS)
+        target_link_options(${TARGET} PRIVATE ${ARGS_LINK_OPTIONS})
     endif ()
 endfunction()
 
@@ -211,7 +215,7 @@ endfunction()
 function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR TARGET_KIND)
     set(options)
     set(oneValueArgs LIBRARY_TYPE SOURCES_MODE INCLUDE_MODE PCH_MODE)
-    set(multiValueArgs PCH PRIVATE_LINK PUBLIC_LINK COMPILE_DEFINITIONS)
+    set(multiValueArgs PCH PRIVATE_LINK PUBLIC_LINK COMPILE_DEFINITIONS LINK_OPTIONS)
 
     cmake_parse_arguments(PARSE_ARGV 6 ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}")
 
@@ -384,6 +388,7 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
                     PRIVATE_LINK ${ARGS_PRIVATE_LINK}
                     PUBLIC_LINK ${ARGS_PUBLIC_LINK}
                     COMPILE_DEFINITIONS ${ARGS_COMPILE_DEFINITIONS}
+                    LINK_OPTIONS ${ARGS_LINK_OPTIONS}
                     ${ARGS_UNPARSED_ARGUMENTS}
             )
         else ()
@@ -395,6 +400,7 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
                     PRIVATE_LINK ${ARGS_PRIVATE_LINK}
                     PUBLIC_LINK ${ARGS_PUBLIC_LINK}
                     COMPILE_DEFINITIONS ${ARGS_COMPILE_DEFINITIONS}
+                    LINK_OPTIONS ${ARGS_LINK_OPTIONS}
                     ${ARGS_UNPARSED_ARGUMENTS}
             )
         endif ()
