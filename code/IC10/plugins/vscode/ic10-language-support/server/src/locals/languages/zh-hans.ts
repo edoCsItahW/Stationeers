@@ -32,7 +32,8 @@ export default {
     },
     hover: {
         common: {
-            description: "描述"
+            description: "描述",
+            value: "值"
         },
         labelDef: {
             type: "标签"
