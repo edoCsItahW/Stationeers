@@ -23,9 +23,9 @@
  * */
 #include "ic10_compiler_python/link/linker_adapter.hpp"
 #include "common_python/diagnostic_adapter.hpp"
-#include "ic10_compiler/link/linker.hpp"
-#include "ic10_compiler/parser/parser.hpp"
 #include "ic10_compiler/semantic/semantic.hpp"
+#include "ic10_compiler/parser/parser.hpp"
+#include "ic10_compiler/link/linker.hpp"
 
 namespace stationeers::ic10 {
 

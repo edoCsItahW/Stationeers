@@ -15,10 +15,10 @@
  *          字符串、注释、关键字、符号、位置信息及边界情况。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include <gtest/gtest.h>
-
-#include "ic10_compiler/lexer/lexer.hpp"
 #include "ic10_compiler/locals/languages/zh_hans.hpp"
+#include "ic10_compiler/lexer/lexer.hpp"
+
+#include <gtest/gtest.h>
 
 
 using namespace stationeers::ic10;

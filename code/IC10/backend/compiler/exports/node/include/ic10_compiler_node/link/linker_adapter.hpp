@@ -67,8 +67,9 @@
 #ifndef EXPORT_LINKER_ADAPTER_HPP
 #define EXPORT_LINKER_ADAPTER_HPP
 #pragma once
-#include "common_node/base.hpp"
+
 #include "ic10_compiler/link/linker.hpp"
+#include "common_node/base.hpp"
 
 namespace stationeers::ic10 {
 

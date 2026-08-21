@@ -14,14 +14,14 @@
  * @details 测试从源码编译到执行的完整流水线。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include <gtest/gtest.h>
-
-#include "ic10_compiler/lexer/lexer.hpp"
 #include "ic10_compiler/locals/languages/zh_hans.hpp"
-#include "ic10_compiler/parser/parser.hpp"
-#include "ic10_compiler/semantic/analyser.hpp"
-#include "ic10_runtime/engine.hpp"
 #include "ic10_runtime/locals/languages/en_us.hpp"
+#include "ic10_compiler/semantic/analyser.hpp"
+#include "ic10_compiler/parser/parser.hpp"
+#include "ic10_compiler/lexer/lexer.hpp"
+#include "ic10_runtime/engine.hpp"
+
+#include <gtest/gtest.h>
 
 using namespace stationeers::ic10;
 

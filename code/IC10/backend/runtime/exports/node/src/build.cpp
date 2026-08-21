@@ -13,13 +13,13 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "common_node/build.hpp"
 #include "ic10_runtime_node/context_adapter.hpp"
+#include "ic10_runtime_node/manager_adapter.hpp"
 #include "ic10_runtime_node/device_adapter.hpp"
 #include "ic10_runtime_node/engine_adapter.hpp"
-#include "ic10_runtime_node/manager_adapter.hpp"
 #include "ic10_runtime_node/memory_adapter.hpp"
 #include "ic10_runtime_node/value_adapter.hpp"
+#include "common_node/build.hpp"
 
 namespace ic = stationeers::ic10;
 

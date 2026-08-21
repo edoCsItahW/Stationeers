@@ -26,8 +26,8 @@
 #define EXPORT_LEXER_HPP
 #pragma once
 
-#include "common_node/base.hpp"
 #include "ic10_compiler/lexer/lexer.hpp"
+#include "common_node/base.hpp"
 
 namespace stationeers::ic10 {
 

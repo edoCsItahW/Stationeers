@@ -17,8 +17,8 @@
 #define IC10_RUNTIME_MEMORY_HPP
 #pragma once
 
-#include "common/exception/error.hpp"
 #include "common/utils/default_unordered_map.hpp"
+#include "common/exception/error.hpp"
 #include "ic10_runtime/config.hpp"
 #include <functional>
 #include <string>

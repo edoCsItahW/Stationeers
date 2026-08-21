@@ -29,9 +29,9 @@
 #define COMPILER_J_INC_PARSER_HPP
 #pragma once
 
-#include "common_java/base.hpp"
-#include "ic10_compiler_java/lexer/j_token.hpp"
 #include "ic10_compiler/incremental/inc_parser.hpp"
+#include "ic10_compiler_java/lexer/j_token.hpp"
+#include "common_java/base.hpp"
 
 #include <string>
 

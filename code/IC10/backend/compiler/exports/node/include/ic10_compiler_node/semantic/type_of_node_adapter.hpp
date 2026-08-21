@@ -26,10 +26,10 @@
 #define EXPORT_TYPE_OF_NODE_ADAPTER_HPP
 #pragma once
 
-#include "common_node/base.hpp"
 #include "ic10_compiler/semantic/types.hpp"
-#include <tuple>
+#include "common_node/base.hpp"
 #include <string_view>
+#include <tuple>
 
 namespace stationeers::ic10 {
 

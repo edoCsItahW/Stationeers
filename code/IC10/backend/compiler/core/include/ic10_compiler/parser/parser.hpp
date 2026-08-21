@@ -119,10 +119,9 @@
 #define COMPILER_PARSER_HPP
 #pragma once
 
-#include "../lexer/token.hpp"
 #include "ic10_compiler/locals/local.hpp"
-#include "ic10_compiler/parser/ast/ast.hpp"
-#include "common/exception/diagnostic.hpp"
+#include "ic10_compiler/pch/ast.hpp"
+#include "ic10_compiler/pch/pch.hpp"
 #include <memory>
 #include <optional>
 #include <vector>

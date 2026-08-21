@@ -72,7 +72,7 @@
 #include <vector>
 #include <memory>
 
-#include "ic10_compiler/parser/ast/ast.hpp"
+#include "ic10_compiler/pch/ast.hpp"
 
 
 namespace stationeers::ic10 {

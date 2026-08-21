@@ -14,8 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_compiler_python/parser/ast_adapter.hpp"
-#include "ic10_compiler/parser/ast/ast.hpp"
-#include "ic10_compiler/parser/ast/ast_unary_ins.hpp"
+#include "ic10_compiler/pch/ast.hpp"
 
 #include <variant>
 

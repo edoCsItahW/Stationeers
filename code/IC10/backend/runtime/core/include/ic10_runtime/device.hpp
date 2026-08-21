@@ -17,8 +17,8 @@
 #define IC10_RUNTIME_DEVICE_HPP
 #pragma once
 
-#include <string>
 #include <unordered_map>
+#include <string>
 
 namespace stationeers::ic10 {
 

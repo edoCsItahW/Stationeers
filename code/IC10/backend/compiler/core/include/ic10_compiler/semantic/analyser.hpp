@@ -29,11 +29,10 @@
 #define COMPILER_ANALYSER_HPP
 #pragma once
 
-#include "common/async/task.hpp"
-#include "common/exception/diagnostic.hpp"
-#include "common/exception/error.hpp"
 #include "ic10_compiler/locals/local.hpp"
-#include "ic10_compiler/parser/ast/ast.hpp"
+#include "ic10_compiler/pch/pch.hpp"
+#include "ic10_compiler/pch/ast.hpp"
+#include "common/async/task.hpp"
 #include "semantic.hpp"
 
 namespace stationeers::ic10 {

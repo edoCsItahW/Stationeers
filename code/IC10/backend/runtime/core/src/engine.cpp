@@ -14,7 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_runtime/engine.hpp"
-#include <iostream>
+
 
 namespace stationeers::ic10 {
 

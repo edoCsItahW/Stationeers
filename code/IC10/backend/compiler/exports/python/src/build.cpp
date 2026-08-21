@@ -28,17 +28,17 @@
 #include "ic10_compiler_python/incremental/inc_parser_adapter.hpp"
 #include "ic10_compiler_python/incremental/inc_lexer_adapter.hpp"
 #include "ic10_compiler_python/semantic/symbol_table_adapter.hpp"
+#include "ic10_compiler_python/semantic/type_of_node_adapter.hpp"
 #include "ic10_compiler_python/semantic/type_table_adapter.hpp"
 #include "ic10_compiler_python/semantic/analyser_adapter.hpp"
-#include "ic10_compiler_python/link/linker_adapter.hpp"
 #include "ic10_compiler_python/parser/parser_adapter.hpp"
 #include "ic10_compiler_python/locals/local_adapter.hpp"
 #include "ic10_compiler_python/lexer/lexer_adapter.hpp"
 #include "ic10_compiler_python/lexer/token_adapter.hpp"
+#include "ic10_compiler_python/link/linker_adapter.hpp"
 #include "ic10_compiler_python/parser/ast_adapter.hpp"
-#include "ic10_compiler_python/semantic/type_of_node_adapter.hpp"
-#include "common_python/build.hpp"
 #include "common_python/enum_adapter.hpp"
+#include "common_python/build.hpp"
 
 namespace ic = stationeers::ic10;
 

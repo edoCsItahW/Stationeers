@@ -14,12 +14,10 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
+#include "ic10_compiler/parser/doc_parser.hpp"
 #include "ic10_compiler/parser/parser.hpp"
 #include "common/exception/debug.hpp"
-#include "common/exception/error.hpp"
 #include "common/utils/common.hpp"
-#include "ic10_compiler/locals/local.hpp"
-#include "ic10_compiler/parser/doc_parser.hpp"
 #include <format>
 
 namespace stationeers::ic10 {

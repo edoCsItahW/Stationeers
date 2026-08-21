@@ -72,7 +72,7 @@
 #include <memory>
 #include <vector>
 
-#include "ic10_compiler/parser/ast/ast.hpp"
+#include "ic10_compiler/pch/ast.hpp"
 #include "inc_parser.hpp"
 #include "inc_lexer.hpp"
 
