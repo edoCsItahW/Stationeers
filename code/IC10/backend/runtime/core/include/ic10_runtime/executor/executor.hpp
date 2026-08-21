@@ -17,7 +17,7 @@
 #define IC10_RUNTIME_EXECUTOR_HPP
 #pragma once
 
-#include "../context/context.hpp"
+#include "ic10_runtime/context/context.hpp"
 
 namespace stationeers::ic10 {
 

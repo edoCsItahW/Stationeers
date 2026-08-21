@@ -10,8 +10,8 @@
 #define IC10_RUNTIME_VALUE_INL
 #pragma once
 
-#include "common/exception/error.hpp"
 #include "ic10_runtime/locals/local.hpp"
+#include "common/exception/error.hpp"
 
 namespace stationeers::ic10 {
 

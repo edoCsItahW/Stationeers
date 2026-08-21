@@ -30,8 +30,8 @@
 #define COMPILER_J_INC_COMPILER_HPP
 #pragma once
 
-#include "common_java/base.hpp"
 #include "ic10_compiler/incremental/inc_compiler.hpp"
+#include "common_java/base.hpp"
 
 #include <string>
 

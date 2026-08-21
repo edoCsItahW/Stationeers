@@ -24,9 +24,9 @@
 #define COMPILER_J_LEXER_HPP
 #pragma once
 
-#include "common_java/j_diagnostic.hpp"
 #include "ic10_compiler_java/lexer/j_token.hpp"
 #include "ic10_compiler/lexer/lexer.hpp"
+#include "common_java/j_diagnostic.hpp"
 #include "common_java/base.hpp"
 
 namespace stationeers::ic10 {

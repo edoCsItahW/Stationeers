@@ -26,8 +26,8 @@
 #define EXPORT_ENGINE_ADAPTER_HPP
 #pragma once
 
-#include "common_node/base.hpp"
 #include "ic10_runtime/engine.hpp"
+#include "common_node/base.hpp"
 
 namespace stationeers::ic10 {
 

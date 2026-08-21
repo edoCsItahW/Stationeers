@@ -24,8 +24,8 @@
 #define COMPILER_IC10_NODE_INC_PARSER_ADAPTER_HPP
 #pragma once
 
-#include "common_node/base.hpp"
 #include "ic10_compiler/incremental/inc_parser.hpp"
+#include "common_node/base.hpp"
 
 namespace stationeers::ic10 {
 

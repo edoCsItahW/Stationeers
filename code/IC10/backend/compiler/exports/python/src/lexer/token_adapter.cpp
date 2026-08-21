@@ -14,7 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_compiler_python/lexer/token_adapter.hpp"
-#include "ic10_compiler/lexer/token.hpp"
+#include "ic10_compiler/pch/pch.hpp"
 
 namespace stationeers::ic10 {
 

@@ -14,18 +14,18 @@
  * @details 端到端测试：执行完整 IC10 程序，验证寄存器状态和执行结果。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+#include "ic10_compiler/locals/languages/zh_hans.hpp"
+#include "ic10_runtime/locals/languages/en_us.hpp"
+#include "ic10_compiler/semantic/analyser.hpp"
+#include "ic10_compiler/parser/parser.hpp"
+#include "ic10_compiler/lexer/lexer.hpp"
+#include "ic10_runtime/engine.hpp"
+
 #include <gtest/gtest.h>
 
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-
-#include "ic10_compiler/lexer/lexer.hpp"
-#include "ic10_compiler/locals/languages/zh_hans.hpp"
-#include "ic10_compiler/parser/parser.hpp"
-#include "ic10_compiler/semantic/analyser.hpp"
-#include "ic10_runtime/engine.hpp"
-#include "ic10_runtime/locals/languages/en_us.hpp"
 
 using namespace stationeers::ic10;
 

@@ -14,14 +14,16 @@
  * @details 测试所有指令的执行逻辑：零元~六元指令。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "ic10_runtime/context/context.hpp"
-#include "ic10_runtime/executor/executor.hpp"
-#include "ic10_compiler/lexer/lexer.hpp"
 #include "ic10_compiler/locals/languages/zh_hans.hpp"
-#include "ic10_compiler/parser/parser.hpp"
-#include "ic10_compiler/semantic/analyser.hpp"
 #include "ic10_runtime/locals/languages/en_us.hpp"
+#include "ic10_compiler/semantic/analyser.hpp"
+#include "ic10_runtime/executor/executor.hpp"
+#include "ic10_runtime/context/context.hpp"
+#include "ic10_compiler/parser/parser.hpp"
+#include "ic10_compiler/lexer/lexer.hpp"
+
 #include <gtest/gtest.h>
+
 
 using namespace stationeers::ic10;
 

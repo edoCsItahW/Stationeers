@@ -26,8 +26,8 @@
 #define EXPORT_AST_ADAPTER_HPP
 #pragma once
 
+#include "ic10_compiler/pch/ast.hpp"
 #include "common_node/base.hpp"
-#include "ic10_compiler/parser/ast/ast.hpp"
 
 namespace stationeers::ic10 {
 

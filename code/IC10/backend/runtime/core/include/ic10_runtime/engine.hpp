@@ -17,11 +17,10 @@
 #define IC10_RUNTIME_ENGINE_HPP
 #pragma once
 
-#include "context/context.hpp"
-#include "executor/executor.hpp"
-#include "ic10_compiler/parser/ast/ast.hpp"
 #include "ic10_compiler/semantic/semantic.hpp"
 #include "ic10_runtime/config.hpp"
+#include "executor/executor.hpp"
+#include "context/context.hpp"
 
 namespace stationeers::ic10 {
 

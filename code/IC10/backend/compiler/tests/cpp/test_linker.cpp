@@ -34,16 +34,17 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  * */
+#include "ic10_compiler/locals/languages/zh_hans.hpp"
+#include "ic10_compiler/semantic/analyser.hpp"
+#include "ic10_compiler/parser/parser.hpp"
+#include "ic10_compiler/lexer/lexer.hpp"
+#include "ic10_compiler/link/linker.hpp"
+
 #include <gtest/gtest.h>
 
 #include <string>
 #include <vector>
 
-#include "ic10_compiler/lexer/lexer.hpp"
-#include "ic10_compiler/link/linker.hpp"
-#include "ic10_compiler/locals/languages/zh_hans.hpp"
-#include "ic10_compiler/parser/parser.hpp"
-#include "ic10_compiler/semantic/analyser.hpp"
 
 using namespace stationeers::ic10;
 

@@ -30,8 +30,8 @@
 #define COMPILER_J_INC_LEXER_HPP
 #pragma once
 
-#include "common_java/base.hpp"
 #include "ic10_compiler/incremental/inc_lexer.hpp"
+#include "common_java/base.hpp"
 
 #include <string>
 

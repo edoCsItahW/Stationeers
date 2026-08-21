@@ -33,17 +33,17 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  * */
+#include "ic10_compiler/locals/languages/zh_hans.hpp"
+#include "ic10_compiler/semantic/analyser.hpp"
+#include "ic10_compiler/parser/parser.hpp"
+#include "ic10_compiler/lexer/lexer.hpp"
+
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <initializer_list>
+#include <algorithm>
 #include <ranges>
 #include <string>
-
-#include "ic10_compiler/lexer/lexer.hpp"
-#include "ic10_compiler/locals/languages/zh_hans.hpp"
-#include "ic10_compiler/parser/parser.hpp"
-#include "ic10_compiler/semantic/analyser.hpp"
 
 using namespace stationeers::ic10;
 using stationeers::Diagnostic;

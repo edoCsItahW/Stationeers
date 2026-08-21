@@ -17,7 +17,7 @@
 #define IC10_RUNTIME_MEMORY_INL
 #pragma once
 
-#include "../value/value.hpp"
+#include "ic10_runtime/value/value.hpp"
 
 namespace stationeers::ic10 {
 

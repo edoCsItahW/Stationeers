@@ -18,9 +18,9 @@
 #pragma once
 
 #include "device.hpp"
+#include <unordered_map>
 #include <memory>
 #include <vector>
-#include <unordered_map>
 
 namespace stationeers::ic10 {
 

@@ -17,8 +17,8 @@
 #define IC10_RUNTIME_MANAGER_ADAPTER_HPP
 #pragma once
 
-#include "common_node/base.hpp"
 #include "ic10_runtime/manager.hpp"
+#include "common_node/base.hpp"
 
 namespace stationeers::ic10 {
 
