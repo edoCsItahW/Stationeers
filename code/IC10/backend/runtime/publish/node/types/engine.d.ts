@@ -14,6 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Context } from "./context";
+import { Program } from "./parser";
 import { Config } from "./config";
 
 
