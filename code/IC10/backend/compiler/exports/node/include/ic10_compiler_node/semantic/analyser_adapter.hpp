@@ -25,8 +25,9 @@
 #ifndef EXPORT_ANALYSER_ADAPTER_HPP
 #define EXPORT_ANALYSER_ADAPTER_HPP
 #pragma once
-#include "common_node/base.hpp"
+
 #include "ic10_compiler/semantic/analyser.hpp"
+#include "common_node/base.hpp"
 
 namespace stationeers::ic10 {
 

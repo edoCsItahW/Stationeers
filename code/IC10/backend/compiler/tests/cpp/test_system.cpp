@@ -16,16 +16,16 @@
  *          符号表验证、诊断检测和各类指令覆盖。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+#include "ic10_compiler/locals/languages/zh_hans.hpp"
+#include "ic10_compiler/semantic/analyser.hpp"
+#include "ic10_compiler/parser/parser.hpp"
+#include "ic10_compiler/lexer/lexer.hpp"
+
 #include <gtest/gtest.h>
 
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-
-#include "ic10_compiler/lexer/lexer.hpp"
-#include "ic10_compiler/locals/languages/zh_hans.hpp"
-#include "ic10_compiler/parser/parser.hpp"
-#include "ic10_compiler/semantic/analyser.hpp"
 
 using namespace stationeers::ic10;
 using stationeers::Diagnostic;

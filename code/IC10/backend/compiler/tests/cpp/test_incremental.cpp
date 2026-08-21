@@ -11,9 +11,9 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_compiler/incremental/inc_compiler.hpp"
-#include "ic10_compiler/lexer/lexer.hpp"
 #include "ic10_compiler/locals/languages/zh_hans.hpp"
 #include "ic10_compiler/parser/parser.hpp"
+#include "ic10_compiler/lexer/lexer.hpp"
 #include <gtest/gtest.h>
 
 using namespace stationeers::ic10;

@@ -17,11 +17,11 @@
 #define IC10_RUNTIME_CONTEXT_HPP
 #pragma once
 
-#include "../memory/memory.hpp"
-#include "ic10_compiler/parser/ast/ast.hpp"
 #include "ic10_compiler/semantic/semantic.hpp"
-#include "ic10_runtime/config.hpp"
+#include "ic10_runtime/memory/memory.hpp"
+#include "ic10_compiler/pch/ast.hpp"
 #include "ic10_runtime/manager.hpp"
+#include "ic10_runtime/config.hpp"
 
 namespace stationeers::ic10 {
 

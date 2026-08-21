@@ -24,11 +24,11 @@
 #define COMPILER_J_PARSER_HPP
 #pragma once
 
-#include "common_java/base.hpp"
-#include "common_java/j_diagnostic.hpp"
-#include "ic10_compiler_java/lexer/j_token.hpp"
 #include "ic10_compiler_java/parser/j_program.hpp"
+#include "ic10_compiler_java/lexer/j_token.hpp"
 #include "ic10_compiler/parser/parser.hpp"
+#include "common_java/j_diagnostic.hpp"
+#include "common_java/base.hpp"
 
 namespace stationeers::ic10 {
 

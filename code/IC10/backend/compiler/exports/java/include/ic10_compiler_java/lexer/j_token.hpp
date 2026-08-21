@@ -17,8 +17,8 @@
 #define COMPILER_J_TOKEN_HPP
 #pragma once
 
+#include "ic10_compiler/pch/pch.hpp"
 #include "common_java/base.hpp"
-#include "ic10_compiler/lexer/token.hpp"
 
 namespace stationeers::ic10 {
 

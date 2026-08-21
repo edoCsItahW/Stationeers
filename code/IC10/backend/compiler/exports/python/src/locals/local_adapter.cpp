@@ -14,9 +14,9 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_compiler_python/locals/local_adapter.hpp"
-#include "ic10_compiler/locals/languages/en_us.hpp"
 #include "ic10_compiler/locals/languages/zh_hans.hpp"
-#include "ic10_compiler/locals/local.hpp"
+#include "ic10_compiler/locals/languages/en_us.hpp"
+#include "ic10_compiler/pch/pch.hpp"
 
 namespace stationeers::ic10 {
 

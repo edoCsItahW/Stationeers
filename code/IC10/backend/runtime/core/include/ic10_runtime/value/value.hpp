@@ -17,7 +17,7 @@
 #define IC10_RUNTIME_VALUE_HPP
 #pragma once
 
-#include "ic10_compiler/parser/ast/ast.hpp"
+#include "ic10_compiler/pch/ast.hpp"
 #include "common/utils/fstr.hpp"
 #include <optional>
 #include <cstdint>

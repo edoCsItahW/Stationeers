@@ -13,11 +13,11 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#include "ic10_runtime_node/context_adapter.hpp"
-#include "ic10_compiler_node/parser/ast_adapter.hpp"
 #include "ic10_compiler_node/semantic/symbol_table_adapter.hpp"
-#include "ic10_runtime_node/config_adapter.hpp"
+#include "ic10_compiler_node/parser/ast_adapter.hpp"
+#include "ic10_runtime_node/context_adapter.hpp"
 #include "ic10_runtime_node/manager_adapter.hpp"
+#include "ic10_runtime_node/config_adapter.hpp"
 #include "ic10_runtime_node/memory_adapter.hpp"
 
 namespace stationeers::ic10 {

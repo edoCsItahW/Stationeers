@@ -26,8 +26,8 @@
 #define EXPORT_TYPE_TABLE_ADAPTER_HPP
 #pragma once
 
-#include "common_node/base.hpp"
 #include "ic10_compiler/semantic/types.hpp"
+#include "common_node/base.hpp"
 
 namespace stationeers::ic10 {
 

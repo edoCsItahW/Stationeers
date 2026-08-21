@@ -24,9 +24,9 @@
 #define COMPILER_J_PROGRAM_HPP
 #pragma once
 
-#include "common_java/base.hpp"
+#include "ic10_compiler/pch/ast.hpp"
 #include "common_java/j_pos.hpp"
-#include "ic10_compiler/parser/ast/ast.hpp"
+#include "common_java/base.hpp"
 
 namespace stationeers::ic10 {
 

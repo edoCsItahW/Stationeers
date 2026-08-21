@@ -26,12 +26,12 @@
 #define COMPILER_J_ANALYSER_HPP
 #pragma once
 
-#include "common_java/base.hpp"
-#include "common_java/j_diagnostic.hpp"
-#include "ic10_compiler_java/parser/j_program.hpp"
 #include "ic10_compiler_java/semantic/j_symbol_table.hpp"
 #include "ic10_compiler_java/semantic/j_type_table.hpp"
+#include "ic10_compiler_java/parser/j_program.hpp"
 #include "ic10_compiler/semantic/analyser.hpp"
+#include "common_java/j_diagnostic.hpp"
+#include "common_java/base.hpp"
 
 namespace stationeers::ic10 {
 
