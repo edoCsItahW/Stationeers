@@ -118,7 +118,7 @@ export class Server {
             this.handleLocaleChanged()
         );
 
-        this.hoverHandler = new HoverHandler(this.docCache);
+        this.hoverHandler = new HoverHandler(this.docCache, this.settingMgr);
         this.diagHandler = new DiagnosticHandler(this.docCache);
         this.semanticHandler = new SemanticTokenHandler(this.docCache);
         this.compHandler = new CompletionHandler(this.docCache);

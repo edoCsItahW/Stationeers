@@ -30,6 +30,7 @@ import {
 import {
     IdentifierNode,
     StatementNode,
+    TokenCategory,
     RegisterNode,
     TypeCategory,
     TypeTableMap,
@@ -39,7 +40,6 @@ import {
     SymbolMap,
     BasicType,
     ErrorNode,
-    TokenCategory,
     TokenType
 } from "ic10c-node";
 
@@ -272,6 +272,7 @@ export class CompletionHandler {
         const cache = this.docCache.getCache(uri);
 
         if (!cache || !cache.ast || !cache.symbols || !context)
+            // 无内容则补全关键字
             return this.completeKeyword(
                 {
                     getLocale: () => locale.getLocale()
@@ -279,9 +280,13 @@ export class CompletionHandler {
                 ""
             );
 
+        // 统一为1-based
         const line = position.line + 1;
         const column = position.character + 1;
+
+        // 当前语句索引
         const stmtIdx = lowerBound(cache.ast.statements, n => n.position.line >= line);
+
         const ctx: CompletionContext = {
             stmt: cache.ast.statements[stmtIdx]?.position.line === line ? cache.ast.statements[stmtIdx] : undefined,
             symbols: cache.symbols,
@@ -289,6 +294,7 @@ export class CompletionHandler {
             getLocale: () => locale.getLocale()
         };
 
+        // 当前行的tokens
         const tokens = cache.tokens.filter(
             t =>
                 t.pos.line === line &&
@@ -296,20 +302,29 @@ export class CompletionHandler {
                 t.category !== TokenCategory.COMMENT &&
                 t.type !== TokenType.END
         );
+
         const { prev: prevIdx, curr: currIdx, next: nextIdx } = findRangeTokens(tokens, column);
 
+        // 光标的前一个token
         const prevToken = tokens[prevIdx];
 
+        // 前一个token与当前光标间的空格数
         const prevBlocks = prevToken ? column - end(prevToken).column : 0;
+        // 操作数索引
         let opIdx = prevIdx; // -1则补keyword(0)，其余补operand${opIdx}
 
-        if (prevBlocks > 0 || opIdx === -1) opIdx++;
+        if (
+            prevBlocks > 0 ||  // 存在空格则应判断为下一个操作数
+            opIdx === -1       // 没有前一个token表示位于行首，则加1成0
+        )
+            opIdx++;
 
+        // 相对位置状态，该形式仅用于简化分支，其中1为特殊情况，使其命中正确的索引
         const rel: RelativeState = [
             [RelativeState.INSIDE_WORD, RelativeState.END_WORD],
-            [RelativeState.START_WORD, currIdx > 0 ? RelativeState.INSIDE_WORD : RelativeState.INSIDE_GAP]
-        ][prevIdx >= 0 ? Number(prevBlocks > 0) : 1][
-            nextIdx >= 0 ? Number(tokens[nextIdx].pos.column - column > 0) : 1
+            [RelativeState.START_WORD , currIdx > 0 ? RelativeState.INSIDE_WORD : RelativeState.INSIDE_GAP]
+        ][prevIdx >= 0 ? Number(prevBlocks > 0 /* 光标前的空格数 */) : 1][
+            nextIdx >= 0 ? Number(tokens[nextIdx].pos.column - column > 0 /* 光标后的空格数 */) : 1
         ];
 
         const state = combine(rel, context.triggerKind);
@@ -436,12 +451,19 @@ export class CompletionHandler {
      * @param prefix 已输入的前缀 / Already-typed prefix
      * */
     private completeWord(ctx: CompletionContext, opIdx: number, prefix: string = "") {
+        // 不是行首
         if (opIdx && ctx.stmt) {
+            // 是可执行指令，则补全操作数
             if (isInstruction(ctx.stmt) && getOperandType(ctx.stmt, opIdx) !== undefined)
                 return this.completeOperand(ctx, getOperandType(ctx.stmt, opIdx)!, prefix);
+
+            // 是预处理指令，则不补全第一个操作数（用户自定义标识符），如果是第二个操作数则提供补全
             else if (ctx.stmt.type === "AliasDirective" && opIdx === 2) return this.completeRegOrDev(ctx, prefix);
             else if (ctx.stmt.type === "DefineDirective" && opIdx === 2) return this.completeNumber(ctx, prefix);
-        } else return this.completeKeyword(ctx, prefix);
+        }
+
+        // 是行首，提供关键字补全
+        else return this.completeKeyword(ctx, prefix);
     }
 
     /**
@@ -462,6 +484,7 @@ export class CompletionHandler {
     private completeKeyword(ctx: CompletionContext, prefix: string): CompletionItem[] {
         return CompletionHandler.insTree
             .entriesWithPrefix(prefix)
+            // 过滤掉不是指令的元数据
             .filter(([, v]) => v.type === "Instruction")
             .map(([key, value]) => ({
                 label: key,
@@ -496,9 +519,9 @@ export class CompletionHandler {
      * */
     private completeOperand(ctx: CompletionContext, opType: OperandType, prefix: string): CompletionItem[] {
         switch (opType) {
-            case OperandType.REG_IDENT:
-            case OperandType.REG_NUM: {
-                // 寄存器 + 数字（具体补数字留给用户自行输入）
+            case OperandType.REG_IDENT:  // 寄存器类型
+            case OperandType.REG_NUM: {  // 寄存器或数值类型
+                // 内置寄存器
                 const matching = this.filterByPrefix(CompletionHandler.REGISTERS, prefix);
                 const builtin: CompletionItem[] = matching.map(({ value, sort }) => ({
                     label: value,
@@ -514,8 +537,8 @@ export class CompletionHandler {
                     for (const name in ctx.symbols) {
                         const sym = ctx.symbols[name];
                         if (
-                            (sym.type === BasicType.REGISTER ||
-                                ((opType as OperandType) === OperandType.REG_NUM &&
+                            (sym.type === BasicType.REGISTER || // 标识符的值为寄存器类型
+                                ((opType as OperandType) === OperandType.REG_NUM && // 如果操作数期望register or number类型，则还提供类型数字类型的标识符
                                     (sym.category === TypeCategory.NUMBER || sym.category === TypeCategory.LABEL))) &&
                             name.startsWith(prefix)
                         ) {
@@ -525,6 +548,7 @@ export class CompletionHandler {
                                     : sym.category === TypeCategory.NUMBER
                                       ? t("hover.operandType.number")
                                       : t("hover.operandType.register");
+
                             userAliases.push({
                                 label: name,
                                 kind: CompletionItemKind.Variable,
@@ -541,13 +565,15 @@ export class CompletionHandler {
 
                 const result = [...builtin, ...userAliases];
 
-                if (opType === OperandType.REG_NUM) result.push(...this.completeNumber(ctx, prefix), ...this.completeConstant(ctx, prefix));
+                // 如果操作数期望register or number类型，则还提供类型数字类型的补全
+                if (opType === OperandType.REG_NUM)
+                    result.push(...this.completeNumber(ctx, prefix), ...this.completeConstant(ctx, prefix));
 
                 return result;
             }
 
-            case OperandType.DEV_ALIAS:
-            case OperandType.DEV_REF: {
+            case OperandType.DEV_ALIAS:  // 设备别名类型
+            case OperandType.DEV_REF: {  // 设备引用类型
                 // 设备引用: d0-d5, db  + 用户别名
                 const builtin = this.filterByPrefix(CompletionHandler.DEVICE_REFS, prefix).map(({ value, sort }) => ({
                     label: value,
@@ -888,7 +914,8 @@ export class CompletionHandler {
     }
 
     private completeConstant(ctx: CompletionContext, prefix: string): CompletionItem[] {
-        return CompletionHandler.insTree.entriesWithPrefix(prefix)
+        return CompletionHandler.insTree
+            .entriesWithPrefix(prefix)
             .filter(([, v]) => v.type === "Constant")
             .map(([k, v]) => ({
                 label: k,
