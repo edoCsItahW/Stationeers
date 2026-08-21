@@ -16,6 +16,7 @@
  * */
 #include "ic10_runtime/memory/memory.hpp"
 #include "ic10_runtime/config.hpp"
+
 #include <gtest/gtest.h>
 
 using namespace stationeers::ic10;

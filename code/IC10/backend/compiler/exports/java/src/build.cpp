@@ -39,21 +39,22 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  * */
-#include "common_java/base.hpp"
-#include "common_java/build.hpp"
-#include "ic10_compiler_java/lexer/j_token.hpp"
-#include "ic10_compiler_java/lexer/j_lexer.hpp"
-#include "ic10_compiler_java/locals/j_local.hpp"
-#include "ic10_compiler_java/parser/j_program.hpp"
-#include "ic10_compiler_java/parser/j_parser.hpp"
+#include "ic10_compiler_java/incremental/j_inc_compiler.hpp"
+#include "ic10_compiler_java/incremental/j_inc_parser.hpp"
+#include "ic10_compiler_java/incremental/j_inc_lexer.hpp"
+#include "ic10_compiler_java/semantic/j_type_of_node.hpp"
 #include "ic10_compiler_java/semantic/j_symbol_table.hpp"
 #include "ic10_compiler_java/semantic/j_type_table.hpp"
 #include "ic10_compiler_java/semantic/j_analyser.hpp"
-#include "ic10_compiler_java/semantic/j_type_of_node.hpp"
+#include "ic10_compiler_java/parser/j_program.hpp"
+#include "ic10_compiler_java/parser/j_parser.hpp"
+#include "ic10_compiler_java/locals/j_local.hpp"
 #include "ic10_compiler_java/link/j_linker.hpp"
-#include "ic10_compiler_java/incremental/j_inc_lexer.hpp"
-#include "ic10_compiler_java/incremental/j_inc_parser.hpp"
-#include "ic10_compiler_java/incremental/j_inc_compiler.hpp"
+#include "ic10_compiler_java/lexer/j_token.hpp"
+#include "ic10_compiler_java/lexer/j_lexer.hpp"
+#include "common_java/build.hpp"
+#include "common_java/base.hpp"
+
 
 namespace ic = stationeers::ic10;
 

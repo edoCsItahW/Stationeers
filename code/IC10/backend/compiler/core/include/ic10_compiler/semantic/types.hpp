@@ -81,7 +81,7 @@
 #define COMPILER_TYPES_HPP
 #pragma once
 
-#include "ic10_compiler/parser/ast/ast_node.hpp"
+#include "ic10_compiler/pch/ast.hpp"
 
 namespace stationeers::ic10 {
 

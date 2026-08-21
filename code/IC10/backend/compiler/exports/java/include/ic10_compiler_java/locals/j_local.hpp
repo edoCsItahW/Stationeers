@@ -24,8 +24,8 @@
 #define COMPILER_J_LOCAL_HPP
 #pragma once
 
+#include "ic10_compiler/pch/pch.hpp"
 #include "common_java/base.hpp"
-#include "ic10_compiler/locals/local.hpp"
 
 namespace stationeers::ic10 {
 

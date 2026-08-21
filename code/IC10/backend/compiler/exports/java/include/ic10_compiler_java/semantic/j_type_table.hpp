@@ -24,8 +24,8 @@
 #define COMPILER_J_TYPE_TABLE_HPP
 #pragma once
 
-#include "common_java/base.hpp"
 #include "ic10_compiler/semantic/types.hpp"
+#include "common_java/base.hpp"
 
 namespace stationeers::ic10 {
 

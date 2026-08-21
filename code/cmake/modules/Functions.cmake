@@ -293,6 +293,13 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
     endif ()
     set(CACHE_PATH "${CACHE_DIR}/${OUTPUT_NAME}")
 
+    # 构造导入库缓存路径（仅 Windows SHARED 库：MSVC/MinGW 生成 .lib/.dll.a 导入库）
+    if (TARGET_KIND STREQUAL "LIBRARY" AND DEFINED ARGS_LIBRARY_TYPE AND ARGS_LIBRARY_TYPE STREQUAL "SHARED"
+            AND CMAKE_IMPORT_LIBRARY_SUFFIX)
+        set(CACHE_IMPLIB_PATH
+                "${CACHE_DIR}/${CMAKE_IMPORT_LIBRARY_PREFIX}${TARGET}_${HASH}${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+    endif ()
+
     # 检查缓存是否存在
     if (EXISTS "${CACHE_PATH}")
         set(CACHE_HIT TRUE)
@@ -316,6 +323,10 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
                     INTERFACE_INCLUDE_DIRECTORIES "${INCLUDE_DIR}"
                     STATIONEERS_CACHE_PATH "${CACHE_PATH}"
             )
+            # 设置导入库路径（Windows SHARED 库需要 IMPORTED_IMPLIB 供其他目标链接）
+            if (DEFINED CACHE_IMPLIB_PATH AND EXISTS "${CACHE_IMPLIB_PATH}")
+                set_target_properties(${TARGET} PROPERTIES IMPORTED_IMPLIB "${CACHE_IMPLIB_PATH}")
+            endif ()
             # 设置接口链接库和编译定义
             if (ARGS_PUBLIC_LINK)
                 set_target_properties(${TARGET} PROPERTIES INTERFACE_LINK_LIBRARIES "${ARGS_PUBLIC_LINK}")
@@ -343,6 +354,10 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
                 set(_lib_suffix ${CMAKE_STATIC_LIBRARY_SUFFIX})
             endif ()
             set(_out_name "${_lib_prefix}${TARGET}${_lib_suffix}")
+            # 导入库输出文件名（Windows SHARED 库）
+            if (DEFINED CACHE_IMPLIB_PATH)
+                set(_implib_out_name "${CMAKE_IMPORT_LIBRARY_PREFIX}${TARGET}${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+            endif ()
             if (CMAKE_CONFIGURATION_TYPES)
                 foreach (_cfg ${CMAKE_CONFIGURATION_TYPES})
                     set(_out_dir "${CMAKE_CURRENT_BINARY_DIR}/${_cfg}")
@@ -351,6 +366,12 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
                             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                             "${CACHE_PATH}" "${_out_dir}/${_out_name}"
                     )
+                    if (DEFINED CACHE_IMPLIB_PATH AND EXISTS "${CACHE_IMPLIB_PATH}")
+                        execute_process(
+                                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                                "${CACHE_IMPLIB_PATH}" "${_out_dir}/${_implib_out_name}"
+                        )
+                    endif ()
                 endforeach ()
             else ()
                 set(_out_dir "${CMAKE_CURRENT_BINARY_DIR}")
@@ -358,6 +379,12 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
                         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                         "${CACHE_PATH}" "${_out_dir}/${_out_name}"
                 )
+                if (DEFINED CACHE_IMPLIB_PATH AND EXISTS "${CACHE_IMPLIB_PATH}")
+                    execute_process(
+                            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                            "${CACHE_IMPLIB_PATH}" "${_out_dir}/${_implib_out_name}"
+                    )
+                endif ()
             endif ()
 
         else ()  # EXECUTABLE
@@ -407,11 +434,21 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
 
         # 构建后复制产物到缓存目录
         st_localize_fmt(DFunctions5 _COMMENT ${TARGET} ${CACHE_PATH})
-        add_custom_command(TARGET ${TARGET} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${TARGET}> "${CACHE_PATH}"
-                COMMENT "${_COMMENT}"
-                VERBATIM
-        )
+        if (DEFINED CACHE_IMPLIB_PATH)
+            # Windows SHARED 库：同时复制 .dll 和 .lib（导入库）到缓存
+            add_custom_command(TARGET ${TARGET} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${TARGET}> "${CACHE_PATH}"
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_LINKER_FILE:${TARGET}> "${CACHE_IMPLIB_PATH}"
+                    COMMENT "${_COMMENT}"
+                    VERBATIM
+            )
+        else ()
+            add_custom_command(TARGET ${TARGET} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${TARGET}> "${CACHE_PATH}"
+                    COMMENT "${_COMMENT}"
+                    VERBATIM
+            )
+        endif ()
     endif ()
 
     # 让 CMake 在源码改动时重新配置

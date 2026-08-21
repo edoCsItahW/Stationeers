@@ -28,8 +28,8 @@
 #define COMPILER_J_TYPE_OF_NODE_HPP
 #pragma once
 
-#include "common_java/base.hpp"
 #include "ic10_compiler/semantic/types.hpp"
+#include "common_java/base.hpp"
 #include <string>
 #include <tuple>
 
