@@ -18,6 +18,7 @@
 
 import type { StatementNode, SymbolMap } from "ic10c-node";
 import type { Hover } from "vscode-languageserver/node";
+import { t } from "../../../locals"
 
 import { Nullable } from "common";
 
@@ -50,7 +51,7 @@ export interface HoverContext {
     getLocale(): "zh-hans" | "en-us";
     /** 国际化翻译函数 */
     /** Internationalization translation function */
-    t(key: any, ...args: any[]): string;
+    t: typeof t
 }
 
 /**
@@ -65,7 +66,7 @@ export interface HoverContext {
  *  and generates Hover content when the cursor is at a relevant position.
  *  Returns null if the cursor is not within a hoverable range.
  * */
-export interface HoverProvider {
+export interface IHoverProvider {
     /**
      * @summary 判断此提供器是否能处理给定语句
      *

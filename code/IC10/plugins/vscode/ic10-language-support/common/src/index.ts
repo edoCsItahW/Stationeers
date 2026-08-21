@@ -21,6 +21,6 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 export * from "./exception/debug";
-export * from "./locals";
 export type * from "./types";
+export * from "./locals";
 export * from "./utils";

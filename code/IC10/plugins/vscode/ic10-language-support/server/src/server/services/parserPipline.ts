@@ -15,13 +15,13 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic, StatementNode } from "ic10c_node";
+import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic, StatementNode } from "ic10c-node";
 import stdLib from "ic10c-node/static/stdLib.ic.json";
 import { createHash } from "node:crypto";
 
 import { DocCacheValue } from "../cache";
 import { Console, debug } from "common";
-import { t } from "../../locals/locale";
+import { t } from "../../locals";
 
 /** 会改变符号表的声明式语句类型集合 */
 const DECLARATIVE_TYPES = new Set(["AliasDirective", "DefineDirective", "LabelDef"]);

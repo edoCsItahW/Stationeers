@@ -17,13 +17,13 @@
  * */
 import { DidChangeConfigurationNotification } from "vscode-languageserver/node";
 import type { Connection, InitializeResult } from "vscode-languageserver";
-import { IC10Local } from "ic10c-node";
+import { IC10CompilerLocal } from "ic10c-node";
 
 import { CONFIGURATION_SECTION_NAME, Optional } from "common";
 import { TOKEN_TYPES, TOKEN_MODIFIERS } from "../handlers";
 import { DocumentCache, GlobalCache } from "../cache";
-import { locale } from "../../locals/locale";
 import { uriToPath } from "../../utils";
+import { locale } from "../../locals";
 
 /**
  * @summary IC10 代码格式化配置
@@ -75,6 +75,8 @@ export interface Settings {
     projectRootDir: Optional<string>;
     /** 代码格式化子配置 */
     format: FormatSettings;
+    /** 悬停渲染类型 */
+    hoverRenderer: "svg" | "markdown";
 }
 
 type OnInitializeHandlerType = Parameters<Connection["onInitialize"]>[0];
@@ -93,7 +95,8 @@ const DEFAULT_SETTINGS: Settings = {
         minEmptyLinesBeforeLabels: 0,
         alignConsecutiveStatements: true,
         alignTrailingComments: true
-    }
+    },
+    hoverRenderer: "svg"
 };
 
 /**
@@ -143,6 +146,14 @@ export class SettingsManager {
         private globalCache: GlobalCache,
         private onLocaleChanged?: () => void
     ) {}
+
+    get hoverRenderer() {
+        return this.settings.hoverRenderer;
+    }
+
+    set hoverRenderer(value) {
+        this.settings.hoverRenderer = value;
+    }
 
     /**
      * @summary 获取项目根目录路径
@@ -351,7 +362,7 @@ export class SettingsManager {
      * @param lang - Language identifier
      */
     private settingGlobalLocale(lang: Settings["language"]) {
-        IC10Local.setLanguage(lang);
+        IC10CompilerLocal.setLanguage(lang);
 
         locale.setLocale(lang);
     }
