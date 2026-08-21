@@ -32,7 +32,8 @@ export default {
     },
     hover: {
         common: {
-            description: "description"
+            description: "description",
+            value: "value"
         },
         labelDef: {
             type: "Label"
