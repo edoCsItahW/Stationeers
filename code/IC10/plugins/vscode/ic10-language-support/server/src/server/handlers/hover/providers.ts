@@ -31,6 +31,7 @@ import {
     TypeOfNode,
     BasicType
 } from "ic10c-node";
+import {  } from "ic10r-node";
 
 import { INS_LOCAL_MAP, INS_META_MAP } from "../../../mateData";
 import type { HoverContext, IHoverProvider } from "./types";
