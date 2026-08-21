@@ -18,12 +18,15 @@ list(APPEND IC10_RUNTIME_NODE_SRC ${IC10_COMPILER_NODE_SRC})
 
 if (WIN32)
     set(_node_compile_defs HOST_BINARY="node.exe")
+    set(_node_link_opts "/DELAYLOAD:node.exe")
+    set(_delay_lib delayimp)
 endif ()
 
 st_library(ic10_runtime_node "${IC10_RUNTIME_NODE_SRC}" ${CMAKE_CURRENT_SOURCE_DIR}/include
-        PRIVATE_LINK Common::Core Common::Node IC10::Compiler::Core IC10::Compiler::Node IC10::Runtime::Core Node::Node Node::NAPI
+        PRIVATE_LINK Common::Core Common::Node IC10::Compiler::Core IC10::Compiler::Node IC10::Runtime::Core Node::Node Node::NAPI ${_delay_lib}
         LIBRARY_TYPE SHARED
         COMPILE_DEFINITIONS ${_node_compile_defs}
+        LINK_OPTIONS ${_node_link_opts}
 )
 
 set_target_properties(ic10_runtime_node PROPERTIES PREFIX "" SUFFIX ".node" OUTPUT_NAME "ic10r-node")
