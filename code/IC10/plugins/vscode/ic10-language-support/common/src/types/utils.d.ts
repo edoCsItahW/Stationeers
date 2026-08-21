@@ -18,3 +18,8 @@
 export type Nullable<T> = T | null;
 
 export type Optional<T> = T | undefined;
+
+export interface Position {
+    line: number;
+    column: number;
+}

@@ -16,9 +16,10 @@
 
 import type { Connection } from "vscode-languageserver/node";
 
-import type { HoverContext, HoverProvider } from "./types";
-import { t, locale } from "../../../locals/locale";
+import type { HoverContext, IHoverProvider } from "./types";
 import { findStatementAtPosition } from "./utils";
+import { SettingsManager } from "../../services";
+import { t, locale } from "../../../locals";
 import { DocumentCache } from "../../cache";
 import { Console, debug } from "common";
 import {
@@ -42,14 +43,14 @@ type OnHoverHandlerType = Parameters<Connection["onHover"]>[0];
  *  iterates to find the one that can handle the current statement, and generates Markdown hover tooltips.
  * */
 export class HoverHandler {
-    private providers: HoverProvider[];
+    private readonly providers: IHoverProvider[];
 
-    constructor(private docCache: DocumentCache) {
+    constructor(private docCache: DocumentCache, private settingMgr: SettingsManager) {
         this.providers = [
-            new LabelDefHoverProvider(),
-            new AliasDirectiveHoverProvider(),
-            new DefineDirectiveHoverProvider(),
-            new InstructionHoverProvider()
+            new LabelDefHoverProvider(this.settingMgr),
+            new AliasDirectiveHoverProvider(this.settingMgr),
+            new DefineDirectiveHoverProvider(this.settingMgr),
+            new InstructionHoverProvider(this.settingMgr)
         ];
     }
 
@@ -70,12 +71,15 @@ export class HoverHandler {
         rethrow: false
     })
     public handle(...[{ position, textDocument }]: Parameters<OnHoverHandlerType>): ReturnType<OnHoverHandlerType> {
+        // 统一为1-based
         const line = position.line + 1;
         const character = position.character + 1;
+
         const cache = this.docCache.getCache(textDocument.uri);
 
         if (!cache?.ast) return { contents: [] };
 
+        // 光标所在语句
         const stmt = findStatementAtPosition(cache.ast.statements, line);
         if (!stmt) return { contents: [] };
 
@@ -85,9 +89,10 @@ export class HoverHandler {
             symbols: cache.symbols,
             statements: cache.ast.statements,
             getLocale: () => locale.getLocale(),
-            t: (key, ...args) => t(key as any, ...args)
+            t: (key, ...args) => t(key, ...args)
         };
 
+        // 尝试命中某个provider，并返回provider提供的结果
         for (const provider of this.providers)
             if (provider.canHandle(stmt)) {
                 const result = provider.provideHover(stmt, ctx);

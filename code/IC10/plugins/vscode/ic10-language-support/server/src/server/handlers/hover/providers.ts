@@ -33,21 +33,128 @@ import {
 } from "ic10c-node";
 
 import { INS_LOCAL_MAP, INS_META_MAP } from "../../../mateData";
-import type { HoverContext, HoverProvider } from "./types";
+import type { HoverContext, IHoverProvider } from "./types";
 import { operandValueLength } from "../../../utils";
 import svgBuilder from "../../../utils/svgBuilder";
-import { t } from "../../../locals/locale";
+import type { Nullable, Optional } from "common";
+import { SettingsManager } from "../../services";
+import { t } from "../../../locals";
 import { s } from "../../../style";
-import { Nullable } from "common";
-import {
-    provideOperandHover,
-    formatBasicType,
-    formatOperand,
-    isInstruction,
-    isInsideNode,
-    findOperand,
-    formatType
-} from "./utils";
+import { formatBasicType, formatOperand, isInstruction, isInsideNode, findOperand, formatType } from "./utils";
+
+type HoverRendererKey = SettingsManager["hoverRenderer"];
+
+interface HoverAdapter<T extends string | void = string | void> {
+    supplement: (...args: any[]) => T;
+    render: () => T extends string ? void : string;
+}
+
+abstract class HoverProvider<R extends HoverRendererKey> implements IHoverProvider {
+    protected buffer: string = "";
+    private adapter = {
+        svg: new SvgAdapter(),
+        markdown: new MarkdownAdapter()
+    } satisfies { [K in HoverRendererKey]: HoverAdapter; };
+
+    constructor(protected settingMgr: SettingsManager) {}
+
+    abstract canHandle(node: StatementNode): boolean;
+
+    abstract provideHover(node: StatementNode, ctx: HoverContext): Nullable<Hover>;
+
+    supplement(args: {
+        [K in R]: Parameters<(typeof this.adapter)[K]["supplement"]>;
+    }): void {
+        const result = (this.adapter[this.settingMgr.hoverRenderer] as any).supplement(...args[this.settingMgr.hoverRenderer as R]);
+
+        if (result) this.buffer += result;
+    }
+
+    renderer(): string {
+        let result = this.adapter[this.settingMgr.hoverRenderer].render();
+
+        result ||= this.buffer;
+
+        this.buffer = "";
+
+        return result;
+    }
+}
+
+class SvgAdapter implements HoverAdapter {
+    supplement(...[segments]: Parameters<typeof svgBuilder.addSegments> | Parameters<typeof svgBuilder.addSegment>) {
+        if (Array.isArray(segments)) svgBuilder.addSegments(segments);
+        else svgBuilder.addSegment(segments);
+    }
+
+    render(): string {
+        return svgBuilder.build();
+    }
+}
+
+class MarkdownAdapter implements HoverAdapter {
+    supplement(content: string): string {
+        return content;
+    }
+
+    render() {}
+}
+
+abstract class HoverOperand extends HoverProvider<HoverRendererKey> {
+    /**
+     * @summary 操作数悬停提供器 — 为指令和伪指令中的操作数节点生成悬停内容
+     *
+     * @summary Operand hover provider — generates hover content for operand nodes in instructions and directives
+     *
+     * @desc 供指令和伪指令悬停提供器共享使用。根据操作数类型（Device、Register、
+     *  Constant、Error 等）生成对应的 SVG 格式悬停提示。
+     *
+     * @desc Shared by instruction and directive hover providers. Generates SVG-formatted
+     *  hover tooltips based on operand type (Device, Register, Constant, Error, etc.).
+     *
+     * @param operand 操作数 AST 节点
+     * @param operand Operand AST node
+     * @param ctx 悬停上下文（包含光标位置和国际化函数）
+     * @param ctx Hover context (includes cursor position and i18n functions)
+     *
+     * @returns 悬停内容，如果光标不在操作数范围内返回空 contents
+     * @returns Hover content, or empty contents if cursor is not within the operand range
+     */
+    provideOperandHover(operand: OperandNode, ctx: HoverContext): Nullable<Hover> {
+        if (!isInsideNode(operand.position.column, operandValueLength(operand), ctx.character)) return { contents: [] };
+
+        let type: string;
+        switch (operand.type) {
+            case "Device":
+            case "Register":
+            case "Constant":
+            case "Error":
+                type = ctx.t(`hover.operandType.${operand.type.toLowerCase()}` as any);
+                break;
+            default:
+                type = ctx.t("hover.operandType.number");
+        }
+
+        this.supplement({
+            svg: [
+                [
+                    { text: `(${type}) ` },
+                    { text: formatOperand(operand) },
+                    { text: ": " },
+                    { text: operand.type.toLowerCase() }
+                ]
+            ],
+            markdown: [`(${type}) ${formatOperand(operand)}: ${operand.type.toLowerCase()}`]
+        });
+
+        return {
+            contents: {
+                kind: "markdown",
+                value: this.renderer()
+            }
+        };
+    }
+}
 
 // ==================== LabelDef Provider ====================
 
@@ -60,7 +167,11 @@ import {
  *
  * @desc When hovering over a label definition line, displays the label name and its line number.
  * */
-export class LabelDefHoverProvider implements HoverProvider {
+export class LabelDefHoverProvider extends HoverProvider<HoverRendererKey> {
+    constructor(settingMgr: SettingsManager) {
+        super(settingMgr);
+    }
+
     canHandle(node: StatementNode): boolean {
         return node.type === "LabelDef";
     }
@@ -69,16 +180,21 @@ export class LabelDefHoverProvider implements HoverProvider {
         const stmt = node as LabelDefNode;
         if (!isInsideNode(stmt.position.column, stmt.identifier.value.length + 1, ctx.character)) return null;
 
-        svgBuilder.addSegments([
-            { text: `(${ctx.t("hover.labelDef.type")}) ` },
-            { text: stmt.identifier.value, bold: true, color: s("hover.labelDef.identifier") },
-            { text: ` = ${stmt.position.line}` }
-        ]);
+        this.supplement({
+            svg: [
+                [
+                    { text: `(${ctx.t("hover.labelDef.type")}) ` },
+                    { text: stmt.identifier.value, bold: true, color: s("hover.labelDef.identifier") },
+                    { text: ` = ${stmt.position.line}` }
+                ]
+            ],
+            markdown: [`(${ctx.t("hover.labelDef.type")}) **${stmt.identifier.value}** = ${stmt.position.line}`]
+        });
 
         return {
             contents: {
                 kind: "markdown",
-                value: svgBuilder.build()
+                value: this.renderer()
             }
         };
     }
@@ -97,7 +213,11 @@ export class LabelDefHoverProvider implements HoverProvider {
  * @desc Identifies the cursor position on alias keyword, identifier, or operand,
  *  displaying instruction signature/description, alias type info, or operand value respectively.
  * */
-export class AliasDirectiveHoverProvider implements HoverProvider {
+export class AliasDirectiveHoverProvider extends HoverOperand {
+    constructor(settingMgr: SettingsManager) {
+        super(settingMgr);
+    }
+
     canHandle(node: StatementNode): boolean {
         return node.type === "AliasDirective";
     }
@@ -126,34 +246,47 @@ export class AliasDirectiveHoverProvider implements HoverProvider {
         }
         // 第二个标识符
         else if (ctx.character < stmt.registerOrDevice.position.column)
-            svgBuilder.addSegments([
-                { text: `(${ctx.t("hover.aliasDirective.type")}) ` },
-                { text: stmt.identifier.value, bold: true, color: s("hover.aliasDirective.identifier") },
-                { text: ": " }
-            ]);
+            this.supplement({
+                svg: [
+                    [
+                        { text: `(${ctx.t("hover.aliasDirective.type")}) ` },
+                        { text: stmt.identifier.value, bold: true, color: s("hover.aliasDirective.identifier") },
+                        { text: ": " }
+                    ]
+                ],
+                markdown: [`(${ctx.t("hover.aliasDirective.type")}) **${stmt.identifier.value}**: `]
+            });
         // 第三个操作数
-        else return provideOperandHover(stmt.registerOrDevice, ctx);
+        else return this.provideOperandHover(stmt.registerOrDevice, ctx);
 
         const typeOfNodeMap: Map<string, TypeOfNodeEntry> = new Map(Object.entries(TypeOfNode));
         const type = typeOfNodeMap.get(stmt.registerOrDevice.type)?.kind;
 
         if (type)
-            svgBuilder.addSegment({
-                text: formatBasicType(type),
-                color: s("hover.aliasDirective.type")
+            this.supplement({
+                svg: [{ text: formatBasicType(type), color: s("hover.aliasDirective.type") }],
+                markdown: [formatBasicType(type)]
             });
         else
-            svgBuilder.addSegment({
-                text: (ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) ?? "",
-                color: s("hover.aliasDirective.type")
+            this.supplement({
+                svg: [
+                    {
+                        text: (ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) ?? "",
+                        color: s("hover.aliasDirective.type")
+                    }
+                ],
+                markdown: [(ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) ?? ""]
             });
 
-        svgBuilder.addSegment({ text: ` = ${formatOperand(stmt.registerOrDevice)}` });
+        this.supplement({
+            svg: [{ text: ` = ${formatOperand(stmt.registerOrDevice)}` }],
+            markdown: [` = ${formatOperand(stmt.registerOrDevice)}`]
+        })
 
         return {
             contents: {
                 kind: "markdown",
-                value: `${svgBuilder.build()}  \n${stmt.desc ? "---\n" + `**${ctx.t("hover.common.description")}**: ${stmt.desc}` : ""}`
+                value: `${this.renderer()}  \n${stmt.desc ? "---\n" + `**${ctx.t("hover.common.description")}**: ${stmt.desc}` : ""}`
             }
         };
     }
@@ -172,7 +305,11 @@ export class AliasDirectiveHoverProvider implements HoverProvider {
  * @desc Identifies the cursor position on define keyword, identifier, or value,
  *  displaying instruction signature/description, constant type info, or the value itself.
  * */
-export class DefineDirectiveHoverProvider implements HoverProvider {
+export class DefineDirectiveHoverProvider extends HoverOperand {
+    constructor(settingMgr: SettingsManager) {
+        super(settingMgr);
+    }
+
     canHandle(node: StatementNode): boolean {
         return node.type === "DefineDirective";
     }
@@ -197,22 +334,29 @@ export class DefineDirectiveHoverProvider implements HoverProvider {
                 }
             };
         } else if (ctx.character < stmt.number.position.column)
-            svgBuilder.addSegments([
-                { text: `(${ctx.t("hover.defineDirective.type")}) ` },
-                { text: stmt.identifier.value, bold: true, color: s("hover.defineDirective.identifier") },
-                { text: ": " },
-                {
-                    text: (ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) || stmt.number.type,
-                    color: s("hover.defineDirective.type")
-                },
-                { text: ` = ${formatOperand(stmt.number)}` }
-            ]);
-        else return provideOperandHover(stmt.number, ctx);
+            this.supplement({
+                svg: [
+                    [
+                        { text: `(${ctx.t("hover.defineDirective.type")}) ` },
+                        { text: stmt.identifier.value, bold: true, color: s("hover.defineDirective.identifier") },
+                        { text: ": " },
+                        {
+                            text: (ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) || stmt.number.type,
+                            color: s("hover.defineDirective.type")
+                        },
+                        { text: ` = ${formatOperand(stmt.number)}` }
+                    ]
+                ],
+                markdown: [
+                    `(${ctx.t("hover.defineDirective.type")}) **${stmt.identifier.value}**: ${(ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) || stmt.number.type} = ${formatOperand(stmt.number)}`
+                ]
+            });
+        else return this.provideOperandHover(stmt.number, ctx);
 
         return {
             contents: {
                 kind: "markdown",
-                value: `${svgBuilder.build()}\n${stmt.desc ? "---\n" + `**${ctx.t("hover.common.description")}**: ${stmt.desc}` : ""}`
+                value: `${this.renderer()}\n${stmt.desc ? "---\n" + `**${ctx.t("hover.common.description")}**: ${stmt.desc}` : ""}`
             }
         };
     }
@@ -234,7 +378,11 @@ export class DefineDirectiveHoverProvider implements HoverProvider {
  *  resolves types from the symbol table and shows definition info;
  *  other operands are delegated to provideOperandHover.
  * */
-export class InstructionHoverProvider implements HoverProvider {
+export class InstructionHoverProvider extends HoverOperand {
+    constructor(settingMgr: SettingsManager) {
+        super(settingMgr);
+    }
+
     canHandle(node: StatementNode): boolean {
         return isInstruction(node);
     }
@@ -252,14 +400,10 @@ export class InstructionHoverProvider implements HoverProvider {
                 index > 0 ? (stmt[`type${index}` as keyof typeof stmt] as unknown as OperandType) : undefined
             );
 
-        return provideOperandHover(result, ctx);
+        return this.provideOperandHover(result, ctx);
     }
 
-    private provideKeywordHover(
-        keyword: string,
-        stmt: PureExeInstructionNode,
-        ctx: HoverContext
-    ): Nullable<Hover> {
+    private provideKeywordHover(keyword: string, stmt: PureExeInstructionNode, ctx: HoverContext): Nullable<Hover> {
         if (!isInsideNode(stmt.position.column, stmt.keyword.length, ctx.character)) return null;
 
         const ins = INS_META_MAP.get(keyword);
@@ -311,14 +455,19 @@ export class InstructionHoverProvider implements HoverProvider {
                         break;
                 }
 
-                svgBuilder.addSegments([
-                    { text: `(${text ?? "unknown"}) ` },
-                    { text: ident.value, color: s("hover.contant.identifier") },
-                    { text: ": " },
-                    { text: tp, color: s("hover.contant.type") }
-                ]);
+                this.supplement({
+                    svg: [
+                        [
+                            { text: `(${text ?? "unknown"}) ` },
+                            { text: ident.value, color: s("hover.contant.identifier") },
+                            { text: ": " },
+                            { text: tp, color: s("hover.contant.type") }
+                        ]
+                    ],
+                    markdown: [`(${text ?? "unknown"}) ${ident.value}: ${tp}`]
+                });
 
-                return { contents: { kind: "markdown", value: svgBuilder.build() } };
+                return { contents: { kind: "markdown", value: this.renderer() } };
             }
 
             return { contents: { kind: "markdown", value: ident.value } };
@@ -347,22 +496,35 @@ export class InstructionHoverProvider implements HoverProvider {
                 break;
         }
 
-        if (prefix.length) svgBuilder.addSegment({ text: prefix });
+        if (prefix.length)
+            this.supplement({
+                svg: [{ text: prefix }],
+                markdown: [prefix]
+            });
 
-        svgBuilder.addSegments([
-            { text: symbol.name, bold: true, color },
-            { text: ": " },
-            { text: symbol.typeName ?? formatBasicType(symbol.type) }
-        ]);
+        this.supplement({
+            svg: [
+                [
+                    { text: symbol.name, bold: true, color },
+                    { text: ": " },
+                    { text: symbol.typeName ?? formatBasicType(symbol.type) }
+                ]
+            ],
+            markdown: [`**${symbol.name}**: ${symbol.typeName ?? formatBasicType(symbol.type)}`]
+        });
 
-        if (symbol.value) svgBuilder.addSegment({ text: ` = ${symbol.value}` });
+        if (symbol.value)
+            this.supplement({
+                svg: [{ text: ` = ${symbol.value}` }],
+                markdown: [` = ${symbol.value}`]
+            });
 
         const descPart = symbol.desc ? `  \n**${ctx.t("hover.common.description")}**: ${symbol.desc}` : "";
 
         return {
             contents: {
                 kind: "markdown",
-                value: svgBuilder.build() + descPart
+                value: this.renderer() + descPart
             }
         };
     }
