@@ -39,4 +39,8 @@ export class Context {
 
     get isSleeping(): boolean;
 
+    getAddr(line: number): number | undefined;
+
+    getLine(addr: number): number | undefined;
+
 }

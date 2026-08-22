@@ -9,17 +9,15 @@
         "types": ["node", "vscode"],
         "allowArbitraryExtensions": true,
         "moduleResolution": "NodeNext",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "skipLibCheck": true
     },
-    "include": [
-    ],
-    "exclude": [
-        "node_modules",
-        ".vscode-test"
-    ],
+    "include": [],
+    "exclude": ["node_modules", ".vscode-test"],
     "references": [
+        { "path": "./common" },
+        { "path": "./debugger" },
         { "path": "./client" },
-        { "path": "./server" },
-        { "path": "./common" }
+        { "path": "./server" }
     ]
 }

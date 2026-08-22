@@ -268,7 +268,7 @@ export class SemanticTokenHandler {
                 })
             };
         } catch (error) {
-            console.error("[IC10 LSP] - Error: (range)", error);
+            Console.error((error as Error).message);
         }
     }
 
@@ -408,7 +408,7 @@ export class SemanticTokenHandler {
             {
                 line: gap.line,
                 start: gap.column,
-                length: node.token.lexeme.length,
+                length: node.end.column - node.position.column,
                 type: TokenLegend.Unknown,
                 modifier: 0
             }

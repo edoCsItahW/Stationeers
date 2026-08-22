@@ -35,26 +35,26 @@ namespace stationeers::ic10 {
 
     template<typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>
-    T Memory::getSP() {
+    T Memory::getSP() noexcept {
         return arithmeticTrans<T>(sp_);
     }
 
     template<typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>
-    void Memory::setSP(T&& val) {
+    void Memory::setSP(T&& val) noexcept {
         sp_ = arithmeticTrans<double>(std::forward<T>(val));
     }
 
     template<typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>
-    double Memory::getStack(T index) {
+    double Memory::getStack(T index) noexcept {
         // LIFO: index 0 = 栈顶（最近 push 的值）
         return arithmeticTrans<double>(stack_[static_cast<std::size_t>(sp_ - 1 - index)]);
     }
 
     template<typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>
-    void Memory::setStack(std::size_t index, T&& val) {
+    void Memory::setStack(std::size_t index, T&& val) noexcept {
         // LIFO: index 0 = 栈顶
         stack_[static_cast<std::size_t>(sp_ - 1 - index)] = arithmeticTrans<double>(std::forward<T>(val));
     }

@@ -47,22 +47,22 @@ namespace stationeers {
         V& operator[](K&& key);
 
         template<typename Self>
-        auto find(this Self&& self, const K& key);
+        auto find(this Self&& self, const K& key) noexcept;
 
         template<typename Self>
         auto&& at(this Self&& self, const K& key);
 
         template<typename Self>
-        bool contains(this Self&& self, const K& key);
+        bool contains(this Self&& self, const K& key) noexcept;
 
         template<typename Self>
-        auto begin(this Self&& self);
+        auto begin(this Self&& self) noexcept;
 
         template<typename Self>
-        auto end(this Self&& self);
+        auto end(this Self&& self) noexcept;
 
         template<typename Self>
-        auto& getMap(this Self&& self);
+        auto& getMap(this Self&& self) noexcept;
 
     private:
         map_type map_;

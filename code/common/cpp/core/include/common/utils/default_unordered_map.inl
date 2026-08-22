@@ -27,7 +27,7 @@ namespace stationeers {
 
     template<typename K, typename V, typename Hash, typename Eq, typename Allocator, typename F>
     template<typename Self>
-    auto DefaultUnorderedMap<K, V, Hash, Eq, Allocator, F>::find(this Self&& self, const K& key) {
+    auto DefaultUnorderedMap<K, V, Hash, Eq, Allocator, F>::find(this Self&& self, const K& key) noexcept {
         return self.map_.find(key);
     }
 
@@ -41,7 +41,7 @@ namespace stationeers {
     template<typename Self>
     bool DefaultUnorderedMap<K, V, Hash, Eq, Allocator, F>::contains(
         this Self&& self, const K& key
-    ) {
+    ) noexcept {
         return self.map_.contains(key);
     }
 
@@ -67,19 +67,19 @@ namespace stationeers {
 
     template<typename K, typename V, typename Hash, typename Eq, typename Allocator, typename F>
     template<typename Self>
-    auto DefaultUnorderedMap<K, V, Hash, Eq, Allocator, F>::begin(this Self&& self) {
+    auto DefaultUnorderedMap<K, V, Hash, Eq, Allocator, F>::begin(this Self&& self) noexcept {
         return self.map_.begin();
     }
 
     template<typename K, typename V, typename Hash, typename Eq, typename Allocator, typename F>
     template<typename Self>
-    auto DefaultUnorderedMap<K, V, Hash, Eq, Allocator, F>::end(this Self&& self) {
+    auto DefaultUnorderedMap<K, V, Hash, Eq, Allocator, F>::end(this Self&& self) noexcept {
         return self.map_.end();
     }
 
     template<typename K, typename V, typename Hash, typename Eq, typename Allocator, typename F>
     template<typename Self>
-    auto& DefaultUnorderedMap<K, V, Hash, Eq, Allocator, F>::getMap(this Self&& self) {
+    auto& DefaultUnorderedMap<K, V, Hash, Eq, Allocator, F>::getMap(this Self&& self) noexcept {
         return self.map_;
     }
 

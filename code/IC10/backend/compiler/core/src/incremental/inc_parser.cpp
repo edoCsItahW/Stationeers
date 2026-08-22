@@ -21,12 +21,12 @@ namespace stationeers::ic10 {
     // ========================================================================
     // hasCache: 检查是否存在有效的AST缓存
     // ========================================================================
-    bool IncParser::hasCache() const { return astCached_.has_value(); }
+    bool IncParser::hasCache() const noexcept { return astCached_.has_value(); }
 
     // ========================================================================
     // clear: 清空AST缓存，使增量分析器回到初始状态
     // ========================================================================
-    void IncParser::clear() { astCached_.reset(); }
+    void IncParser::clear() noexcept { astCached_.reset(); }
 
     // ========================================================================
     // parseFull: 全量语法分析，建立AST缓存

@@ -18,9 +18,11 @@
 #pragma once
 
 #include "ic10_compiler/semantic/semantic.hpp"
+#include "common/exception/diagnostic.hpp"
 #include "ic10_runtime/config.hpp"
 #include "executor/executor.hpp"
 #include "context/context.hpp"
+
 
 namespace stationeers::ic10 {
 
@@ -32,9 +34,20 @@ namespace stationeers::ic10 {
 
         void runFull();
 
-        Context& getContext();
+        /**
+         * @brief 单步执行原语：执行恰好一条语句。
+         * @details runTick()/runFull() 均基于该原语循环实现；调试器的“逐步骤”也应调用本方法。
+         * @return true 表示仍可继续执行；false 表示已 halt（或执行失败/暂停）。
+         */
+        bool step();
+
+        Context& getContext() noexcept;
+
+        const std::vector<Diagnostic>& getDiagnostics() const noexcept;
 
     private:
+        DiagnosticReporter<IC10RuntimeMsgPack> reporter_;
+
         Context context_;
 
         Executor executor_;

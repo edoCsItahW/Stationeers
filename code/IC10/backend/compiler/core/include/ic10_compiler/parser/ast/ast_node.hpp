@@ -108,7 +108,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        AST(Pos pos);
+        AST(Pos pos) noexcept;
 
         /**
          * @if zh
@@ -153,7 +153,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        [[nodiscard]] Pos start() const;
+        [[nodiscard]] Pos start() const noexcept;
 
         /**
          * @if zh
@@ -260,6 +260,25 @@ namespace stationeers::ic10 {
          * @endif
          */
         ErrorNode(const Token& t, std::string msg);
+
+        /**
+         * @if zh
+         *
+         * @brief 带自定义起始位置的构造函数
+         * @param pos 错误节点起始位置（通常为整个出错构造的起始位置）
+         * @param t 导致错误的Token
+         * @param msg 错误消息
+         *
+         * @elseif en
+         *
+         * @brief Constructor with custom start position
+         * @param pos Start position of the error node (usually the start of the whole failed construct)
+         * @param t Token that caused the error
+         * @param msg Error message
+         *
+         * @endif
+         */
+        ErrorNode(Pos pos, const Token& t, std::string msg);
 
         [[nodiscard]] Pos end() const override;
 
@@ -715,7 +734,7 @@ namespace stationeers::ic10 {
         HashCall() = default;
         using AST::AST;
         HashCall(Pos pos, String val);
-        [[nodiscard]] Pos end() const override;
+        [[nodiscard]] Pos end() const noexcept override;
         [[nodiscard]] std::string toString() const override;
         [[nodiscard]] std::string toJSON() const override;
     };
@@ -745,7 +764,7 @@ namespace stationeers::ic10 {
         StrCall() = default;
         using AST::AST;
         StrCall(Pos pos, String val);
-        [[nodiscard]] Pos end() const override;
+        [[nodiscard]] Pos end() const noexcept override;
         [[nodiscard]] std::string toString() const override;
         [[nodiscard]] std::string toJSON() const override;
     };
@@ -1050,7 +1069,7 @@ namespace stationeers::ic10 {
         std::vector<DeviceConnect> connects;
         DeviceDocComment() = default;
         using AST::AST;
-        [[nodiscard]] Pos end() const override;
+        [[nodiscard]] Pos end() const noexcept override;
         [[nodiscard]] std::string toString() const override;
         [[nodiscard]] std::string toJSON() const override;
     };
@@ -1079,7 +1098,7 @@ namespace stationeers::ic10 {
         std::vector<EnumValueEntry> values;
         EnumDocComment() = default;
         using AST::AST;
-        [[nodiscard]] Pos end() const override;
+        [[nodiscard]] Pos end() const noexcept override;
         [[nodiscard]] std::string toString() const override;
         [[nodiscard]] std::string toJSON() const override;
     };
@@ -1258,7 +1277,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<typename... Arrays>
-        constexpr std::size_t totalArraySize();
+        constexpr std::size_t totalArraySize() noexcept;
 
         /**
          * @if zh
@@ -1277,7 +1296,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<std::size_t N, typename... Arrays>
-        constexpr std::array<TokenType, N> concatArraysDirect(Arrays... arrays);
+        constexpr std::array<TokenType, N> concatArraysDirect(Arrays... arrays) noexcept;
 
         /**
          * @if zh
@@ -1293,7 +1312,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<typename... Arrays>
-        constexpr auto concatArrays(Arrays... arrays);
+        constexpr auto concatArrays(Arrays... arrays) noexcept;
 
         /**
          * @if zh
@@ -1308,7 +1327,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<IsVariant Variant, std::size_t... Is>
-        constexpr auto variantTokensImpl(std::index_sequence<Is...>);
+        constexpr auto variantTokensImpl(std::index_sequence<Is...>) noexcept;
 
         /**
          * @if zh
@@ -1323,7 +1342,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<IsVariant Variant>
-        constexpr auto variantTokens();
+        constexpr auto variantTokens() noexcept;
 
         /**
          * @if zh
@@ -1340,7 +1359,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<typename T>
-        constexpr auto extractTokens();
+        constexpr auto extractTokens() noexcept;
 
     }  // namespace detail
 
@@ -1356,7 +1375,7 @@ namespace stationeers::ic10 {
      * @endif
      */
     template<IsVariant Variant>
-    constexpr auto getStartTokens();
+    constexpr auto getStartTokens() noexcept;
 
     /**
      * @if zh
@@ -1372,7 +1391,7 @@ namespace stationeers::ic10 {
      * @endif
      */
     template<IsVariant Variant>
-    constexpr bool isStartToken(TokenType t);
+    constexpr bool isStartToken(TokenType t) noexcept;
 
     /**
      * @if zh
@@ -1385,7 +1404,7 @@ namespace stationeers::ic10 {
      * @return true if t is a starting token for any member of the Operand variant
      * @endif
      */
-    constexpr bool isOperandStart(TokenType t);
+    constexpr bool isOperandStart(TokenType t) noexcept;
 
     /**
      * @if zh
@@ -1401,7 +1420,7 @@ namespace stationeers::ic10 {
      * @return true if t is a statement starting token
      * @endif
      */
-    constexpr bool isStatementStart(TokenType t);
+    constexpr bool isStatementStart(TokenType t) noexcept;
 
 }  // namespace stationeers::ic10
 

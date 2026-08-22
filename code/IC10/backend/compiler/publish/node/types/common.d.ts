@@ -100,13 +100,13 @@ export interface Diagnostic {
      * @summary 起始位置
      * @desc 诊断信息对应的源代码起始位置。
      */
-    start: Pos;
+    start: Pos | undefined;
 
     /**
      * @summary 结束位置
      * @desc 诊断信息对应的源代码结束位置。
      */
-    end: Pos;
+    end: Pos | undefined;
 
     /**
      * @summary 诊断消息

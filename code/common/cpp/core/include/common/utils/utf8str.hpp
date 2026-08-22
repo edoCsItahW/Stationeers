@@ -626,7 +626,7 @@ namespace utf
                  * \param dp Pointer to the character inside the view
                  * \param whos Parent view
                 */
-                iterator (pointer dp, const view* whos) : _ptrbase{ dp }, _parent{ whos } {};
+                iterator (pointer dp, const view* whos) noexcept : _ptrbase{ dp }, _parent{ whos } {};
 
                 /**
                  * \internal
@@ -706,7 +706,7 @@ namespace utf
              *
              * \param base String to view
             */
-            view (string const& base)
+            view (string const& base) noexcept
                 : _forward_begin{ base.bytes() }
                 , _forward_end{ base.bytes_end() }
                 , _direction{ direction::forward }
@@ -717,7 +717,7 @@ namespace utf
              *
              * \param cstr C-string to construct from
             */
-            view (const char* cstr)
+            view (const char* cstr) noexcept
                 : _forward_begin{ (pointer)(void*)cstr }
                 , _forward_end{ (pointer)(void*)(cstr + std::strlen(cstr)) }
                 , _direction{ direction::forward }
@@ -729,7 +729,7 @@ namespace utf
              *
              * \param c8str UTF-8-encoded C-string to construct from
             */
-            view (const char8_t* c8str)
+            view (const char8_t* c8str) noexcept
                 : _forward_begin{ (pointer)(void*)c8str }
                 , _forward_end{ (pointer)(void*)((char*)c8str + std::strlen((char*)c8str)) }
                 , _direction{ direction::forward }
@@ -743,7 +743,7 @@ namespace utf
              *
              * \details Creates a view over single character by an iterator
             */
-            view (iterator it)
+            view (iterator it) noexcept
                 : _forward_begin{ it._base() }
                 , _forward_end{ it._base() + _charsize(it._base()) }
                 , _direction{ direction::forward }
@@ -758,7 +758,7 @@ namespace utf
              * \details In actual, checks the order of given iterators and may swap them
              * to keep the valid range taking the forward direction into account
             */
-            view (iterator const& be, iterator const& en, direction dir = direction::forward)
+            view (iterator const& be, iterator const& en, direction dir = direction::forward) noexcept
                 : _forward_begin{ std::min(be._base(), en._base()) }
                 , _forward_end{ std::max(be._base(), en._base()) }
                 , _direction{ dir }
@@ -768,7 +768,7 @@ namespace utf
              * \brief Returns the copy of the original span
             */
             [[nodiscard]]
-            auto clone () const -> view
+            auto clone () const noexcept -> view
             {
                 return *this;
             }
@@ -780,7 +780,7 @@ namespace utf
              *
              * \return Reference to the left operand
             */
-            auto operator = (const char* cstr) -> view&
+            auto operator = (const char* cstr) noexcept -> view&
             {
                 _forward_begin = (pointer)(void*)cstr;
                 _forward_end = _forward_begin + std::strlen(cstr);
@@ -816,7 +816,7 @@ namespace utf
              *
              * \return Modified copy of the original view
             */
-            auto forward () const -> view
+            auto forward () const noexcept -> view
             {
                 auto tmp = *this;
 
@@ -829,7 +829,7 @@ namespace utf
              *
              * \return Modified copy of the original view
             */
-            auto backward () const -> view
+            auto backward () const noexcept -> view
             {
                 auto tmp = *this;
 
@@ -868,7 +868,7 @@ namespace utf
              * \brief Returns the ending iterator consider direction
             */
             [[nodiscard]]
-            auto end () const -> iterator
+            auto end () const noexcept -> iterator
             {
                 return is_forward() ? iterator{ bytes_end(), this } : _forward_rend();
             }
@@ -1553,7 +1553,7 @@ namespace utf
              * \param start Beginning of the range
              * \param end Ending of the range
             */
-            view (pointer start, pointer end)
+            view (pointer start, pointer end) noexcept
                 : _forward_begin{ start }
                 , _forward_end{ end }
                 , _direction{ direction::forward }
@@ -1595,7 +1595,7 @@ namespace utf
              *
              * \note Returning iterator points to the previous byte of the first character of the view
             */
-            auto _forward_rend () const -> iterator
+            auto _forward_rend () const noexcept -> iterator
             {
                 return { bytes() - 1, this };
             }

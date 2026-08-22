@@ -54,6 +54,8 @@ namespace stationeers::ic10 {
                 InstanceAccessor<&ContextAdapter::getIsSleeping>("isSleeping"),
                 InstanceMethod<&ContextAdapter::halt>("halt"),
                 InstanceMethod<&ContextAdapter::sleep>("sleep"),
+                InstanceMethod<&ContextAdapter::getAddr>("getAddr"),
+                InstanceMethod<&ContextAdapter::getLine>("getLine")
             }
         );
         constructor = node::Persistent(func);
@@ -126,12 +128,12 @@ namespace stationeers::ic10 {
         return ConfigAdapter::to(info.Env(), ctx().cfg);
     }
 
-    void ContextAdapter::setConfig(const node::CallbackInfo& info, const node::Value& value) {
+    void ContextAdapter::setConfig(const node::CallbackInfo& info, const node::Value&) {
         Arguments args(info);
         ctx().cfg = ConfigAdapter::from(args.getWithCheck<node::Object>(0));
     }
 
-    void ContextAdapter::halt(const node::CallbackInfo& info) { ctx().halt(); }
+    void ContextAdapter::halt(const node::CallbackInfo&) { ctx().halt(); }
 
     node::Value ContextAdapter::getHalted(const node::CallbackInfo& info) {
         return node::Boolean::New(info.Env(), ctx().halted());
@@ -145,6 +147,24 @@ namespace stationeers::ic10 {
 
     node::Value ContextAdapter::getIsSleeping(const node::CallbackInfo& info) {
         return node::Boolean::New(info.Env(), ctx().isSleeping());
+    }
+
+    node::Value ContextAdapter::getAddr(const node::CallbackInfo& info) {
+        Arguments args(info);
+
+        if (const auto addr = ctx().getAddr(args.getWithCheck<node::Number>(0).Int64Value()); addr)
+            return node::Number::New(info.Env(), *addr);
+
+        return info.Env().Undefined();
+    }
+
+    node::Value ContextAdapter::getLine(const node::CallbackInfo& info) {
+        Arguments args(info);
+
+        if (const auto line = ctx().getLine(args.getWithCheck<node::Number>(0).Int64Value()); line)
+            return node::Number::New(info.Env(), *line);
+
+        return info.Env().Undefined();
     }
 
 }  // namespace stationeers::ic10

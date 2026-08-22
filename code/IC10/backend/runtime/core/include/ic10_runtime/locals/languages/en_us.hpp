@@ -17,8 +17,8 @@
 #define IC10_RUNTIME_EN_US_HPP
 #pragma once
 
+#include "common/utils/fstr.hpp"
 #include "../local.hpp"
-#include "common/utils/file.hpp"
 
 namespace stationeers::ic10 {
 
@@ -34,9 +34,19 @@ namespace stationeers::ic10 {
 
     IC10_RUNTIME_LOCAL_MSG_EN_US(IEM2_1, "Unable to evaluate operand '{}'.")
 
-    IC10_RUNTIME_LOCAL_MSG_EN_US(IEM3_1, "Index out of range.")
+    IC10_RUNTIME_LOCAL_MSG_EN_US(IEM3, "Index out of range.")
 
     IC10_RUNTIME_LOCAL_MSG_EN_US(IEC4, "There are incorrect statements present.")
+
+    IC10_RUNTIME_LOCAL_MSG_EN_US(IEE1_1, "Unable to find PC located at line '{}'.")
+
+    IC10_RUNTIME_LOCAL_MSG_EN_US(IEE2_1, "Inner error '{}'.")
+
+    IC10_RUNTIME_LOCAL_MSG_EN_US(IEE3, "Unknown error.")
+
+    IC10_RUNTIME_LOCAL_MSG_EN_US(IEC1, "Division by zero error.")
+
+    IC10_RUNTIME_LOCAL_MSG_EN_US(IEC2_1, "Invalid configuration parameter '{}'.")
 
 }  // namespace stationeers::ic10
 

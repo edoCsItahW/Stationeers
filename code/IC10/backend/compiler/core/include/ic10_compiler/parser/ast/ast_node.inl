@@ -28,11 +28,11 @@ namespace stationeers::ic10 {
     // AST
 
     template<typename Derived>
-    AST<Derived>::AST(Pos pos)
+    AST<Derived>::AST(Pos pos) noexcept
         : position{pos} {}
 
     template<typename Derived>
-    Pos AST<Derived>::start() const {
+    Pos AST<Derived>::start() const noexcept {
         return position;
     }
 
@@ -96,13 +96,13 @@ namespace stationeers::ic10 {
 
         // 编译期计算多个 std::array 的总大小（fold expression，非递归以兼容 MSVC）
         template<typename... Arrays>
-        constexpr std::size_t totalArraySize() {
+        constexpr std::size_t totalArraySize() noexcept {
             return (0 + ... + Arrays{}.size());
         }
 
         // 编译期合并多个 array 到固定大小的结果数组（单层拷贝，非递归）
         template<std::size_t N, typename... Arrays>
-        constexpr std::array<TokenType, N> concatArraysDirect(Arrays... arrays) {
+        constexpr std::array<TokenType, N> concatArraysDirect(Arrays... arrays) noexcept {
             std::array<TokenType, N> result{};
             std::size_t idx = 0;
             ((void)(std::copy(arrays.begin(), arrays.end(), result.begin() + idx),
@@ -113,20 +113,20 @@ namespace stationeers::ic10 {
 
         // 编译期数组合并的便捷封装：自动推导结果大小
         template<typename... Arrays>
-        constexpr auto concatArrays(Arrays... arrays) {
+        constexpr auto concatArrays(Arrays... arrays) noexcept {
             constexpr std::size_t N = totalArraySize<Arrays...>();
             return concatArraysDirect<N>(arrays...);
         }
 
         // variant token 集合推导：通过索引序列展开每个 alternative 并合并
         template<IsVariant Variant, std::size_t... Is>
-        constexpr auto variantTokensImpl(std::index_sequence<Is...>) {
+        constexpr auto variantTokensImpl(std::index_sequence<Is...>) noexcept {
             return concatArrays(extractTokens<std::variant_alternative_t<Is, Variant>>()...);
         }
 
         // 推导 variant 类型所有成员的起始 token 集合（含嵌套 variant 展开）
         template<IsVariant Variant>
-        constexpr auto variantTokens() {
+        constexpr auto variantTokens() noexcept {
             if constexpr (IsVariant<Variant>)
                 return variantTokensImpl<Variant>(
                     std::make_index_sequence<std::variant_size_v<Variant>>()
@@ -141,7 +141,7 @@ namespace stationeers::ic10 {
         // - 含 startTokens 的类型：直接返回
         // - 其他类型：返回空数组
         template<typename T>
-        constexpr auto extractTokens() {
+        constexpr auto extractTokens() noexcept {
             if constexpr (IsVariant<T>)
                 return variantTokens<T>();
 
@@ -156,13 +156,13 @@ namespace stationeers::ic10 {
 
     // 获取 variant 类型所有成员的起始 token 集合（编译期推导）
     template<IsVariant Variant>
-    constexpr auto getStartTokens() {
+    constexpr auto getStartTokens() noexcept {
         return detail::extractTokens<Variant>();
     }
 
     // 判断给定 token 类型是否为 variant 的合法起始
     template<IsVariant Variant>
-    constexpr bool isStartToken(TokenType t) {
+    constexpr bool isStartToken(TokenType t) noexcept {
         constexpr auto tokens = getStartTokens<Variant>();
         for (auto token : tokens)
             if (token == t) return true;
@@ -171,9 +171,9 @@ namespace stationeers::ic10 {
     }
 
     // 判断 token 是否为合法操作数起始（Operand variant 的便捷封装）
-    constexpr bool isOperandStart(TokenType t) { return isStartToken<Operand>(t); }
+    constexpr bool isOperandStart(TokenType t) noexcept { return isStartToken<Operand>(t); }
 
-    constexpr bool isStatementStart(TokenType t) {
+    constexpr bool isStatementStart(TokenType t) noexcept {
         using T = TokenType;
         switch (t) {
             // 标签（identifier 后跟冒号）

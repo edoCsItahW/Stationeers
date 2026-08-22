@@ -21,7 +21,7 @@ namespace stationeers::ic10 {
 
     namespace detail {
 
-        std::size_t hashLine(std::string_view line) { return std::hash<std::string_view>{}(line); }
+        std::size_t hashLine(std::string_view line) noexcept { return std::hash<std::string_view>{}(line); }
 
     }  // namespace detail
 
@@ -50,12 +50,12 @@ namespace stationeers::ic10 {
     //
     // 通过判断 lineCache_ 是否为空来确定是否有缓存。
     // 有缓存时可以进行增量词法分析。
-    bool IncLexer::hasCache() const { return !lineCache_.empty(); }
+    bool IncLexer::hasCache() const noexcept { return !lineCache_.empty(); }
 
     // clear: 清空所有缓存，使增量分析器回到初始状态
     //
     // 清空行缓存和源码缓存，下次调用 tokenizeInc 时会回退到全量分析。
-    void IncLexer::clear() {
+    void IncLexer::clear() noexcept {
         lineCache_.clear();
         sourceCache_.clear();
     }

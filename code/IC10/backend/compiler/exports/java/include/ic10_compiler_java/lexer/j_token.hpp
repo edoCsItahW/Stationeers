@@ -30,13 +30,13 @@ namespace stationeers::ic10 {
 
         static jhybriddata initHybrid(java::alias_ref<jhybridobject>);
 
-        jint getType();
+        jint getType() noexcept;
 
         auto getPos();
 
         std::string getLexeme();
 
-        jint getCategory();
+        jint getCategory() noexcept;
 
         std::string toString();
 

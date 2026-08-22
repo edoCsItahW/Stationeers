@@ -266,7 +266,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        const std::vector<Diagnostic>& getDiagnostics() const { return reporter_.getDiagnostics(); }
+        const std::vector<Diagnostic>& getDiagnostics() const noexcept { return reporter_.getDiagnostics(); }
 
         /**
          * @if zh
@@ -1084,7 +1084,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        bool inScope() const;
+        bool inScope() const noexcept;
 
         /**
          * @if zh
@@ -1097,7 +1097,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        void skip();
+        void skip() noexcept;
 
         /**
          * @if zh
@@ -1110,7 +1110,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        void consume() const;
+        void consume() const noexcept;
 
         /**
          * @if zh
@@ -1123,7 +1123,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        void gotoNextLine() const;
+        void gotoNextLine() const noexcept;
 
         /**
          * @if zh
@@ -1140,7 +1140,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        std::shared_ptr<Token> current(bool consume = false) const;
+        std::shared_ptr<Token> current(bool consume = false) const noexcept;
 
         /**
          * @if zh

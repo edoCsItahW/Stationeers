@@ -134,16 +134,9 @@ export class ParserPipline {
         rethrow: false
     })
     public async parse(code: string, cache?: DocCacheValue): Promise<ParseResult> {
-        const noop: ParseResult = {
-            changed: false,
-            source: code,
-            tokens: cache?.tokens ?? [],
-            ast: cache?.ast!,
-            diagnostics: cache?.diagnostics ?? [],
-            symbols: cache?.symbols ?? null,
-            types: cache?.types ?? null,
-            hash: cache?.hash ?? ""
-        };
+        const noop: ParseResult = Object.assign({
+            hash: "", tokens: [], diagnostics: [], source: code, changed: false
+        }, cache);
 
         if (!code.trim().length) return noop;
 
@@ -167,7 +160,7 @@ export class ParserPipline {
         linker.addUnit(stdLib.content);
         linker.addUnit(ast);
 
-        const symbolJson = linker.link().toJSON();
+        const table = linker.link();
 
         const typesJson = linker.typeTable.toJSON();
 
@@ -179,7 +172,8 @@ export class ParserPipline {
             tokens,
             ast,
             diagnostics,
-            symbols: JSON.parse(symbolJson),
+            symbolTable: table,
+            symbols: JSON.parse(table.toJSON()),
             types: JSON.parse(typesJson),
             hash
         };
@@ -222,16 +216,16 @@ export class ParserPipline {
         rethrow: false
     })
     public async parseInc(code: string, cache?: DocCacheValue): Promise<ParseResult> {
-        const noop: ParseResult = {
-            changed: false,
-            source: code,
-            tokens: cache?.tokens ?? [],
-            ast: cache?.ast!,
-            diagnostics: cache?.diagnostics ?? [],
-            symbols: cache?.symbols ?? null,
-            types: cache?.types ?? null,
-            hash: cache?.hash ?? ""
-        };
+        const noop: ParseResult = Object.assign(
+            {
+                hash: "",
+                tokens: [],
+                diagnostics: [],
+                source: code,
+                changed: false
+            },
+            cache
+        );
 
         if (!code.trim().length) return noop;
 
@@ -249,7 +243,7 @@ export class ParserPipline {
             linker.addUnit(stdLib.content);
             linker.addUnit(parseResult.ast);
 
-            const symbolJson = linker.link().toJSON();
+            const table = linker.link();
             const typesJson = linker.typeTable.toJSON();
 
             diagnostics.push(...linker.diagnostics);
@@ -259,8 +253,9 @@ export class ParserPipline {
                 source: code,
                 tokens: lexResult.tokens,
                 ast: parseResult.ast,
+                symbolTable: table,
                 diagnostics,
-                symbols: JSON.parse(symbolJson),
+                symbols: JSON.parse(table.toJSON()),
                 types: JSON.parse(typesJson),
                 hash
             };
@@ -275,16 +270,24 @@ export class ParserPipline {
         // 检测受影响范围内是否包含声明式语句（AliasDirective / DefineDirective / LabelDef）
         // 若没有声明式变更，可以跳过 Linker 和 JSON 序列化/反序列化，复用缓存的符号表和类型表
         const canSkipLinker =
-            cache?.symbols != null
-            && cache?.types != null
-            && !hasDeclarativeChanges(parseResult.ast.statements, parseResult.affectedStmtStart);
+            cache?.symbols != null &&
+            cache?.types != null &&
+            !hasDeclarativeChanges(parseResult.ast.statements, parseResult.affectedStmtStart);
 
-        let symbols = cache?.symbols ?? null;
-        let types = cache?.types ?? null;
+        const result: ParseResult = {
+            changed: true,
+            source: code,
+            ast: parseResult.ast,
+            tokens: lexResult.tokens,
+            symbols: cache?.symbols,
+            symbolTable: cache?.symbolTable,
+            diagnostics,
+            hash
+        };
 
         if (canSkipLinker)
             // 跳过 Linker，复用缓存的符号表、类型表和诊断信息
-            diagnostics.push(...(cache?.diagnostics ?? []));
+            result.diagnostics.push(...(cache?.diagnostics ?? []));
         else {
             // 链接器（全量执行，Linker 不支持增量）
             const linker = new Linker();
@@ -292,24 +295,13 @@ export class ParserPipline {
             linker.addUnit(stdLib.content);
             linker.addUnit(parseResult.ast);
 
-            const symbolJson = linker.link().toJSON();
-            const typesJson = linker.typeTable.toJSON();
+            result.symbolTable = linker.link();
+            result.symbols = JSON.parse(result.symbolTable.toJSON());
+            result.types = JSON.parse(linker.typeTable.toJSON());
 
-            symbols = JSON.parse(symbolJson);
-            types = JSON.parse(typesJson);
-
-            diagnostics.push(...linker.diagnostics);
+            result.diagnostics.push(...linker.diagnostics);
         }
 
-        return {
-            changed: true,
-            source: code,
-            tokens: lexResult.tokens,
-            ast: parseResult.ast,
-            diagnostics,
-            symbols,
-            types,
-            hash
-        };
+        return result;
     }
 }

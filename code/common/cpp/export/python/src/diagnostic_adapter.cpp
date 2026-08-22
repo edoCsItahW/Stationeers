@@ -19,7 +19,7 @@ namespace stationeers {
 
     namespace {
         /// 将DiagnosticLevel枚举转换为字符串
-        const char* levelToString(DiagnosticLevel level) {
+        const char* levelToString(DiagnosticLevel level) noexcept {
             switch (level) {
                 case DiagnosticLevel::Error:   return "error";
                 case DiagnosticLevel::Warning: return "warning";

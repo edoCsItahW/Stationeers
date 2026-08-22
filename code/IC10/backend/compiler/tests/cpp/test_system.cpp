@@ -82,7 +82,7 @@ protected:
     }
 
     /// 统计所有阶段的诊断总数
-    static std::size_t totalDiags(const CompileResult& result) {
+    static std::size_t totalDiags(const CompileResult& result) noexcept {
         return result.lexerDiags.size() + result.parserDiags.size() + result.analyserDiags.size();
     }
 
@@ -91,7 +91,7 @@ protected:
         std::ostringstream ss;
         ss << stage << " (" << diags.size() << " diags):\n";
         for (const auto& d : diags) {
-            ss << "  [" << d.id << "] L" << d.start.line() << ":" << d.start.column()
+            ss << "  [" << d.id << "] L" << (d.start ? d.start->line() : 1) << ":" << (d.start ? d.start->column() : 1)
                << " - " << d.message << "\n";
         }
         return ss.str();

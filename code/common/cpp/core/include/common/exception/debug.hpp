@@ -29,10 +29,11 @@
 #define COMPILER_DEBUG_HPP
 #pragma once
 
+#include <source_location>
 #include <functional>
 #include <optional>
-#include <source_location>
 #include <string>
+#include <type_traits>
 
 #ifndef _MSC_VER
 
@@ -389,7 +390,7 @@ namespace stationeers {
          */
         explicit Debugger(
             F&& func, bool exit = false
-        );
+        ) noexcept(std::is_nothrow_move_constructible_v<F>);
 
         /**
          * @if zh
@@ -517,7 +518,7 @@ namespace stationeers {
          */
         explicit Debugger(
             F C::* func, bool exit = false
-        );
+        ) noexcept;
 
         /**
          * @if zh
@@ -612,6 +613,39 @@ namespace stationeers {
          */
         bool exit;
 
+    };
+
+    // SafeExecuteResult
+
+    template<typename T>
+    struct SafeExecuteResult {
+        bool success;
+        T result;
+        unsigned long errorCode;
+    };
+
+    template<typename F>
+    auto safeExecute(F&& func) noexcept -> SafeExecuteResult<decltype(func())>;
+
+    // Logger
+
+    #ifndef STATIONEERS_DEBUG_LOGGING
+        #define STATIONEERS_DEBUG_LOGGING false
+    #endif
+
+    #ifndef STATIONEERS_DEBUG_LOGGING_PATH
+        #define STATIONEERS_DEBUG_LOGGING_PATH (std::filesystem::temp_directory_path() / "stationeers_debug.log").string()
+    #endif
+
+
+    struct Logger {
+        static std::string logPath;
+
+        static bool enable;
+
+        static void refresh();
+
+        static void log(const std::string& message, bool newline = true);
     };
 
 }  // namespace stationeers

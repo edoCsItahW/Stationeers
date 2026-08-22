@@ -16,6 +16,9 @@
 #include "ic10_runtime/executor/executor.hpp"
 #include "ic10_runtime/value/value.hpp"
 #include <random>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 
 namespace stationeers::ic10 {
 
@@ -84,17 +87,16 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const JalInstruction& ins, Flag& flag) {
-        if (const auto line = operandValue(ins.operand1); line) {
-            const auto pc = ctx_.getAddr(*line);
-
+        if (auto target = operandValue(ins.operand1); target) {
+            // 先设置 ra（与 beqal/bgezal 一致），再跳转（operandValue 已把标签解析为地址）
             ctx_.memory.setReg("ra", ctx_.getPC() + 1);
-            ctx_.setPC(pc);
+            ctx_.setPC(*target);
             flag.jumped = true;
-        }
+        } else
+            flag.halted = true;
     }
 
     void Executor::executeIns(const JrInstruction& ins, Flag& flag) {
-        // jr: 相对跳转 pc += offset
         if (auto offset = operandValue(ins.operand1); offset) {
             ctx_.setPC(ctx_.getPC<std::size_t>() + static_cast<std::size_t>(*offset));
             flag.jumped = true;
@@ -102,12 +104,11 @@ namespace stationeers::ic10 {
     }
 
     void Executor::executeIns(const JInstruction& ins, Flag& flag) {
-        if (auto line = operandValue(ins.operand1); line) {
-            const auto pc = ctx_.getAddr(*line);
-
-            ctx_.setPC(pc);
+        if (auto target = operandValue(ins.operand1); target) {
+            ctx_.setPC(*target);
             flag.jumped = true;
-        }
+        } else
+            flag.halted = true;
     }
 
 }  // namespace stationeers::ic10

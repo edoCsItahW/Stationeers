@@ -236,7 +236,8 @@ namespace stationeers::ic10 {
                 opts.locale = args[++i];
                 continue;
             }
-            if (arg.starts_with("-")) return std::unexpected(ICLoc::msgFormat<ICMsgId::IIO2_1>(arg));
+            if (arg.starts_with("-"))
+                return std::unexpected(ICLoc::msgFormat<ICMsgId::IIO2_1>(arg));
             // link 模式下允许多个输入文件；非 link 模式仅允许一个
             // Multiple input files are allowed in link mode; only one is allowed otherwise.
             if (!opts.link && !opts.inputFiles.empty())
@@ -288,7 +289,7 @@ namespace stationeers::ic10 {
      * @return Content of that line (without trailing newline); empty string if out of range
      * @endif
      */
-    static std::string_view getLine(std::string_view source, int line) {
+    static std::string_view getLine(std::string_view source, int line) noexcept {
         if (line < 1) return {};
         std::string_view remaining = source;
         int current                = 1;
@@ -333,7 +334,8 @@ namespace stationeers::ic10 {
     static void printDiagnostic(
         const Diagnostic& diag, std::string_view filePath, std::string_view source
     ) {
-        const int line = diag.start.line(), column = diag.start.column();
+        const int line   = diag.start ? diag.start->line() : 1,
+                  column = diag.start ? diag.start->column() : 1;
 
         if (!filePath.empty()) std::cerr << filePath << '(' << line << ',' << column << "): ";
 
@@ -347,7 +349,9 @@ namespace stationeers::ic10 {
         std::cerr << lineContent << '\n';
 
         const int startCol = column;
-        const int endCol   = diag.end.line() == line ? diag.end.column() : startCol + 1;
+        const int endCol   = (diag.end ? diag.end->line() : 1) == line
+                               ? (diag.end ? diag.end->column() : 1)
+                               : startCol + 1;
 
         std::string caret;
         caret.reserve(static_cast<std::size_t>(std::max(endCol, startCol + 1)));
@@ -464,13 +468,17 @@ namespace stationeers::ic10 {
     static int runLink(const Options& opts) {
         Linker linker;
 
-        auto pairs = opts.inputFiles | std::views::transform([&](const std::string& path) -> std::pair<std::string, std::string> {
-            auto source = readFile(path);
+        auto pairs = opts.inputFiles
+                   | std::views::transform(
+                         [&](const std::string& path) -> std::pair<std::string, std::string> {
+                             auto source = readFile(path);
 
-            linker.addUnit(source, path);
+                             linker.addUnit(source, path);
 
-            return {path, std::move(source)};
-        }) | std::ranges::to<std::vector<std::pair<std::string, std::string>>>();
+                             return {path, std::move(source)};
+                         }
+                   )
+                   | std::ranges::to<std::vector<std::pair<std::string, std::string>>>();
 
         std::unordered_map files(pairs.begin(), pairs.end());
 
@@ -482,8 +490,7 @@ namespace stationeers::ic10 {
 
         bool hasDiag = std::ranges::any_of(linker.getUnits(), [&](const auto& unit) {
             bool flag = unit.diagnostics && !unit.diagnostics->empty();
-            if (flag)
-                printDiagnostics(*unit.diagnostics, unit.path, files[unit.path]);
+            if (flag) printDiagnostics(*unit.diagnostics, unit.path, files[unit.path]);
             return flag;
         });
 

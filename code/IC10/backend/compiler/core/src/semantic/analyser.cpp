@@ -21,7 +21,7 @@ namespace stationeers::ic10 {
     Analyser::Analyser(
         TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10CompilerMsgPack>& reporter,
         bool deferFailAllPending
-    )
+    ) noexcept
         : typeTable_(&typeTable)
         , symbolTable_(&symbolTable)
         , reporter_(&reporter)
@@ -48,14 +48,14 @@ namespace stationeers::ic10 {
         (void)co_await analyser.visit(program);
     }
 
-    SymbolTable& Analyser::getSymbolTable() const { return *symbolTable_; }
+    SymbolTable& Analyser::getSymbolTable() const noexcept { return *symbolTable_; }
 
     // 获取诊断报告器累积的所有诊断信息
-    const std::vector<Diagnostic>& Analyser::getDiagnostics() const {
+    const std::vector<Diagnostic>& Analyser::getDiagnostics() const noexcept {
         return reporter_->getDiagnostics();
     }
 
-    TypeTable& Analyser::getTypeTable() const { return *typeTable_; }
+    TypeTable& Analyser::getTypeTable() const noexcept { return *typeTable_; }
 
     // 访问 Program：逐条遍历语句，结束后清理未决 Future
     Task<> Analyser::visit(const Program& program) {

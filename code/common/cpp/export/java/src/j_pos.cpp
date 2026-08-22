@@ -21,17 +21,17 @@ namespace stationeers {
         return makeCxxInstance().release();
     }
 
-    jint JPos::getLine() { return pos_.line(); }
+    jint JPos::getLine() noexcept { return pos_.line(); }
 
-    jint JPos::getColumn() { return pos_.column(); }
+    jint JPos::getColumn() noexcept { return pos_.column(); }
 
-    jint JPos::getOffset() { return pos_.offset(); }
+    jint JPos::getOffset() noexcept { return pos_.offset(); }
 
-    void JPos::newline() { pos_.newline(); }
+    void JPos::newline() noexcept { pos_.newline(); }
 
-    void JPos::next(jint byteValue) { pos_.next(byteValue); }
+    void JPos::next(jint byteValue) noexcept { pos_.next(byteValue); }
 
-    void JPos::move(jint charOffset, jint byteOffset) { pos_.move(charOffset, byteOffset); }
+    void JPos::move(jint charOffset, jint byteOffset) noexcept { pos_.move(charOffset, byteOffset); }
 
     Pos JPos::from(java::alias_ref<javaobject> pos) { return pos->cthis()->pos_; }
 

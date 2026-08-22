@@ -22,42 +22,61 @@ namespace stationeers {
     // BiMapFindResult
 
     template<typename Iterator>
-    BiMapFindResult<Iterator>::BiMapFindResult()
+    BiMapFindResult<Iterator>::BiMapFindResult() noexcept(std::is_nothrow_default_constructible_v<Iterator>)
         : iter_()
         , endFlag_(true) {}
 
     template<typename Iterator>
-    BiMapFindResult<Iterator>::BiMapFindResult(Iterator iter)
+    BiMapFindResult<Iterator>::BiMapFindResult(Iterator iter) noexcept(std::is_nothrow_copy_constructible_v<Iterator>)
         : iter_(iter)
         , endFlag_(false) {}
 
     template<typename Iterator>
-    BiMapFindResult<Iterator>::operator bool() const {
-        return endFlag_;
+    BiMapFindResult<Iterator>::operator bool() const noexcept {
+        return !endFlag_;
     }
 
     template<typename Iterator>
     auto& BiMapFindResult<Iterator>::operator*() const {
+        using ValueType = std::iterator_traits<Iterator>::value_type;
+        using Reference = std::iterator_traits<Iterator>::reference;
+
+        if (endFlag_) {
+            static ValueType fallback{};
+            return const_cast<Reference>(fallback);
+        }
+
         return *iter_;
     }
 
     template<typename Iterator>
     auto BiMapFindResult<Iterator>::operator->() const {
-        return &*iter_;
+        using ValueType = std::iterator_traits<Iterator>::value_type;
+        using Pointer = std::iterator_traits<Iterator>::pointer;
+
+        if (endFlag_) {
+            static ValueType fallback{};
+            return const_cast<Pointer>(&fallback);
+        }
+
+        return Pointer{&*iter_};
     }
 
     template<typename Iterator>
-    bool BiMapFindResult<Iterator>::operator==(const BiMapFindResult& other) const {
+    bool BiMapFindResult<Iterator>::operator==(const BiMapFindResult& other) const
+        noexcept(noexcept(std::declval<const Iterator&>() == std::declval<const Iterator&>())) {
         return (endFlag_ && other.endFlag_) || iter_ == other.iter_;
     }
 
     template<typename Iterator>
-    bool BiMapFindResult<Iterator>::operator==(const BiMapEndTag&) const {
+    bool BiMapFindResult<Iterator>::operator==(const BiMapEndTag&) const noexcept {
         return endFlag_;
     }
 
     template<typename Iterator>
-    BiMapFindResult<Iterator>::operator Iterator() const {
+    BiMapFindResult<Iterator>::operator Iterator() const
+        noexcept(std::is_nothrow_default_constructible_v<Iterator> &&
+                 std::is_nothrow_copy_constructible_v<Iterator>) {
         if (endFlag_) return Iterator{};
 
         return Iterator{iter_};
@@ -99,7 +118,7 @@ namespace stationeers {
 
     template<typename K, typename V>
     template<IsBiMapKeyOrValue<K, V> T>
-    bool BiMap<K, V>::contains(const T& keyOrValue) const {
+    bool BiMap<K, V>::contains(const T& keyOrValue) const noexcept {
         if constexpr (IsBiMapKey<T, K>)
             return forwardMap_.contains(keyOrValue);
         else
@@ -108,40 +127,51 @@ namespace stationeers {
 
     template<typename K, typename V>
     template<IsBiMapKeyOrValue<K, V> T, typename Self>
-    auto BiMap<K, V>::find(this Self& self, const T& keyOrValue) {
-        if constexpr (IsBiMapKey<T, K>) {
-            if (auto it = self.forwardMap_.find(keyOrValue); it != self.forwardMap_.end())
-                return BiMapFindResult<decltype(it)>(it);
-
-            using IteratorType = std::conditional_t<
-                std::is_const_v<Self>, typename std::unordered_map<K, V>::const_iterator,
-                typename std::unordered_map<K, V>::iterator>;
-
-            return BiMapFindResult<IteratorType>{};
-        } else {
-            if (auto it = self.backwardMap_.find(keyOrValue); it != self.backwardMap_.end())
-                return BiMapFindResult<decltype(it)>(it);
-
-            using IteratorType = std::conditional_t<
-                std::is_const_v<Self>, typename std::unordered_map<V, K>::const_iterator,
-                typename std::unordered_map<V, K>::iterator>;
-
-            return BiMapFindResult<IteratorType>{};
-        }
+    auto BiMap<K, V>::find(this Self& self, const T& keyOrValue) noexcept {
+        if constexpr (IsBiMapKey<T, K>)
+            return self.findValue(keyOrValue);
+        else
+            return self.findKey(keyOrValue);
     }
 
     template<typename K, typename V>
-    auto BiMap<K, V>::end() {
+    template<typename Self>
+    auto BiMap<K, V>::findValue(this Self& self, const K& key) noexcept {
+        if (auto it = self.forwardMap_.find(key); it != self.forwardMap_.end())
+            return BiMapFindResult<decltype(it)>(it);
+
+        using IteratorType = std::conditional_t<
+            std::is_const_v<Self>, typename std::unordered_map<K, V>::const_iterator,
+            typename std::unordered_map<K, V>::iterator>;
+
+        return BiMapFindResult<IteratorType>{};
+    }
+
+    template<typename K, typename V>
+    template<typename Self>
+    auto BiMap<K, V>::findKey(this Self& self, const V& value) noexcept {
+        if (auto it = self.backwardMap_.find(value); it != self.backwardMap_.end())
+            return BiMapFindResult<decltype(it)>(it);
+
+        using IteratorType = std::conditional_t<
+            std::is_const_v<Self>, typename std::unordered_map<V, K>::const_iterator,
+            typename std::unordered_map<V, K>::iterator>;
+
+        return BiMapFindResult<IteratorType>{};
+    }
+
+    template<typename K, typename V>
+    auto BiMap<K, V>::end() noexcept {
         return BiMapEndTag{};
     }
 
     template<typename K, typename V>
-    std::size_t BiMap<K, V>::size() const {
+    std::size_t BiMap<K, V>::size() const noexcept {
         return forwardMap_.size();
     }
 
     template<typename K, typename V>
-    void BiMap<K, V>::clear() {
+    void BiMap<K, V>::clear() noexcept {
         forwardMap_.clear();
         backwardMap_.clear();
     }

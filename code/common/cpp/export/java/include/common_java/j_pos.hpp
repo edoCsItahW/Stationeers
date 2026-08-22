@@ -30,13 +30,13 @@ namespace stationeers {
 
         static jhybriddata initHybrid(java::alias_ref<jhybridobject>);
 
-        jint getLine();
-        jint getColumn();
-        jint getOffset();
+        jint getLine() noexcept;
+        jint getColumn() noexcept;
+        jint getOffset() noexcept;
 
-        void newline();
-        void next(jint byteValue);
-        void move(jint charOffset, jint byteOffset);
+        void newline() noexcept;
+        void next(jint byteValue) noexcept;
+        void move(jint charOffset, jint byteOffset) noexcept;
 
         static auto to(const Pos& pos);
 

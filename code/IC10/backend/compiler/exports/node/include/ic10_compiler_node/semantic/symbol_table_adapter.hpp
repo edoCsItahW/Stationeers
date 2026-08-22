@@ -162,7 +162,7 @@ namespace stationeers::ic10 {
          * @brief Get a read-only reference to the internal SymbolTable object
          * @endif
          */
-        [[nodiscard]] const SymbolTable& getSymbolTable() const { return symbolTable_; }
+        [[nodiscard]] const SymbolTable& getSymbolTable() const noexcept { return symbolTable_; }
 
     private:
         /**

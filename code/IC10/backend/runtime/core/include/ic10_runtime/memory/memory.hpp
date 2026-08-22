@@ -18,6 +18,8 @@
 #pragma once
 
 #include "common/utils/default_unordered_map.hpp"
+#include "common/exception/diagnostic.hpp"
+#include "ic10_runtime/locals/local.hpp"
 #include "common/exception/error.hpp"
 #include "ic10_runtime/config.hpp"
 #include <functional>
@@ -41,45 +43,49 @@ namespace stationeers::ic10 {
 
         template<typename T = double>
             requires std::is_arithmetic_v<std::decay_t<T>>
-        T getSP();
+        T getSP() noexcept;
 
         template<typename T>
             requires std::is_arithmetic_v<std::decay_t<T>>
-        void setSP(T&& val);
+        void setSP(T&& val) noexcept;
 
         template<typename T>
             requires std::is_arithmetic_v<std::decay_t<T>>
-        double getStack(T index);
+        double getStack(T index) noexcept;
 
         template<typename T>
             requires std::is_arithmetic_v<std::decay_t<T>>
-        void setStack(std::size_t index, T&& val);
+        void setStack(std::size_t index, T&& val) noexcept;
 
         void push(
             double val,
             const std::optional<std::function<StackOverflowError(std::string)>>& onOverflow =
                 std::nullopt
-        );
+        ) noexcept;
 
         double pop(
             const std::optional<std::function<StackOverflowError(std::string)>>& onOverflow =
                 std::nullopt
-        );
+        ) noexcept;
 
         double peek(
             const std::optional<std::function<StackOverflowError(std::string)>>& onOverflow =
                 std::nullopt
-        ) const;
+        ) const noexcept;
 
         void poke(
             std::size_t idx, double val,
             const std::optional<std::function<RangeError(std::string)>>& onRange = std::nullopt
-        );
+        ) noexcept;
+
+        void setReporter(DiagnosticReporter<IC10RuntimeMsgPack>* reporter) noexcept;
 
         [[nodiscard]] std::string toJSON() const;
 
     private:
         DefaultUnorderedMap<std::string, double> registers_;
+
+        DiagnosticReporter<IC10RuntimeMsgPack>* reporter_ = nullptr;
 
         double sp_;
 

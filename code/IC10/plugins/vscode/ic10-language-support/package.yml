@@ -38,7 +38,7 @@ engines:
     vscode: ^1.125.0
 
 # 激活事件（空数组表示由主入口文件自行控制激活时机）
-activationEvents: []
+activationEvents: [ ]
 
 # 扩展的主入口文件（相对于项目根目录）
 main: ./client/out/extension
@@ -152,54 +152,54 @@ contributes:
                 Label: '#E8BF6A'
                 Label.declaration: '#E8BF6A'
                 LabelIdentifier: '#A3874C'
-                Unknown: '#BCBEC4'
+                Unknown: '#F75464'
 
     semanticTokenTypes:
-        - id: Keyword
-          superType: keyword
-          description: IC10 instruction keywords and preprocessor directives | IC10指令关键字和预处理指令
-        - id: Register
-          superType: variable
-          description: IC10 register references (r0, r1, ra, sp) | IC10寄存器引用
-        - id: RegisterIdentifier
-          superType: variable
-          description: IC10 user-defined register identifiers (alias names) | IC10用户定义的寄存器标识符（别名名称）
-        - id: Macro
-          superType: function
-          description: IC10 macro calls (hash, str) | IC10宏调用
-        - id: Device
-          superType: type
-          description: IC10 device references (d0, d1, db) | IC10设备引用
-        - id: DeviceIdentifier
-          superType: variable
-          description: IC10 user-defined device identifiers (alias names) | IC10用户定义的设备标识符（别名名称）
-        - id: Number
-          superType: number
-          description: IC10 numeric literals | IC10数字字面量
-        - id: NumberIdentifier
-          superType: variable
-          description: IC10 user-defined constant identifiers (define names) | IC10用户定义的常量标识符（define名称）
-        - id: String
-          superType: string
-          description: IC10 string literals | IC10字符串字面量
-        - id: Constant
-          superType: variable
-          description: IC10 constant literals | IC10常量字面量
-        - id: Comment
-          superType: comment
-          description: IC10 comments | IC10注释
-        - id: Decorator
-          superType: decorator
-          description: 'IC10 type hint annotations (#: @type) | IC10类型提示注解'
-        - id: Label
-          superType: variable
-          description: IC10 labels, aliases and define constants | IC10标签、别名和define常量
-        - id: LabelIdentifier
-          superType: variable
-          description: IC10 user-defined label identifiers | IC10用户定义的标签标识符
-        - id: Unknown
-          superType: variable
-          description: Unknown or unresolved tokens | 未知或未解析的令牌
+        -   id: Keyword
+            superType: keyword
+            description: IC10 instruction keywords and preprocessor directives | IC10指令关键字和预处理指令
+        -   id: Register
+            superType: variable
+            description: IC10 register references (r0, r1, ra, sp) | IC10寄存器引用
+        -   id: RegisterIdentifier
+            superType: variable
+            description: IC10 user-defined register identifiers (alias names) | IC10用户定义的寄存器标识符（别名名称）
+        -   id: Macro
+            superType: function
+            description: IC10 macro calls (hash, str) | IC10宏调用
+        -   id: Device
+            superType: type
+            description: IC10 device references (d0, d1, db) | IC10设备引用
+        -   id: DeviceIdentifier
+            superType: variable
+            description: IC10 user-defined device identifiers (alias names) | IC10用户定义的设备标识符（别名名称）
+        -   id: Number
+            superType: number
+            description: IC10 numeric literals | IC10数字字面量
+        -   id: NumberIdentifier
+            superType: variable
+            description: IC10 user-defined constant identifiers (define names) | IC10用户定义的常量标识符（define名称）
+        -   id: String
+            superType: string
+            description: IC10 string literals | IC10字符串字面量
+        -   id: Constant
+            superType: variable
+            description: IC10 constant literals | IC10常量字面量
+        -   id: Comment
+            superType: comment
+            description: IC10 comments | IC10注释
+        -   id: Decorator
+            superType: decorator
+            description: 'IC10 type hint annotations (#: @type) | IC10类型提示注解'
+        -   id: Label
+            superType: variable
+            description: IC10 labels, aliases and define constants | IC10标签、别名和define常量
+        -   id: LabelIdentifier
+            superType: variable
+            description: IC10 user-defined label identifiers | IC10用户定义的标签标识符
+        -   id: Unknown
+            superType: variable
+            description: Unknown or unresolved tokens | 未知或未解析的令牌
 
     # 语义令牌的颜色映射（覆盖主题默认颜色）
     semanticTokenColors:
@@ -217,7 +217,42 @@ contributes:
         Decorator: '#C586C0'
         Label: '#E8BF6A'
         LabelIdentifier: '#A3874C'
-        Unknown: '#000000'
+        Unknown: '#F75464'
+
+    # 调试器
+    debuggers:
+        -   type: ic10
+            label: IC10 Debug
+            languages: ['ic10']
+            runtime: node
+            configurationAttributes:
+                launch:
+                    required: ["program"]
+                    properties:
+                        program:
+                            type: string
+                            description: 要调试的 .ic 文件的绝对路径
+                            default: ${workspaceFolder}/${command:AskForProgramName}
+                        stopOnEntry:
+                            type: boolean
+                            description: 启动后自动暂停在入口
+                            default: true
+            initialConfigurations:
+                -   type: ic10
+                    request: launch
+                    name: Launch IC10 File
+                    program: ${file}
+                    stopOnEntry: true
+            configurationSnippets:
+                -   label: "IC10 Debug: Launch"
+                    description: 调试当前打开的 .ic 文件
+                    body:
+                        type: ic10
+                        request: launch
+                        name: Launch IC10
+                        program: ^\"\\${workspaceFolder}/\\${command:AskForProgramName}\"
+                        stopOnEntry: true
+
 
 # 脚本（npm 生命周期钩子和自定义脚本）
 scripts:

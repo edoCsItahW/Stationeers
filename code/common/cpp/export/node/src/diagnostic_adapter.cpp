@@ -24,7 +24,7 @@ namespace stationeers {
         return exports;
     }
 
-    const char* DiagnosticAdapter::levelToString(DiagnosticLevel level) {
+    const char* DiagnosticAdapter::levelToString(DiagnosticLevel level) noexcept {
         switch (level) {
             case DiagnosticLevel::Error:   return "error";
             case DiagnosticLevel::Warning: return "warning";
@@ -38,8 +38,8 @@ namespace stationeers {
 
         (void)obj.Set("level", node::String::New(env, levelToString(diagnostic.level)));
         (void)obj.Set("id", node::String::New(env, diagnostic.id));
-        (void)obj.Set("start", PosAdapter::to(env, diagnostic.start));
-        (void)obj.Set("end", PosAdapter::to(env, diagnostic.end));
+        (void)obj.Set("start", diagnostic.start ? PosAdapter::to(env, *diagnostic.start) : env.Undefined());
+        (void)obj.Set("end", diagnostic.end ? PosAdapter::to(env, *diagnostic.end) : env.Undefined());
         (void)obj.Set("message", node::String::New(env, diagnostic.message));
 
         return obj;

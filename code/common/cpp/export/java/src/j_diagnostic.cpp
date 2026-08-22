@@ -38,8 +38,10 @@ namespace stationeers {
         // 使用 .get() 传递 raw jobject，与 idField/msgField 处理方式一致。
         // 不能将 JPos::to() 返回的临时 local_ref 赋值给 alias_ref，
         // 因为 alias_ref 不持有 JNI 引用，临时 local_ref 析构后 alias_ref 会变成悬空指针。
-        obj->setFieldValue(startField, JPos::to(d.start).get());
-        obj->setFieldValue(endField, JPos::to(d.end).get());
+        // start/end 为 std::optional<Pos>，无位置信息时保持字段为 null。
+        if (d.start) obj->setFieldValue(startField, JPos::to(*d.start).get());
+
+        if (d.end) obj->setFieldValue(endField, JPos::to(*d.end).get());
 
         obj->setFieldValue(msgField, facebook::jni::make_jstring(d.message).get());
 

@@ -25,8 +25,13 @@ namespace stationeers::ic10 {
         IEM0,    // Stack Overflow Error.
         IEM1,    // Stack Underflow Error.
         IEM2_1,  // Unable to evaluate operand '{}'.
-        IEM3_1,  // Index out of range.
+        IEM3,    // Index out of range.
         IEC4,    // There are incorrect statements present.
+        IEE1_1,  // Unable to find PC located at line '{}'.
+        IEE2_1,  // Inner error '{}'
+        IEE3,    // Unknown error.
+        IEC1,    // Division by zero error.
+        IEC2_1,  // Invalid configuration parameter '{}'.
     };
 
     template<typename, IC10RuntimeMsgId>

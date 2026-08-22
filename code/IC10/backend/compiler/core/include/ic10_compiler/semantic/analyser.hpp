@@ -131,7 +131,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        SymbolTable& getSymbolTable() const;
+        SymbolTable& getSymbolTable() const noexcept;
 
         /**
          * @if zh
@@ -146,7 +146,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        const std::vector<Diagnostic>& getDiagnostics() const;
+        const std::vector<Diagnostic>& getDiagnostics() const noexcept;
 
         /**
          * @if zh
@@ -161,7 +161,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        TypeTable& getTypeTable() const;
+        TypeTable& getTypeTable() const noexcept;
 
         /**
          * @if zh
@@ -184,7 +184,7 @@ namespace stationeers::ic10 {
 
         friend class Linker;
 
-        Analyser(TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10CompilerMsgPack>& reporter, bool deferFailAllPending = false);
+        Analyser(TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10CompilerMsgPack>& reporter, bool deferFailAllPending = false) noexcept;
 
         bool ownsResources_ = false;
 
@@ -563,7 +563,7 @@ namespace stationeers::ic10 {
         struct IdentifierChecker {
             static bool check(
                 const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-            );
+            ) noexcept;
         };
 
         template<ICMsgId I, auto... Vs>

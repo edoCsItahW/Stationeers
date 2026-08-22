@@ -79,7 +79,7 @@ namespace stationeers {
      * @endcode
      */
     template<auto V>
-    constexpr auto enumToStr();
+    constexpr auto enumToStr() noexcept;
 
     /**
      * @if zh
@@ -115,7 +115,7 @@ namespace stationeers {
      * @endif
      */
     template<typename T, std::size_t N = 0>
-    constexpr auto enumMax();
+    constexpr auto enumMax() noexcept;
 
     /**
      * @if zh
@@ -163,7 +163,7 @@ namespace stationeers {
      */
     template<typename T>
         requires std::is_enum_v<T>
-    constexpr auto enumToStr(T value);
+    constexpr auto enumToStr(T value) noexcept;
 
 }  // namespace stationeers
 

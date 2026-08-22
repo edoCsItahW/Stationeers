@@ -90,7 +90,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        std::size_t hashLine(std::string_view line);
+        std::size_t hashLine(std::string_view line) noexcept;
 
     }
 
@@ -209,7 +209,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        [[nodiscard]] bool hasCache() const;
+        [[nodiscard]] bool hasCache() const noexcept;
 
         /**
          * @if zh
@@ -220,7 +220,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        void clear();
+        void clear() noexcept;
 
     private:
         /**

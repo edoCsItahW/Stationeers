@@ -110,7 +110,7 @@ namespace stationeers {
          * @brief Convert DiagnosticLevel enum to string
          * @endif
          */
-        static const char* levelToString(DiagnosticLevel level);
+        static const char* levelToString(DiagnosticLevel level) noexcept;
     };
 
 }  // namespace stationeers

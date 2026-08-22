@@ -98,12 +98,12 @@ namespace stationeers::ic10 {
         return symbolTable_;
     }
 
-    const std::vector<Diagnostic>& Linker::getDiagnostics() const {
+    const std::vector<Diagnostic>& Linker::getDiagnostics() const noexcept {
         return reporter_.getDiagnostics();
     }
 
-    const std::vector<Linker::UnitInfo>& Linker::getUnits() const { return unitInfos_; }
+    const std::vector<Linker::UnitInfo>& Linker::getUnits() const noexcept { return unitInfos_; }
 
-    TypeTable& Linker::getTypeTable() { return typeTable_; }
+    TypeTable& Linker::getTypeTable() noexcept { return typeTable_; }
 
 }  // namespace stationeers::ic10

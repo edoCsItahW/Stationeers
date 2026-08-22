@@ -37,4 +37,4 @@ export const CONFIGURATION_SECTION_NAME = "ic10" as const;
  *
  * @desc Used for custom event communication between the LSP client and server.
  * */
-export const COMM_EVENT_NAME = "event" as const;
+export const COMM_EVENT_NAME = "ic10/event" as const;
