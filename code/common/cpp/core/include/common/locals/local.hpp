@@ -265,7 +265,7 @@ namespace stationeers {
      * @endif
      */
     template<typename T, IsMsgPack P, typename P::msg_id_type I>
-    std::string_view getMsgFromMap();
+    std::string_view getMsgFromMap() noexcept;
 
     /**
      * @if zh
@@ -354,7 +354,7 @@ namespace stationeers {
          *
          * @endif
          */
-        static constexpr long long findIndex(E id);
+        static constexpr long long findIndex(E id) noexcept;
 
         /**
          * @if zh

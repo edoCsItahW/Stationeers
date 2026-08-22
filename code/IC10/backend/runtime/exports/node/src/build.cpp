@@ -19,6 +19,7 @@
 #include "ic10_runtime_node/engine_adapter.hpp"
 #include "ic10_runtime_node/memory_adapter.hpp"
 #include "ic10_runtime_node/value_adapter.hpp"
+#include "ic10_runtime_node/local_adapter.hpp"
 #include "common_node/build.hpp"
 
 namespace ic = stationeers::ic10;
@@ -26,6 +27,7 @@ namespace ic = stationeers::ic10;
 node::Object Init(node::Env env, node::Object exports) {
     commonInit(env, exports);
 
+    ic::IC10RuntimeLocalAdapter::init(env, exports);
     ic::valueInit(env, exports);
     ic::DeviceAdapter::init(env, exports);
     ic::MemoryAdapter::init(env, exports);

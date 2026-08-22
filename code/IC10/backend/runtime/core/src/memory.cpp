@@ -14,8 +14,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_runtime/memory/memory.hpp"
-#include "ic10_runtime/locals/local.hpp"
 #include "common/utils/json.hpp"
+#include "ic10_runtime/locals/local.hpp"
 
 namespace stationeers::ic10 {
 
@@ -25,15 +25,19 @@ namespace stationeers::ic10 {
         , stack_(config.maxStackSize, 0.0)
         , cfg(config) {}
 
+    void Memory::setReporter(DiagnosticReporter<IC10RuntimeMsgPack>* reporter) noexcept {
+        reporter_ = reporter;
+    }
+
     void Memory::push(
         const double val,
         const std::optional<std::function<StackOverflowError(std::string)>>& onOverflow
-    ) {
-        if (sp_ >= cfg.maxStackSize) [[unlikely]] {
-            if (onOverflow.has_value()) throw(*onOverflow)(IRLoc::msgStr<IRMsgId::IEM0>());
-
-            throw StackOverflowError(IRLoc::msgStr<IRMsgId::IEM0>());
-        }
+    ) noexcept {
+        if (sp_ >= cfg.maxStackSize) [[unlikely]]
+            reporter_->emplace<IRMsgId::IEM0>(
+                {(onOverflow ? (*onOverflow)(IRLoc::msgStr<IRMsgId::IEM0>())
+                             : StackOverflowError(IRLoc::msgStr<IRMsgId::IEM0>()))}
+            );
 
         stack_[static_cast<std::size_t>(sp_)] = val;
 
@@ -42,12 +46,12 @@ namespace stationeers::ic10 {
 
     double Memory::pop(
         const std::optional<std::function<StackOverflowError(std::string)>>& onOverflow
-    ) {
-        if (sp_ <= 0) [[unlikely]] {
-            if (onOverflow.has_value()) throw(*onOverflow)(IRLoc::msgStr<IRMsgId::IEM1>());
-
-            throw StackOverflowError(IRLoc::msg<IRMsgId::IEM1>());
-        }
+    ) noexcept {
+        if (sp_ <= 0) [[unlikely]]
+            reporter_->emplace<IRMsgId::IEM1>(
+                {onOverflow ? (*onOverflow)(IRLoc::msgStr<IRMsgId::IEM1>())
+                            : StackOverflowError(IRLoc::msgStr<IRMsgId::IEM1>())}
+            );
 
         --sp_;
 
@@ -56,12 +60,12 @@ namespace stationeers::ic10 {
 
     double Memory::peek(
         const std::optional<std::function<StackOverflowError(std::string)>>& onOverflow
-    ) const {
-        if (sp_ <= 0) [[unlikely]] {
-            if (onOverflow.has_value()) throw(*onOverflow)(IRLoc::msgStr<IRMsgId::IEM0>());
-
-            throw StackOverflowError(IRLoc::msg<IRMsgId::IEM0>());
-        }
+    ) const noexcept {
+        if (sp_ <= 0) [[unlikely]]
+            reporter_->emplace<IRMsgId::IEM0>(
+                {onOverflow ? (*onOverflow)(IRLoc::msgStr<IRMsgId::IEM0>())
+                            : StackOverflowError(IRLoc::msgStr<IRMsgId::IEM0>())}
+            );
 
         return stack_[static_cast<std::size_t>(sp_ - 1)];
     }
@@ -69,12 +73,12 @@ namespace stationeers::ic10 {
     void Memory::poke(
         const std::size_t idx, const double val,
         const std::optional<std::function<RangeError(std::string)>>& onRange
-    ) {
-        if (idx >= cfg.maxStackSize) [[unlikely]] {
-            if (onRange.has_value()) throw(*onRange)(IRLoc::msgStr<IRMsgId::IEM3_1>());
-
-            throw RangeError(IRLoc::msgStr<IRMsgId::IEM3_1>());
-        }
+    ) noexcept {
+        if (idx >= cfg.maxStackSize) [[unlikely]]
+            reporter_->emplace<IRMsgId::IEM3>(
+                {onRange ? (*onRange)(IRLoc::msgStr<IRMsgId::IEM3>())
+                         : RangeError(IRLoc::msgStr<IRMsgId::IEM3>())}
+            );
 
         stack_[idx] = val;
     }

@@ -242,16 +242,16 @@ namespace stationeers::ic10 {
         return doc;
     }
 
-    bool DocParser::inScope() const {
+    bool DocParser::inScope() const noexcept {
         return idx_ < tokens_.size() && tokens_[idx_]->type != TokenType::END;
     }
 
-    std::shared_ptr<Token> DocParser::current(bool consume) const {
+    std::shared_ptr<Token> DocParser::current(bool consume) const noexcept {
         if (idx_ < tokens_.size()) return tokens_[consume ? idx_++ : idx_];
         return nullptr;
     }
 
-    void DocParser::consume() const {
+    void DocParser::consume() const noexcept {
         if (inScope()) ++idx_;
     }
 

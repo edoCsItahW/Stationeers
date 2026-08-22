@@ -1,0 +1,17 @@
+{
+    "name": "ic10-debugger",
+    "version": "1.0.0",
+    "main": "./out/index.js",
+    "types": "./src/index.ts",
+    "scripts": {
+        "build": "tsc"
+    },
+    "dependencies": {
+        "@vscode/debugadapter": "^1.68.0",
+        "@vscode/debugprotocol": "^1.68.0",
+        "common": "link:../common"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.134.0"
+    }
+}

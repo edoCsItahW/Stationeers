@@ -38,15 +38,15 @@ namespace stationeers::ic10 {
 
     namespace detail {
 
-        uint32_t crc32(const std::string& str);
+        uint32_t crc32(const std::string& str) noexcept;
 
     }  // namespace detail
 
-    int32_t hashValue(const std::string& content);
+    int32_t hashValue(const std::string& content) noexcept;
 
-    double strValue(const std::string& content);
+    double strValue(const std::string& content) noexcept;
 
-    std::optional<double> constantValue(const std::string& keyword);
+    std::optional<double> constantValue(const std::string& keyword) noexcept;
 
     std::optional<double> macroCall(const MacroCall& macroCall);
 
@@ -54,7 +54,7 @@ namespace stationeers::ic10 {
 
     template<typename U, typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>
-    U arithmeticTrans(T&& value);
+    U arithmeticTrans(T&& value) noexcept;
 
 }  // namespace stationeers::ic10
 

@@ -44,7 +44,7 @@ namespace stationeers {
     // Future<T>
 
     template<typename T>
-    Future<T>::Future(std::shared_ptr<SharedState<T>> state)
+    Future<T>::Future(std::shared_ptr<SharedState<T>> state) noexcept
         : state_(std::move(state)) {}
 
     template<typename T>

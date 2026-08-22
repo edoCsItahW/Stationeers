@@ -19,7 +19,7 @@ namespace stationeers {
 
     // TaskPromise<void>
 
-    Task<> TaskPromise<void>::get_return_object() {
+    Task<> TaskPromise<void>::get_return_object() noexcept {
         return Task{std::coroutine_handle<TaskPromise>::from_promise(*this)};
     }
 

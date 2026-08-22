@@ -211,7 +211,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        explicit Lexer(std::string_view src, bool debug = false);
+        explicit Lexer(std::string_view src, bool debug = false) noexcept;
 
         /**
          * @if zh
@@ -252,7 +252,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        const std::vector<Diagnostic>& getDiagnostics() const { return reporter_.getDiagnostics(); }
+        const std::vector<Diagnostic>& getDiagnostics() const noexcept { return reporter_.getDiagnostics(); }
 
         /**
          * @if zh

@@ -20,7 +20,7 @@
 namespace stationeers {
 
     template<typename T>
-    CoroutineState<T>::CoroutineState(Handle h)
+    CoroutineState<T>::CoroutineState(Handle h) noexcept
         : handle(h) {}
 
     template<typename T>

@@ -141,7 +141,7 @@
                     "Label": "#E8BF6A",
                     "Label.declaration": "#E8BF6A",
                     "LabelIdentifier": "#A3874C",
-                    "Unknown": "#BCBEC4"
+                    "Unknown": "#F75464"
                 }
             }
         },
@@ -237,8 +237,64 @@
             "Decorator": "#C586C0",
             "Label": "#E8BF6A",
             "LabelIdentifier": "#A3874C",
-            "Unknown": "#000000"
-        }
+            "Unknown": "#F75464"
+        },
+        "breakpoints": [
+            {
+                "language": "ic10"
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "ic10",
+                "label": "IC10 Debug",
+                "languages": [
+                    "ic10"
+                ],
+                "runtime": "node",
+                "configurationAttributes": {
+                    "launch": {
+                        "required": [
+                            "program"
+                        ],
+                        "properties": {
+                            "program": {
+                                "type": "string",
+                                "description": "要调试的 .ic 文件的绝对路径",
+                                "default": "${workspaceFolder}/${command:AskForProgramName}"
+                            },
+                            "stopOnEntry": {
+                                "type": "boolean",
+                                "description": "启动后自动暂停在入口",
+                                "default": true
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "ic10",
+                        "request": "launch",
+                        "name": "Launch IC10 File",
+                        "program": "${file}",
+                        "stopOnEntry": true
+                    }
+                ],
+                "configurationSnippets": [
+                    {
+                        "label": "IC10 Debug: Launch",
+                        "description": "调试当前打开的 .ic 文件",
+                        "body": {
+                            "type": "ic10",
+                            "request": "launch",
+                            "name": "Launch IC10",
+                            "program": "^\\\"\\\\${workspaceFolder}/\\\\${command:AskForProgramName}\\\"",
+                            "stopOnEntry": true
+                        }
+                    }
+                ]
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile && cd client && npm install --production --ignore-scripts --no-package-lock && cd ../server && npm install --production --ignore-scripts --no-package-lock && cd .. && node -e \"const{rmSync,cpSync}=require('fs');for(const d of['client','server']){const m=d+'/node_modules/common';rmSync(m,{recursive:true,force:true});cpSync('common',m,{recursive:true,filter:s=>!s.includes('node_modules')})}\"",
@@ -253,5 +309,9 @@
         "@types/node": "^26.0.1",
         "prettier": "^3.9.6",
         "verdaccio": "^6.9.2"
+    },
+    "dependencies": {
+        "ic10c-node": "2.7.2",
+        "ic10r-node": "1.0.5"
     }
 }

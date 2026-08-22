@@ -21,7 +21,7 @@
 
 namespace stationeers::ic10 {
 
-    Lexer::Lexer(const std::string_view src, const bool debug)
+    Lexer::Lexer(const std::string_view src, const bool debug) noexcept
         : src_(src)
         , debug_(debug) {}
 

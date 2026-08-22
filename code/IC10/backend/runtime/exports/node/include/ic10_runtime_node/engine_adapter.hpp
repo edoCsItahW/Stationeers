@@ -107,7 +107,11 @@ namespace stationeers::ic10 {
 
         EXPORT_D_METHOD_VOID(runFull)
 
+        EXPORT_D_METHOD_VALUE(step)
+
         EXPORT_D_ATTR_GETTER(Context)
+
+        EXPORT_D_ATTR_GETTER(Diagnostics)
     };
 
 }  // namespace stationeers::ic10

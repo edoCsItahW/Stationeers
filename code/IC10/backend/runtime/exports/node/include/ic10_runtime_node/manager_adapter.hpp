@@ -46,8 +46,8 @@ namespace stationeers::ic10 {
         /// 引用模式：指向 Context 内部真实 Manager，不拥有
         Manager* mgrPtr_ = nullptr;
 
-        [[nodiscard]] Manager& mgr() { return mgrPtr_ ? *mgrPtr_ : manager_; }
-        [[nodiscard]] const Manager& mgr() const { return mgrPtr_ ? *mgrPtr_ : manager_; }
+        [[nodiscard]] Manager& mgr() noexcept { return mgrPtr_ ? *mgrPtr_ : manager_; }
+        [[nodiscard]] const Manager& mgr() const noexcept { return mgrPtr_ ? *mgrPtr_ : manager_; }
 
         EXPORT_D_METHOD_VALUE(getDevice)
 

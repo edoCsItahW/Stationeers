@@ -14,4 +14,4 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 export * from "./utils";
-export * from "./types";
+export * from "./protocol";

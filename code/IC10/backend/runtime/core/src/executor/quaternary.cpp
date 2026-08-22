@@ -205,7 +205,7 @@ namespace stationeers::ic10 {
     // 四元 — RON_RON_RON_RON 组
     // ========================================================================
 
-    static bool checkApprox(double a, double b, double c) {
+    static bool checkApprox(double a, double b, double c) noexcept {
         double eps = std::max(c * std::max(std::abs(a), std::abs(b)), EPSILON_TIMES_8);
         return std::abs(a - b) <= eps;
     }

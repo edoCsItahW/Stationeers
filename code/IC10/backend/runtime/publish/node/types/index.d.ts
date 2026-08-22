@@ -20,3 +20,4 @@ export * from "./engine";
 export * from "./manager";
 export * from "./memory";
 export * from "./value";
+export * from "./locale";

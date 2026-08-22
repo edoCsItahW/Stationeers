@@ -103,7 +103,7 @@ namespace stationeers {
          *
          * @endif
          */
-        Pos(int line, int column, std::size_t offset);
+        Pos(int line, int column, std::size_t offset) noexcept;
         /**
          * @if zh
          *
@@ -121,7 +121,7 @@ namespace stationeers {
          *
          * @public @memberof Pos
          */
-        [[nodiscard]] int line() const;
+        [[nodiscard]] int line() const noexcept;
 
         /**
          * @if zh
@@ -140,7 +140,7 @@ namespace stationeers {
          *
          * @public @memberof Pos
          */
-        [[nodiscard]] int column() const;
+        [[nodiscard]] int column() const noexcept;
 
         /**
          * @if zh
@@ -159,7 +159,7 @@ namespace stationeers {
          *
          * @public @memberof Pos
          */
-        [[nodiscard]] std::size_t offset() const;
+        [[nodiscard]] std::size_t offset() const noexcept;
 
         /**
          * @if zh
@@ -178,7 +178,7 @@ namespace stationeers {
          *
          * @public @memberof Pos
          */
-        void newline();
+        void newline() noexcept;
 
         /**
          * @if zh
@@ -198,7 +198,7 @@ namespace stationeers {
          *
          * @public @memberof Pos
          */
-        void next(unsigned char byte);
+        void next(unsigned char byte) noexcept;
 
         /**
          * @if zh
@@ -219,7 +219,7 @@ namespace stationeers {
          *
          * @public @memberof Pos
          */
-        void move(std::size_t charOffset, std::size_t byteOffset);
+        void move(std::size_t charOffset, std::size_t byteOffset) noexcept;
 
         /**
          * @if zh
@@ -370,7 +370,7 @@ namespace stationeers {
      *
      * @endif
      */
-    Pos endPos(const Pos& pos, std::size_t charLength, std::size_t byteLength);
+    Pos endPos(const Pos& pos, std::size_t charLength, std::size_t byteLength) noexcept;
 
     /**
      * @if zh

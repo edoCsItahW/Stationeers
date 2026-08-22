@@ -35,7 +35,7 @@ namespace stationeers::ic10 {
         devices_[name] = std::move(device);
     }
 
-    void Manager::setChipDevice(std::unique_ptr<IDevice> device) {
+    void Manager::setChipDevice(std::unique_ptr<IDevice> device) noexcept {
         chip_ = std::move(device);
     }
 

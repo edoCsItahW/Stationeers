@@ -76,8 +76,8 @@ export class DiagnosticHandler {
                 items: cache.diagnostics.map(d => ({
                     severity: this.levelTrans(d.level),
                     range: {
-                        start: { line: d.start.line - 1, character: d.start.column - 1 },
-                        end: { line: d.end.line - 1, character: d.end.column - 1 }
+                        start: d.start ? { line: d.start.line - 1, character: d.start.column - 1 } : { line: 0, character: 0 },
+                        end: d.end ? { line: d.end.line - 1, character: d.end.column - 1 } : { line: 0, character: 0 }
                     },
                     message: d.message,
                     source: d.id.split("_")[0]

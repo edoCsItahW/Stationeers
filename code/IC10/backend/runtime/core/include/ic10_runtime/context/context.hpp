@@ -18,6 +18,8 @@
 #pragma once
 
 #include "ic10_compiler/semantic/semantic.hpp"
+#include "common/utils/bidirectional_map.hpp"
+#include "common/exception/diagnostic.hpp"
 #include "ic10_runtime/memory/memory.hpp"
 #include "ic10_compiler/pch/ast.hpp"
 #include "ic10_runtime/manager.hpp"
@@ -33,31 +35,38 @@ namespace stationeers::ic10 {
         Context& operator=(Context&&) noexcept = default;
 
         template<typename T = std::size_t>
-        [[nodiscard]] T getPC() const;
+        [[nodiscard]] T getPC() const noexcept;
 
         template<typename T>
             requires std::is_arithmetic_v<T>
-        void setPC(T pc);
+        void setPC(T pc) noexcept;
 
-        void advancePC();
+        void advancePC() noexcept;
 
-        void halt();
+        void halt() noexcept;
 
-        [[nodiscard]] bool halted() const;
+        [[nodiscard]] bool halted() const noexcept;
 
-        [[nodiscard]] bool isSleeping() const;
+        [[nodiscard]] bool isSleeping() const noexcept;
 
         void sleep(double seconds);
 
-        void tick();
+        void tick() noexcept;
 
-        template<typename T = std::size_t, typename U>
-            requires std::is_arithmetic_v<std::decay_t<U>>
-        [[nodiscard]] T getAddr(U&& line);
+        template<typename T = std::size_t>
+        [[nodiscard]] std::optional<T> getAddr(int line) noexcept;
 
-        std::optional<std::reference_wrapper<const Statement>> currentStatement() const;
+        template<typename T = int>
+        [[nodiscard]] std::optional<T> getLine(std::size_t addr) noexcept;
+
+        std::optional<std::reference_wrapper<const Statement>> currentStatement() const noexcept;
 
         std::optional<std::shared_ptr<Symbol>> resolve(const std::string& name) const;
+
+        template<typename Self>
+        auto& getDiagnostics(this Self& self) noexcept;
+
+        void setReporter(DiagnosticReporter<IC10RuntimeMsgPack>* reporter) noexcept;
 
         Program program;
 
@@ -76,7 +85,9 @@ namespace stationeers::ic10 {
 
         std::size_t pc_;
 
-        std::unordered_map<std::size_t, std::size_t> addrs_;
+        DiagnosticReporter<IC10RuntimeMsgPack>* reporter_ = nullptr;
+
+        BiMap<int, std::size_t> addrs_;
 
         bool halted_;
 
