@@ -72,7 +72,7 @@ export class Parser {
      *
      * @desc 便捷方法，无需创建 Parser 实例即可解析。
      */
-    parsing(tokens: Token[], debug?: boolean): Program;
+    static parsing(tokens: Token[], debug?: boolean): Program;
 
     /**
      * @summary 诊断列表

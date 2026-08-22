@@ -22,7 +22,7 @@ namespace stationeers::ic10 {
     // NullaryInstructionBase
 
     template<FString K>
-    NullaryInstructionBase<K>::NullaryInstructionBase(Pos pos)
+    NullaryInstructionBase<K>::NullaryInstructionBase(Pos pos) noexcept
         : AST<NullaryInstructionBase>{pos} {}
 
     template<FString K>

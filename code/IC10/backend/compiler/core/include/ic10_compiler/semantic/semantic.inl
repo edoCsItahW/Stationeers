@@ -43,17 +43,17 @@ namespace stationeers::ic10 {
     }
 
     template<typename Self>
-    auto SymbolTable::find(this Self& self, std::string name) {
+    auto SymbolTable::find(this Self& self, std::string name) noexcept {
         return self.symbols_.find(name);
     }
 
     template<typename Self>
-    auto SymbolTable::begin(this Self& self) {
+    auto SymbolTable::begin(this Self& self) noexcept {
         return self.symbols_.begin();
     }
 
     template<typename Self>
-    auto SymbolTable::end(this Self& self) {
+    auto SymbolTable::end(this Self& self) noexcept {
         return self.symbols_.end();
     }
 

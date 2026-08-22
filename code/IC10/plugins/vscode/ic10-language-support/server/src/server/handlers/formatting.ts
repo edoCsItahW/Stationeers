@@ -319,10 +319,17 @@ function buildFormatUnits(
 
         // 可执行指令
         if (isInstructionNode(primaryStmt)) {
+            // 行内存在错误语句（语法不完整，如非法符号/多余 token）：保留原文，
+            // 避免把错误词素（可能含 NEWLINE）当作操作数格式化导致行错乱
+            if (errorLexemes.length > 0) {
+                units.push({ kind: "raw", text: pl.text });
+                continue;
+            }
+
             units.push({
                 kind: "instruction",
                 keyword: primaryStmt.keyword,
-                operands: [...extractOperandStrings(primaryStmt, rawLines), ...errorLexemes],
+                operands: extractOperandStrings(primaryStmt, rawLines),
                 comment: pl.comment
             });
             continue;

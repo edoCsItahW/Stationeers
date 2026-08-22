@@ -42,7 +42,7 @@ export interface HoverContext {
     character: number;
     /** 符号表 */
     /** Symbol table */
-    symbols: Nullable<SymbolMap>;
+    symbols?: SymbolMap;
     /** 文档中的所有语句 */
     /** All statements in the document */
     statements: StatementNode[];

@@ -113,8 +113,8 @@ namespace {
         static std::string formatDiags(const std::vector<Diagnostic>& diags) {
             std::string out;
             for (const auto& d : diags) {
-                out += "  [" + d.id + "] L" + std::to_string(d.start.line()) + ":"
-                     + std::to_string(d.start.column()) + " - " + d.message + "\n";
+                out += "  [" + d.id + "] L" + std::to_string((d.start ? d.start->line() : 1)) + ":"
+                     + std::to_string((d.start ? d.start->column() : 1)) + " - " + d.message + "\n";
             }
             return out;
         }

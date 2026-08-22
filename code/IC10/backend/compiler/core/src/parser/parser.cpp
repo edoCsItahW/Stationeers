@@ -113,7 +113,7 @@ namespace stationeers::ic10 {
 
             auto errToken = *current();
             // 不消耗 token，让 parse() 主循环通过 NEWLINE 同步到下一行
-            return ErrorNode{errToken, ICLoc::msgStr<ICMsgId::IEP23>()};
+            return ErrorNode{labelDef.position, errToken, ICLoc::msgStr<ICMsgId::IEP23>()};
         }
 
         return labelDef;
@@ -329,7 +329,7 @@ namespace stationeers::ic10 {
                 current()->pos, endPos(*current()), enumToStr(current()->type)
             );
 
-            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP4_1>(enumToStr(c->type))};
+            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP4_1>(enumToStr(c->type))};
         }
 
     }
@@ -368,7 +368,7 @@ namespace stationeers::ic10 {
                 current()->pos, endPos(*current()), enumToStr(current()->type)
             );
 
-            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP5_1>(enumToStr(c->type))};
+            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP5_1>(enumToStr(c->type))};
         }
     }
 
@@ -434,7 +434,7 @@ namespace stationeers::ic10 {
                 current()->pos, endPos(*current()), enumToStr(current()->type)
             );
 
-            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP6_1>(enumToStr(c->type))};
+            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP6_1>(enumToStr(c->type))};
         }
     }
 
@@ -500,7 +500,7 @@ namespace stationeers::ic10 {
                 current()->pos, endPos(*current()), enumToStr(current()->type)
             );
 
-            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP7_1>(enumToStr(c->type))};
+            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP7_1>(enumToStr(c->type))};
         }
     }
 
@@ -530,7 +530,7 @@ namespace stationeers::ic10 {
                 current()->pos, endPos(*current()), enumToStr(current()->type)
             );
 
-            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP8_1>(enumToStr(c->type))};
+            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP8_1>(enumToStr(c->type))};
         }
     }
 
@@ -555,7 +555,7 @@ namespace stationeers::ic10 {
                 current()->pos, endPos(*current()), enumToStr(current()->type)
             );
 
-            return ErrorNode{*current(), ICLoc::msgFormat<ICMsgId::IEP9_1>(enumToStr(c->type))};
+            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP9_1>(enumToStr(c->type))};
         }
     }
 
@@ -1263,11 +1263,11 @@ namespace stationeers::ic10 {
         return binNum;
     }
 
-    bool Parser::inScope() const {
+    bool Parser::inScope() const noexcept {
         return idx_ < tokens_.size() && current()->type != TokenType::END;
     }
 
-    void Parser::skip() {
+    void Parser::skip() noexcept {
         while (inScope()
                && (current()->type == TokenType::NEWLINE
                    || current()->category == TokenCategory::COMMENT))
@@ -1276,11 +1276,11 @@ namespace stationeers::ic10 {
         // idx_--;
     }
 
-    void Parser::consume() const {
+    void Parser::consume() const noexcept {
         if (inScope()) [[likely]] idx_++;
     }
 
-    void Parser::gotoNextLine() const {
+    void Parser::gotoNextLine() const noexcept {
         while (inScope() && current()->type != TokenType::NEWLINE) idx_++;
 
         if (inScope()) consume();
@@ -1305,7 +1305,7 @@ namespace stationeers::ic10 {
         };
     }
 
-    std::shared_ptr<Token> Parser::current(const bool consume) const {
+    std::shared_ptr<Token> Parser::current(const bool consume) const noexcept {
         if (idx_ < tokens_.size()) return tokens_[consume ? idx_++ : idx_];
 
         return nullptr;

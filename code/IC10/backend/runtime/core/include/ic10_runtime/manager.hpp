@@ -32,7 +32,7 @@ namespace stationeers::ic10 {
 
         void setExternalDevice(const std::string& name, std::unique_ptr<IDevice> device);
 
-        void setChipDevice(std::unique_ptr<IDevice> device);
+        void setChipDevice(std::unique_ptr<IDevice> device) noexcept;
 
         IDevice* findDeviceByType(int64_t typeHash) const;
 

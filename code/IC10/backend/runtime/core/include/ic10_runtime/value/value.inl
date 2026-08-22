@@ -52,7 +52,7 @@ namespace stationeers::ic10 {
 
     template<typename U, typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>
-    U arithmeticTrans(T&& value) {
+    U arithmeticTrans(T&& value) noexcept {
         if constexpr (std::is_same_v<std::decay_t<U>, std::decay_t<T>>)
             return std::forward<T>(value);
 

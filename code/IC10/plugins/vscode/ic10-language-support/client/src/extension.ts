@@ -9,12 +9,23 @@
 
 import { LanguageClient, TransportKind, ServerOptions } from "vscode-languageclient/node";
 import { LanguageClientOptions } from "vscode-languageclient";
-import { workspace, ExtensionContext } from "vscode";
+import { DebugAdapterDescriptor, DebugAdapterInlineImplementation } from "vscode";
+import {
+    workspace,
+    ExtensionContext,
+    debug,
+    DebugAdapterDescriptorFactory,
+    DebugSession,
+    DebugAdapterExecutable,
+    ProviderResult
+} from "vscode";
 import * as path from "path";
 
-import { COMM_EVENT_NAME, EventData } from "common";
+import { COMM_EVENT_NAME, Optional, RequestEventData, ResponseEventData, Transfer } from "common";
+import { IC10DebugSession } from "debugger";
 
-class Extension {
+
+class Extension implements Transfer {
     private readonly serverModule: string;
     private readonly serverOpt: ServerOptions;
     private readonly clientOpt: LanguageClientOptions;
@@ -50,7 +61,9 @@ class Extension {
         this.client.start();
     }
 
-    private handle({ type, data }: EventData) {}
+    async handle(data: RequestEventData): Promise<ResponseEventData> {
+        return this.client.sendRequest(COMM_EVENT_NAME, data);
+    }
 }
 
 let extension: Extension;
@@ -74,6 +87,18 @@ let extension: Extension;
 export async function activate(context: ExtensionContext) {
     extension = new Extension(path.join("server", "out", "server", "server.js"), context);
     extension.run();
+
+    const factor: DebugAdapterDescriptorFactory = {
+        createDebugAdapterDescriptor: (
+            session: DebugSession,
+            executable: Optional<DebugAdapterExecutable>
+        ): ProviderResult<DebugAdapterDescriptor> => new DebugAdapterInlineImplementation(
+            new IC10DebugSession(extension)
+        )
+    };
+    context.subscriptions.push(
+        debug.registerDebugAdapterDescriptorFactory("ic10", factor)
+    );
 }
 
 /**

@@ -23,8 +23,9 @@
 namespace stationeers {
 
     template<IsMsgPack P>
-    const std::vector<Diagnostic>& DiagnosticReporter<P>::getDiagnostics() const {
-        return diagnostics_;
+    template<typename Self>
+    auto& DiagnosticReporter<P>::getDiagnostics(this Self& self) noexcept {
+        return self.diagnostics_;
     }
 
     template<IsMsgPack P>

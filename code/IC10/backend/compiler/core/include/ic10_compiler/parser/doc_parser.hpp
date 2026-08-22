@@ -97,11 +97,11 @@ namespace stationeers::ic10 {
         ShallowErrorable<EnumDocComment> parseEnumDocCommentBlock();
 
         // 辅助工具
-        [[nodiscard]] bool inScope() const;
+        [[nodiscard]] bool inScope() const noexcept;
 
-        std::shared_ptr<Token> current(bool consume = false) const;
+        std::shared_ptr<Token> current(bool consume = false) const noexcept;
 
-        void consume() const;
+        void consume() const noexcept;
 
         static std::optional<std::pair<DocTagType, std::vector<std::string>>> tryParseDocTag(
             const std::string& lexeme

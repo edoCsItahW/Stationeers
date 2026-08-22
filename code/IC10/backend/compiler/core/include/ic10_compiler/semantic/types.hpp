@@ -423,7 +423,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        [[nodiscard]] const CustomType* find(const std::string& name) const;
+        [[nodiscard]] const CustomType* find(const std::string& name) const noexcept;
 
         /**
          * @if zh

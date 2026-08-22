@@ -15,8 +15,9 @@
         "build": "tsc"
     },
     "dependencies": {
-        "common": "file:../common",
-        "vscode-languageclient": "^10.0.1"
+        "common": "link:../common",
+        "vscode-languageclient": "^10.0.1",
+        "debugger": "link:../debugger"
     },
     "devDependencies": {
         "@types/node": "^26.0.1",

@@ -19,22 +19,22 @@
 
 namespace stationeers {
 
-    Pos::Pos(int line, int column, std::size_t offset)
+    Pos::Pos(int line, int column, std::size_t offset) noexcept
         : line_(line), column_(column), offset_(offset) {}
 
-    int Pos::line() const { return line_; }
+    int Pos::line() const noexcept { return line_; }
 
-    int Pos::column() const { return column_; }
+    int Pos::column() const noexcept { return column_; }
 
-    std::size_t Pos::offset() const { return offset_; }
+    std::size_t Pos::offset() const noexcept { return offset_; }
 
-    void Pos::newline() {
+    void Pos::newline() noexcept {
         column_ = 1;
         ++line_;
         ++offset_;
     }
 
-    void Pos::next(unsigned char byte) {
+    void Pos::next(unsigned char byte) noexcept {
         // UTF-8 continuation bytes (10xxxxxx) belong to the same character,
         // so we only increment the column for leading/ASCII bytes
         if ((byte & 0xC0) != 0x80) {
@@ -43,7 +43,7 @@ namespace stationeers {
         ++offset_;
     }
 
-    void Pos::move(const std::size_t charOffset, const std::size_t byteOffset) {
+    void Pos::move(const std::size_t charOffset, const std::size_t byteOffset) noexcept {
         column_ += static_cast<int>(charOffset);
         offset_ += byteOffset;
     }
@@ -52,7 +52,7 @@ namespace stationeers {
         return toJson<"line", "column", "offset">(line_, column_, offset_);
     }
 
-    Pos endPos(const Pos& pos, const std::size_t charLength, const std::size_t byteLength) {
+    Pos endPos(const Pos& pos, const std::size_t charLength, const std::size_t byteLength) noexcept {
         auto end = pos;
 
         end.move(charLength, byteLength);

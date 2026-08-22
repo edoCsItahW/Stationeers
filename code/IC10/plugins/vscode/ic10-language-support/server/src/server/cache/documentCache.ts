@@ -15,7 +15,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Token, Program, type Diagnostic, type SymbolMap, type TypeTableMap } from "ic10c-node";
+import { Token, Program, type Diagnostic, type SymbolMap, type TypeTableMap, SymbolTable } from "ic10c-node";
 
 import { Optional, Nullable } from "common";
 
@@ -35,10 +35,11 @@ import { Optional, Nullable } from "common";
 export interface DocCacheValue {
     source: string;
     tokens: Token[];
-    ast: Optional<Program>;
+    ast?: Program;
     diagnostics: Diagnostic[];
-    symbols: Nullable<SymbolMap>;
-    types: Nullable<TypeTableMap>;
+    symbols?: SymbolMap;
+    symbolTable?: SymbolTable;
+    types?: TypeTableMap;
     hash: string;
 }
 
@@ -63,10 +64,7 @@ export class DocumentCache {
         this.caches.set(uri, {
             source: "",
             tokens: [],
-            ast: undefined,
             diagnostics: [],
-            symbols: null,
-            types: null,
             hash: ""
         });
     }

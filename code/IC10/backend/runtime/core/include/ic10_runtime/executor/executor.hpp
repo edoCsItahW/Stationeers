@@ -18,12 +18,15 @@
 #pragma once
 
 #include "ic10_runtime/context/context.hpp"
+#include "common/exception/diagnostic.hpp"
 
 namespace stationeers::ic10 {
 
     class Executor {
     public:
-        Executor(Context& ctx);
+        Executor(Context& ctx) noexcept;
+
+        void setReporter(DiagnosticReporter<IC10RuntimeMsgPack>* reporter) noexcept;
 
         bool execute();
 
@@ -35,6 +38,8 @@ namespace stationeers::ic10 {
             bool halted = false;
             bool paused = false;
         };
+
+        DiagnosticReporter<IC10RuntimeMsgPack>* reporter_ = nullptr;
 
         std::optional<double> operandValue(const std::shared_ptr<Symbol>& symbol);
 
@@ -394,12 +399,12 @@ namespace stationeers::ic10 {
 
         // ---- 非指令类型 no-op -------------------------------
 
-        void executeIns(const LabelDef&, Flag&);
-        void executeIns(const AliasDirective&, Flag&);
-        void executeIns(const DefineDirective&, Flag&);
-        void executeIns(const EnumDocComment&, Flag&);
-        void executeIns(const DeviceDocComment&, Flag&);
-        void executeIns(const ErrorNode&, Flag&);
+        void executeIns(const LabelDef&, Flag&) noexcept;
+        void executeIns(const AliasDirective&, Flag&) noexcept;
+        void executeIns(const DefineDirective&, Flag&) noexcept;
+        void executeIns(const EnumDocComment&, Flag&) noexcept;
+        void executeIns(const DeviceDocComment&, Flag&) noexcept;
+        void executeIns(const ErrorNode&, Flag&) noexcept;
 
     };
 

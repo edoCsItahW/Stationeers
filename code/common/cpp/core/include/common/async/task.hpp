@@ -237,7 +237,7 @@ namespace stationeers {
          *
          * @endif
          */
-        TaskBase(std::coroutine_handle<promise_type> handle);
+        TaskBase(std::coroutine_handle<promise_type> handle) noexcept;
 
         /**
          * @if zh
@@ -437,7 +437,7 @@ namespace stationeers {
          *
          * @endif
          */
-        void detach();
+        void detach() noexcept;
     };
 
     /**
@@ -519,7 +519,7 @@ namespace stationeers {
          *
          * @endif
          */
-        Task<> get_return_object();
+        Task<> get_return_object() noexcept;
 
         /**
          * @if zh

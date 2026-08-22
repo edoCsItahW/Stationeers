@@ -53,7 +53,7 @@ namespace stationeers {
     // TaskBase<T>
 
     template<typename T>
-    TaskBase<T>::TaskBase(std::coroutine_handle<promise_type> handle)
+    TaskBase<T>::TaskBase(std::coroutine_handle<promise_type> handle) noexcept
         : coro_(handle) {}
 
     template<typename T>
@@ -109,7 +109,7 @@ namespace stationeers {
     }
 
     template<typename T>
-    void Task<T>::detach() {
+    void Task<T>::detach() noexcept {
         this->coro_ = {};
         coro_state_.reset();
     }

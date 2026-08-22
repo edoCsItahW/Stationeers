@@ -22,13 +22,13 @@ namespace stationeers::ic10 {
         return makeCxxInstance().release();
     }
 
-    jint JToken::getType() { return static_cast<jint>(token_.type); }
+    jint JToken::getType() noexcept { return static_cast<jint>(token_.type); }
 
     auto JToken::getPos() { return JPos::to(token_.pos); }
 
     std::string JToken::getLexeme() { return token_.lexeme; }
 
-    jint JToken::getCategory() { return static_cast<jint>(token_.category); }
+    jint JToken::getCategory() noexcept { return static_cast<jint>(token_.category); }
 
     std::string JToken::toString() { return token_.toString(); }
 

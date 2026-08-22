@@ -122,7 +122,7 @@ namespace stationeers::ic10 {
 
     // DeviceDocComment
 
-    Pos DeviceDocComment::end() const { return position; }
+    Pos DeviceDocComment::end() const noexcept { return position; }
 
     std::string DeviceDocComment::toString() const {
         auto result = std::format("#> @device\n#> @name {}", name);
@@ -219,7 +219,7 @@ namespace stationeers::ic10 {
 
     // EnumDocComment
 
-    Pos EnumDocComment::end() const { return position; }
+    Pos EnumDocComment::end() const noexcept { return position; }
 
     std::string EnumDocComment::toString() const {
         auto result = std::format("#> @enum");
@@ -252,7 +252,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos StrCall::end() const { return endPos(endPosition, 1, 1); }
+    Pos StrCall::end() const noexcept { return endPos(endPosition, 1, 1); }
 
     std::string StrCall::toString() const {
         return std::visit(
@@ -269,7 +269,7 @@ namespace stationeers::ic10 {
         : AST{pos}
         , value(std::move(val)) {}
 
-    Pos HashCall::end() const { return endPos(endPosition, 1, 1); }
+    Pos HashCall::end() const noexcept { return endPos(endPosition, 1, 1); }
 
     std::string HashCall::toString() const {
         return std::visit(
@@ -394,6 +394,11 @@ namespace stationeers::ic10 {
 
     ErrorNode::ErrorNode(const Token& t, std::string msg)
         : AST{t.pos}
+        , token(t)
+        , message(std::move(msg)) {}
+
+    ErrorNode::ErrorNode(Pos pos, const Token& t, std::string msg)
+        : AST{pos}
         , token(t)
         , message(std::move(msg)) {}
 

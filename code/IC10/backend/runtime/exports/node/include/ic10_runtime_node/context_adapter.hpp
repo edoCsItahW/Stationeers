@@ -53,8 +53,8 @@ namespace stationeers::ic10 {
         node::ObjectReference memoryRef_;
         node::ObjectReference managerRef_;
 
-        [[nodiscard]] Context& ctx() { return ctxPtr_ ? *ctxPtr_ : context_; }
-        [[nodiscard]] const Context& ctx() const { return ctxPtr_ ? *ctxPtr_ : context_; }
+        [[nodiscard]] Context& ctx() noexcept { return ctxPtr_ ? *ctxPtr_ : context_; }
+        [[nodiscard]] const Context& ctx() const noexcept { return ctxPtr_ ? *ctxPtr_ : context_; }
 
         EXPORT_D_ATTR(PC)
 
@@ -71,6 +71,10 @@ namespace stationeers::ic10 {
         EXPORT_D_METHOD_VOID(sleep)
 
         EXPORT_D_ATTR_GETTER(IsSleeping)
+
+        EXPORT_D_METHOD_VALUE(getAddr)
+
+        EXPORT_D_METHOD_VALUE(getLine)
     };
 
 }  // namespace stationeers::ic10

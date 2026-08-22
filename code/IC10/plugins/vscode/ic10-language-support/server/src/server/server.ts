@@ -21,7 +21,7 @@ import type { Connection } from "vscode-languageserver/node";
 
 import { ParserPipline, SettingsManager } from "./services";
 import { DocumentCache, GlobalCache } from "./cache";
-import { Console } from "common";
+import { Console, COMM_EVENT_NAME, AstRequestEventData, AstResponseEventData } from "common";
 import { t } from "../locals";
 import {
     SemanticTokenHandler,
@@ -193,6 +193,18 @@ export class Server {
             // 启动监听
             this.documents.listen(this.connection);
             this.connection.listen();
+
+            // @ts-ignore
+            this.connection.onRequest(
+                COMM_EVENT_NAME,
+                async (data: AstRequestEventData): Promise<AstResponseEventData> => {
+                    const cache = this.docCache.getCache(data.data.uri);
+                    return {
+                        type: "ast",
+                        data: cache ? { source: cache.source } : undefined
+                    };
+                }
+            );
         } catch (error) {
             Console.error((error as Error).message, "Server");
         }

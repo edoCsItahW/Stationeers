@@ -274,7 +274,7 @@ namespace stationeers::ic10 {
              *
              * @endif
              */
-            [[nodiscard]] bool ready() const;
+            [[nodiscard]] bool ready() const noexcept;
         };
 
     private:
@@ -375,7 +375,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        [[nodiscard]] bool contains(const std::string& name) const;
+        [[nodiscard]] bool contains(const std::string& name) const noexcept;
 
         /**
          * @if zh
@@ -393,7 +393,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<typename Self>
-        auto find(this Self& self, std::string name);
+        auto find(this Self& self, std::string name) noexcept;
 
         /**
          * @if zh
@@ -409,7 +409,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<typename Self>
-        auto begin(this Self& self);
+        auto begin(this Self& self) noexcept;
 
         /**
          * @if zh
@@ -425,7 +425,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<typename Self>
-        auto end(this Self& self);
+        auto end(this Self& self) noexcept;
 
         /**
          * @if zh

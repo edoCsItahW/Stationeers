@@ -23,7 +23,7 @@
 namespace stationeers {
 
     template<auto V>
-    constexpr auto enumToStr() {
+    constexpr auto enumToStr() noexcept {
         std::string_view name;
 
 #if __GNUC__ || __clang__
@@ -44,7 +44,7 @@ namespace stationeers {
     }
 
     template<typename T, std::size_t N>
-    constexpr auto enumMax() {
+    constexpr auto enumMax() noexcept {
         if constexpr (
             constexpr auto Value = static_cast<T>(N);
             enumToStr<Value>().find(")") == std::string_view::npos
@@ -57,7 +57,7 @@ namespace stationeers {
 
     template<typename T>
         requires std::is_enum_v<T>
-    constexpr auto enumToStr(T value) {
+    constexpr auto enumToStr(T value) noexcept {
         constexpr auto num = enumMax<T>();
 
         static constexpr auto names = []<std::size_t... I>(std::index_sequence<I...>) {

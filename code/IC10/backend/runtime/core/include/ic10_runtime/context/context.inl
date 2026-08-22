@@ -19,20 +19,35 @@
 
 namespace stationeers::ic10 {
 
-    template<typename T, typename U>
-        requires std::is_arithmetic_v<std::decay_t<U>>
-    T Context::getAddr(U&& line) {
-        return arithmeticTrans<T>(addrs_[arithmeticTrans<std::size_t>(std::forward<U>(line))]);
+    template<typename Self>
+    auto& Context::getDiagnostics(this Self& self) noexcept {
+        return self.reporter_->getDiagnostics();
+    }
+
+    template<typename T>
+    std::optional<T> Context::getAddr(int line) noexcept {
+        if (const auto it = addrs_.findValue(line); it != addrs_.end())
+            return arithmeticTrans<T>(it->second);
+
+        return std::nullopt;
+    }
+
+    template<typename T>
+    std::optional<T> Context::getLine(std::size_t addr) noexcept {
+        if (const auto it = addrs_.findKey(addr); it != addrs_.end())
+            return arithmeticTrans<T>(it->second);
+
+        return std::nullopt;
     }
 
     template<typename T>
         requires std::is_arithmetic_v<T>
-    void Context::setPC(T pc) {
+    void Context::setPC(T pc) noexcept {
         pc_ = arithmeticTrans<decltype(pc_)>(pc);
     }
 
     template<typename T>
-    T Context::getPC() const {
+    T Context::getPC() const noexcept {
         return arithmeticTrans<T>(pc_);
     }
 

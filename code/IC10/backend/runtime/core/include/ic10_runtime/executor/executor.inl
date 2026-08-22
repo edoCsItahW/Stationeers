@@ -17,23 +17,27 @@ namespace stationeers::ic10 {
         return std::visit(
             [this, &throwError]<typename O, typename U = std::decay_t<O>>(O&& arg)
                 -> std::optional<double> {
-                std::optional<double> value;
+                std::optional<double> value = std::nullopt;
 
                 if constexpr (std::is_same_v<U, Identifier>) {
-                    if (auto resolved = ctx_.resolve(arg.value); resolved)
+                    if (arg.value == "ra")
+                        value = ctx_.memory.getReg<double>("ra");
+
+                    else if (arg.value == "sp")
+                        value = ctx_.memory.getSP();
+
+                    else if (auto resolved = ctx_.resolve(arg.value); resolved)
                         value = operandValue(*resolved);
                 }
 
                 else if constexpr (std::is_same_v<U, Register>)
-                    value = ctx_.memory.getReg(arg.value);
+                    value = ctx_.memory.getReg<double>(arg.value);
 
                 else
                     value = directionValue(arg);
 
                 if (!value && throwError)
-                    throw ValueError(
-                        IRLoc::msgFormat<IRMsgId::IEM2_1>(arg.toString()), arg.start(), arg.end()
-                    );
+                    reporter_->errorWith<IRMsgId::IEM2_1>(arg.start(), arg.end(), arg.toString());
 
                 return value;
             },

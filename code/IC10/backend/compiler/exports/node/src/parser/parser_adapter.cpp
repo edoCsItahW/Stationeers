@@ -14,10 +14,9 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_compiler_node/parser/parser_adapter.hpp"
+#include "common_node/diagnostic_adapter.hpp"
 #include "ic10_compiler_node/lexer/token_adapter.hpp"
 #include "ic10_compiler_node/parser/ast_adapter.hpp"
-#include "common_node/diagnostic_adapter.hpp"
-
 
 namespace stationeers::ic10 {
 
@@ -29,7 +28,9 @@ namespace stationeers::ic10 {
         std::vector<std::shared_ptr<Token>> tokens;
 
         for (auto&& [fst, snd] : array)
-            tokens.push_back(std::make_shared<Token>(TokenAdapter::from(snd.AsValue().As<node::Object>())));
+            tokens.push_back(
+                std::make_shared<Token>(TokenAdapter::from(snd.AsValue().As<node::Object>()))
+            );
 
         std::tuple<decltype(tokens), bool> params;
 
@@ -77,7 +78,9 @@ namespace stationeers::ic10 {
         std::vector<std::shared_ptr<Token>> tokens;
 
         for (auto&& [fst, sec] : array)
-            tokens.push_back(std::make_shared<Token>(TokenAdapter::from(fst.As<node::Object>())));
+            tokens.push_back(
+                std::make_shared<Token>(TokenAdapter::from(sec.AsValue().As<node::Object>()))
+            );
 
         std::tuple<decltype(tokens), bool> params;
 
@@ -97,7 +100,8 @@ namespace stationeers::ic10 {
         auto size   = diagnostics.size();
         auto result = node::Array::New(info.Env(), size);
 
-        for (std::size_t i = 0; i < size; i++) result[i] = DiagnosticAdapter::to(info.Env(), diagnostics[i]);
+        for (std::size_t i = 0; i < size; i++)
+            result[i] = DiagnosticAdapter::to(info.Env(), diagnostics[i]);
 
         return result;
     }
