@@ -13,8 +13,9 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+import { SymbolTable, Diagnostic } from "ic10c-node";
+import { Program } from "ic10c-node";
 import { Context } from "./context";
-import { Program } from "./parser";
 import { Config } from "./config";
 
 
@@ -26,6 +27,14 @@ export class Engine {
 
     runFull(): void;
 
+    /**
+     * 单步执行原语：执行恰好一条语句。
+     * @returns true 表示仍可继续执行；false 表示已 halt（或执行失败/暂停）。
+     */
+    step(): boolean;
+
     get context(): Context;
+
+    get diagnostics(): Diagnostic[];
 
 }

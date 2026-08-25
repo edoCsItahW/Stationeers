@@ -20,10 +20,10 @@ namespace stationeers::ic10 {
     // hasCache: 检查词法和语法分析器是否都有有效缓存
     //
     // 只有两者都有缓存时，才能进行完整的增量编译。
-    bool IncCompiler::hasCache() const { return lexer_.hasCache() && parser_.hasCache(); }
+    bool IncCompiler::hasCache() const noexcept { return lexer_.hasCache() && parser_.hasCache(); }
 
     // clear: 清空所有缓存（词法+语法），使增量编译器回到初始状态
-    void IncCompiler::clear() {
+    void IncCompiler::clear() noexcept {
         lexer_.clear();
         parser_.clear();
     }

@@ -28,7 +28,7 @@ namespace stationeers::ic10 {
 
     // SymbolTable::Entry
 
-    bool SymbolTable::Entry::ready() const { return future.isReady(); }
+    bool SymbolTable::Entry::ready() const noexcept { return future.isReady(); }
 
     // SymbolTable
 
@@ -63,7 +63,7 @@ namespace stationeers::ic10 {
         return {};
     }
 
-    bool SymbolTable::contains(const std::string& name) const {
+    bool SymbolTable::contains(const std::string& name) const noexcept {
         if (auto it = symbols_.find(name); it != symbols_.end()) return it->second.ready();
         return false;
     }

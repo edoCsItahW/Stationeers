@@ -32,7 +32,7 @@ namespace stationeers::ic10 {
 
     namespace detail {
 
-        uint32_t crc32(const std::string& str) {
+        uint32_t crc32(const std::string& str) noexcept {
             uint32_t crc = 0xFFFFFFFF;
             for (unsigned char c : str) {  // UTF‑8 字节即为 char
                 crc ^= c;
@@ -49,11 +49,11 @@ namespace stationeers::ic10 {
 
     }  // namespace detail
 
-    int32_t hashValue(const std::string& content) {
+    int32_t hashValue(const std::string& content) noexcept {
         return static_cast<int32_t>(detail::crc32(content));
     }
 
-    double strValue(const std::string& content) {
+    double strValue(const std::string& content) noexcept {
         uint64_t packed = 0;
 
         auto size = content.size();
@@ -63,7 +63,7 @@ namespace stationeers::ic10 {
         return static_cast<double>(packed);
     }
 
-    std::optional<double> constantValue(const std::string& keyword) {
+    std::optional<double> constantValue(const std::string& keyword) noexcept {
         if (const auto& it = CONSTANTS.find(keyword); it != CONSTANTS.end()) return it->second;
 
         return std::nullopt;

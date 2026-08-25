@@ -59,10 +59,10 @@ protected:
     void setReg(const std::string& name, double val) { context_->memory.setReg(name, val); }
 
     /// 获取 PC
-    std::size_t pc() const { return context_->getPC(); }
+    std::size_t pc() const noexcept { return context_->getPC(); }
 
     /// 手动设置 PC（绕过 advancePC）
-    void setPC(std::size_t pc) { context_->setPC(pc); }
+    void setPC(std::size_t pc) noexcept { context_->setPC(pc); }
 
     std::vector<std::shared_ptr<Token>> tokens_;
     Program ast_;

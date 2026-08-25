@@ -268,7 +268,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        const std::vector<Diagnostic>& getDiagnostics() const;
+        const std::vector<Diagnostic>& getDiagnostics() const noexcept;
 
         /**
          * @if zh
@@ -308,7 +308,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        const std::vector<UnitInfo>& getUnits() const;
+        const std::vector<UnitInfo>& getUnits() const noexcept;
 
         /**
          * @if zh
@@ -328,7 +328,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        TypeTable& getTypeTable();
+        TypeTable& getTypeTable() noexcept;
 
     private:
         /** @if zh @brief 全局类型表，存储所有单元的类型定义 @else @brief Global type table storing type definitions from all units @endif */

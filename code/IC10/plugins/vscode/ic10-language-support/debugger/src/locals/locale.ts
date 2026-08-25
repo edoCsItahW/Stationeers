@@ -6,17 +6,24 @@
 // permission, please contact the author: edocsitahw@qq.com
 
 /**
- * @file index.d.ts
+ * @file locale.ts
  * @author edocsitahw
  * @version 1.1
- * @date 2026/07/22 15:56
+ * @date 2026/08/24 19:35
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-export * from "./nullary";
-export * from "./unary";
-export * from "./binary";
-export * from "./ternary";
-export * from "./quaternary";
-export * from "./quinary";
-export * from "./senary";
+import zhHans from "./languages/zh-hans";
+import enUS from "./languages/en-us";
+import { Locale } from "common";
+
+const resources = {
+    "zh-hans": zhHans,
+    "en-us": enUS
+} as const;
+
+export const locale = new Locale("en-us", resources, {
+    fallbackLocale: "zh-hans"
+});
+
+export const t = locale.t.bind(locale) as typeof locale.t;

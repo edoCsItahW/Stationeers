@@ -20,38 +20,38 @@
 namespace stationeers {
 
     template<std::size_t N, typename T>
-    constexpr FStr<N, T>::FStr(const T (&value)[N]) {
+    constexpr FStr<N, T>::FStr(const T (&value)[N]) noexcept {
         for (std::size_t i = 0; i < N - 1; ++i) this->value[i] = static_cast<T>(value[i]);
     }
 
     template<std::size_t N, typename T>
-    constexpr FStr<N, T>::FStr(const std::array<T, N - 1>& value) {
+    constexpr FStr<N, T>::FStr(const std::array<T, N - 1>& value) noexcept {
         for (std::size_t i = 0; i < N - 1; ++i) this->value[i] = value[i];
     }
 
     template<std::size_t N, typename T>
     template<std::size_t M>
-    constexpr bool FStr<N, T>::operator==(const FStr<M, T>& other) const {
+    constexpr bool FStr<N, T>::operator==(const FStr<M, T>& other) const noexcept {
         if constexpr (N != M) return false;
 
         return std::equal(value.begin(), value.end(), other.value.begin());
     }
 
     template<std::size_t N, typename T>
-    constexpr bool FStr<N, T>::operator==(const FStr& other) const {
+    constexpr bool FStr<N, T>::operator==(const FStr& other) const noexcept {
         return size != other.size ? false : value == other.value;  // c++20
     }
 
     template<std::size_t N, typename T>
     template<std::size_t M>
-    constexpr bool FStr<N, T>::operator==(const T (&other)[M]) const {
+    constexpr bool FStr<N, T>::operator==(const T (&other)[M]) const noexcept {
         if constexpr (N != M) return false;
 
         return std::equal(value.begin(), value.end(), other);
     }
 
     template<std::size_t N, typename T>
-    constexpr bool FStr<N, T>::equals(const T* other, std::size_t len) const {
+    constexpr bool FStr<N, T>::equals(const T* other, std::size_t len) const noexcept {
         if (len != size) return false;
 
         return std::equal(value.begin(), value.end(), other);
@@ -59,7 +59,7 @@ namespace stationeers {
 
     template<std::size_t N, typename T>
     template<std::size_t M>
-    constexpr FStr<N + M + 1, T> FStr<N, T>::concat(FStr<M, T>& other) {
+    constexpr FStr<N + M + 1, T> FStr<N, T>::concat(FStr<M, T>& other) noexcept {
         std::array<T, N + M + 1> result{};
 
         for (std::size_t i = 0; i < N - 1; ++i) result[i] = value[i];
@@ -77,12 +77,12 @@ namespace stationeers {
     }
 
     template<std::size_t N, typename T>
-    FStr<N, T>::operator std::basic_string_view<T>() const {
+    FStr<N, T>::operator std::basic_string_view<T>() const noexcept {
         return std::basic_string_view<T>(value.data(), size);
     }
 
     template<FString V>
-    constexpr auto operator""_fs() {
+    constexpr auto operator""_fs() noexcept {
         return V;
     }
 

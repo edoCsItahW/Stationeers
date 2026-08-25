@@ -27,34 +27,44 @@ namespace stationeers::ic10 {
         buildAddrs();
     }
 
-    void Context::advancePC() { ++pc_; }
+    void Context::setReporter(DiagnosticReporter<IC10RuntimeMsgPack>* reporter) noexcept {
+        reporter_ = reporter;
+        memory.setReporter(reporter);
+    }
+
+    void Context::advancePC() noexcept { ++pc_; }
 
     void Context::buildAddrs() {
         auto size = program.statements.size();
-
         for (std::size_t i{0}; i < size; ++i)
-            std::visit([this, &i](const auto& stmt) {
-                if constexpr (std::is_same_v<std::decay_t<decltype(stmt)>, ErrorNode>)
-                    throw RuntimeError(IRLoc::msg<IRMsgId::IEC4>(), stmt.start(), stmt.end());
-
-                else
-                    addrs_[stmt.position.line()] = i;
-            }, program.statements[i]);
+            std::visit(
+                [this, &i](const auto& stmt) {
+                    if (!addrs_.contains(stmt.position.line()))
+                        addrs_.insert(stmt.position.line(), i);
+                },
+                program.statements[i]
+            );
     }
 
-    void Context::halt() { halted_ = true; }
+    void Context::halt() noexcept { halted_ = true; }
 
-    bool Context::halted() const { return halted_; }
+    bool Context::halted() const noexcept { return halted_; }
 
-    bool Context::isSleeping() const { return sleepUntilTick_ > currentTick_; }
+    bool Context::isSleeping() const noexcept { return sleepUntilTick_ > currentTick_; }
 
     void Context::sleep(double seconds) {
+        if (cfg.tickDuration <= 0)
+            reporter_->emplace<IRMsgId::IEC2_1>(
+                {ValueError{IRLoc::msgFormat<IRMsgId::IEC2_1>("tickDuration")}}
+            );
+
         sleepUntilTick_ = currentTick_ + static_cast<std::size_t>(seconds / cfg.tickDuration);
     }
 
-    void Context::tick() { ++currentTick_; }
+    void Context::tick() noexcept { ++currentTick_; }
 
-    std::optional<std::reference_wrapper<const Statement>> Context::currentStatement() const {
+    std::optional<std::reference_wrapper<const Statement>>
+    Context::currentStatement() const noexcept {
         if (pc_ >= program.statements.size()) return std::nullopt;
 
         return std::cref(program.statements[pc_]);

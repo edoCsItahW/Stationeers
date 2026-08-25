@@ -23,7 +23,7 @@
 namespace stationeers {
 
     template<typename T, IsMsgPack P, typename P::msg_id_type I>
-    auto getMsgFromMap() -> std::string_view {
+    auto getMsgFromMap() noexcept -> std::string_view {
         using MsgMapType = P::template msg_map_type<T, I>;
 
         return std::string_view(MsgMapType::msg.value.data(), MsgMapType::msg.size);
@@ -40,7 +40,7 @@ namespace stationeers {
     // Language
 
     template<typename T, IsMsgPack P>
-    constexpr long long Language<T, P>::findIndex(E id) {
+    constexpr long long Language<T, P>::findIndex(E id) noexcept {
         std::size_t l = 0, r = msg_id_len<E> - 1;
 
         while (l <= r) {

@@ -13,15 +13,17 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+import { SymbolTable } from "ic10c-node";
+import type { Config } from "./config";
+import { Program } from "ic10c-node";
 import { Manager } from "./manager";
-import { Program } from "./parser";
-import { Config } from "./config";
 import { Memory } from "./memory";
 
 
 export class Context {
+    public config: Config;
 
-    constructor(program: Program, symbols: SymbolTable, public config: Config);
+    constructor(program: Program, symbols: SymbolTable, cfg: Config);
 
     pc: number;
 
@@ -36,5 +38,9 @@ export class Context {
     sleep(seconds: number): void;
 
     get isSleeping(): boolean;
+
+    getAddr(line: number): number | undefined;
+
+    getLine(addr: number): number | undefined;
 
 }

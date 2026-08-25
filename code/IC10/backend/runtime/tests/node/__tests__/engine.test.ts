@@ -176,6 +176,27 @@ describe('Engine runTick', () => {
 });
 
 // ============================================================
+// Engine step — 单步原语
+// ============================================================
+
+describe('Engine step', () => {
+    it('should execute exactly one instruction per step', async () => {
+        const {engine, reg} = await compile(
+            'move r0 1\n' +
+            'move r0 2\n' +
+            'hcf\n'
+        );
+
+        expect(engine.step()).toBe(true);   // move r0 1
+        expect(reg('r0')).toBe(1);
+        expect(engine.step()).toBe(true);   // move r0 2
+        expect(reg('r0')).toBe(2);
+        expect(engine.step()).toBe(false);  // hcf -> halted
+        expect(engine.context.halted).toBe(true);
+    });
+});
+
+// ============================================================
 // Engine — halted 和 sleeping 状态
 // ============================================================
 

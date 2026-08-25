@@ -17,6 +17,9 @@
 #define IC10_RUNTIME_ZH_HANS_HPP
 #pragma once
 
+#include "common/utils/fstr.hpp"
+#include "../local.hpp"
+
 namespace stationeers::ic10 {
 
     struct ZhHans;
@@ -29,9 +32,19 @@ namespace stationeers::ic10 {
 
     IC10_RUNTIME_LOCAL_MSG_ZH_HANS(IEM2_1, "无法计算操作数'{}'。")
 
-    IC10_RUNTIME_LOCAL_MSG_ZH_HANS(IEM3_1, "索引超出范围。")
+    IC10_RUNTIME_LOCAL_MSG_ZH_HANS(IEM3, "索引超出范围。")
 
     IC10_RUNTIME_LOCAL_MSG_ZH_HANS(IEC4, "存在错误语句。")
+
+    IC10_RUNTIME_LOCAL_MSG_ZH_HANS(IEE1_1, "无法找到位于行'{}'的PC。")
+
+    IC10_RUNTIME_LOCAL_MSG_ZH_HANS(IEE2_1, "内部错误'{}'。")
+
+    IC10_RUNTIME_LOCAL_MSG_ZH_HANS(IEE3, "未知错误。")
+
+    IC10_RUNTIME_LOCAL_MSG_ZH_HANS(IEC1, "除零错误。")
+
+    IC10_RUNTIME_LOCAL_MSG_ZH_HANS(IEC2_1, "无效的配置参数'{}'。")
 
 }  // namespace stationeers::ic10
 

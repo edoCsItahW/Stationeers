@@ -313,7 +313,7 @@ namespace stationeers::ic10 {
     template<OperandType Type>
     bool Analyser::IdentifierChecker<Type>::check(
         const Analyser*, const std::shared_ptr<Symbol>&, auto&&
-    ) {
+    ) noexcept {
         return true;
     }
 
@@ -335,7 +335,7 @@ namespace stationeers::ic10 {
     bool Analyser::IdentifierChecker<OperandType::REG_NUM>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
-        return self->checkOperandType<ICMsgId::IWA3_1, BasicType::REGISTER, TypeCategory::NUMBER>(
+        return self->checkOperandType<ICMsgId::IWA3_1, BasicType::REGISTER, BasicType::INTEGER, BasicType::FLOAT, TypeCategory::NUMBER>(
             symbol, arg
         );
     }

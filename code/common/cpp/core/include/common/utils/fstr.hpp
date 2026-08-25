@@ -135,7 +135,7 @@ namespace stationeers {
          *
          * @public @memberof FStr
          */
-        constexpr FStr(const T (&value)[N]);
+        constexpr FStr(const T (&value)[N]) noexcept;
 
         /**
          * @if zh
@@ -152,7 +152,7 @@ namespace stationeers {
          *
          * @public @memberof FStr
          */
-        constexpr FStr(const std::array<T, N - 1>& value);
+        constexpr FStr(const std::array<T, N - 1>& value) noexcept;
 
         /**
          * @if zh
@@ -177,7 +177,7 @@ namespace stationeers {
          * @public @memberof FStr
          */
         template<std::size_t M>
-        constexpr bool operator==(const FStr<M, T>& other) const;
+        constexpr bool operator==(const FStr<M, T>& other) const noexcept;
 
         /**
          * @if zh
@@ -196,7 +196,7 @@ namespace stationeers {
          *
          * @public @memberof FStr
          */
-        constexpr bool operator==(const FStr& other) const;
+        constexpr bool operator==(const FStr& other) const noexcept;
 
         /**
          * @if zh
@@ -218,7 +218,7 @@ namespace stationeers {
          * @public @memberof FStr
          */
         template<std::size_t M>
-        constexpr bool operator==(const T (&other)[M]) const;
+        constexpr bool operator==(const T (&other)[M]) const noexcept;
 
         /**
          * @if zh
@@ -239,7 +239,7 @@ namespace stationeers {
          *
          * @public @memberof FStr
          */
-        constexpr bool equals(const T* other, std::size_t len) const;
+        constexpr bool equals(const T* other, std::size_t len) const noexcept;
 
         /**
          * @if zh
@@ -261,7 +261,7 @@ namespace stationeers {
          * @public @memberof FStr
          */
         template<std::size_t M>
-        constexpr FStr<N + M + 1, T> concat(FStr<M, T>& other);
+        constexpr FStr<N + M + 1, T> concat(FStr<M, T>& other) noexcept;
 
         /**
          * @if zh
@@ -295,7 +295,7 @@ namespace stationeers {
          *
          * @public @memberof FStr
          */
-        operator std::basic_string_view<T>() const;
+        operator std::basic_string_view<T>() const noexcept;
     };
 
     /**
@@ -493,7 +493,7 @@ namespace stationeers {
      * @public @memberof stationeers
      */
     template<FString V>
-    constexpr auto operator""_fs();
+    constexpr auto operator""_fs() noexcept;
 
 }  // namespace stationeers
 

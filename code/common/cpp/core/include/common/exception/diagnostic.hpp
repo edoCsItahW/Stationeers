@@ -133,10 +133,10 @@ namespace stationeers {
         std::string id;
 
         /** @if zh @brief 诊断消息起始位置 @else @brief Diagnostic message start position @endif */
-        Pos start;
+        std::optional<Pos> start;
 
         /** @if zh @brief 诊断消息结束位置 @else @brief Diagnostic message end position @endif */
-        Pos end;
+        std::optional<Pos> end;
 
         /** @if zh @brief 本地化后的诊断消息文本 @else @brief Localized diagnostic message text @endif */
         std::string message;
@@ -188,7 +188,8 @@ namespace stationeers {
          *
          * @endif
          */
-        const std::vector<Diagnostic>& getDiagnostics() const;
+        template<typename Self>
+        auto& getDiagnostics(this Self& self) noexcept;
 
         /**
          * @if zh
@@ -235,8 +236,8 @@ namespace stationeers {
 #ifdef _MSC_VER
         {
             diagnostics_.push_back(
-                {DiagnosticLevel::Error, std::string(enumToStr(I)), *error.getStart(), *error.getEnd(),
-                 error.message()}
+                {DiagnosticLevel::Error, std::string(enumToStr(I)), error.getStart(), error.getEnd(),
+                 std::string(error.message())}
             );
         }
 #else

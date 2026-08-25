@@ -48,8 +48,8 @@ namespace stationeers::ic10 {
         /// 引用模式：指向 Context 内部真实 Memory，不拥有
         Memory* memPtr_ = nullptr;
 
-        [[nodiscard]] Memory& mem() { return memPtr_ ? *memPtr_ : memory_; }
-        [[nodiscard]] const Memory& mem() const { return memPtr_ ? *memPtr_ : memory_; }
+        [[nodiscard]] Memory& mem() noexcept { return memPtr_ ? *memPtr_ : memory_; }
+        [[nodiscard]] const Memory& mem() const noexcept { return memPtr_ ? *memPtr_ : memory_; }
 
         EXPORT_D_METHOD_VALUE(toJSON)
 

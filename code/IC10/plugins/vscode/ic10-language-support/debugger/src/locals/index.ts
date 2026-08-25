@@ -6,14 +6,11 @@
 // permission, please contact the author: edocsitahw@qq.com
 
 /**
- * @file index.d.ts
+ * @file index.ts
  * @author edocsitahw
  * @version 1.1
- * @date 2026/07/22 15:59
+ * @date 2026/08/24 19:39
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-export * from "./ast";
-export * from "./instructions";
-export * from "./parser";
-export * from "./program";
+export * from "./locale";

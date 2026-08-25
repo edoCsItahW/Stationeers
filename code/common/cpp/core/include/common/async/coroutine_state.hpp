@@ -136,7 +136,7 @@ namespace stationeers {
          *
          * @endif
          */
-        CoroutineState(Handle h);
+        CoroutineState(Handle h) noexcept;
 
         /**
          * @if zh

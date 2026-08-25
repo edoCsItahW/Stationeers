@@ -6,15 +6,11 @@
 // permission, please contact the author: edocsitahw@qq.com
 
 /**
- * @file types.d.ts
+ * @file index.d.ts
  * @author edocsitahw
  * @version 1.1
- * @date 2026/07/28 19:24
+ * @date 2026/08/22 10:57
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-
-export interface EventData {
-    data: any;
-    type: string;
-}
+export * from "./debugSession";

@@ -162,7 +162,7 @@ namespace stationeers::ic10 {
          * @brief Get a read-only reference to the internal Program object
          * @endif
          */
-        [[nodiscard]] const Program& getProgram() const { return program_; }
+        [[nodiscard]] const Program& getProgram() const noexcept { return program_; }
 
     private:
         /**

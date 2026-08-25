@@ -182,7 +182,7 @@ namespace stationeers {
              *
              * @endif
              */
-            NullaryInstructionBase(Pos pos);
+            NullaryInstructionBase(Pos pos) noexcept;
 
             /**
              * @if zh

@@ -15,7 +15,9 @@
  * */
 
 #include "common/exception/debug.hpp"
+#include <filesystem>
 #include <iostream>
+#include <fstream>
 
 namespace stationeers {
 
@@ -66,5 +68,26 @@ namespace stationeers {
     }
 
     void Console::error(std::string_view message, bool newline) { debug<ERROR>(message, newline); }
+
+    // Logger
+
+    std::string Logger::logPath = STATIONEERS_DEBUG_LOGGING_PATH;
+
+    bool Logger::enable = STATIONEERS_DEBUG_LOGGING;
+
+    void Logger::refresh() {
+        std::ofstream ofs(logPath, std::ios::trunc);
+        ofs.close();
+    }
+
+    void Logger::log(const std::string &message, bool newline) {
+        std::ofstream ofs(logPath, std::ios::app);
+
+        ofs << message;
+
+        if (newline) [[likely]] ofs << std::endl;
+
+        ofs.close();
+    }
 
 }  // namespace stationeers

@@ -32,6 +32,8 @@
 
 #include <unordered_map>
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 
 namespace stationeers {
@@ -158,7 +160,7 @@ namespace stationeers {
          *
          * @public @memberof BiMapFindResult
          */
-        BiMapFindResult();
+        BiMapFindResult() noexcept(std::is_nothrow_default_constructible_v<Iterator>);
 
         /**
          * @if zh
@@ -175,7 +177,7 @@ namespace stationeers {
          *
          * @public @memberof BiMapFindResult
          */
-        BiMapFindResult(Iterator iter);
+        BiMapFindResult(Iterator iter) noexcept(std::is_nothrow_copy_constructible_v<Iterator>);
 
         /**
          * @if zh
@@ -192,7 +194,7 @@ namespace stationeers {
          *
          * @public @memberof BiMapFindResult
          */
-        explicit operator bool() const;
+        explicit operator bool() const noexcept;
 
         /**
          * @if zh
@@ -247,7 +249,8 @@ namespace stationeers {
          *
          * @public @memberof BiMapFindResult
          */
-        bool operator==(const BiMapFindResult &other) const;
+        bool operator==(const BiMapFindResult &other) const
+            noexcept(noexcept(std::declval<const Iterator &>() == std::declval<const Iterator &>()));
 
         /**
          * @if zh
@@ -266,7 +269,7 @@ namespace stationeers {
          *
          * @public @memberof BiMapFindResult
          */
-        bool operator==(const BiMapEndTag &) const;
+        bool operator==(const BiMapEndTag &) const noexcept;
 
         /**
          * @if zh
@@ -285,7 +288,9 @@ namespace stationeers {
          *
          * @public @memberof BiMapFindResult
          */
-        explicit operator Iterator() const;
+        explicit operator Iterator() const
+            noexcept(std::is_nothrow_default_constructible_v<Iterator> &&
+                     std::is_nothrow_copy_constructible_v<Iterator>);
 
     private:
         /**
@@ -492,7 +497,7 @@ namespace stationeers {
          * @public @memberof BiMap
          */
         template<IsBiMapKeyOrValue<K, V> T>
-        bool contains(const T &keyOrValue) const;
+        bool contains(const T &keyOrValue) const noexcept;
 
         /**
          * @if zh
@@ -538,7 +543,13 @@ namespace stationeers {
          * @public @memberof BiMap
          */
         template<IsBiMapKeyOrValue<K, V> T, typename Self>
-        auto find(this Self &self, const T &keyOrValue);
+        auto find(this Self &self, const T &keyOrValue) noexcept;
+
+        template<typename Self>
+        auto findValue(this Self &self, const K &key) noexcept;
+
+        template<typename Self>
+        auto findKey(this Self &self, const V &value) noexcept;
 
         /**
          * @if zh
@@ -555,7 +566,7 @@ namespace stationeers {
          *
          * @public @memberof BiMap
          */
-        static auto end();
+        static auto end() noexcept;
 
         /**
          * @if zh
@@ -572,7 +583,7 @@ namespace stationeers {
          *
          * @public @memberof BiMap
          */
-        [[nodiscard]] std::size_t size() const;
+        [[nodiscard]] std::size_t size() const noexcept;
 
         /**
          * @if zh
@@ -589,7 +600,7 @@ namespace stationeers {
          *
          * @public @memberof BiMap
          */
-        void clear();
+        void clear() noexcept;
 
     private:
         /**

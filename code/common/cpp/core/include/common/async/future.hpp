@@ -188,7 +188,7 @@ namespace stationeers {
          *
          * @endif
          */
-        Future(std::shared_ptr<SharedState<T>> state);
+        Future(std::shared_ptr<SharedState<T>> state) noexcept;
 
         /**
          * @if zh

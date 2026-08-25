@@ -25,6 +25,8 @@
 #include "ic10_runtime_node/context_adapter.hpp"
 #include "ic10_runtime_node/config_adapter.hpp"
 #include "ic10_runtime_node/engine_adapter.hpp"
+#include "common_node/diagnostic_adapter.hpp"
+
 
 namespace stationeers::ic10 {
 
@@ -49,11 +51,14 @@ namespace stationeers::ic10 {
             {
 #ifdef _MSC_VER
                 InstanceAccessor("context", &EngineAdapter::getContext, nullptr),
+                InstanceAccessor("diagnostics", &EngineAdapter::getDiagnostics, nullptr),
 #else
                 InstanceAccessor<&EngineAdapter::getContext>("context"),
+                InstanceAccessor<&EngineAdapter::getDiagnostics>("diagnostics"),
 #endif
                 InstanceMethod<&EngineAdapter::runTick>("runTick"),
                 InstanceMethod<&EngineAdapter::runFull>("runFull"),
+                InstanceMethod<&EngineAdapter::step>("step"),
             }
         );
 
@@ -73,6 +78,10 @@ namespace stationeers::ic10 {
         engine_.runFull();
     }
 
+    node::Value EngineAdapter::step(const node::CallbackInfo& info) {
+        return node::Boolean::New(info.Env(), engine_.step());
+    }
+
     node::Value EngineAdapter::getContext(const node::CallbackInfo& info) {
         if (!contextRef_.IsEmpty()) {
             return contextRef_.Value();
@@ -82,6 +91,17 @@ namespace stationeers::ic10 {
         contextRef_ = node::Persistent(obj);
         contextRef_.SuppressDestruct();
         return obj;
+    }
+
+    node::Value EngineAdapter::getDiagnostics(const node::CallbackInfo& info) {
+        auto diagnostics = engine_.getDiagnostics();
+
+        auto size   = diagnostics.size();
+        auto result = node::Array::New(info.Env(), size);
+
+        for (std::size_t i = 0; i < size; i++) result[i] = DiagnosticAdapter::to(info.Env(), diagnostics[i]);
+
+        return result;
     }
 
 }  // namespace stationeers::ic10

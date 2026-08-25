@@ -13,14 +13,15 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Config } from "./config";
+import type { Config } from "./config";
 
 
 export class Memory {
+    public config: Config;
 
     public sp: number;
 
-    constructor(public config: Config);
+    constructor(cfg: Config);
 
     toJSON(): string;
 
