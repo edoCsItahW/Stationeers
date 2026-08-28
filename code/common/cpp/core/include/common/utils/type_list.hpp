@@ -774,6 +774,35 @@ namespace stationeers {
     template<IsTypeList List>
     using type_list_flatten_with_unique_t = type_list_unique_t<type_list_flatten_t<List>>;
 
+    template<std::size_t, IsTypeList>
+    struct type_list_element;
+
+    template<std::size_t I, typename Head, typename... Tail>
+    struct type_list_element<I, type_list<Head, Tail...>> {
+        static_assert(I < sizeof...(Tail), "type_list_element index out of range");
+
+        using type = type_list_element<I - 1, type_list<Tail...>>::type;
+    };
+
+    template<typename Head, typename... Tail>
+    struct type_list_element<0, type_list<Head, Tail...>> {
+        using type = Head;
+    };
+
+    template<std::size_t I, IsTypeList List>
+    using type_list_element_t = type_list_element<I, List>::type;
+
+    template<IsTypeList List, typename F>
+    struct type_list_apply;
+
+    template<typename... Ts, typename F>
+    struct type_list_apply<type_list<Ts...>, F> {
+        using type = decltype(std::declval<F>().template operator()<Ts...>());
+    };
+
+    template<IsTypeList List, typename F>
+    using type_list_apply_t = type_list_apply<List, F>::type;
+
     /**
      * @if zh
      *
@@ -1033,6 +1062,9 @@ namespace stationeers {
          */
         template<IsTypeList List>
         using flatten_with_unique_t = type_list_flatten_with_unique_t<List>;
+
+        template<std::size_t I, IsTypeList List>
+        using element_t = type_list_element_t<I, List>;
 
     }  // namespace typelist
 

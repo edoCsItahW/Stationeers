@@ -15,15 +15,21 @@
  * */
 #include "ic10_compiler/semantic/semantic.hpp"
 #include "common/exception/error.hpp"
-#include "ic10_compiler/locals/local.hpp"
 #include "common/utils/json.hpp"
+#include "ic10_compiler/locals/local.hpp"
 #include <ranges>
 #include <sstream>
 
 namespace stationeers::ic10 {
 
     std::string Symbol::toJSON() const {
-        return toJson<"name", "type", "category", "typeName", "value", "desc">(name, static_cast<int>(type.kind), static_cast<int>(type.category), type.typeName, value, desc);
+        return toJson<"name", "type", "category", "typeName", "value", "desc">(
+            name, static_cast<int>(type.kind), static_cast<int>(type.category),
+            type.typeName ? std::optional(*type.typeName) : std::nullopt,
+            value ? std::optional(*value) : std::nullopt,
+            desc ? std::optional(call(*desc, [](const auto& d) { return d.toJSON(); }))
+                 : std::nullopt
+        );
     }
 
     // SymbolTable::Entry
@@ -35,7 +41,7 @@ namespace stationeers::ic10 {
     SymbolTable::SymbolTable() {
         for (int i = 0; i < 6; ++i) {
             auto key = std::string("d") + std::to_string(i);
-            builtinSymbols.emplace(key, Symbol{.name = key, .type = type_of<Device>});
+            builtinSymbols.emplace(key, Symbol{.name = key, .type = type_of<StaticDevice>});
         }
     }
 
@@ -75,7 +81,7 @@ namespace stationeers::ic10 {
 
         bool first = true;
 
-        for (const auto& [key, entry] : symbols_ )
+        for (const auto& [key, entry] : symbols_)
             if (entry.ready())
                 if (entry.future.get().has_value()) {
                     if (!first) [[likely]]

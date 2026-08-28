@@ -486,7 +486,7 @@ TEST_F(SystemTestFixture, OnlyNewlinesCompiles) {
 }
 
 TEST_F(SystemTestFixture, OnlyCommentsCompiles) {
-    auto result = compile("# comment\n// comment\n# another\n");
+    auto result = compile("# comment\n# comment\n# another\n");
 
     EXPECT_EQ(result.ast.statements.size(), 0u);
 }
@@ -571,8 +571,8 @@ TEST_F(SystemTestFixture, CommentsEverywhere) {
         "# 文件头注释\n"
         "alias foo r0  # 行内注释\n"
         "# 独立注释\n"
-        "define MAX 10  // 另一种注释\n"
-        "// C风格注释\n"
+        "define MAX 10  # 另一种注释\n"
+        "# C风格注释\n"
         "main:  # 标签后注释\n"
         "move r0 0  # 初始化\n"
         "hcf  # 结束\n";

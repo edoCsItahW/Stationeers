@@ -236,79 +236,91 @@ TEST(LexerTest, BinaryNumberAllOnes) {
 // 负数测试
 // ============================================================
 
+// 负号被词法器拆分为独立的 SUB 符号 + 数字字面量（由语法分析器合并）
 TEST(LexerTest, NegativeInteger) {
     initLocale();
     auto tokens = tokenize("-42");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::INTEGER);
-    EXPECT_EQ(toks[0]->lexeme, "-42");
-    EXPECT_EQ(toks[0]->category, TokenCategory::LITERAL);
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::SUB);
+    EXPECT_EQ(toks[0]->lexeme, "-");
+    EXPECT_EQ(toks[1]->type, TokenType::INTEGER);
+    EXPECT_EQ(toks[1]->lexeme, "42");
+    EXPECT_EQ(toks[1]->category, TokenCategory::LITERAL);
 }
 
 TEST(LexerTest, NegativeZero) {
     initLocale();
     auto tokens = tokenize("-0");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::INTEGER);
-    EXPECT_EQ(toks[0]->lexeme, "-0");
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::SUB);
+    EXPECT_EQ(toks[1]->type, TokenType::INTEGER);
+    EXPECT_EQ(toks[1]->lexeme, "0");
 }
 
 TEST(LexerTest, NegativeFloat) {
     initLocale();
     auto tokens = tokenize("-3.14");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::FLOAT);
-    EXPECT_EQ(toks[0]->lexeme, "-3.14");
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::SUB);
+    EXPECT_EQ(toks[1]->type, TokenType::FLOAT);
+    EXPECT_EQ(toks[1]->lexeme, "3.14");
 }
 
 TEST(LexerTest, NegativeFloatScientific) {
     initLocale();
     auto tokens = tokenize("-1.5e10");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::FLOAT);
-    EXPECT_EQ(toks[0]->lexeme, "-1.5e10");
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::SUB);
+    EXPECT_EQ(toks[1]->type, TokenType::FLOAT);
+    EXPECT_EQ(toks[1]->lexeme, "1.5e10");
 }
 
 TEST(LexerTest, NegativeFloatScientificWithMinusExp) {
     initLocale();
     auto tokens = tokenize("-3.14e-2");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::FLOAT);
-    EXPECT_EQ(toks[0]->lexeme, "-3.14e-2");
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::SUB);
+    EXPECT_EQ(toks[1]->type, TokenType::FLOAT);
+    EXPECT_EQ(toks[1]->lexeme, "3.14e-2");
 }
 
 TEST(LexerTest, NegativeHexNumber) {
     initLocale();
     auto tokens = tokenize("-$FF");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::HEX_NUMBER);
-    EXPECT_EQ(toks[0]->lexeme, "-$FF");
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::SUB);
+    EXPECT_EQ(toks[1]->type, TokenType::HEX_NUMBER);
+    EXPECT_EQ(toks[1]->lexeme, "$FF");
 }
 
 TEST(LexerTest, NegativeBinaryNumber) {
     initLocale();
     auto tokens = tokenize("-%1010");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::BINARY_NUMBER);
-    EXPECT_EQ(toks[0]->lexeme, "-%1010");
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::SUB);
+    EXPECT_EQ(toks[1]->type, TokenType::BINARY_NUMBER);
+    EXPECT_EQ(toks[1]->lexeme, "%1010");
 }
 
 TEST(LexerTest, NegativeNumberInInstruction) {
     initLocale();
     auto tokens = tokenize("move r0 -42");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 3u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_MOVE);
+    ASSERT_EQ(toks.size(), 4u);
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD);
+    EXPECT_EQ(toks[0]->keyword, InstructionKeyword::MOVE);
     EXPECT_EQ(toks[1]->type, TokenType::REGISTER);
-    EXPECT_EQ(toks[2]->type, TokenType::INTEGER);
-    EXPECT_EQ(toks[2]->lexeme, "-42");
+    EXPECT_EQ(toks[2]->type, TokenType::SUB);
+    EXPECT_EQ(toks[2]->lexeme, "-");
+    EXPECT_EQ(toks[3]->type, TokenType::INTEGER);
+    EXPECT_EQ(toks[3]->lexeme, "42");
 }
 
 // ============================================================
@@ -451,14 +463,16 @@ TEST(LexerTest, DeviceD5) {
 }
 
 
-TEST(LexerTest, DeviceD6IsIdentifier) {
+// d6 超出设备范围（d0-d5）：词法上仍识别为 DEVICE，但范围错误以诊断形式上报（而非改为标识符）
+TEST(LexerTest, DeviceD6OutOfRange) {
     initLocale();
-    auto tokens = tokenize("d6");
+    Lexer lexer("d6");
+    auto tokens = lexer.scan();
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    // d6超出了设备范围，应该被识别为标识符
-    EXPECT_EQ(toks[0]->type, TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[0]->type, TokenType::DEVICE);
     EXPECT_EQ(toks[0]->lexeme, "d6");
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
 }
 
 // ============================================================
@@ -525,7 +539,8 @@ TEST(LexerTest, StringUnclosedMultiLineRecovery) {
     // 换行符保留
     EXPECT_EQ(toks[1]->type, TokenType::NEWLINE);
     // 后续行正常解析
-    EXPECT_EQ(toks[2]->type, TokenType::KEYWORD_ADD);
+    EXPECT_EQ(toks[2]->type, TokenType::KEYWORD);
+    EXPECT_EQ(toks[2]->keyword, InstructionKeyword::ADD);
     EXPECT_EQ(toks[3]->type, TokenType::REGISTER);
     EXPECT_EQ(toks[4]->type, TokenType::REGISTER);
     EXPECT_EQ(toks[5]->type, TokenType::REGISTER);
@@ -556,23 +571,23 @@ TEST(LexerTest, HexCommentEmpty) {
     EXPECT_EQ(toks[0]->lexeme, "#");
 }
 
+// `//` 行注释已废弃：`/` 作为 DIV 符号词法化，不再产生 SLASH_COMMENT
 TEST(LexerTest, SlashCommentSimple) {
     initLocale();
     auto tokens = tokenize("// this is a comment");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::SLASH_COMMENT);
-    EXPECT_EQ(toks[0]->lexeme, "// this is a comment");
-    EXPECT_EQ(toks[0]->category, TokenCategory::COMMENT);
+    ASSERT_EQ(toks.size(), 6u);
+    EXPECT_EQ(toks[0]->type, TokenType::DIV);
+    EXPECT_EQ(toks[1]->type, TokenType::DIV);
 }
 
 TEST(LexerTest, SlashCommentEmpty) {
     initLocale();
     auto tokens = tokenize("//");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::SLASH_COMMENT);
-    EXPECT_EQ(toks[0]->lexeme, "//");
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::DIV);
+    EXPECT_EQ(toks[1]->type, TokenType::DIV);
 }
 
 TEST(LexerTest, CommentAfterCode) {
@@ -580,7 +595,8 @@ TEST(LexerTest, CommentAfterCode) {
     auto tokens = tokenize("add r0 r1 r2 # comment");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 5u);  // add + r0 + r1 + r2 + comment
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_ADD);
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD);
+    EXPECT_EQ(toks[0]->keyword, InstructionKeyword::ADD);
     EXPECT_EQ(toks[1]->type, TokenType::REGISTER);
     EXPECT_EQ(toks[2]->type, TokenType::REGISTER);
     EXPECT_EQ(toks[3]->type, TokenType::REGISTER);
@@ -595,109 +611,144 @@ TEST(LexerTest, DocCommentDevice) {
     initLocale();
     auto tokens = tokenize("#> @device");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
-    EXPECT_EQ(toks[0]->lexeme, "#> @device");
-    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_ANNOTATION_PREFIX);
+    EXPECT_EQ(toks[0]->lexeme, "#>");
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@device");
 }
 
 TEST(LexerTest, DocCommentEnum) {
     initLocale();
     auto tokens = tokenize("#> @enum");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
-    EXPECT_EQ(toks[0]->lexeme, "#> @enum");
-    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_ANNOTATION_PREFIX);
+    EXPECT_EQ(toks[0]->lexeme, "#>");
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@enum");
 }
 
 TEST(LexerTest, DocCommentName) {
     initLocale();
     auto tokens = tokenize("#> @name Furnace");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
-    EXPECT_EQ(toks[0]->lexeme, "#> @name Furnace");
+    ASSERT_EQ(toks.size(), 3u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_ANNOTATION_PREFIX);
+    EXPECT_EQ(toks[0]->lexeme, "#>");
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@name");
+    EXPECT_EQ(toks[2]->type, TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[2]->lexeme, "Furnace");
 }
 
 TEST(LexerTest, DocCommentDesc) {
     initLocale();
     auto tokens = tokenize("#> @desc 炉窑设备");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+    ASSERT_EQ(toks.size(), 3u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_ANNOTATION_PREFIX);
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@desc");
+    EXPECT_EQ(toks[2]->type, TokenType::IDENTIFIER);
 }
 
 TEST(LexerTest, DocCommentValue) {
     initLocale();
     auto tokens = tokenize("#> @value Oxygen 1");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+    ASSERT_EQ(toks.size(), 4u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_ANNOTATION_PREFIX);
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@value");
+    EXPECT_EQ(toks[2]->type, TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[2]->lexeme, "Oxygen");
+    EXPECT_EQ(toks[3]->type, TokenType::INTEGER);
+    EXPECT_EQ(toks[3]->lexeme, "1");
 }
 
 TEST(LexerTest, DocCommentEndDevice) {
     initLocale();
     auto tokens = tokenize("#> @end-device");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_ANNOTATION_PREFIX);
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@end-device");
 }
 
 TEST(LexerTest, DocCommentEndEnum) {
     initLocale();
     auto tokens = tokenize("#> @end-enum");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::DOC_COMMENT);
+    ASSERT_EQ(toks.size(), 2u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_ANNOTATION_PREFIX);
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@end-enum");
 }
 
 TEST(LexerTest, TypeHint) {
     initLocale();
     auto tokens = tokenize("#: @type Furnace");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT);
-    EXPECT_EQ(toks[0]->lexeme, "#: @type Furnace");
-    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+    ASSERT_EQ(toks.size(), 3u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT_PREFIX);
+    EXPECT_EQ(toks[0]->lexeme, "#:");
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@type");
+    EXPECT_EQ(toks[2]->type, TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[2]->lexeme, "Furnace");
 }
 
 TEST(LexerTest, TypeHintDesc) {
     initLocale();
     auto tokens = tokenize("#: @desc 炉窑设备");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT);
-    EXPECT_EQ(toks[0]->lexeme, "#: @desc 炉窑设备");
-    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+    ASSERT_EQ(toks.size(), 3u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT_PREFIX);
+    EXPECT_EQ(toks[0]->lexeme, "#:");
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@desc");
+    EXPECT_EQ(toks[2]->type, TokenType::IDENTIFIER);
 }
 
 TEST(LexerTest, TypeHintMultipleTags) {
     initLocale();
     auto tokens = tokenize("#: @type Furnace @desc 炉窑");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT);
-    EXPECT_EQ(toks[0]->lexeme, "#: @type Furnace @desc 炉窑");
-    EXPECT_EQ(toks[0]->category, TokenCategory::ANNOTATION);
+    ASSERT_EQ(toks.size(), 5u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT_PREFIX);
+    EXPECT_EQ(toks[0]->lexeme, "#:");
+    EXPECT_EQ(toks[1]->type, TokenType::TAG);
+    EXPECT_EQ(toks[1]->lexeme, "@type");
+    EXPECT_EQ(toks[2]->type, TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[2]->lexeme, "Furnace");
+    EXPECT_EQ(toks[3]->type, TokenType::TAG);
+    EXPECT_EQ(toks[3]->lexeme, "@desc");
+    EXPECT_EQ(toks[4]->type, TokenType::IDENTIFIER);
 }
 
 TEST(LexerTest, InvalidDocCommentFallback) {
     initLocale();
-    auto tokens = tokenize("#> not a tag");
+    auto tokens = tokenize("#> foo bar baz");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::HEX_COMMENT);
-    EXPECT_EQ(toks[0]->category, TokenCategory::COMMENT);
+    ASSERT_EQ(toks.size(), 4u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_ANNOTATION_PREFIX);
+    EXPECT_EQ(toks[0]->lexeme, "#>");
+    EXPECT_EQ(toks[1]->type, TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[2]->type, TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[3]->type, TokenType::IDENTIFIER);
 }
 
 TEST(LexerTest, InvalidTypeHintFallback) {
     initLocale();
-    auto tokens = tokenize("#: not type");
+    auto tokens = tokenize("#: foo bar");
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::HEX_COMMENT);
-    EXPECT_EQ(toks[0]->category, TokenCategory::COMMENT);
+    ASSERT_EQ(toks.size(), 3u);
+    EXPECT_EQ(toks[0]->type, TokenType::TYPE_HINT_PREFIX);
+    EXPECT_EQ(toks[0]->lexeme, "#:");
+    EXPECT_EQ(toks[1]->type, TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[2]->type, TokenType::IDENTIFIER);
 }
 
 TEST(LexerTest, HashWithoutAnnotation) {
@@ -736,7 +787,8 @@ TEST(LexerTest, KeywordHcf) {
     auto tokens = tokenize("hcf");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_HCF);
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD);
+    EXPECT_EQ(toks[0]->keyword, InstructionKeyword::HCF);
     EXPECT_EQ(toks[0]->lexeme, "hcf");
 }
 
@@ -745,7 +797,8 @@ TEST(LexerTest, KeywordYield) {
     auto tokens = tokenize("yield");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_YIELD);
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD);
+    EXPECT_EQ(toks[0]->keyword, InstructionKeyword::YIELD);
     EXPECT_EQ(toks[0]->lexeme, "yield");
 }
 
@@ -754,7 +807,8 @@ TEST(LexerTest, KeywordAdd) {
     auto tokens = tokenize("add");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_ADD);
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD);
+    EXPECT_EQ(toks[0]->keyword, InstructionKeyword::ADD);
     EXPECT_EQ(toks[0]->lexeme, "add");
 }
 
@@ -763,7 +817,8 @@ TEST(LexerTest, KeywordSub) {
     auto tokens = tokenize("sub");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_SUB);
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD);
+    EXPECT_EQ(toks[0]->keyword, InstructionKeyword::SUB);
     EXPECT_EQ(toks[0]->lexeme, "sub");
 }
 
@@ -772,7 +827,8 @@ TEST(LexerTest, KeywordMove) {
     auto tokens = tokenize("move");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_MOVE);
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD);
+    EXPECT_EQ(toks[0]->keyword, InstructionKeyword::MOVE);
     EXPECT_EQ(toks[0]->lexeme, "move");
 }
 
@@ -781,7 +837,7 @@ TEST(LexerTest, KeywordConstantNan) {
     auto tokens = tokenize("nan");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_NAN);
+    EXPECT_EQ(toks[0]->type, TokenType::IDENTIFIER);
     EXPECT_EQ(toks[0]->lexeme, "nan");
 }
 
@@ -790,7 +846,7 @@ TEST(LexerTest, KeywordConstantPi) {
     auto tokens = tokenize("pi");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_PI);
+    EXPECT_EQ(toks[0]->type, TokenType::IDENTIFIER);
     EXPECT_EQ(toks[0]->lexeme, "pi");
 }
 
@@ -818,7 +874,7 @@ TEST(LexerTest, KeywordRgas) {
     auto tokens = tokenize("rgas");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_RGAS);
+    EXPECT_EQ(toks[0]->type, TokenType::IDENTIFIER);
     EXPECT_EQ(toks[0]->lexeme, "rgas");
 }
 
@@ -935,7 +991,8 @@ TEST(LexerTest, SimpleInstructionAdd) {
     auto toks = tokensWithoutEnd(tokens);
     // 减去末尾的newline
     ASSERT_EQ(toks.size(), 5u);  // add + r0 + r1 + r2 + newline
-    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD_ADD);
+    EXPECT_EQ(toks[0]->type, TokenType::KEYWORD);
+    EXPECT_EQ(toks[0]->keyword, InstructionKeyword::ADD);
     EXPECT_EQ(toks[0]->lexeme, "add");
     EXPECT_EQ(toks[1]->type, TokenType::REGISTER);
     EXPECT_EQ(toks[1]->lexeme, "r0");
@@ -1042,24 +1099,32 @@ TEST(LexerTest, StringFollowedByIdentifierNoSpace) {
     EXPECT_FALSE(lexer.getDiagnostics().empty());
 }
 
+// 非法数字被截断（不并入数字 token），截断后与前一个 token 缺空格，触发缺空格诊断
 TEST(LexerTest, BinaryNumberInvalidDigit) {
     initLocale();
-    // %5: 5不是有效的二进制数字，应消耗到token中并报错
-    auto tokens = tokenize("%5");
+    Lexer lexer("%5");
+    auto tokens = lexer.scan();
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
+    ASSERT_EQ(toks.size(), 2u);
     EXPECT_EQ(toks[0]->type, TokenType::BINARY_NUMBER);
-    EXPECT_EQ(toks[0]->lexeme, "%5");
+    EXPECT_EQ(toks[0]->lexeme, "%");
+    EXPECT_EQ(toks[1]->type, TokenType::INTEGER);
+    EXPECT_EQ(toks[1]->lexeme, "5");
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
 }
 
 TEST(LexerTest, HexNumberInvalidDigit) {
     initLocale();
-    // $G: G不是有效的十六进制数字，应消耗到token中并报错
-    auto tokens = tokenize("$G");
+    // $G: G 不是有效的十六进制数字，被截断后触发缺空格诊断
+    Lexer lexer("$G");
+    auto tokens = lexer.scan();
     auto toks = tokensWithoutEnd(tokens);
-    ASSERT_EQ(toks.size(), 1u);
+    ASSERT_EQ(toks.size(), 2u);
     EXPECT_EQ(toks[0]->type, TokenType::HEX_NUMBER);
-    EXPECT_EQ(toks[0]->lexeme, "$G");
+    EXPECT_EQ(toks[0]->lexeme, "$");
+    EXPECT_EQ(toks[1]->type, TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[1]->lexeme, "G");
+    EXPECT_FALSE(lexer.getDiagnostics().empty());
 }
 
 TEST(LexerTest, NumberFollowedBySymbolNoError) {
@@ -1089,7 +1154,8 @@ TEST(TokenTest, DefaultTokenIsUnknown) {
 TEST(TokenTest, TokenToStringNotEmpty) {
     initLocale();
     Token tok;
-    tok.type = TokenType::KEYWORD_ADD;
+    tok.type = TokenType::KEYWORD;
+    tok.keyword = InstructionKeyword::ADD;
     tok.lexeme = "add";
     tok.category = TokenCategory::LITERAL;
     auto str = tok.toString();

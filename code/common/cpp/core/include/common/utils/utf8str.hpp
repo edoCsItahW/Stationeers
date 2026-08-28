@@ -3437,6 +3437,8 @@ namespace utf
 
 namespace std
 {
+    // error: explicit specialization of 'std::iterator_traits<utf::string::view::iterator>' after instantiation
+    #if !defined(__clang__)
     /**
      * \class iterator_traits <utf::string_view::iterator>
      *
@@ -3453,6 +3455,7 @@ namespace std
         using value_type        = Iter::value_type;
         using iterator_category = Iter::iterator_category;
     };
+    #endif
 
     /**
      * \brief `std::swap` specialization for strings

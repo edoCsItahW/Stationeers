@@ -402,7 +402,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Token extractIdentifier() const;
+        Token extractLetter() const;
 
         /**
          * @if zh
@@ -464,22 +464,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Token extractHashComment() const;
-
-        /**
-         * @if zh
-         *
-         * @brief 提取斜杠注释
-         * @return 斜杠注释Token
-         *
-         * @elseif en
-         *
-         * @brief Extract slash comment
-         * @return Slash comment Token
-         *
-         * @endif
-         */
-        Token extractSlashComment() const;
+        Token extractHash() const;
 
         /**
          * @if zh
@@ -511,35 +496,8 @@ namespace stationeers::ic10 {
          */
         Token extractBinaryNumber() const;
 
-        /**
-         * @if zh
-         *
-         * @brief 提取设备名
-         * @return 设备Token
-         *
-         * @elseif en
-         *
-         * @brief Extract device name
-         * @return Device Token
-         *
-         * @endif
-         */
-        Token extractDevice() const;
+        Token extractTag() const;
 
-        /**
-         * @if zh
-         *
-         * @brief 提取寄存器
-         * @return 寄存器Token
-         *
-         * @elseif en
-         *
-         * @brief Extract register
-         * @return Register Token
-         *
-         * @endif
-         */
-        Token extractRegister() const;
     };
 
 }  // namespace stationeers::ic10
