@@ -64,8 +64,8 @@
  * @elseif en
  * @brief IC10 parser
  * @details Provides parsing functionality for IC10 programming language, parsing token sequence
- *        into Abstract Syntax Tree (AST). Supports parsing of various instructions (nullary to senary),
- *        label definitions, preprocessor directives and other syntactic structures.
+ *        into Abstract Syntax Tree (AST). Supports parsing of various instructions (nullary to
+ * senary), label definitions, preprocessor directives and other syntactic structures.
  *
  * @note Parsing is the **second phase** of the compilation process, after lexical analysis
  * @note This analyzer is implemented as a **recursive descent** parser
@@ -122,11 +122,38 @@
 #include "ic10_compiler/locals/local.hpp"
 #include "ic10_compiler/pch/ast.hpp"
 #include "ic10_compiler/pch/pch.hpp"
+#include "node_parser.hpp"
 #include <memory>
 #include <optional>
 #include <vector>
 
 namespace stationeers::ic10 {
+
+    namespace detail {
+        template<HasFirst... Ts>
+        struct FirstLookaheadMatcher;
+    }  // namespace detail
+
+    // LabelDef
+
+    template<>
+    struct NodeParser<LabelDef> {
+        static ShallowErrorable<LabelDef> parse(Parser& parser);
+    };
+
+    // AliasDirective
+
+    template<>
+    struct NodeParser<AliasDirective> {
+        static AliasDirective parse(Parser& parser);
+    };
+
+    // DefineDirective
+
+    template<>
+    struct NodeParser<DefineDirective> {
+        static DefineDirective parse(Parser& p);
+    };
 
     /**
      * @class Parser
@@ -234,7 +261,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Parser(const std::vector<std::shared_ptr<Token>> &tokens, bool debug = false);
+        Parser(const std::vector<std::shared_ptr<Token>>& tokens, bool debug = false);
 
         /**
          * @if zh
@@ -261,12 +288,15 @@ namespace stationeers::ic10 {
          * @elseif en
          *
          * @brief Get the list of diagnostics
-         * @details Returns all diagnostics collected during parsing (including errors, warnings, info)
+         * @details Returns all diagnostics collected during parsing (including errors, warnings,
+         * info)
          * @return Const reference to the diagnostic list
          *
          * @endif
          */
-        const std::vector<Diagnostic>& getDiagnostics() const noexcept { return reporter_.getDiagnostics(); }
+        const std::vector<Diagnostic>& getDiagnostics() const noexcept {
+            return reporter_.getDiagnostics();
+        }
 
         /**
          * @if zh
@@ -286,7 +316,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         static Program parsing(
-            const std::vector<std::shared_ptr<Token>> &tokens, bool debug = false
+            const std::vector<std::shared_ptr<Token>>& tokens, bool debug = false
         );
 
     private:
@@ -337,110 +367,6 @@ namespace stationeers::ic10 {
         /**
          * @if zh
          *
-         * @struct TypeHintResult
-         * @brief 类型提示解析结果
-         * @details 存储 @type 和 @desc 标签的解析结果
-         *
-         * @elseif en
-         *
-         * @struct TypeHintResult
-         * @brief Type hint parse result
-         * @details Stores parsed @type and @desc tag values
-         *
-         * @endif
-         */
-        struct TypeHintResult {
-            std::optional<std::string> type;  ///< @type 指定的类型名
-            std::optional<std::string> desc;  ///< @desc 指定的描述（与 type 值互斥）
-        };
-
-        /**
-         * @if zh
-         *
-         * @brief 解析类型提示标签
-         * @param lexeme token 的 lexeme（包含 "#:" 前缀）
-         * @return 解析结果，包含 type 和 desc 字段
-         *
-         * @elseif en
-         *
-         * @brief Parse type hint tags
-         * @param lexeme Token lexeme (includes "#:" prefix)
-         * @return Parse result with type and desc fields
-         *
-         * @endif
-         */
-        TypeHintResult parseTypeHintTags(const std::string& lexeme);
-
-        /**
-         * @if zh
-         * @brief 解析标签定义
-         * @param layer 递归层级,用于调试输出
-         * @return 解析后的LabelDef
-         *
-         * @elseif en
-         *
-         * @brief Parse label definition
-         * @param layer Recursion level, for debug output
-         * @return Parsed LabelDef
-         *
-         * @endif
-         */
-        ShallowErrorable<LabelDef> parseLabelDef(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析预处理指令
-         * @param layer 递归层级
-         * @return 解析后的PreprocessorDirective
-         *
-         * @elseif en
-         *
-         * @brief Parse preprocessor directive
-         * @param layer Recursion level
-         * @return Parsed PreprocessorDirective
-         *
-         * @endif
-         */
-        PreprocessorDirective parsePreprocessorDirective(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析alias指令
-         * @param layer 递归层级
-         * @return 解析后的AliasDirective
-         *
-         * @elseif en
-         *
-         * @brief Parse alias directive
-         * @param layer Recursion level
-         * @return Parsed AliasDirective
-         *
-         * @endif
-         */
-        ShallowErrorable<AliasDirective> parseAliasDirective(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析define指令
-         * @param layer 递归层级
-         * @return 解析后的DefineDirective
-         *
-         * @elseif en
-         *
-         * @brief Parse define directive
-         * @param layer Recursion level
-         * @return Parsed DefineDirective
-         *
-         * @endif
-         */
-        ShallowErrorable<DefineDirective> parseDefineDirective(int layer);
-
-        /**
-         * @if zh
-         *
          * @brief 解析可执行指令
          * @param layer 递归层级
          * @return 解析后的ExecutableInstruction
@@ -453,623 +379,9 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        ExecutableInstruction parseExecutableInstruction(int layer);
+        ExecutableInstruction parseExecutableInstruction();
 
-        /**
-         * @if zh
-         *
-         * @brief 解析零元指令
-         * @param layer 递归层级
-         * @return 解析后的NullaryInstruction
-         *
-         * @elseif en
-         *
-         * @brief Parse nullary instruction
-         * @param layer Recursion level
-         * @return Parsed NullaryInstruction
-         *
-         * @endif
-         */
-        NullaryInstruction parseNullaryInstruction(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析一元指令
-         * @param layer 递归层级
-         * @return 解析后的UnaryInstruction
-         *
-         * @elseif en
-         *
-         * @brief Parse unary instruction
-         * @param layer Recursion level
-         * @return Parsed UnaryInstruction
-         *
-         * @endif
-         */
-        UnaryInstruction parseUnaryInstruction(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析二元指令
-         * @param layer 递归层级
-         * @return 解析后的BinaryInstruction
-         *
-         * @elseif en
-         *
-         * @brief Parse binary instruction
-         * @param layer Recursion level
-         * @return Parsed BinaryInstruction
-         *
-         * @endif
-         */
-        BinaryInstruction parseBinaryInstruction(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析三元指令
-         * @param layer 递归层级
-         * @return 解析后的TernaryInstruction
-         *
-         * @elseif en
-         *
-         * @brief Parse ternary instruction
-         * @param layer Recursion level
-         * @return Parsed TernaryInstruction
-         *
-         * @endif
-         */
-        TernaryInstruction parseTernaryInstruction(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析四元指令
-         * @param layer 递归层级
-         * @return 解析后的QuaternaryInstruction
-         *
-         * @elseif en
-         *
-         * @brief Parse quaternary instruction
-         * @param layer Recursion level
-         * @return Parsed QuaternaryInstruction
-         *
-         * @endif
-         */
-        QuaternaryInstruction parseQuaternaryInstruction(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析五元指令
-         * @param layer 递归层级
-         * @return 解析后的QuinaryInstruction
-         *
-         * @elseif en
-         *
-         * @brief Parse quinary instruction
-         * @param layer Recursion level
-         * @return Parsed QuinaryInstruction
-         *
-         * @endif
-         */
-        QuinaryInstruction parseQuinaryInstruction(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析六元指令
-         * @param layer 递归层级
-         * @return 解析后的SenaryInstruction
-         *
-         * @elseif en
-         *
-         * @brief Parse senary instruction
-         * @param layer Recursion level
-         * @return Parsed SenaryInstruction
-         *
-         * @endif
-         */
-        SenaryInstruction parseSenaryInstruction(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析操作数
-         * @param layer 递归层级
-         * @return 解析后的Operand
-         *
-         * @elseif en
-         *
-         * @brief Parse operand
-         * @param layer Recursion level
-         * @return Parsed Operand
-         *
-         * @endif
-         */
-        Operand parseOperand(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析寄存器或设备
-         * @param layer 递归层级
-         * @return 解析后的RegisterOrDevice
-         *
-         * @elseif en
-         *
-         * @brief Parse register or device
-         * @param layer Recursion level
-         * @return Parsed RegisterOrDevice
-         *
-         * @endif
-         */
-        RegisterOrDevice parseRegisterOrDevice(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析寄存器或标识符
-         * @param layer 递归层级
-         * @return 解析后的RegisterOrIdentifier
-         *
-         * @elseif en
-         *
-         * @brief Parse register or identifier
-         * @param layer Recursion level
-         * @return Parsed RegisterOrIdentifier
-         *
-         * @endif
-         */
-        RegisterOrIdentifier parseRegisterOrIdentifier(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析设备引用
-         * @details 解析设备引用,支持Device和RegisterOrIdentifier两种形式。
-         *        不再支持Number(INTEGER/FLOAT/HEX_NUMBER/BINARY_NUMBER)。
-         * @param layer 递归层级,用于调试输出
-         * @return 解析后的DeviceReference
-         * @note 已移除对Number类型的支持,数字引用应使用parseNumberValue
-         *
-         * @elseif en
-         *
-         * @brief Parse device reference
-         * @details Parses device reference, supporting Device and RegisterOrIdentifier forms.
-         *        Number (INTEGER/FLOAT/HEX_NUMBER/BINARY_NUMBER) is no longer supported.
-         * @param layer Recursion level, for debug output
-         * @return Parsed DeviceReference
-         * @note Support for Number type has been removed; use parseNumberValue for number references
-         *
-         * @endif
-         */
-        DeviceReference parseDeviceReference(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析寄存器或数字
-         * @details 解析寄存器(r?)或数字字面量。支持的Token类型包括:
-         *        REGISTER、IDENTIFIER、INTEGER、FLOAT、HEX_NUMBER、BINARY_NUMBER,
-         *        以及KEYWORD_HASH、KEYWORD_STR、KEYWORD_NAN、KEYWORD_PINF、KEYWORD_NINF、
-         *        KEYWORD_PI、KEYWORD_TAU、KEYWORD_DEG2RAD、KEYWORD_RAD2DEG、KEYWORD_EPSILON、
-         *        KEYWORD_RGAS等常量关键字。
-         * @param layer 递归层级,用于调试输出
-         * @return 解析后的RegisterOrNumber
-         * @note 该方法取代了五元/六元指令中原本使用的通用Operand类型
-         *
-         * @elseif en
-         *
-         * @brief Parse register or number
-         * @details Parses a register (r?) or number literal. Supported Token types include:
-         *        REGISTER, IDENTIFIER, INTEGER, FLOAT, HEX_NUMBER, BINARY_NUMBER,
-         *        and constant keywords such as KEYWORD_HASH, KEYWORD_STR, KEYWORD_NAN, KEYWORD_PINF,
-         *        KEYWORD_NINF, KEYWORD_PI, KEYWORD_TAU, KEYWORD_DEG2RAD, KEYWORD_RAD2DEG,
-         *        KEYWORD_EPSILON, KEYWORD_RGAS.
-         * @param layer Recursion level, for debug output
-         * @return Parsed RegisterOrNumber
-         * @note This method replaces the generic Operand type previously used in quinary/senary instructions
-         *
-         * @endif
-         */
-        RegisterOrNumber parseRegisterOrNumber(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析数字值
-         * @details 解析数字字面量或常量。支持的Token类型包括:
-         *        INTEGER、FLOAT、HEX_NUMBER、BINARY_NUMBER、IDENTIFIER,
-         *        以及KEYWORD_HASH、KEYWORD_STR和常量关键字(如PI、TAU等)。
-         * @param layer 递归层级,用于调试输出
-         * @return 解析后的NumberValue
-         * @note 被parseJumpTarget复用,作为跳转目标解析的基础
-         *
-         * @elseif en
-         *
-         * @brief Parse number value
-         * @details Parses a number literal or constant. Supported Token types include:
-         *        INTEGER, FLOAT, HEX_NUMBER, BINARY_NUMBER, IDENTIFIER,
-         *        and KEYWORD_HASH, KEYWORD_STR, and constant keywords (e.g., PI, TAU, etc.).
-         * @param layer Recursion level, for debug output
-         * @return Parsed NumberValue
-         * @note Reused by parseJumpTarget as the basis for jump target parsing
-         *
-         * @endif
-         */
-        NumberValue parseNumberValue(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析跳转目标
-         * @details 解析跳转指令的目标地址。委托给parseNumberValue进行实际解析,
-         *        支持所有NumberValue可接受的Token类型。
-         * @param layer 递归层级,用于调试输出
-         * @return 解析后的JumpTarget
-         * @note 解析逻辑完全委托给parseNumberValue
-         *
-         * @elseif en
-         *
-         * @brief Parse jump target
-         * @details Parses the target address of a jump instruction. Delegates to parseNumberValue
-         *        for actual parsing, supporting all Token types accepted by NumberValue.
-         * @param layer Recursion level, for debug output
-         * @return Parsed JumpTarget
-         * @note Parsing logic is fully delegated to parseNumberValue
-         *
-         * @endif
-         */
-        JumpTarget parseJumpTarget(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析设备别名引用
-         * @details 解析设备别名引用,支持DEVICE和IDENTIFIER两种Token类型。
-         *        用于alias指令等场景中对已定义设备别名的引用。
-         * @param layer 递归层级,用于调试输出
-         * @return 解析后的DeviceAliasRef
-         * @note 仅接受DEVICE和IDENTIFIER,不解析其他形式
-         *
-         * @elseif en
-         *
-         * @brief Parse device alias reference
-         * @details Parses a device alias reference, supporting DEVICE and IDENTIFIER Token types.
-         *        Used in scenarios such as alias directives for referencing defined device aliases.
-         * @param layer Recursion level, for debug output
-         * @return Parsed DeviceAliasRef
-         * @note Only accepts DEVICE and IDENTIFIER; other forms are not parsed
-         *
-         * @endif
-         */
-        DeviceAliasRef parseDeviceAliasRef(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析宏调用
-         * @param layer 递归层级
-         * @return 解析后的MacroCall
-         *
-         * @elseif en
-         *
-         * @brief Parse macro call
-         * @param layer Recursion level
-         * @return Parsed MacroCall
-         *
-         * @endif
-         */
-        MacroCall parseMacroCall(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析hash宏调用
-         * @param layer 递归层级
-         * @return 解析后的HashCall
-         *
-         * @elseif en
-         *
-         * @brief Parse hash macro call
-         * @param layer Recursion level
-         * @return Parsed HashCall
-         *
-         * @endif
-         */
-        ShallowErrorable<HashCall> parseHashCall(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析str宏调用
-         * @param layer 递归层级
-         * @return 解析后的StrCall
-         *
-         * @elseif en
-         *
-         * @brief Parse str macro call
-         * @param layer Recursion level
-         * @return Parsed StrCall
-         *
-         * @endif
-         */
-        ShallowErrorable<StrCall> parseStrCall(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析常量
-         * @param layer 递归层级
-         * @return 解析后的Constant
-         *
-         * @elseif en
-         *
-         * @brief Parse constant
-         * @param layer Recursion level
-         * @return Parsed Constant
-         *
-         * @endif
-         */
-        ShallowErrorable<Constant> parseConstant(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析逻辑类型
-         * @param layer 递归层级
-         * @return 解析后的LogicType
-         *
-         * @elseif en
-         *
-         * @brief Parse logic type
-         * @param layer Recursion level
-         * @return Parsed LogicType
-         *
-         * @endif
-         */
-        LogicType parseLogicType(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析槽索引
-         * @param layer 递归层级
-         * @return 解析后的SlotIndex
-         *
-         * @elseif en
-         *
-         * @brief Parse slot index
-         * @param layer Recursion level
-         * @return Parsed SlotIndex
-         *
-         * @endif
-         */
-        SlotIndex parseSlotIndex(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析逻辑槽类型
-         * @param layer 递归层级
-         * @return 解析后的LogicSlotType
-         *
-         * @elseif en
-         *
-         * @brief Parse logic slot type
-         * @param layer Recursion level
-         * @return Parsed LogicSlotType
-         *
-         * @endif
-         */
-        LogicSlotType parseLogicSlotType(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析批处理模式
-         * @param layer 递归层级
-         * @return 解析后的BatchMode
-         *
-         * @elseif en
-         *
-         * @brief Parse batch mode
-         * @param layer Recursion level
-         * @return Parsed BatchMode
-         *
-         * @endif
-         */
-        BatchMode parseBatchMode(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析试剂模式
-         * @param layer 递归层级
-         * @return 解析后的ReagentMode
-         *
-         * @elseif en
-         *
-         * @brief Parse reagent mode
-         * @param layer Recursion level
-         * @return Parsed ReagentMode
-         *
-         * @endif
-         */
-        ReagentMode parseReagentMode(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析标识符或数字
-         * @param layer 递归层级
-         * @return 解析后的Identifier或Number
-         *
-         * @elseif en
-         *
-         * @brief Parse identifier or number
-         * @param layer Recursion level
-         * @return Parsed Identifier or Number
-         *
-         * @endif
-         */
-        Errorable<Identifier, Number> parseIdentifierOrNumber(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析设备
-         * @param layer 递归层级
-         * @return 解析后的Device
-         *
-         * @elseif en
-         *
-         * @brief Parse device
-         * @param layer Recursion level
-         * @return Parsed Device
-         *
-         * @endif
-         */
-        ShallowErrorable<Device> parseDevice(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析寄存器
-         * @param layer 递归层级
-         * @return 解析后的Register
-         *
-         * @elseif en
-         *
-         * @brief Parse register
-         * @param layer Recursion level
-         * @return Parsed Register
-         *
-         * @endif
-         */
-        ShallowErrorable<Register> parseRegister(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析字符串
-         * @param layer 递归层级
-         * @return 解析后的String
-         *
-         * @elseif en
-         *
-         * @brief Parse string
-         * @param layer Recursion level
-         * @return Parsed String
-         *
-         * @endif
-         */
-        ShallowErrorable<String> parseString(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析标识符
-         * @param layer 递归层级
-         * @return 解析后的Identifier
-         *
-         * @elseif en
-         *
-         * @brief Parse identifier
-         * @param layer Recursion level
-         * @return Parsed Identifier
-         *
-         * @endif
-         */
-        ShallowErrorable<Identifier> parseIdentifier(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析数字
-         * @param layer 递归层级
-         * @return 解析后的Number
-         *
-         * @elseif en
-         *
-         * @brief Parse number
-         * @param layer Recursion level
-         * @return Parsed Number
-         *
-         * @endif
-         */
-        Number parseNumber(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析二进制数
-         * @param layer 递归层级
-         * @return 解析后的BinaryNumber
-         *
-         * @elseif en
-         *
-         * @brief Parse binary number
-         * @param layer Recursion level
-         * @return Parsed BinaryNumber
-         *
-         * @endif
-         */
-        ShallowErrorable<BinaryNumber> parseBinaryNumber(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析十六进制数
-         * @param layer 递归层级
-         * @return 解析后的HexNumber
-         *
-         * @elseif en
-         *
-         * @brief Parse hexadecimal number
-         * @param layer Recursion level
-         * @return Parsed HexNumber
-         *
-         * @endif
-         */
-        ShallowErrorable<HexNumber> parseHexNumber(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析浮点数
-         * @param layer 递归层级
-         * @return 解析后的Float
-         *
-         * @elseif en
-         *
-         * @brief Parse float number
-         * @param layer Recursion level
-         * @return Parsed Float
-         *
-         * @endif
-         */
-        ShallowErrorable<Float> parseFloat(int layer);
-
-        /**
-         * @if zh
-         *
-         * @brief 解析整数
-         * @param layer 递归层级
-         * @return 解析后的Integer
-         *
-         * @elseif en
-         *
-         * @brief Parse integer
-         * @param layer Recursion level
-         * @return Parsed Integer
-         *
-         * @endif
-         */
-        ShallowErrorable<Integer> parseInteger(int layer);
+        static std::optional<double> evaluateBuiltin(const std::string& name) noexcept;
 
         /**
          * @if zh
@@ -1142,6 +454,8 @@ namespace stationeers::ic10 {
          */
         std::shared_ptr<Token> current(bool consume = false) const noexcept;
 
+        std::shared_ptr<Token> peek(std::size_t offset = 1) const noexcept;
+
         /**
          * @if zh
          *
@@ -1165,19 +479,52 @@ namespace stationeers::ic10 {
 
         /**
          * @if zh
-         * @brief 操作数起始 Token 集合（编译期推导）
-         * @details 从 Operand variant 的所有成员类型的 startTokens 编译期聚合而来，
-         *          用于错误恢复时快速判断当前 token 是否为合法操作数起始
+         *
+         * @brief 解析操作数
+         * @param layer 递归层级
+         * @return 解析后的Operand
+         *
          * @elseif en
-         * @brief Operand start token set (compile-time derived)
-         * @details Compile-time aggregated from startTokens of all member types in the Operand variant,
-         *          used for quickly checking whether the current token is a valid operand start during error recovery
+         *
+         * @brief Parse operand
+         * @param layer Recursion level
+         * @return Parsed Operand
+         *
          * @endif
          */
-        static constexpr auto OPERAND_STARTS = getStartTokens<Operand>();
+        template<OperandType O>
+        auto matchOperand();
 
+        template<IsVariant Variant>
+        auto matchVariant();
+
+        template<HasFirst... Ts>
+        auto match();
+
+        template<HasFirst T>
+        [[nodiscard]] bool matchFirst(auto& result) noexcept;
+
+        template<HasFirst T, std::array Array>
+        [[nodiscard]] bool matchArray(auto& result) noexcept;
+
+        template<HasFirst T>
+        [[nodiscard]] bool matchPredicate() noexcept;
+
+        template<HasFirst T>
+        [[nodiscard]] bool isMatch() noexcept;
+
+        template<HasFirst... Ts>
+        [[nodiscard]] bool isAnyMatch() noexcept;
+
+        template<typename T>
+        friend struct NodeParser;
+
+        template<typename T>
+        friend struct NodeParserDispatcher;
     };
 
 }  // namespace stationeers::ic10
+
+#include "parser.inl"
 
 #endif  // COMPILER_PARSER_HPP

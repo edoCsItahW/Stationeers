@@ -60,4 +60,8 @@ namespace stationeers {
         return end;
     }
 
+    Pos endPos(const Pos& pos, const std::string& lexeme) {
+        return endPos(pos, charLength(lexeme), lexeme.size());
+    }
+
 }  // namespace stationeers

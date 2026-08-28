@@ -135,14 +135,7 @@ namespace stationeers::ic10 {
     Task<> Analyser::operator()(const AliasDirective& aliasDirective) {
         // Identifier: 按寄存器/设备类型定义别名
         if (std::holds_alternative<Identifier>(aliasDirective.identifier)) [[likely]] {
-            // 若 registerOrDevice 为 Identifier，需先解析（检查是否已定义）
-            // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
-            if (std::holds_alternative<Identifier>(aliasDirective.registerOrDevice)) {
-                const auto& refId = std::get<Identifier>(aliasDirective.registerOrDevice);
-
-                (void)co_await resolveSymbol(refId.value, refId.position);
-            }
-
+            // registerOrDevice 类型为 RegOrDev(Register|Device), 不含 Identifier, 无需预解析
             const auto identifier = std::get<Identifier>(aliasDirective.identifier);
 
             std::visit(
@@ -165,13 +158,13 @@ namespace stationeers::ic10 {
                         symbol.type = {};
 
                     else if constexpr (std::is_same_v<V, Register>) {
-                        symbol.type = type_of<Register>;
+                        symbol.type = type_of<GeneralPurposeRegister>;
 
                         symbol.value = ins.value;
                     }
 
                     else if constexpr (std::is_same_v<V, Device>) {
-                        symbol.type = type_of<Device>;
+                        symbol.type = type_of<StaticDevice>;
 
                         symbol.value = ins.value;
                     }
@@ -181,14 +174,14 @@ namespace stationeers::ic10 {
                     }
 
                     // 有类型注释
-                    if (aliasDirective.type.has_value()) {
-                        symbol.type.typeName = aliasDirective.type.value();
+                    if (auto& typeHint = aliasDirective.typeHint; typeHint && typeHint->type) {
+                        symbol.type.typeName = typeHint->type->value;
 
                         if (auto it = symbolTable_->builtinSymbols.find(*symbol.value); it != symbolTable_->builtinSymbols.end())
-                            it->second.type.typeName = aliasDirective.type.value();
+                            it->second.type.typeName = typeHint->type->value;
                     }
 
-                    if (aliasDirective.desc.has_value()) symbol.desc = aliasDirective.desc.value();
+                    if (auto& typeHint = aliasDirective.typeHint; typeHint && typeHint->desc) symbol.desc = typeHint->desc->desc;
 
                     defineSymbol(identifier, std::move(symbol));
                 },
@@ -196,13 +189,13 @@ namespace stationeers::ic10 {
             );
 
             // 如果存在类型注释，先检查是否给设备进行了错误的枚举注释
-            if (aliasDirective.type)
-                if (auto* typePtr = typeTable_->find(aliasDirective.type.value()); typePtr)
+            if (auto& typeHint = aliasDirective.typeHint; typeHint && typeHint->desc)
+                if (auto* typePtr = typeTable_->find(typeHint->type->value); typePtr)
                     std::visit(
                         [&]<typename T>(T&&) {
                             using U = std::remove_cvref_t<T>;
 
-                            if constexpr (std::is_same_v<U, EnumType>)
+                            if constexpr (std::is_same_v<U, EnumAnnotation>)
                                 reporter_->errorWith<ICMsgId::IEA7_1>(
                                     aliasDirective.start(), aliasDirective.end(), identifier.value
                                 );
@@ -225,59 +218,33 @@ namespace stationeers::ic10 {
     // define 指令：定义常量符号，其值由 operand 决定
     Task<> Analyser::operator()(const DefineDirective& defineDirective) {
         if (std::holds_alternative<Identifier>(defineDirective.identifier)) [[likely]] {
-            // 若 operand 为 Identifier，需先解析（检查是否已定义）
-            // 由于 std::visit 的 lambda 是同步的，co_await 须在 visit 之前完成
-            if (std::holds_alternative<Identifier>(defineDirective.operand)) {
-                const auto& opId = std::get<Identifier>(defineDirective.operand);
-
-                (void)co_await resolveSymbol(opId.value, opId.position);
-            }
-
+            // operand 类型为 ConstNum(仅 Number), 不含 Identifier, 无需预解析
             const auto identifier = std::get<Identifier>(defineDirective.identifier);
 
             std::visit(
-                [&]<typename U>(U&& ins) {
-                    using V = std::decay_t<U>;
+                [&]<typename U, typename V = std::remove_cvref_t<U>>(U&& ins) {
 
                     Symbol symbol;
                     symbol.name = identifier.value;
 
-                    if constexpr (std::is_same_v<V, Identifier>)
-                        reporter_->errorWith<ICMsgId::IEA5_1>(
-                            defineDirective.start(), defineDirective.end(), ins.value
-                        );
-
                     // ErrorNode: Parser 已报错，此处跳过
-                    else if constexpr (std::is_same_v<V, ErrorNode>)
+                    if constexpr (std::is_same_v<V, ErrorNode>)
                         symbol.type = {};
 
-                    else if constexpr (std::is_same_v<V, Constant>)
-                        symbol.type = type_of<Constant>;
-
-                    else if constexpr (std::is_same_v<V, HashCall> || std::is_same_v<V, StrCall>) {
+                    else if constexpr (std::is_same_v<V, HashMacro> || std::is_same_v<V, StrMacro>) {
                         symbol.type = type_of<V>;
 
-                        if (std::holds_alternative<String>(ins.value)) {
-                            symbol.value = ins.toString();
-                            std::ranges::replace(*symbol.value, '"', '\'');
-                        }
+                        symbol.value = ins.value;
                     }
 
+                    // Number (Integer/Float/HexNumber/BinaryNumber):
                     else {
                         symbol.type = type_of<V>;
 
                         symbol.value = ins.value;
                     }
 
-                    if (defineDirective.type) {
-                        if (*defineDirective.type == "__register__")
-                            symbol.type = type_of<Register>;
-
-                        else if (*defineDirective.type == "__device__")
-                            symbol.type = type_of<Device>;
-                    }
-
-                    if (defineDirective.desc) symbol.desc = defineDirective.desc.value();
+                    if (auto& typeHint = defineDirective.typeHint; typeHint && typeHint->desc) symbol.desc = typeHint->desc->desc;
 
                     defineSymbol(identifier, std::move(symbol));
                 },
@@ -295,36 +262,20 @@ namespace stationeers::ic10 {
         co_return;
     }
 
-    Task<> Analyser::operator()(const DeviceDocComment& deviceDocComment) {
-        typeTable_->registerType(
-            DeviceType{
-                .name       = deviceDocComment.name,
-                .desc       = deviceDocComment.desc,
-                .slots      = deviceDocComment.slots,
-                .logics     = deviceDocComment.logics,
-                .modes      = deviceDocComment.modes,
-                .logicSlots = deviceDocComment.logicSlots,
-                .connects   = deviceDocComment.connects
-            }
-        );
+    Task<> Analyser::operator()(const DeviceAnnotation& deviceAnnotation) {
+        typeTable_->registerType(deviceAnnotation);
 
         co_return;
     }
 
-    Task<> Analyser::operator()(const EnumDocComment& enumDocComment) {
-        typeTable_->registerType(
-            EnumType{
-                .name   = enumDocComment.name,
-                .desc   = enumDocComment.desc,
-                .values = enumDocComment.values
-            }
-        );
+    Task<> Analyser::operator()(const EnumAnnotation& enumAnnotation) {
+        typeTable_->registerType(enumAnnotation);
 
         co_return;
     }
 
     // STR 宏调用：仅检查 value 是否为 ErrorNode
-    Task<> Analyser::operator()(const StrCall& strCall) {
+    Task<> Analyser::operator()(const StrMacro& strCall) {
         // value 解析失败，上报类型不匹配
         if (std::holds_alternative<ErrorNode>(strCall.value))  [[unlikely]]
             reporter_->errorWith<ICMsgId::IEA1_2>(
@@ -336,7 +287,7 @@ namespace stationeers::ic10 {
     }
 
     // HASH 宏调用：仅检查 value 是否为 ErrorNode
-    Task<> Analyser::operator()(const HashCall& hashCall) {
+    Task<> Analyser::operator()(const HashMacro& hashCall) {
         // value 解析失败，上报类型不匹配
         if (std::holds_alternative<ErrorNode>(hashCall.value)) [[unlikely]]
             reporter_->errorWith<ICMsgId::IEA1_2>(
@@ -349,11 +300,21 @@ namespace stationeers::ic10 {
 
     // 以下为叶节点访问器：这些节点无子节点需要遍历，也无需符号解析，直接返回
 
-    Task<> Analyser::operator()(const Constant&) { co_return; }
+    Task<> Analyser::operator()(const SelfReferenceDevice&) { co_return; }
 
-    Task<> Analyser::operator()(const Device&) { co_return; }
+    Task<> Analyser::operator()(const OrdinaryDevice&) { co_return; }
 
-    Task<> Analyser::operator()(const Register&) { co_return; }
+    Task<> Analyser::operator()(const StaticDevice&) { co_return; }
+
+    Task<> Analyser::operator()(const DynamicDevice&) { co_return; }
+
+    Task<> Analyser::operator()(const GeneralPurposeRegister&) { co_return; }
+
+    Task<> Analyser::operator()(const AddressRegister&) { co_return; }
+
+    Task<> Analyser::operator()(const StackPointerRegister&) { co_return; }
+
+    Task<> Analyser::operator()(const DynamicRegister&) { co_return; }
 
     Task<> Analyser::operator()(const String&) { co_return; }
 
