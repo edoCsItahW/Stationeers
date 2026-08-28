@@ -28,30 +28,31 @@ namespace stationeers::ic10 {
                 || std::is_same_v<decltype(Vs), TypeCategory>)
         )
     bool Analyser::checkOperandType(const std::shared_ptr<Symbol>& symbol, auto&& arg) const {
-        auto flag = (... || ([&]<auto V> {
-                         using T = decltype(V);
+        auto flag = (... || ([&] {
+                         using T = decltype(Vs);
 
                          if constexpr (std::is_same_v<T, BasicType>)
-                             return symbol->type.kind == V;
+                             return symbol->type.kind == Vs;
 
                          else
-                             return symbol->type.category == V;
-                     }.template operator()<Vs>()));
+                             return symbol->type.category == Vs;
+                     }()));
 
         if (!flag) reporter_->errorWith<I>(arg.start(), arg.end(), symbol->name);
 
         return flag;
     }
 
-    // 通用指令访问器：遍历指令的所有操作数（args 元组），按操作数类型分派处理
     template<template<auto, auto...> class Ins, FString V, OperandType... Vs>
+        requires IsInstruction<Ins<V, Vs...>>
     Task<> Analyser::operator()(const Ins<V, Vs...>& ins) {
-        // 折叠表达式依次处理指令的所有操作数
+        // 通用指令访问器：遍历指令的所有操作数（args 元组），按操作数类型分派处理
         std::apply(
             [&](const auto&... args) -> Task<> {
                 // 每条指令开始前重置设备上下文，避免上一条指令的残留影响当前指令
-                // （fire-and-forget 模式下挂起的 lambda 不会恢复，重置不会影响已挂起的 lambda）
+                // 发后即忘模式下挂起的 lambda 不会恢复，重置不会影响已挂起的 lambda
                 pendingDeviceSymbol_.reset();
+                // 折叠表达式依次处理指令的所有操作数
                 (((void)co_await process<Vs>(args)), ...);
                 co_return;
             },
@@ -64,22 +65,18 @@ namespace stationeers::ic10 {
     template<OperandType Type>
     Task<> Analyser::process(const auto& variant) {
         // 单个操作数处理：对 variant 分派
-        // - Identifier: 解析符号（可能为前向引用，需等待 Future）
         // - ErrorNode : Parser 已上报，跳过避免重复诊断
-        // - 其他类型  : 递归访问（走叶节点访问器或其他专用访问器）
         (void)co_await std::visit(
-            [&]<typename T>(const T& arg) -> Task<> {
-                using U = std::decay_t<T>;
-
-                // Identifier: 需要解析符号
+            [&]<typename T, typename U = std::decay_t<T>>(const T& arg) -> Task<> {
+                // Identifier: 解析符号（可能为前向引用，需等待 Future）
                 if constexpr (std::is_same_v<U, Identifier>) {
                     // 标准库优先类型：逻辑网络名/插槽名/试剂模式/批量模式
                     // 这些标识符不是 IC10 语言级别的符号（别名/常量/标签），
                     // 不应走符号表 resolve（否则协程会永久挂起，依赖 failAllPending 恢复，
-                    // 在 fire-and-forget 模式下恢复链路不可靠），直接用标准库验证。
+                    // 在发后即忘模式下恢复链路不可靠），直接用标准库验证。
                     if constexpr (
-                        Type == OperandType::LOGIC_TYPE || Type == OperandType::LOGIC_SLOT
-                        || Type == OperandType::REAGENT_MODE || Type == OperandType::BATCH_MODE
+                        Type == OperandType::LOGIC_PROP || Type == OperandType::LOGIC_SLOT_PROP
+                        || Type == OperandType::REAGENT_MODE || Type == OperandType::AGG_MODE
                     ) {
                         // 构造 dummy symbol：若已有设备上下文，带入 typeName 供设备特定检查
                         auto sym = std::make_shared<Symbol>(arg.value, type_of<std::false_type>);
@@ -98,15 +95,14 @@ namespace stationeers::ic10 {
                         // 通用检查：有 typeName 走设备分支，无 typeName 走标准库枚举分支
                         IdentifierChecker<Type>::check(this, sym, arg);
                     }
+
                     // 设备引用/别名：需 resolve 以获取设备符号（可能为前向引用）
                     // 注意：必须通过 resolveSymbol（Task<shared_ptr<Symbol>>）而非直接 resolve，
                     // 因为 process 是 Task<void>，其 coro_state_weak_ 未设置，无法注册为 Future
                     // 等待者， 直接 co_await resolve 会导致协程永久挂起且 rethrow 永远不被调用。
                     // resolveSymbol 是非 void Task，可正确注册为等待者，被 failAllPending
                     // 恢复后上报 IE0_1。
-                    else if constexpr (
-                        Type == OperandType::DEV_REF || Type == OperandType::DEV_ALIAS
-                    ) {
+                    else if constexpr (Type == OperandType::DEVICE_REF) {
                         auto result = co_await resolveSymbol(arg.value, arg.position);
 
                         // resolveSymbol 失败时已由内部 rethrow 上报 IE0_1，result.value() 为
@@ -116,6 +112,7 @@ namespace stationeers::ic10 {
                                 std::move(result.value()), arg.start(), arg.end()
                             };
                     }
+
                     // 其他符号表类型：别名/常量/标签/寄存器等，走 resolveSymbol 流程
                     else {
                         auto result = co_await resolveSymbol(arg.value, arg.position);
@@ -128,15 +125,18 @@ namespace stationeers::ic10 {
                     co_return;
                 }
 
+                // Device: 解析设备符号，同时记录设备作为指令上下文
                 else if constexpr (std::is_same_v<U, Device>) {
-                    if constexpr (Type == OperandType::DEV_REF || Type == OperandType::DEV_ALIAS) {
+                    if constexpr (
+                        Type == OperandType::DEVICE_REF || Type == OperandType::DEVICE_REF_STRICT
+                    ) {
                         std::shared_ptr<Symbol> devSym;
 
-                        if (auto it = symbolTable_->builtinSymbols.find(arg.value);
+                        if (auto it = symbolTable_->builtinSymbols.find(arg.value);  // 动态寄存器自然失配
                             it != symbolTable_->builtinSymbols.end())
                             devSym = std::make_shared<Symbol>(it->second);
                         else
-                            devSym = std::make_shared<Symbol>(arg.value, type_of<Device>);
+                            devSym = std::make_shared<Symbol>(arg.value, type_of<StaticDevice>);
 
                         pendingDeviceSymbol_ = {devSym, arg.start(), arg.end()};
 
@@ -146,20 +146,22 @@ namespace stationeers::ic10 {
                         (void)co_await this->operator()(arg);
                 }
 
+                // 数值类型
                 else if constexpr (
                     std::is_same_v<U, Integer> || std::is_same_v<U, HexNumber>
                     || std::is_same_v<U, BinaryNumber> || std::is_same_v<U, Float>
                 ) {
+                    // 是槽索引则联合设备上下文进行范围检查
                     if constexpr (Type == OperandType::SLOT_IDX) {
                         if (pendingDeviceSymbol_
                             && !checkSlotIndexWithDevice(arg, pendingDeviceSymbol_->symbol))
                             co_return;
                     }
-
-                    (void)co_await this->operator()(arg);  // 常规递归
+                    else
+                        (void)co_await this->operator()(arg);  // 常规递归
                 }
 
-                // 其他类型: 递归访问
+                // 其他类型  : 递归访问（走叶节点访问器或其他专用访问器）
                 else
                     (void)co_await this->operator()(arg);
 
@@ -179,26 +181,29 @@ namespace stationeers::ic10 {
         if (!typeName) return false;
 
         if (const auto* ct = typeTable_->find(*typeName);
-            ct && std::holds_alternative<DeviceType>(*ct)) {
+            ct && std::holds_alternative<DeviceAnnotation>(*ct)) {
             if constexpr (
-                const auto& dt = std::get<DeviceType>(*ct); Type == OperandType::LOGIC_SLOT
+                const auto& dt = std::get<DeviceAnnotation>(*ct);
+                Type == OperandType::LOGIC_SLOT_PROP
             ) {
                 if (!std::ranges::contains(
-                        dt.logicSlots | std::views::transform(&DeviceLogicSlot::name),
+                        dt.logicSlots | std::views::transform(&DeviceAnnotationLogicSlot::value),
                         currentSym.name
                     ))
                     reporter_->errorWith<ICMsgId::IWA11_2>(start, end, currentSym.name, *typeName);
 
-            } else if constexpr (Type == OperandType::LOGIC_TYPE) {
+            } else if constexpr (Type == OperandType::LOGIC_PROP) {
                 if (!std::ranges::contains(
-                        dt.logics | std::views::transform(&DeviceLogic::name), currentSym.name
+                        dt.logics | std::views::transform(&DeviceAnnotationLogic::value),
+                        currentSym.name
                     ))
                     reporter_->errorWith<ICMsgId::IWA14_2>(start, end, currentSym.name, *typeName);
 
             } else if constexpr (Type == OperandType::SLOT_IDX) {
                 if (currentSym.value) {
                     if (!std::ranges::contains(
-                            dt.slots | std::views::transform(&DeviceSlot::index), *currentSym.value
+                            dt.slots | std::views::transform(&DeviceAnnotationSlot::value),
+                            *currentSym.value
                         ))
                         reporter_->errorWith<ICMsgId::IWA16_2>(
                             start, end, *currentSym.value, *typeName
@@ -213,9 +218,6 @@ namespace stationeers::ic10 {
 
             // 设备类型已找到：无论逻辑名是否匹配，检查都已在此完成，
             // 调用方不应再回落到 IdentifierChecker（否则会重复上报相同诊断）。
-            // Device type was found: regardless of whether the logic name matched,
-            // the check is complete here. The caller must NOT fall through to
-            // IdentifierChecker (otherwise the same diagnostic is reported twice).
             return true;
         }
 
@@ -226,26 +228,31 @@ namespace stationeers::ic10 {
     bool Analyser::checkGlobalEnum(
         const std::string& name, const Pos& start, const Pos& end
     ) const {
-        // 仅对映射到标准库枚举的操作数类型生效（LOGIC_TYPE/LOGIC_SLOT/REAGENT_MODE/BATCH_MODE）
+        // 仅对映射到标准库枚举的操作数类型生效（LOGIC_PROP/LOGIC_SLOT_PROP/REAGENT_MODE/AGG_MODE）
         // 这些类型即使标识符未定义，也需检查值是否属于对应标准库枚举，
         // 若不属于则上报"不是已知的X"，且不再上报未定义标识符。
         if constexpr (constexpr auto enumName = operand_type_name_v<Type>; enumName != "~") {
+
+            // 类型表中查找对应枚举类型，如存在则进一步检查该值是否在枚举值中
             if (auto* enumType = typeTable_->find(std::string(enumName));
-                enumType && std::holds_alternative<EnumType>(*enumType)) {
+                enumType && std::holds_alternative<EnumAnnotation>(*enumType)) {
+                // 若不在枚举值中则上报错误
                 if (!std::ranges::contains(
-                        std::get<EnumType>(*enumType).values
-                            | std::views::transform(&EnumValueEntry::name),
+                        std::get<EnumAnnotation>(*enumType).values
+                            | std::views::transform(&EnumAnnotationValue::name),
                         name
                     )) {
                     // 按操作数类型分派到对应诊断消息
-                    if constexpr (Type == OperandType::LOGIC_SLOT)
-                        reporter_->errorWith<ICMsgId::IWA12_1>(start, end, name);
-                    else if constexpr (Type == OperandType::LOGIC_TYPE)
-                        reporter_->errorWith<ICMsgId::IWA15_1>(start, end, name);
-                    else if constexpr (Type == OperandType::REAGENT_MODE)
-                        reporter_->errorWith<ICMsgId::IWA13_1>(start, end, name);
-                    else if constexpr (Type == OperandType::BATCH_MODE)
-                        reporter_->errorWith<ICMsgId::IWA17_1>(start, end, name);
+                    reporter_->errorWith<[] {
+                        if constexpr (Type == OperandType::LOGIC_PROP)
+                            return ICMsgId::IWA15_1;
+                        else if constexpr (Type == OperandType::LOGIC_SLOT_PROP)
+                            return ICMsgId::IWA12_1;
+                        else if constexpr (Type == OperandType::REAGENT_MODE)
+                            return ICMsgId::IWA13_1;
+                        else if constexpr (Type == OperandType::AGG_MODE)
+                            return ICMsgId::IWA17_1;
+                    }()>(start, end, name);
                 }
 
                 // 无论是否找到都返回 true：找到则合法；未找到则已上报"不是已知的X"，
@@ -266,17 +273,22 @@ namespace stationeers::ic10 {
         const auto& number, const std::shared_ptr<Symbol>& devSym
     ) {
         auto typeName = devSym->type.typeName;
+        // 没有类型提示的设备，即未知类型，无法检查
         if (!typeName) return false;
 
+        // 检查设备类型是否存在并包含槽信息
         if (const auto* ct = typeTable_->find(*typeName);
-            ct && std::holds_alternative<DeviceType>(*ct)) {
-            const auto& dt = std::get<DeviceType>(*ct);
+            ct && std::holds_alternative<DeviceAnnotation>(*ct)) {
+            const auto& dt = std::get<DeviceAnnotation>(*ct);
 
             const std::string& idxStr = number.value;
 
-            bool found =
-                std::ranges::contains(dt.slots | std::views::transform(&DeviceSlot::index), idxStr);
+            // 在设备槽信息中查找该数字是否存在
+            bool found = std::ranges::contains(
+                dt.slots | std::views::transform(&DeviceAnnotationSlot::value), idxStr
+            );
 
+            // 如果未找到则上报错误
             if (!found)
                 // 上报错误：该数字不在设备槽范围内
                 reporter_->errorWith<ICMsgId::IWA16_2>(
@@ -289,9 +301,9 @@ namespace stationeers::ic10 {
         return false;
     }
 
-    // 泛型 fallback 访问器：未匹配到专用访问器的节点走此分支，统一上报 IEA5（未知语法类型）
     template<typename T>
     Task<> Analyser::operator()(T&& arg) {
+        // 泛型 fallback 访问器：未匹配到专用访问器的节点走此分支，统一上报 IEA5（未知语法类型）
         using U = std::remove_cvref_t<T>;
 
         // 如果是 tuple-like 类型，尝试提取内部元素
@@ -308,301 +320,6 @@ namespace stationeers::ic10 {
             reporter_->errorWith<ICMsgId::IEA6>(arg.start(), arg.end(), std::string(U::nodeName));
 
         co_return;
-    }
-
-    template<OperandType Type>
-    bool Analyser::IdentifierChecker<Type>::check(
-        const Analyser*, const std::shared_ptr<Symbol>&, auto&&
-    ) noexcept {
-        return true;
-    }
-
-    // Register or Identifier - Register | Identifier
-    bool Analyser::IdentifierChecker<OperandType::REG_IDENT>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        return self->checkOperandType<ICMsgId::IWA1_1, BasicType::REGISTER>(symbol, arg);
-    }
-
-    // Device Alias - Device | Identifier
-    bool Analyser::IdentifierChecker<OperandType::DEV_ALIAS>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        return self->checkOperandType<ICMsgId::IWA2_1, BasicType::DEVICE>(symbol, arg);
-    }
-
-    // Register or Number - Register | Identifier | [Number]
-    bool Analyser::IdentifierChecker<OperandType::REG_NUM>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        return self->checkOperandType<ICMsgId::IWA3_1, BasicType::REGISTER, BasicType::INTEGER, BasicType::FLOAT, TypeCategory::NUMBER>(
-            symbol, arg
-        );
-    }
-
-    // Device Reference - Device | Register | Identifier
-    bool Analyser::IdentifierChecker<OperandType::DEV_REF>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        return self->checkOperandType<ICMsgId::IWA4_1, BasicType::DEVICE, BasicType::REGISTER>(
-            symbol, arg
-        );
-    }
-
-    // Logic Slot - Identifier | [Number]
-    bool Analyser::IdentifierChecker<OperandType::LOGIC_SLOT>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        // 有类型注释
-        if (symbol->type.typeName && self->typeTable_->find(*symbol->type.typeName)) {
-            const auto& deviceTypeName = *symbol->type.typeName;
-
-            return std::visit(
-                [&]<typename T>(T&& type) {
-                    using U = std::remove_cvref_t<T>;
-
-                    // 类型为设备，一般不会是枚举，在别名定义已被上报
-                    if constexpr (std::is_same_v<U, DeviceType>) {
-                        bool flag = std::ranges::contains(
-                            type.logicSlots | std::views::transform(&DeviceLogicSlot::name),
-                            arg.value
-                        );
-
-                        if (!flag)
-                            self->reporter_->errorWith<ICMsgId::IWA11_2>(
-                                arg.start(), arg.end(), arg.value, deviceTypeName
-                            );
-
-                        return flag;
-                    }
-
-                    return false;
-                },
-                *self->typeTable_->find(deviceTypeName)
-            );
-        }
-
-        // 无类型注释
-        if (auto logicSlotTypePtr = self->typeTable_->find("LogicSlotType"); logicSlotTypePtr) {
-            auto isLogicSlot = std::visit(
-                [&]<typename T>(T&& type) {
-                    using U = std::remove_cvref_t<T>;
-
-                    if constexpr (std::is_same_v<U, EnumType>) {
-                        bool flag = std::ranges::contains(
-                            type.values | std::views::transform(&EnumValueEntry::name), arg.value
-                        );
-
-                        if (!flag)
-                            self->reporter_->errorWith<ICMsgId::IWA12_1>(
-                                arg.start(), arg.end(), arg.value
-                            );
-
-                        return flag;
-                    }
-
-                    return false;
-                },
-                *logicSlotTypePtr
-            );
-
-            if (!isLogicSlot)
-                return self->checkOperandType<ICMsgId::IWA5_1, TypeCategory::NUMBER>(symbol, arg);
-
-        } else
-            self->reporter_->errorWith<ICMsgId::IEA8_1>(arg.start(), arg.end(), "LogicSlotType");
-
-        return false;
-    }
-
-    // Reagent Mode - Identifier | [Number]
-    bool Analyser::IdentifierChecker<OperandType::REAGENT_MODE>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        if (auto reagentModePtr = self->typeTable_->find("ReagentMode"); reagentModePtr) {
-            auto isReagentMode = std::visit(
-                [&]<typename T>(T&& type) {
-                    using U = std::remove_cvref_t<T>;
-
-                    if constexpr (std::is_same_v<U, EnumType>) {
-                        bool flag = std::ranges::contains(
-                            type.values | std::views::transform(&EnumValueEntry::name), arg.value
-                        );
-
-                        if (!flag)
-                            self->reporter_->errorWith<ICMsgId::IWA13_1>(
-                                arg.start(), arg.end(), arg.value
-                            );
-
-                        return flag;
-                    }
-
-                    return false;
-                },
-                *reagentModePtr
-            );
-
-            if (!isReagentMode)
-                return self->checkOperandType<ICMsgId::IWA6_1, TypeCategory::NUMBER>(symbol, arg);
-        } else
-            self->reporter_->errorWith<ICMsgId::IEA8_1>(arg.start(), arg.end(), "ReagentMode");
-
-        return false;
-    }
-
-    // Jump Target - Identifier | [Number]
-    bool Analyser::IdentifierChecker<OperandType::JUMP_TARGET>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        return self->checkOperandType<ICMsgId::IWA7_1, TypeCategory::LABEL, TypeCategory::NUMBER, BasicType::REGISTER>(
-            symbol, arg
-        );
-    }
-
-    // Logic Type - Identifier | [Number]
-    bool Analyser::IdentifierChecker<OperandType::LOGIC_TYPE>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        // 有类型注释
-        if (symbol->type.typeName && self->typeTable_->find(*symbol->type.typeName)) {
-            const auto& deviceTypeName = *symbol->type.typeName;
-
-            return std::visit(
-                [&]<typename T>(T&& type) {
-                    using U = std::remove_cvref_t<T>;
-
-                    // 类型为设备，一般不会是枚举，在别名定义已被上报
-                    if constexpr (std::is_same_v<U, DeviceType>) {
-                        auto view = type.logics | std::views::enumerate;
-
-                        if (auto it = std::ranges::find_if(
-                                view,
-                                [&](const auto& pair) {
-                                    return std::get<1>(pair).name == arg.value;
-                                }
-                            );
-                            it == view.end())
-                            self->reporter_->errorWith<ICMsgId::IWA14_2>(
-                                arg.start(), arg.end(), arg.value, deviceTypeName
-                            );
-
-                        // TODO: 检查读写权限
-                        // else {
-                        //     auto& [idx, slot] = *it;
-                        //
-                        //
-                        // }
-
-                        return true;
-                    }
-
-                    return false;
-                },
-                *self->typeTable_->find(deviceTypeName)
-            );
-        }
-
-        // 无类型注释
-        if (auto logicSlotTypePtr = self->typeTable_->find("LogicType"); logicSlotTypePtr) {
-            auto isLogicSlot = std::visit(
-                [&]<typename T>(T&& type) {
-                    using U = std::remove_cvref_t<T>;
-
-                    if constexpr (std::is_same_v<U, EnumType>) {
-                        bool flag = std::ranges::contains(
-                            type.values | std::views::transform(&EnumValueEntry::name), arg.value
-                        );
-
-                        if (!flag)
-                            self->reporter_->errorWith<ICMsgId::IWA15_1>(
-                                arg.start(), arg.end(), arg.value
-                            );
-
-                        return flag;
-                    }
-
-                    return false;
-                },
-                *logicSlotTypePtr
-            );
-
-            if (!isLogicSlot)
-                return self->checkOperandType<ICMsgId::IWA8_1, TypeCategory::NUMBER>(symbol, arg);
-
-        } else
-            self->reporter_->errorWith<ICMsgId::IEA8_1>(arg.start(), arg.end(), "LogicType");
-
-        return false;
-    }
-
-    // Slot Index - [Number]
-    bool Analyser::IdentifierChecker<OperandType::SLOT_IDX>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        if (symbol->type.typeName && self->typeTable_->find(*symbol->type.typeName)) {
-            const auto& deviceTypeName = *symbol->type.typeName;
-
-            return std::visit(
-                [&]<typename T>(T&& type) {
-                    using U = std::remove_cvref_t<T>;
-
-                    // 类型为设备，一般不会是枚举，在别名定义已被上报
-                    if constexpr (std::is_same_v<U, DeviceType>) {
-                        if (symbol->value) {
-                            bool flag = std::ranges::contains(
-                                type.slots | std::views::transform(&DeviceSlot::index),
-                                *symbol->value
-                            );
-
-                            if (!flag)
-                                self->reporter_->errorWith<ICMsgId::IWA16_2>(
-                                    arg.start(), arg.end(), *symbol->value, deviceTypeName
-                                );
-
-                            return flag;
-                        }
-                    }
-                },
-                *self->typeTable_->find(deviceTypeName)
-            );
-        }
-
-        return self->checkOperandType<ICMsgId::IWA9_1, TypeCategory::NUMBER>(symbol, arg);
-    }
-
-    // Batch Mode - Identifier | [Number]
-    bool Analyser::IdentifierChecker<OperandType::BATCH_MODE>::check(
-        const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
-    ) {
-        if (auto batchModePtr = self->typeTable_->find("BatchMode"); batchModePtr) {
-            auto isBatchMode = std::visit(
-                [&]<typename T>(T&& type) {
-                    using U = std::remove_cvref_t<T>;
-
-                    if constexpr (std::is_same_v<U, EnumType>) {
-                        bool flag = std::ranges::contains(
-                            type.values | std::views::transform(&EnumValueEntry::name), arg.value
-                        );
-
-                        if (!flag)
-                            self->reporter_->errorWith<ICMsgId::IWA17_1>(
-                                arg.start(), arg.end(), arg.value
-                            );
-
-                        return flag;
-                    }
-
-                    return false;
-                },
-                *batchModePtr
-            );
-
-            if (!isBatchMode)
-                return self->checkOperandType<ICMsgId::IWA10_1, TypeCategory::NUMBER>(symbol, arg);
-        } else
-            self->reporter_->errorWith<ICMsgId::IEA8_1>(arg.start(), arg.end(), "BatchMode");
-
-        return false;
     }
 
 }  // namespace stationeers::ic10

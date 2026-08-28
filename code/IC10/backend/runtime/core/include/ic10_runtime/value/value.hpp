@@ -48,7 +48,7 @@ namespace stationeers::ic10 {
 
     std::optional<double> constantValue(const std::string& keyword) noexcept;
 
-    std::optional<double> macroCall(const MacroCall& macroCall);
+    std::optional<double> macroCall(const Macro& macroCall);
 
     std::optional<double> directionValue(const Operand& operand);
 

@@ -19,12 +19,16 @@ DIV : '/' ;
 
 link : DOT ( DIV Identifier ( DOT Identifier )* )+ ;
 
+description : link
+            | string
+            ;
+
 // 类型提示
 typeHintPrefix : HASH COLON ;
 
 typeTag : AT 'type' Identifier ;
 
-descriptionTag : AT 'desc' link ;
+descriptionTag : AT 'desc' description ;
 
 builtinTag : AT 'builtin' ;
 
@@ -39,7 +43,7 @@ enumStartTag : AT 'enum' ;
 
 enumEndTag : AT 'end-enum' ;
 
-enumValueTag : AT 'value' Identifier Integer link? ;
+enumValueTag : AT 'value' Identifier Integer description? ;
 
 // 设备标签
 deviceStartTag : AT 'device' ;

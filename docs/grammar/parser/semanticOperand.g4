@@ -50,11 +50,5 @@ deviceHash : number | identifier | hashMacro ;
 // nameHash : 设备名称哈希值
 nameHash : number | identifier | hashMacro ;
 
-// str :（alias 指令）别名定义名称（不含点号）
-aliasDef : identifier ;
-
-// str :（define 指令）常量定义名称（不含点号）
-constDef : identifier ;
-
 // num : （define 的值部分）纯数值字面量（仅数字）
 constNum : number ;

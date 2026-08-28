@@ -186,7 +186,7 @@ TEST_F(IntegrationTestFixture, FullPipelineWithComments) {
     auto source =
         "# 初始化\n"
         "move r0 0  # 计数器\n"
-        "// 主循环\n"
+        "# 主循环\n"
         "loop:\n"
         "add r0 r0 1\n"
         "yield\n"
@@ -205,7 +205,7 @@ TEST_F(IntegrationTestFixture, FullPipelineEmptyProgram) {
 }
 
 TEST_F(IntegrationTestFixture, FullPipelineOnlyComments) {
-    auto result = compile("# comment 1\n// comment 2\n# comment 3\n");
+    auto result = compile("# comment 1\n# comment 2\n# comment 3\n");
 
     EXPECT_EQ(result.ast.statements.size(), 0u);
     EXPECT_TRUE(result.analyser->getDiagnostics().empty());

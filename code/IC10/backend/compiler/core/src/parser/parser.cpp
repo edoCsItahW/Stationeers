@@ -14,10 +14,11 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-#include "ic10_compiler/parser/doc_parser.hpp"
 #include "ic10_compiler/parser/parser.hpp"
 #include "common/exception/debug.hpp"
 #include "common/utils/common.hpp"
+#include "ic10_compiler/parser/expand_node_parser.hpp"
+#include "ic10_compiler/parser/instruction_dispatcher.hpp"
 #include <format>
 
 namespace stationeers::ic10 {
@@ -32,22 +33,26 @@ namespace stationeers::ic10 {
         skip();
 
         while (inScope()) {
-            if (current()->type == TokenType::END) [[unlikely]] return program;
+            if (current()->type == TokenType::END) [[unlikely]]
+                return program;
 
             program.statements.push_back(parseStatement());
 
             // 跳过行内注释（注释与语句在同一行，不需要换行分隔）
-            while (inScope() && current()->category == TokenCategory::COMMENT) consume();
+            while (inScope() && current()->category == TokenCategory::COMMENT) consume();  // COMMENT
 
             // 除最后一个语句可以直接以END结尾
-            if (current()->type == TokenType::END) [[unlikely]] break;
+            if (current()->type == TokenType::END) [[unlikely]]
+                break;
 
             // 语句之间必须以换行分隔
-            // 参考IC10.g4: program : statement (NEWLINE+ statement)* NEWLINE* EOF;
             if (current()->type == TokenType::NEWLINE)
                 expect(TokenType::NEWLINE, false);
-            else
+            else {
                 reporter_.error<ICMsgId::IEP26>(current()->pos, endPos(*current()));
+
+                gotoNextLine();  // 以换行为同步点的行级错误恢复策略
+            }
 
             // 其余换行和注释跳过
             skip();
@@ -63,1204 +68,74 @@ namespace stationeers::ic10 {
     }
 
     Statement Parser::parseStatement() {
-        if (debug_) [[unlikely]] Console::log(std::format("Statement: {}", current()->toString()));
-
         if (!current()) [[unlikely]] {
             reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
 
             return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
         }
 
-        int layer = 1;
+        // 指令语句交由指令分发器解析
+        if (current()->type == TokenType::KEYWORD)
+            return wide_cast<Statement>(parseExecutableInstruction());
 
-        switch (current()->type) {
-            using enum TokenType;
-            case DOC_COMMENT: {
-                DocParser docParser(tokens_, idx_, reporter_);
-                return wide_cast<Statement>(docParser.parseDocCommentBlock());
-            }
-            case TYPE_HINT: {
-                const auto tokenTypeStr = enumToStr(current()->type);
-                reporter_.errorWith<ICMsgId::IEP1_1>(
-                    current()->pos, endPos(*current()), tokenTypeStr
-                );
-                auto errToken = *current();
-                consume();
-                return ErrorNode{errToken, ICLoc::msgFormat<ICMsgId::IEP1_1>(tokenTypeStr)};
-            }
-            case IDENTIFIER: return wide_cast<Statement>(parseLabelDef(layer));
-            case KEYWORD_ALIAS: [[fallthrough]];
-            case KEYWORD_DEFINE: return wide_cast<Statement>(parsePreprocessorDirective(layer));
-            default: return wide_cast<Statement>(parseExecutableInstruction(layer));
-        }
+        // 其余交由前瞻解析器解析
+        return wide_cast<Statement>(matchVariant<FirstStatement>());
     }
 
-    ShallowErrorable<LabelDef> Parser::parseLabelDef(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Label");
+    ExecutableInstruction Parser::parseExecutableInstruction() {
+        if (auto c = current(); c->type == TokenType::KEYWORD && c->keyword) [[likely]] {
+            consume();  // KEYWORD
 
-        LabelDef labelDef{current()->pos};
+            auto result = dispatch(
+                // 操作数类型萃取回调，自动获取操作数类型并解析
+                [&]<template<FString, OperandType...> class Ins, FString K, OperandType... Vs>(
+                    Ins<K, Vs...>&&
+                ) {
+                    using Instruction = Ins<K, Vs...>;
 
-        labelDef.identifier = parseIdentifier(++layer);
+                    typename Instruction::Args args;  // 指令参数tuple类型
 
-        try {
-            // 只跳过注释，不跳过换行 —— 换行是同步点，跳过会导致错误恢复时吃掉下一行的 token
-            while (inScope() && current()->category == TokenCategory::COMMENT) consume();
-            // skipWs=false: 不跳过换行; errorConsume=false: 出错时不自动消耗 token
-            expect(TokenType::COLON, false, false);
+                    [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+                        // 逐个解析操作数
+                        ((std::get<Is>(args) = matchOperand<Vs>()), ...);
+                    }(std::make_index_sequence<sizeof...(Vs)>{});
 
-        } catch (const Error&) {
-            reporter_.error<ICMsgId::IEP23>(current()->pos, endPos(*current()));
+                    // 拆包参数构造指令
+                    return std::apply(
+                        [&](auto&&... params) { return Instruction(c->pos, params...); }, args
+                    );
+                },
+                *c->keyword
+            );
 
-            auto errToken = *current();
-            // 不消耗 token，让 parse() 主循环通过 NEWLINE 同步到下一行
-            return ErrorNode{labelDef.position, errToken, ICLoc::msgStr<ICMsgId::IEP23>()};
+            if (result) return wide_cast<ExecutableInstruction>(*result);
         }
 
-        return labelDef;
-    }
-
-    Parser::TypeHintResult Parser::parseTypeHintTags(const std::string& lexeme) {
-        TypeHintResult result;
-
-        auto content = lexeme.substr(2);  // 跳过 "#:"
-        auto pos     = content.find_first_not_of(" \t");
-
-        while (pos != std::string::npos) {
-            if (content[pos] != '@') break;
-
-            auto tagStart = pos + 1;
-            auto tagEnd   = content.find_first_of(" \t", tagStart);
-            if (tagEnd == std::string::npos) tagEnd = content.size();
-            auto tagName = content.substr(tagStart, tagEnd - tagStart);
-
-            auto valueStart = content.find_first_not_of(" \t", tagEnd);
-            std::string value;
-            if (valueStart != std::string::npos && content[valueStart] != '@') {
-                size_t valueEnd;
-                if (content[valueStart] == '"') {
-                    // 引号包裹的值：查找匹配的闭合引号（支持空格）
-                    valueEnd = content.find('"', valueStart + 1);
-                    if (valueEnd != std::string::npos)
-                        ++valueEnd;  // 包含闭合引号
-                    else
-                        valueEnd = content.size();  // 未闭合引号，取到末尾
-                } else
-                    // 非引号值：取到下一个 @ 或末尾，支持带空格的描述文本
-                    // 如 @desc Constant value 应得到 "Constant value" 而非 "Constant"
-                    valueEnd = content.find('@', valueStart);
-
-                if (valueEnd == std::string::npos) valueEnd = content.size();
-                value = content.substr(valueStart, valueEnd - valueStart);
-                // 去除值尾部空白（如 Windows CRLF 残留的 '\r'）
-                while (!value.empty() && std::isspace(static_cast<unsigned char>(value.back())))
-                    value.pop_back();
-                pos = content.find_first_not_of(" \t", valueEnd);
-            } else
-                pos = valueStart;
-
-            if (tagName == "type" && !value.empty())
-                result.type = value;
-            else if (tagName == "desc" && !value.empty())
-                result.desc = value;
-        }
-
-        return result;
-    }
-
-    PreprocessorDirective Parser::parsePreprocessorDirective(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "PreprocessorDirective");
-
-        ++layer;
-
-        if (current()->type == TokenType::KEYWORD_ALIAS)  [[likely]]
-            return wide_cast<PreprocessorDirective>(parseAliasDirective(layer));
-
-        if (current()->type == TokenType::KEYWORD_DEFINE)  [[likely]]
-            return wide_cast<PreprocessorDirective>(parseDefineDirective(layer));
-
-        reporter_.errorWith<ICMsgId::IEP2_1>(
+        reporter_.errorWith<ICMsgId::IEP3_1>(
             current()->pos, endPos(*current()), enumToStr(current()->type)
         );
 
         auto errToken = *current();
         consume();
-        return ErrorNode{errToken, ICLoc::msgFormat<ICMsgId::IEP2_1>(enumToStr(errToken.type))};
+        return ErrorNode{errToken, ICLoc::msgFormat<ICMsgId::IEP3_1>(enumToStr(errToken.type))};
     }
 
-    ShallowErrorable<AliasDirective> Parser::parseAliasDirective(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "AliasDirective");
-
-        ++layer;
-
-        AliasDirective aliasDirective{current()->pos};
-
-        try {
-            expect(TokenType::KEYWORD_ALIAS);
-
-        } catch (const Error&) {
-            reporter_.error<ICMsgId::IEP24>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP24>()};
-        }
-
-        aliasDirective.identifier = parseIdentifier(layer);
-
-        aliasDirective.registerOrDevice = parseRegisterOrDevice(layer);
-
-        // 解析尾随类型提示（同一行）
-        if (inScope() && current()->type == TokenType::TYPE_HINT) {
-            auto token = current();
-            consume();
-            auto hintResult     = parseTypeHintTags(token->lexeme);
-            aliasDirective.type = hintResult.type;
-            aliasDirective.desc = hintResult.desc;
-        }
-
-        return aliasDirective;
-    }
-
-    ExecutableInstruction Parser::parseExecutableInstruction(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "ExecutableInstruction");
-
-        ++layer;
-
-        if (NullaryInstructionMap::contains(current()->type))
-            return wide_cast<ExecutableInstruction>(parseNullaryInstruction(layer));
-
-        if (UnaryInstructionMap::contains(current()->type))
-            return wide_cast<ExecutableInstruction>(parseUnaryInstruction(layer));
-
-        if (BinaryInstructionMap::contains(current()->type))
-            return wide_cast<ExecutableInstruction>(parseBinaryInstruction(layer));
-
-        if (TernaryInstructionMap::contains(current()->type))
-            return wide_cast<ExecutableInstruction>(parseTernaryInstruction(layer));
-
-        if (QuaternaryInstructionMap::contains(current()->type))
-            return wide_cast<ExecutableInstruction>(parseQuaternaryInstruction(layer));
-
-        if (QuinaryInstructionMap::contains(current()->type))
-            return wide_cast<ExecutableInstruction>(parseQuinaryInstruction(layer));
-
-        if (SenaryInstructionMap::contains(current()->type))
-            return wide_cast<ExecutableInstruction>(parseSenaryInstruction(layer));
-
-        else [[unlikely]] {
-            reporter_.errorWith<ICMsgId::IEP3_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            auto errToken = *current();
-            consume();
-            return ErrorNode{errToken, ICLoc::msgFormat<ICMsgId::IEP3_1>(enumToStr(errToken.type))};
-        }
-    }
-
-#define VARIANT_TRANS_FACTORY(narrowType, wideType, ...)                                           \
-    wide_cast<wideType>(std::apply(                                                                \
-        []<typename... Args>(Args&&... args) {                                                     \
-            return narrowType::make(std::forward<Args>(args)...);                                  \
-        },                                                                                         \
-        std::tuple{__VA_ARGS__}                                                                    \
-    ));
-
-#ifdef _MSC_VER
-
-    #define INSTRUCTION_CASE(narrowType, wideType, currentType, ...)                               \
-        if (narrowType::contains(currentType))                                                     \
-        return VARIANT_TRANS_FACTORY(narrowType, wideType, currentType, ##__VA_ARGS__)
-
-#else
-
-    #define INSTRUCTION_CASE(narrowType, wideType, currentType, ...)                               \
-        if (narrowType::contains(currentType))                                                     \
-        return VARIANT_TRANS_FACTORY(narrowType, wideType, currentType __VA_OPT__(, ) __VA_ARGS__)
-
-#endif
-
-    NullaryInstruction Parser::parseNullaryInstruction(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "NullaryInstruction");
-
-        const auto c = current();
-
-        consume();
-
-        return wide_cast<NullaryInstruction>(NullaryInstructionMap::make(c->type, c->pos));
-    }
-
-    UnaryInstruction Parser::parseUnaryInstruction(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "UnaryInstruction");
-
-        ++layer;
-
-        const auto c = current();
-
-        consume();
-
-        if (UnaryInstructionMap_RI::contains(c->type))
-            return std::visit(
-                // 该lambda将宽变体转换为窄变体
-                []<typename T>(T&& t) -> UnaryInstruction { return std::forward<T>(t); },
-                // 使用std::apply将参数包展开，应用参数
-                std::apply(
-                    // 该lambda将函数模板转为可调用对象，以符合std::apply的要求
-                    []<typename... Args>(Args&&... args) {
-                        return UnaryInstructionMap_RI::make(std::forward<Args>(args)...);
-                    },
-                    // 使用列表初始化显式地从左向右进行参数求值，而非编译器的从右向左求值
-                    std::tuple{c->type, c->pos, parseRegisterOrIdentifier(layer)}
-                )
-            );
-
-        INSTRUCTION_CASE(
-            UnaryInstructionMap_DAR, UnaryInstruction, c->type, c->pos, parseDeviceAliasRef(layer)
-        )
-
-        INSTRUCTION_CASE(
-            UnaryInstructionMap_RON, UnaryInstruction, c->type, c->pos, parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            UnaryInstructionMap_JT, UnaryInstruction, c->type, c->pos, parseJumpTarget(layer)
-        )
-        
-        else [[unlikely]] {
-            reporter_.errorWith<ICMsgId::IEP4_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP4_1>(enumToStr(c->type))};
-        }
-
-    }
-
-    BinaryInstruction Parser::parseBinaryInstruction(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "BinaryInstruction");
-
-        ++layer;
-
-        const auto c = current();
-
-        consume();
-
-        INSTRUCTION_CASE(
-            BinaryInstructionMap_RI_RON, BinaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            BinaryInstructionMap_DR_RON, BinaryInstruction, c->type, c->pos,
-            parseDeviceReference(layer), parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            BinaryInstructionMap_RI_DR, BinaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseDeviceReference(layer)
-        )
-
-        INSTRUCTION_CASE(
-            BinaryInstructionMap_RON_RON, BinaryInstruction, c->type, c->pos,
-            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
-        )
-        
-        else [[unlikely]] {
-            reporter_.errorWith<ICMsgId::IEP5_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP5_1>(enumToStr(c->type))};
-        }
-    }
-
-    TernaryInstruction Parser::parseTernaryInstruction(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "TernaryInstruction");
-
-        ++layer;
-
-        const auto c = current();
-
-        consume();
-
-        INSTRUCTION_CASE(
-            TernaryInstructionMap_RI_RON_RON, TernaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer),
-            parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            TernaryInstructionMap_RI_DR_RON, TernaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseDeviceReference(layer),
-            parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            TernaryInstructionMap_RI_DAR_RON, TernaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseDeviceAliasRef(layer),
-            parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            TernaryInstructionMap_DR_RON_RON, TernaryInstruction, c->type, c->pos,
-            parseDeviceReference(layer), parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            TernaryInstructionMap_RI_DR_LT, TernaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseDeviceReference(layer), parseLogicType(layer)
-        )
-
-        INSTRUCTION_CASE(
-            TernaryInstructionMap_DR_LT_RI, TernaryInstruction, c->type, c->pos,
-            parseDeviceReference(layer), parseLogicType(layer), parseRegisterOrIdentifier(layer)
-        )
-
-        INSTRUCTION_CASE(
-            TernaryInstructionMap_RON_LT_RI, TernaryInstruction, c->type, c->pos,
-            parseRegisterOrNumber(layer), parseLogicType(layer), parseRegisterOrIdentifier(layer)
-        )
-
-        INSTRUCTION_CASE(
-            TernaryInstructionMap_DR_LT_RON, TernaryInstruction, c->type, c->pos,
-            parseDeviceReference(layer), parseLogicType(layer), parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            TernaryInstructionMap_RON_RON_RON, TernaryInstruction, c->type, c->pos,
-            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
-        )
-        
-        else [[unlikely]] {
-            reporter_.errorWith<ICMsgId::IEP6_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP6_1>(enumToStr(c->type))};
-        }
-    }
-
-    QuaternaryInstruction Parser::parseQuaternaryInstruction(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "QuaternaryInstruction");
-
-        ++layer;
-
-        const auto c = current();
-
-        consume();
-
-        INSTRUCTION_CASE(
-            QuaternaryInstructionMap_RI_RON_RON_RON, QuaternaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer),
-            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            QuaternaryInstructionMap_DR_SI_LS_RI, QuaternaryInstruction, c->type, c->pos,
-            parseDeviceReference(layer), parseSlotIndex(layer), parseLogicSlotType(layer),
-            parseRegisterOrIdentifier(layer)
-        )
-
-        INSTRUCTION_CASE(
-            QuaternaryInstructionMap_RI_RON_LT_BM, QuaternaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer), parseLogicType(layer),
-            parseBatchMode(layer)
-        )
-
-        INSTRUCTION_CASE(
-            QuaternaryInstructionMap_RON_RON_LT_RI, QuaternaryInstruction, c->type, c->pos,
-            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer), parseLogicSlotType(layer),
-            parseRegisterOrIdentifier(layer)
-        )
-
-        INSTRUCTION_CASE(
-            QuaternaryInstructionMap_RON_SI_LS_RI, QuaternaryInstruction, c->type, c->pos,
-            parseRegisterOrNumber(layer), parseSlotIndex(layer), parseLogicSlotType(layer),
-            parseRegisterOrIdentifier(layer)
-        )
-
-        INSTRUCTION_CASE(
-            QuaternaryInstructionMap_RON_RON_RON_RON, QuaternaryInstruction, c->type, c->pos,
-            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer),
-            parseRegisterOrNumber(layer), parseRegisterOrNumber(layer)
-        )
-
-        INSTRUCTION_CASE(
-            QuaternaryInstructionMap_RI_DR_SI_LS, QuaternaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseDeviceReference(layer), parseSlotIndex(layer),
-            parseLogicSlotType(layer)
-        )
-
-        INSTRUCTION_CASE(
-            QuaternaryInstructionMap_RI_DR_RM_JT, QuaternaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseDeviceReference(layer), parseReagentMode(layer),
-            parseJumpTarget(layer)
-        )
-        
-        else [[unlikely]] {
-            reporter_.errorWith<ICMsgId::IEP7_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP7_1>(enumToStr(c->type))};
-        }
-    }
-
-    QuinaryInstruction Parser::parseQuinaryInstruction(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "QuinaryInstruction");
-
-        ++layer;
-
-        const auto c = current();
-
-        consume();
-
-        INSTRUCTION_CASE(
-            QuinaryInstructionMap_RI_RON_RON_LT_BM, QuinaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer),
-            parseRegisterOrNumber(layer), parseLogicType(layer), parseBatchMode(layer)
-        )
-
-        INSTRUCTION_CASE(
-            QuinaryInstructionMap_RI_RON_SI_LS_BM, QuinaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer), parseSlotIndex(layer),
-            parseLogicSlotType(layer), parseBatchMode(layer)
-        )
-        
-        else [[unlikely]] {
-            reporter_.errorWith<ICMsgId::IEP8_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP8_1>(enumToStr(c->type))};
-        }
-    }
-
-    SenaryInstruction Parser::parseSenaryInstruction(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "SenaryInstruction");
-
-        ++layer;
-
-        const auto c = current();
-
-        consume();
-
-        INSTRUCTION_CASE(
-            SenaryInstructionMap_RI_RON_RON_SI_LS_BM, SenaryInstruction, c->type, c->pos,
-            parseRegisterOrIdentifier(layer), parseRegisterOrNumber(layer),
-            parseRegisterOrNumber(layer), parseSlotIndex(layer), parseLogicSlotType(layer),
-            parseBatchMode(layer)
-        )
-
-        else [[unlikely]] {
-            reporter_.errorWith<ICMsgId::IEP9_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            return ErrorNode{c->pos, *current(), ICLoc::msgFormat<ICMsgId::IEP9_1>(enumToStr(c->type))};
-        }
-    }
-
-    ShallowErrorable<DefineDirective> Parser::parseDefineDirective(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "DefineDirective");
-
-        ++layer;
-
-        DefineDirective defineDirective{current()->pos};
-
-        try {
-            expect(TokenType::KEYWORD_DEFINE);
-
-        } catch (const Error&) {
-            reporter_.error<ICMsgId::IEP25>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP25>()};
-        }
-
-        defineDirective.identifier = parseIdentifier(layer);
-
-        defineDirective.operand = parseNumberValue(layer);
-
-        // 解析尾随类型提示（同一行）
-        if (inScope() && current()->type == TokenType::TYPE_HINT) {
-            auto token = current();
-            consume();
-            auto hintResult      = parseTypeHintTags(token->lexeme);
-            defineDirective.type = hintResult.type;
-            defineDirective.desc = hintResult.desc;
-        }
-
-        return defineDirective;
-    }
-
-    Operand Parser::parseOperand(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Operand");
-
-        ++layer;
-
-        if (!current()) {
-            reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
-        }
-
-        // 情况1：是操作数起始 → 正常解析
-        if (isStartToken<Operand>(current()->type)) {
-            switch (current()->type) {
-                using enum TokenType;
-                case REGISTER: return wide_cast<Operand>(parseRegister(layer));
-                case DEVICE: return wide_cast<Operand>(parseDevice(layer));
-                case INTEGER: [[fallthrough]];
-                case FLOAT: [[fallthrough]];
-                case HEX_NUMBER: [[fallthrough]];
-                case BINARY_NUMBER: return wide_cast<Operand>(parseNumber(layer));
-                case IDENTIFIER: return wide_cast<Operand>(parseIdentifier(layer));
-                case KEYWORD_HASH: [[fallthrough]];
-                case KEYWORD_STR: return wide_cast<Operand>(parseMacroCall(layer));
-                case KEYWORD_NAN: [[fallthrough]];
-                case KEYWORD_PINF: [[fallthrough]];
-                case KEYWORD_NINF: [[fallthrough]];
-                case KEYWORD_PI: [[fallthrough]];
-                case KEYWORD_TAU: [[fallthrough]];
-                case KEYWORD_DEG2RAD: [[fallthrough]];
-                case KEYWORD_RAD2DEG: [[fallthrough]];
-                case KEYWORD_EPSILON: [[fallthrough]];
-                case KEYWORD_RGAS: return wide_cast<Operand>(parseConstant(layer));
-                default: [[unlikely]] {
-                    // 理论上不会到这里，isStartToken 已过滤
-                    reporter_.errorWith<ICMsgId::IEP10_1>(
-                        current()->pos, endPos(*current()), enumToStr(current()->type)
-                    );
-
-                    return ErrorNode{
-                        *current(), ICLoc::msgFormat<ICMsgId::IEP10_1>(enumToStr(current()->type))
-                    };
-                }
-            }
-        }
-
-        // 情况2：是停止点（语句开始/行结束）→ 不消耗，返回 ErrorNode
-        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
-            || isStatementStart(current()->type)) {
-            reporter_.error<ICMsgId::IEP17>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP17>()};
-        }
-        
-        else [[unlikely]] {
-            // 情况3：坏 token → 消耗，继续尝试
-            reporter_.errorWith<ICMsgId::IEP10_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            consume();
-
-            return parseOperand(layer);
-        }
-    }
-
-    ShallowErrorable<Register> Parser::parseRegister(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Register");
-
-        Register reg{current()->pos};
-
-        try {
-            reg.value = expect(TokenType::REGISTER)->lexeme;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return reg;
-    }
-
-    RegisterOrDevice Parser::parseRegisterOrDevice(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "RegisterOrDevice");
-
-        ++layer;
-
-        // 情况1：是合法起始 → 正常解析
-        if (isStartToken<RegisterOrDevice>(current()->type)) {
-            if (current()->type == TokenType::REGISTER)
-                return wide_cast<RegisterOrDevice>(parseRegister(layer));
-
-            if (current()->type == TokenType::DEVICE)
-                return wide_cast<RegisterOrDevice>(parseDevice(layer));
-        }
-
-        // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
-            || isStatementStart(current()->type)) {
-            reporter_.error<ICMsgId::IEP18>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP18>()};
-        }
-        
-        else [[unlikely]] {
-            // 情况3：坏 token → 消耗，继续尝试
-            reporter_.errorWith<ICMsgId::IEP11_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            consume();
-
-            return parseRegisterOrDevice(layer);
-        }
-    }
-
-    RegisterOrIdentifier Parser::parseRegisterOrIdentifier(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "RegisterOrIdentifier");
-
-        ++layer;
-
-        // 情况1：是合法起始 → 正常解析
-        if (isStartToken<RegisterOrIdentifier>(current()->type)) {
-            if (current()->type == TokenType::REGISTER)
-                return wide_cast<RegisterOrIdentifier>(parseRegister(layer));
-
-            if (current()->type == TokenType::IDENTIFIER)
-                return wide_cast<RegisterOrIdentifier>(parseIdentifier(layer));
-        }
-
-        // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
-            || isStatementStart(current()->type)) {
-            reporter_.error<ICMsgId::IEP19>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP19>()};
-        }
-        
-        else [[unlikely]] {
-            // 情况3：坏 token → 消耗，继续尝试
-            reporter_.errorWith<ICMsgId::IEP12_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            consume();
-
-            return parseRegisterOrIdentifier(layer);
-        }
-    }
-
-    DeviceReference Parser::parseDeviceReference(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "DeviceReference");
-
-        ++layer;
-
-        if (!current()) {
-            reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
-        }
-
-        // 情况1：是合法起始 → 正常解析
-        if (isStartToken<DeviceReference>(current()->type)) {
-            switch (current()->type) {
-                using enum TokenType;
-                case DEVICE: return wide_cast<DeviceReference>(parseDevice(layer));
-                case IDENTIFIER:  [[fallthrough]];
-                case REGISTER: return wide_cast<DeviceReference>(parseRegisterOrIdentifier(layer));
-                default: [[unlikely]] {
-                    reporter_.errorWith<ICMsgId::IEP13_1>(
-                        current()->pos, endPos(*current()), enumToStr(current()->type)
-                    );
-
-                    return ErrorNode{
-                        *current(), ICLoc::msgFormat<ICMsgId::IEP13_1>(enumToStr(current()->type))
-                    };
-                }
-            }
-        }
-
-        // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
-            || isStatementStart(current()->type)) {
-            reporter_.error<ICMsgId::IEP20>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP20>()};
-        }
-        
-        else [[unlikely]] {
-            // 情况3：坏 token → 消耗，继续尝试
-            reporter_.errorWith<ICMsgId::IEP13_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            consume();
-
-            return parseDeviceReference(layer);
-        }
-    }
-
-    RegisterOrNumber Parser::parseRegisterOrNumber(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "RegisterOrNumber");
-
-        ++layer;
-
-        if (!current()) [[unlikely]] {
-            reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
-        }
-
-        // 情况1：是合法起始 → 正常解析
-        if (isStartToken<RegisterOrNumber>(current()->type)) {
-            switch (current()->type) {
-                using enum TokenType;
-                case REGISTER: [[fallthrough]];
-                case IDENTIFIER:
-                    return wide_cast<RegisterOrNumber>(parseRegisterOrIdentifier(layer));
-                case INTEGER: [[fallthrough]];
-                case FLOAT: [[fallthrough]];
-                case HEX_NUMBER: [[fallthrough]];
-                case BINARY_NUMBER: return wide_cast<RegisterOrNumber>(parseNumber(layer));
-                case KEYWORD_HASH: [[fallthrough]];
-                case KEYWORD_STR: return wide_cast<RegisterOrNumber>(parseMacroCall(layer));
-                case KEYWORD_NAN: [[fallthrough]];
-                case KEYWORD_PINF: [[fallthrough]];
-                case KEYWORD_NINF: [[fallthrough]];
-                case KEYWORD_PI: [[fallthrough]];
-                case KEYWORD_TAU: [[fallthrough]];
-                case KEYWORD_DEG2RAD: [[fallthrough]];
-                case KEYWORD_RAD2DEG: [[fallthrough]];
-                case KEYWORD_EPSILON: [[fallthrough]];
-                case KEYWORD_RGAS: return wide_cast<RegisterOrNumber>(parseConstant(layer));
-                default: [[unlikely]] {
-                    reporter_.errorWith<ICMsgId::IEP10_1>(
-                        current()->pos, endPos(*current()), enumToStr(current()->type)
-                    );
-
-                    return ErrorNode{
-                        *current(), ICLoc::msgFormat<ICMsgId::IEP10_1>(enumToStr(current()->type))
-                    };
-                }
-            }
-        }
-
-        // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
-            || isStatementStart(current()->type)) {
-            reporter_.error<ICMsgId::IEP17>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP17>()};
-        }
-        
-        else [[unlikely]] {
-            // 情况3：坏 token → 消耗，继续尝试
-            reporter_.errorWith<ICMsgId::IEP10_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            consume();
-
-            return parseRegisterOrNumber(layer);
-        }
-    }
-
-    NumberValue Parser::parseNumberValue(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "NumberValue");
-
-        ++layer;
-
-        if (!current()) [[unlikely]] {
-            reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
-        }
-
-        // 情况1：是合法起始 → 正常解析
-        if (isStartToken<NumberValue>(current()->type)) {
-            switch (current()->type) {
-                using enum TokenType;
-                case INTEGER: [[fallthrough]];
-                case FLOAT: [[fallthrough]];
-                case HEX_NUMBER: [[fallthrough]];
-                case BINARY_NUMBER: return wide_cast<NumberValue>(parseNumber(layer));
-                case IDENTIFIER: return wide_cast<NumberValue>(parseIdentifier(layer));
-                case KEYWORD_HASH: [[fallthrough]];
-                case KEYWORD_STR: return wide_cast<NumberValue>(parseMacroCall(layer));
-                case KEYWORD_NAN: [[fallthrough]];
-                case KEYWORD_PINF: [[fallthrough]];
-                case KEYWORD_NINF: [[fallthrough]];
-                case KEYWORD_PI: [[fallthrough]];
-                case KEYWORD_TAU: [[fallthrough]];
-                case KEYWORD_DEG2RAD: [[fallthrough]];
-                case KEYWORD_RAD2DEG: [[fallthrough]];
-                case KEYWORD_EPSILON: [[fallthrough]];
-                case KEYWORD_RGAS: return wide_cast<NumberValue>(parseConstant(layer));
-                default: [[unlikely]] {
-                    reporter_.errorWith<ICMsgId::IEP15_1>(
-                        current()->pos, endPos(*current()), enumToStr(current()->type)
-                    );
-
-                    return ErrorNode{
-                        *current(), ICLoc::msgFormat<ICMsgId::IEP15_1>(enumToStr(current()->type))
-                    };
-                }
-            }
-        }
-
-        // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
-            || isStatementStart(current()->type)) {
-            reporter_.error<ICMsgId::IEP22>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP22>()};
-        }
-        
-        else [[unlikely]] {
-            // 情况3：坏 token → 消耗，继续尝试
-            reporter_.errorWith<ICMsgId::IEP15_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            consume();
-
-            return parseNumberValue(layer);
-        }
-    }
-
-    JumpTarget Parser::parseJumpTarget(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "JumpTarget");
-
-        if (!current()) [[unlikely]] {
-            reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
-        }
-
-        if (current()->type == TokenType::REGISTER) [[likely]]
-            return wide_cast<JumpTarget>(parseRegister(layer));
-        
-        return wide_cast<JumpTarget>(parseNumberValue(layer));
-    }
-
-    DeviceAliasRef Parser::parseDeviceAliasRef(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "DeviceAliasRef");
-
-        ++layer;
-
-        if (!current()) [[unlikely]] {
-            reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
-        }
-
-        // 情况1：是合法起始 → 正常解析
-        if (isStartToken<DeviceAliasRef>(current()->type)) {
-            switch (current()->type) {
-                using enum TokenType;
-                case DEVICE: return wide_cast<DeviceAliasRef>(parseDevice(layer));
-                case IDENTIFIER: return wide_cast<DeviceAliasRef>(parseIdentifier(layer));
-                default: [[unlikely]] {
-                    reporter_.errorWith<ICMsgId::IEP13_1>(
-                        current()->pos, endPos(*current()), enumToStr(current()->type)
-                    );
-
-                    return ErrorNode{
-                        *current(), ICLoc::msgFormat<ICMsgId::IEP13_1>(enumToStr(current()->type))
-                    };
-                }
-            }
-        }
-
-        // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
-            || isStatementStart(current()->type)) {
-            reporter_.error<ICMsgId::IEP20>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP20>()};
-        }
-        
-        else [[unlikely]] {
-            // 情况3：坏 token → 消耗，继续尝试
-            reporter_.errorWith<ICMsgId::IEP13_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            consume();
-
-            return parseDeviceAliasRef(layer);
-        }
-    }
-
-    MacroCall Parser::parseMacroCall(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "MacroCall");
-
-        ++layer;
-
-        // 情况1：是合法起始 → 正常解析
-        if (isStartToken<MacroCall>(current()->type)) {
-            if (current()->type == TokenType::KEYWORD_HASH)
-                return wide_cast<MacroCall>(parseHashCall(layer));
-
-            if (current()->type == TokenType::KEYWORD_STR)
-                return wide_cast<MacroCall>(parseStrCall(layer));
-        }
-
-        // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
-            || isStatementStart(current()->type)) {
-            reporter_.error<ICMsgId::IEP21>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP21>()};
-        }
-        
-        else [[unlikely]] {
-            // 情况3：坏 token → 消耗，继续尝试
-            reporter_.errorWith<ICMsgId::IEP14_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            consume();
-
-            return parseMacroCall(layer);
-        }
-    }
-
-    ShallowErrorable<HashCall> Parser::parseHashCall(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "HashCall");
-
-        HashCall hashCall{current()->pos};
-
-        try {
-            expect(TokenType::KEYWORD_HASH);
-            expect(TokenType::LPAREN);
-            hashCall.value = parseString(++layer);
-            hashCall.endPosition = expect(TokenType::RPAREN)->pos;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return hashCall;
-    }
-
-    ShallowErrorable<StrCall> Parser::parseStrCall(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "StrCall");
-
-        StrCall strCall{current()->pos};
-
-        try {
-            expect(TokenType::KEYWORD_STR);
-
-            expect(TokenType::LPAREN);
-
-            strCall.value = parseString(++layer);
-
-            strCall.endPosition = expect(TokenType::RPAREN)->pos;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return strCall;
-    }
-
-    ShallowErrorable<Constant> Parser::parseConstant(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Constant");
-
-        Constant constant{current()->pos};
-
-        try {
-            constant.keyword = current()->lexeme;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        consume();
-
-        return constant;
-    }
-
-    LogicType Parser::parseLogicType(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "LogicType");
-
-        return parseIdentifierOrNumber(++layer);
-    }
-
-    SlotIndex Parser::parseSlotIndex(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "SlotIndex");
-
-        return parseNumber(++layer);
-    }
-
-    LogicSlotType Parser::parseLogicSlotType(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "LogicSlotType");
-
-        return parseIdentifierOrNumber(++layer);
-    }
-
-    BatchMode Parser::parseBatchMode(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "BatchMode");
-
-        return parseIdentifierOrNumber(++layer);
-    }
-
-    ReagentMode Parser::parseReagentMode(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "ReagentMode");
-
-        return parseIdentifierOrNumber(++layer);
-    }
-
-    Errorable<Identifier, Number> Parser::parseIdentifierOrNumber(int layer) {
-        ++layer;
-
-        if (!current()) [[unlikely]] {
-            reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
-        }
-
-        // 情况1：是合法起始 → 正常解析
-        if (isStartToken<Errorable<Identifier, Number>>(current()->type)) {
-            switch (current()->type) {
-                using enum TokenType;
-                case IDENTIFIER:
-                    return wide_cast<Errorable<Identifier, Number>>(parseIdentifier(layer));
-                case INTEGER: [[fallthrough]];
-                case FLOAT: [[fallthrough]];
-                case HEX_NUMBER: [[fallthrough]];
-                case BINARY_NUMBER:
-                    return wide_cast<Errorable<Identifier, Number>>(parseNumber(layer));
-                default: [[unlikely]] {
-                    reporter_.errorWith<ICMsgId::IEP15_1>(
-                        current()->pos, endPos(*current()), enumToStr(current()->type)
-                    );
-
-                    return ErrorNode{
-                        *current(), ICLoc::msgFormat<ICMsgId::IEP15_1>(enumToStr(current()->type))
-                    };
-                }
-            }
-        }
-
-        // 情况2：停止点 → 不消耗
-        if (current()->type == TokenType::NEWLINE || current()->type == TokenType::END
-            || isStatementStart(current()->type)) {
-            reporter_.error<ICMsgId::IEP22>(current()->pos, endPos(*current()));
-
-            return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IEP22>()};
-        }
-        
-        else [[unlikely]] {
-            // 情况3：坏 token → 消耗，继续尝试
-            reporter_.errorWith<ICMsgId::IEP15_1>(
-                current()->pos, endPos(*current()), enumToStr(current()->type)
-            );
-
-            consume();
-
-            return parseIdentifierOrNumber(layer);
-        }
-    }
-
-    ShallowErrorable<Device> Parser::parseDevice(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Device");
-
-        Device device{current()->pos};
-
-        try {
-            device.value = expect(TokenType::DEVICE)->lexeme;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return device;
-    }
-
-    ShallowErrorable<String> Parser::parseString(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "String");
-
-        String string{current()->pos};
-
-        try {
-            string.value = expect(TokenType::STRING)->lexeme;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return string;
-    }
-
-    ShallowErrorable<Identifier> Parser::parseIdentifier(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Identifier");
-
-        Identifier identifier{current()->pos};
-
-        try {
-            // 只跳过注释，不跳过换行 —— 换行是同步点，跳过会导致错误恢复时吃掉下一行的 token
-            while (inScope() && current()->category == TokenCategory::COMMENT) consume();
-            // skipWs=false: 不跳过换行; errorConsume=false: 出错时不自动消耗 token
-            identifier.value = expect(TokenType::IDENTIFIER, false, false)->lexeme;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return identifier;
-    }
-
-    Number Parser::parseNumber(int layer) {
-        if (debug_) [[unlikely]] Console::log(std::string(layer * 4, ' ') + "Number");
-
-        try {
-            ++layer;
-
-            if (!current()) [[unlikely]] {
-                reporter_.error<ICMsgId::IMP1>(current()->pos, endPos(*current()));
-
-                return ErrorNode{*current(), ICLoc::msgStr<ICMsgId::IMP1>()};
-            }
-
-            switch (current()->type) {
-                using enum TokenType;
-                case INTEGER: return wide_cast<Number>(parseInteger(layer));
-                case FLOAT: return wide_cast<Number>(parseFloat(layer));
-                case HEX_NUMBER: return wide_cast<Number>(parseHexNumber(layer));
-                case BINARY_NUMBER: return wide_cast<Number>(parseBinaryNumber(layer));
-                default: [[unlikely]] {
-                    reporter_.errorWith<ICMsgId::IEP16_1>(
-                        current()->pos, endPos(*current()), enumToStr(current()->type)
-                    );
-
-                    return ErrorNode{
-                        *current(), ICLoc::msgFormat<ICMsgId::IEP16_1>(enumToStr(current()->type))
-                    };
-                }
-            }
-        } catch (const std::exception& e) { return ErrorNode{*current(), e.what()}; }
-    }
-
-    ShallowErrorable<Integer> Parser::parseInteger(int) {
-        Integer integer{current()->pos};
-
-        try {
-            integer.value = expect(TokenType::INTEGER)->lexeme;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return integer;
-    }
-
-    ShallowErrorable<Float> Parser::parseFloat(int) {
-        Float floatNum{current()->pos};
-
-        try {
-            floatNum.value = expect(TokenType::FLOAT)->lexeme;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return floatNum;
-    }
-
-    ShallowErrorable<HexNumber> Parser::parseHexNumber(int) {
-        HexNumber hexNum{current()->pos};
-
-        try {
-            hexNum.value = expect(TokenType::HEX_NUMBER)->lexeme;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return hexNum;
-    }
-
-    ShallowErrorable<BinaryNumber> Parser::parseBinaryNumber(int) {
-        BinaryNumber binNum{current()->pos};
-
-        try {
-            binNum.value = expect(TokenType::BINARY_NUMBER)->lexeme;
-
-        } catch (const Error& e) { return ErrorNode{*current(), {e.message().data()}}; }
-
-        return binNum;
+    std::optional<double> Parser::evaluateBuiltin(const std::string& name) noexcept {
+        static const std::unordered_map<std::string, double> builtin = {
+            {"rgas",    8.31446261815324                         },
+            {"deg2rad", 0.0174532923847437                       },
+            {"tau",     6.28318530717959                         },
+            {"epsilon", std::numeric_limits<double>::denorm_min()},
+            {"nan",     std::numeric_limits<double>::quiet_NaN() },
+            {"pinf",    std::numeric_limits<double>::infinity()  },
+            {"ninf",    -std::numeric_limits<double>::infinity() },
+            {"pi",      3.14159265358979                         },
+            {"rad2deg", 57.2957801818848                         }
+        };
+
+        if (const auto& it = builtin.find(name); it != builtin.end()) return it->second;
+
+        return std::nullopt;
     }
 
     bool Parser::inScope() const noexcept {
@@ -1277,7 +152,8 @@ namespace stationeers::ic10 {
     }
 
     void Parser::consume() const noexcept {
-        if (inScope()) [[likely]] idx_++;
+        if (inScope()) [[likely]]
+            idx_++;
     }
 
     void Parser::gotoNextLine() const noexcept {
@@ -1309,6 +185,90 @@ namespace stationeers::ic10 {
         if (idx_ < tokens_.size()) return tokens_[consume ? idx_++ : idx_];
 
         return nullptr;
+    }
+
+    std::shared_ptr<Token> Parser::peek(std::size_t offset) const noexcept {
+        if (idx_ + offset < tokens_.size()) return tokens_[idx_ + offset];
+
+        return nullptr;
+    }
+
+    // LabelDef
+
+    ShallowErrorable<LabelDef> NodeParser<LabelDef>::parse(Parser& p) {
+        LabelDef labelDef{p.current()->pos};
+
+        labelDef.identifier = NodeParser<Identifier>::parse(p);
+
+        try {
+            p.expect(TokenType::COLON, false, false);
+
+        } catch (const Error&) {
+            p.reporter_.error<ICMsgId::IEP23>(p.current()->pos, endPos(*p.current()));
+
+            auto errToken = *p.current();
+            // 不消耗 token，让 parse() 主循环通过 NEWLINE 同步到下一行
+            return ErrorNode{labelDef.position, errToken, ICLoc::msgStr<ICMsgId::IEP23>()};
+        }
+
+        return labelDef;
+    }
+
+    // AliasDirective
+
+    AliasDirective NodeParser<AliasDirective>::parse(Parser& p) {
+        AliasDirective aliasDirective{p.current()->pos};
+
+        p.consume();  // KEYWORD_ALIAS
+
+        aliasDirective.identifier = p.match<Identifier>();
+
+        aliasDirective.registerOrDevice = p.matchOperand<OperandType::REG_OR_DEV>();
+
+        if (p.inScope() && p.current()->type == TokenType::TYPE_HINT_PREFIX)
+            aliasDirective.typeHint = NodeParser<TypeHint>::parse(p);
+
+        return aliasDirective;
+    }
+
+    // DefineDirective
+
+    DefineDirective NodeParser<DefineDirective>::parse(Parser& p) {
+        DefineDirective defineDirective{p.current()->pos};
+
+        p.consume();  // KEYWORD_DEFINE
+
+        defineDirective.identifier = p.match<Identifier>();
+
+        // 允许标准库以字符串形式定义难以数值表示的常量，通过TypeHint的builtin标签和String类型启用
+        std::optional<String> builtinValue = std::nullopt;
+
+        // 字符串
+        if (p.inScope() && p.current()->type == TokenType::STRING)  // 预检String
+            builtinValue = NodeParser<String>::parse(p);
+        // 数字
+        else
+            defineDirective.operand = p.matchOperand<OperandType::CONST_NUM>();
+
+        // 尝试解析TypeHint
+        if (p.inScope() && p.current()->type == TokenType::TYPE_HINT_PREFIX)  // 预检TypeHint
+            defineDirective.typeHint = NodeParser<TypeHint>::parse(p);
+
+        // 如果TypeHint标示为builtin，则进行预定义的浮点常量转换
+        if (builtinValue && defineDirective.typeHint) {
+            if (defineDirective.typeHint->builtin) {
+                if (auto value = p.evaluateBuiltin(builtinValue->value.substr(1, builtinValue->value.size() - 2)); value)
+                    defineDirective.operand = Float{builtinValue->position, std::to_string(*value)};
+
+                else
+                    p.reporter_.errorWith<ICMsgId::IEP32_1>(p.current()->pos, endPos(*p.current()), builtinValue->value);
+
+            }
+            else
+                p.reporter_.error<ICMsgId::IEP31>(p.current()->pos, endPos(*p.current()));
+        }
+
+        return defineDirective;
     }
 
 }  // namespace stationeers::ic10

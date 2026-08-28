@@ -66,7 +66,7 @@ namespace stationeers::ic10 {
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEL2_1, "未闭合的成对符号'{}' - 词法分析器。")
 
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEL3_2, "令牌'{}'后紧随'{}'，缺少空白字符分隔 - 词法分析器。")
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEL3_1, "令牌'{}'后缺少空白字符分隔 - 词法分析器。")
 
     /* Parser */
 
@@ -78,45 +78,9 @@ namespace stationeers::ic10 {
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP1_1, "意外的'{}'令牌 - 语法分析器。")
 
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP2_1, "期望读取预处理指令令牌，结果读到'{}'令牌 - 语法分析器。")
-
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP3_1, "期望读取可执行指令令牌，结果读到'{}'令牌 - 语法分析器。")
 
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP4_1, "期望读取一元指令令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP5_1, "期望读取二元指令令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP6_1, "期望读取三元指令令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP7_1, "期望读取四元指令令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP8_1, "期望读取五元指令令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP9_1, "期望读取六元指令令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP10_1, "期望读取操作数令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP11_1, "期望读取寄存器或设备令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP12_1, "期望读取寄存器或标识符令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP13_1, "期望读取设备引用令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP14_1, "期望读取宏调用令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP15_1, "期望读取标识符或数字令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP16_1, "期望读取数字令牌，结果读到'{}'令牌 - 语法分析器。")
-
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP17, "缺少操作数 - 语法分析器。")
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP18, "缺少寄存器或设备 - 语法分析器。")
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP19, "缺少寄存器或标识符 - 语法分析器。")
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP20, "缺少设备引用 - 语法分析器。")
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP21, "缺少宏调用 - 语法分析器。")
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP22, "缺少标识符或数字 - 语法分析器。")
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP23, "标签后缺少冒号 - 语法分析器。")
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP24, "缺少 alias 关键字 - 语法分析器。")
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP25, "缺少 define 关键字 - 语法分析器。")
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP26, "语句之间缺少换行符 - 语法分析器。")
 
@@ -127,6 +91,18 @@ namespace stationeers::ic10 {
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP29, "未闭合的@enum块，应为@end-enum - 语法分析。")
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP30, "预期读取到@device或@enum标记 - 语法分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP31, "非内置常量不允许为String类型 - 语法分析器。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP32_1, "未知的内置常量'{}' - 语法分析器。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP33_1, "要求却未找到预期的'{}'标记 - 语法分析器。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP34_1, "不是'{}'中的任何一种类型 - 语法分析器。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP35, "通用寄存器不在r0-r17范围内 - 语法分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP36, "平凡设备不在r0-r5范围内 - 语法分析。")
 
     /* Analysis */
 
@@ -166,6 +142,20 @@ namespace stationeers::ic10 {
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA17_1, "'{}'不是已知的BatchMode - 语义分析。")
 
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA18_1, "'{}'不是一个寄存器或设备类型 - 语义分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA19_1, "'{}'不是一个地址类型 - 语义分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA20_1, "'{}'不是一个硬件ID类型 - 语义分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA21_1, "'{}'不是一个试剂哈希类型 - 语义分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA22_1, "'{}'不是一个设备哈希类型 - 语义分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA23_1, "'{}'不是一个名称哈希类型 - 语义分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA24, "已废弃的语法 - 语义分析。")
+
     // Error
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEA1_2, "期望'{}'，结果找到'{}' - 语义分析。")
@@ -176,13 +166,13 @@ namespace stationeers::ic10 {
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEA4, "不能对别名定义别名 - 语义分析。")
 
-    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEA5_1, "常量'{}'被重新定义 - 语义分析。")
-
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEA6, "未知语法类型'{}' - 语义分析。")
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEA7_1, "设备'{}'不应被注释为Enum类型 - 语义分析。")
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEA8_1, "缺失的标准库类型'{}' - 语义分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEA9, "SlotIndex类型不允许为负数 - 语义分析。")
 
     /* Complier */
 

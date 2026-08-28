@@ -153,7 +153,7 @@ namespace stationeers::ic10 {
 
         std::optional<std::string> value = std::nullopt;
 
-        std::optional<std::string> desc = std::nullopt;
+        std::optional<Description> desc = std::nullopt;
 
         std::vector<std::string> inferredTypes = {};
 

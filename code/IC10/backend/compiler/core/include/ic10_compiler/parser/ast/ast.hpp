@@ -27,11 +27,112 @@
 #define COMPILER_AST_HPP
 #pragma once
 
-#include "ast_senary_ins.hpp"
-
+#include "ins_nullary.hpp"
+#include "ins_unary.hpp"
+#include "ins_binary.hpp"
+#include "ins_ternary.hpp"
+#include "ins_quaternary.hpp"
+#include "ins_quinary.hpp"
+#include "ins_senary.hpp"
+#include "expand_node.hpp"
 #include <vector>
 
 namespace stationeers::ic10 {
+
+
+    // AliasDirective（实现于ast.cpp）
+
+    /**
+     * @if zh
+     *
+     * @class AliasDirective
+     * @brief alias预处理指令节点
+     * @details 表示IC10中的alias预处理指令,用于给设备或寄存器起别名
+     *
+     * @elseif en
+     *
+     * @class AliasDirective
+     * @brief Alias directive node
+     * @details Represents an alias preprocessor directive in IC10, used to alias devices or
+     * registers
+     *
+     * @endif
+     */
+    struct AliasDirective : AST<AliasDirective> {
+        static constexpr auto nodeName = "AliasDirective"_fs;
+
+        static constexpr auto keyword = "alias"_fs;
+
+        static constexpr auto FIRST = std::make_tuple(std::array{TokenType::KEYWORD_ALIAS});
+
+        ShallowErrorable<Identifier> identifier;
+
+        RegOrDev registerOrDevice;
+
+        std::optional<TypeHint> typeHint;
+
+        AliasDirective(Pos pos, Identifier id, RegOrDev regOrDev);
+
+        AST_NODE_PRE_DEFINED_METHODS(AliasDirective)
+    };
+
+    // DefineDirective（实现于ast.cpp）
+
+    /**
+     * @if zh
+     *
+     * @class DefineDirective
+     * @brief define预处理指令节点
+     * @details 表示IC10中的define预处理指令,用于定义常量。
+     *          其操作数(operand)类型为NumberValue,接受数值字面量(Number)、关键字常量(Constant)、
+     *          宏调用(MacroCall)或标识符(Identifier,用于引用其他已定义的常量),
+     *          不再接受寄存器或设备等非数值类型。
+     *
+     * @elseif en
+     *
+     * @class DefineDirective
+     * @brief Define directive node
+     * @details Represents a define preprocessor directive in IC10, used to define constants.
+     *          Its operand is of type NumberValue, accepting numeric literals (Number),
+     *          keyword constants (Constant), macro calls (MacroCall), or identifiers
+     *          (Identifier, to reference other defined constants),
+     *          but no longer accepting non-numeric types such as registers or devices.
+     *
+     * @endif
+     */
+    struct DefineDirective : AST<DefineDirective> {
+        static constexpr auto nodeName = "DefineDirective"_fs;
+
+        static constexpr auto keyword = "define"_fs;
+
+        static constexpr auto FIRST = std::make_tuple(std::array{TokenType::KEYWORD_DEFINE});
+
+        ShallowErrorable<Identifier> identifier;
+
+        ConstNum operand;
+
+        std::optional<TypeHint> typeHint;
+
+        DefineDirective(Pos pos, Identifier id, ConstNum op);
+
+        AST_NODE_PRE_DEFINED_METHODS(DefineDirective)
+    };
+
+    // PreprocessorDirective
+
+    /**
+     * @if zh
+     * @brief 预处理指令类型别名
+     * @elseif en
+     * @brief PreprocessorDirective type alias
+     * @endif
+     */
+    using PreprocessorDirective = ShallowErrorable<AliasDirective, DefineDirective>;
+
+
+    using ExecutableInstruction = Errorable<
+    NullaryInstruction, UnaryInstruction, BinaryInstruction, TernaryInstruction,
+    QuaternaryInstruction, QuinaryInstruction, SenaryInstruction>;
 
     // Statement
 
@@ -49,7 +150,9 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    using Statement = Errorable<ExecutableInstruction, LabelDef, PreprocessorDirective, DocComment>;
+    using Statement = Errorable<ExecutableInstruction, LabelDef, PreprocessorDirective, TypeAnnotation>;
+
+    using FirstStatement = Errorable<LabelDef, PreprocessorDirective, TypeAnnotation>;
 
     // Program（实现于ast.cpp）
 
@@ -76,7 +179,7 @@ namespace stationeers::ic10 {
          * @brief Node name
          * @endif
          */
-        static constexpr auto nodeName = FString{"Program"};
+        static constexpr auto nodeName = "Program"_fs;
 
         /**
          * @if zh

@@ -123,72 +123,6 @@ namespace stationeers::ic10 {
 
     /**
      * @if zh
-     * @struct DeviceType
-     * @brief 设备类型结构
-     * @details 定义IC10中设备的完整类型信息，包括设备名、描述、槽位、逻辑、模式、逻辑槽位和连接。
-     *          由文档注释(@device)解析生成，用于设备别名的类型检查。
-     *
-     * @elseif en
-     * @struct DeviceType
-     * @brief Device type structure
-     * @details Defines complete type information for devices in IC10, including device name, description,
-     *          slots, logics, modes, logic slots, and connections. Generated from doc comment (@device)
-     *          parsing, used for type checking of device aliases.
-     *
-     * @endif
-     */
-    struct DeviceType {
-        /** @if zh @brief 设备名称 @else @brief Device name @endif */
-        std::string name;
-
-        /** @if zh @brief 设备描述 @else @brief Device description @endif */
-        std::optional<DescValue> desc;
-
-        /** @if zh @brief 设备槽位列表 @else @brief Device slots list @endif */
-        std::vector<DeviceSlot> slots;
-
-        /** @if zh @brief 设备逻辑列表 @else @brief Device logics list @endif */
-        std::vector<DeviceLogic> logics;
-
-        /** @if zh @brief 设备模式列表 @else @brief Device modes list @endif */
-        std::vector<DeviceMode> modes;
-
-        /** @if zh @brief 设备逻辑槽位列表 @else @brief Device logic slots list @endif */
-        std::vector<DeviceLogicSlot> logicSlots;
-
-        /** @if zh @brief 设备连接列表 @else @brief Device connections list @endif */
-        std::vector<DeviceConnect> connects;
-    };
-
-    /**
-     * @if zh
-     * @struct EnumType
-     * @brief 枚举类型结构
-     * @details 定义IC10中枚举的完整类型信息，包括枚举名、描述和值列表。
-     *          由文档注释(@enum)解析生成，用于枚举值的类型检查。
-     *
-     * @elseif en
-     * @struct EnumType
-     * @brief Enum type structure
-     * @details Defines complete type information for enums in IC10, including enum name, description,
-     *          and values list. Generated from doc comment (@enum) parsing, used for type checking
-     *          of enum values.
-     *
-     * @endif
-     */
-    struct EnumType {
-        /** @if zh @brief 枚举名称 @else @brief Enum name @endif */
-        std::string name;
-
-        /** @if zh @brief 枚举描述 @else @brief Enum description @endif */
-        std::optional<DescValue> desc;
-
-        /** @if zh @brief 枚举值列表 @else @brief Enum values list @endif */
-        std::vector<EnumValueEntry> values;
-    };
-
-    /**
-     * @if zh
      * @typedef CustomType
      * @brief 自定义类型
      * @details 设备类型和枚举类型的联合类型，用于类型表中存储自定义类型定义。
@@ -201,7 +135,7 @@ namespace stationeers::ic10 {
      *
      * @endif
      */
-    using CustomType = std::variant<DeviceType, EnumType>;
+    using CustomType = std::variant<DeviceAnnotation, EnumAnnotation>;
 
     /**
      * @if zh
@@ -306,23 +240,55 @@ namespace stationeers::ic10 {
     };
 
     template<>
-    struct type_of_node<StrCall> {
+    struct type_of_node<Enum> {
+        static constexpr Type value{BasicType::ENUM, TypeCategory::NUMBER};
+    };
+
+    template<>
+    struct type_of_node<StrMacro> {
         static constexpr Type value{BasicType::INTEGER, TypeCategory::STR_CALL};
     };
 
     template<>
-    struct type_of_node<HashCall> {
+    struct type_of_node<HashMacro> {
         static constexpr Type value{BasicType::INTEGER, TypeCategory::HASH_CALL};
     };
 
-    template<>
-    struct type_of_node<Register> {
+    struct RegisterTypeBase {
         static constexpr Type value{BasicType::REGISTER, TypeCategory::BASIC};
     };
 
     template<>
-    struct type_of_node<Device> {
+    struct type_of_node<DynamicRegister> : RegisterTypeBase {
+        using RegisterTypeBase::value;
+    };
+    template<>
+    struct type_of_node<AddressRegister> : RegisterTypeBase {
+        using RegisterTypeBase::value;
+    };
+
+    template<>
+    struct type_of_node<StackPointerRegister> : RegisterTypeBase {
+        using RegisterTypeBase::value;
+    };
+
+    template<>
+    struct type_of_node<GeneralPurposeRegister> : RegisterTypeBase {
+        using RegisterTypeBase::value;
+    };
+
+    struct DeviceTypeBase {
         static constexpr Type value{BasicType::DEVICE, TypeCategory::BASIC};
+    };
+
+    template<>
+    struct type_of_node<DynamicDevice> : DeviceTypeBase {
+        using DeviceTypeBase::value;
+    };
+
+    template<>
+    struct type_of_node<StaticDevice> : DeviceTypeBase {
+        using DeviceTypeBase::value;
     };
 
     template<>
@@ -333,11 +299,6 @@ namespace stationeers::ic10 {
     template<>
     struct type_of_node<ErrorNode> {
         static constexpr Type value{BasicType::UNKNOWN, TypeCategory::BASIC};
-    };
-
-    template<>
-    struct type_of_node<Constant> {
-        static constexpr Type value{BasicType::UNKNOWN, TypeCategory::CONSTANT};
     };
 
     template<>

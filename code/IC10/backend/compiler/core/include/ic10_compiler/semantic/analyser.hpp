@@ -29,10 +29,10 @@
 #define COMPILER_ANALYSER_HPP
 #pragma once
 
-#include "ic10_compiler/locals/local.hpp"
-#include "ic10_compiler/pch/pch.hpp"
-#include "ic10_compiler/pch/ast.hpp"
 #include "common/async/task.hpp"
+#include "ic10_compiler/locals/local.hpp"
+#include "ic10_compiler/pch/ast.hpp"
+#include "ic10_compiler/pch/pch.hpp"
 #include "semantic.hpp"
 
 namespace stationeers::ic10 {
@@ -43,17 +43,17 @@ namespace stationeers::ic10 {
     };
 
     template<>
-    struct operand_type_name<OperandType::LOGIC_SLOT> {
+    struct operand_type_name<OperandType::LOGIC_SLOT_PROP> {
         static constexpr auto value = "LogicSlotType"_fs;
     };
 
     template<>
-    struct operand_type_name<OperandType::LOGIC_TYPE> {
+    struct operand_type_name<OperandType::LOGIC_PROP> {
         static constexpr auto value = "LogicType"_fs;
     };
 
     template<>
-    struct operand_type_name<OperandType::BATCH_MODE> {
+    struct operand_type_name<OperandType::AGG_MODE> {
         static constexpr auto value = "BatchMode"_fs;
     };
 
@@ -181,10 +181,12 @@ namespace stationeers::ic10 {
         Task<> visit(const Program& program);
 
     private:
-
         friend class Linker;
 
-        Analyser(TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10CompilerMsgPack>& reporter, bool deferFailAllPending = false) noexcept;
+        Analyser(
+            TypeTable& typeTable, SymbolTable& symbolTable,
+            DiagnosticReporter<IC10CompilerMsgPack>& reporter, bool deferFailAllPending = false
+        ) noexcept;
 
         bool ownsResources_ = false;
 
@@ -304,9 +306,9 @@ namespace stationeers::ic10 {
          */
         Task<> operator()(const DefineDirective& defineDirective);
 
-        Task<> operator()(const DeviceDocComment& deviceDocComment);
+        Task<> operator()(const DeviceAnnotation& deviceAnnotation);
 
-        Task<> operator()(const EnumDocComment& enumDocComment);
+        Task<> operator()(const EnumAnnotation& enumAnnotation);
 
         /**
          * @if zh
@@ -330,6 +332,7 @@ namespace stationeers::ic10 {
          * @endif
          */
         template<template<auto, auto...> class Ins, FString V, OperandType... Vs>
+            requires IsInstruction<Ins<V, Vs...>>
         Task<> operator()(const Ins<V, Vs...>& ins);
 
         /**
@@ -347,7 +350,7 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Task<> operator()(const StrCall& strCall);
+        Task<> operator()(const StrMacro& strCall);
 
         /**
          * @if zh
@@ -364,58 +367,23 @@ namespace stationeers::ic10 {
          *
          * @endif
          */
-        Task<> operator()(const HashCall& hashCall);
+        Task<> operator()(const HashMacro& hashCall);
 
-        /**
-         * @if zh
-         *
-         * @brief 访问常量节点
-         * @param constant 常量节点
-         * @return 协程任务
-         *
-         * @elseif en
-         *
-         * @brief Visit constant node
-         * @param constant Constant node
-         * @return Coroutine task
-         *
-         * @endif
-         */
-        Task<> operator()(const Constant& constant);
+        Task<> operator()(const SelfReferenceDevice& device);
 
-        /**
-         * @if zh
-         *
-         * @brief 访问设备节点
-         * @param device 设备节点
-         * @return 协程任务
-         *
-         * @elseif en
-         *
-         * @brief Visit device node
-         * @param device Device node
-         * @return Coroutine task
-         *
-         * @endif
-         */
-        Task<> operator()(const Device& device);
+        Task<> operator()(const OrdinaryDevice& device);
 
-        /**
-         * @if zh
-         *
-         * @brief 访问寄存器节点
-         * @param register_ 寄存器节点
-         * @return 协程任务
-         *
-         * @elseif en
-         *
-         * @brief Visit register node
-         * @param register_ Register node
-         * @return Coroutine task
-         *
-         * @endif
-         */
-        Task<> operator()(const Register& register_);
+        Task<> operator()(const StaticDevice& device);
+
+        Task<> operator()(const DynamicDevice& device);
+
+        Task<> operator()(const GeneralPurposeRegister& register_);
+
+        Task<> operator()(const AddressRegister& register_);
+
+        Task<> operator()(const StackPointerRegister& register_);
+
+        Task<> operator()(const DynamicRegister& register_);
 
         /**
          * @if zh
@@ -567,7 +535,11 @@ namespace stationeers::ic10 {
         };
 
         template<ICMsgId I, auto... Vs>
-        requires (... && (std::is_same_v<decltype(Vs), BasicType> || std::is_same_v<decltype(Vs), TypeCategory>))
+            requires(
+                ...
+                && (std::is_same_v<decltype(Vs), BasicType>
+                    || std::is_same_v<decltype(Vs), TypeCategory>)
+            )
         bool checkOperandType(const std::shared_ptr<Symbol>& symbol, auto&& arg) const;
 
         template<OperandType Type>
@@ -581,59 +553,9 @@ namespace stationeers::ic10 {
         bool checkSlotIndexWithDevice(const auto& number, const std::shared_ptr<Symbol>& devSym);
     };
 
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::REG_IDENT> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::DEV_ALIAS> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::REG_NUM> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::DEV_REF> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::LOGIC_SLOT> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::REAGENT_MODE> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::JUMP_TARGET> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::LOGIC_TYPE> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::SLOT_IDX> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-    template<>
-    struct Analyser::IdentifierChecker<OperandType::BATCH_MODE> {
-        static bool check(const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg);
-    };
-
-
 }  // namespace stationeers::ic10
 
+#include "operand_check.hpp"
 #include "analyser.inl"
 
 #endif  // COMPILER_ANALYSER_HPP

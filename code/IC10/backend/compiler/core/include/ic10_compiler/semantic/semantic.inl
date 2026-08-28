@@ -27,10 +27,6 @@ namespace stationeers::ic10 {
         // contains() 只对已就绪（READY）的条目返回 true，pending/FAILED 条目均返回 false。
         // 若使用 contains()，对同一个未定义符号的多次 resolve() 会反复创建新 pending 条目
         // 覆盖旧条目，导致旧 Future 的等待者永远挂起。
-        // We check symbols_ directly instead of using contains(), because contains() only
-        // returns true for READY entries. Using contains() here would cause repeated resolve()
-        // calls for the same undefined symbol to overwrite the existing pending entry, leaving
-        // waiters on the old Future suspended forever.
         if (auto it = self.symbols_.find(name); it == self.symbols_.end()) {
             Promise<std::shared_ptr<Symbol>> promise;
 

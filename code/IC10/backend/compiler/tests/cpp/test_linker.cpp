@@ -182,7 +182,7 @@ TEST_F(LinkerTestFixture, SharedTypeTableDeviceType) {
     linker.addUnit(
         "#> @device\n"
         "#> @name Sensor\n"
-        "#> @logic Pressure rw\n"
+        "#> @logic Pressure\n"
         "#> @end-device\n"
     );
     linker.addUnit(
@@ -202,8 +202,8 @@ TEST_F(LinkerTestFixture, SharedTypeTableEnumType) {
     linker.addUnit(
         "#> @enum\n"
         "#> @name ReagentMode\n"
-        "#> @value Contents 0\n"
-        "#> @value Required 1\n"
+        "#> @value Contents 0 \"Contents\"\n"
+        "#> @value Required 1 \"Required\"\n"
         "#> @end-enum\n"
     );
     linker.addUnit(
@@ -358,7 +358,7 @@ TEST_F(LinkerTestFixture, GetTypeTableWithDeviceType) {
     linker.addUnit(
         "#> @device\n"
         "#> @name Sensor\n"
-        "#> @logic Pressure rw\n"
+        "#> @logic Pressure\n"
         "#> @end-device\n"
     );
     linker.addUnit("alias s d0 #: @type Sensor\nhcf\n");
@@ -376,8 +376,8 @@ TEST_F(LinkerTestFixture, GetTypeTableWithEnumType) {
     linker.addUnit(
         "#> @enum\n"
         "#> @name ReagentMode\n"
-        "#> @value Contents 0\n"
-        "#> @value Required 1\n"
+        "#> @value Contents 0 \"Contents\"\n"
+        "#> @value Required 1 \"Required\"\n"
         "#> @end-enum\n"
     );
     linker.addUnit("alias f d0\nhcf\n");

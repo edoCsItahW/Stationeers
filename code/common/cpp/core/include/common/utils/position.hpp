@@ -389,9 +389,7 @@ namespace stationeers {
      *
      * @endif
      */
-    inline Pos endPos(const Pos& pos, const std::string& lexeme) {
-        return endPos(pos, charLength(lexeme), lexeme.size());
-    }
+    Pos endPos(const Pos& pos, const std::string& lexeme);
 
 }  // namespace stationeers
 

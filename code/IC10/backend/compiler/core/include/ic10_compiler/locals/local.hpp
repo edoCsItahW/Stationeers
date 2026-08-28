@@ -99,224 +99,257 @@ namespace stationeers::ic10 {
      * @endif
      */
     enum class IC10CompilerMsgId : uint32_t {
-        /** @if zh @brief 内部错误占位符 @else @brief Internal error placeholder @endif */
+    ///< @if zh @brief {}
+        ///< @else {} @endif
         IE0_1,
 
         /* 词法分析阶段 (Lexer) */
 
-        /** @if zh @brief 文件末尾未预期地遇到END标记 @else @brief The END token was not encountered as expected at the end of the file @endif */
+        ///< @if zh @brief 文件结束时未如期遇到END令牌 - 词法分析器。
+        ///< @else The END token was not encountered as expected at the end of the file - lexical analysis. @endif
         IWL1,
 
-        /** @if zh @brief 寄存器名超出范围(r0-r15) @else @brief In IC10 syntax, registers only have r0-r15 @endif */
+        ///< @if zh @brief 在IC10语法中，寄存器只有r0-r15 - 词法分析器。
+        ///< @else In IC10 syntax, registers only have r0-r15 - lexical @endif
         IWL2,
 
-        /** @if zh @brief 设备名超出范围(d0-d5) @else @brief In IC10 syntax, device only has d0-d5 @endif */
+        ///< @if zh @brief 在IC10语法中，设备只有d0-d5 - 词法分析器。
+        ///< @else In IC10 syntax, device only has d0-d5 - lexical @endif
         IWL3,
 
-        /** @if zh @brief 未知操作符 @else @brief Unknown operation symbol @endif */
+        ///< @if zh @brief 未知操作符号'{}' - 词法分析器。
+        ///< @else Unknown operation symbol'{}' - lexical analysis. @endif
         IEL1_1,
 
-        /** @if zh @brief 未闭合的配对符号 @else @brief Unclosed paired symbols @endif */
+        ///< @if zh @brief 未闭合的成对符号'{}' - 词法分析器。
+        ///< @else Unclosed paired symbols '{}' - lexical analysis. @endif
         IEL2_1,
 
-        /** @if zh @brief 两个标记之间缺少空白字符 @else @brief Token immediately followed by another token without whitespace @endif */
-        IEL3_2,
+        ///< @if zh @brief 令牌'{}'后缺少空白字符分隔 - 词法分析器。
+        ///< @else Token '{}' is missing a whitespace separator after it - lexical analysis. @endif
+        IEL3_1,
 
         /* 语法分析阶段 (Parser) */
 
-        /** @if zh @brief 意外地遇到文件末尾 @else @brief Unexpectedly encountered the end of the file @endif */
+        ///< @if zh @brief 意外的遇到文件结尾 - 语法分析器。
+        ///< @else Unexpectedly encountered the end of the file - syntax analysis. @endif
         IMP1,
 
-        /** @if zh @brief 意外的标记 @else @brief Unexpected token @endif */
+        ///< @if zh @brief 意外的'{}'令牌 - 语法分析器。
+        ///< @else Unexpected token '{}' - syntax analysis. @endif
         IEP1_1,
 
-        /** @if zh @brief 预期预处理指令标记 @else @brief Expected preprocessing directive token @endif */
-        IEP2_1,
-
-        /** @if zh @brief 预期可执行指令标记 @else @brief Expected executable instruction token @endif */
+        ///< @if zh @brief 期望读取可执行指令令牌，结果读到'{}'令牌 - 语法分析器。
+        ///< @else Expected to read a executable instruction token, but a '{}' token was read instead - syntax analysis. @endif
         IEP3_1,
 
-        /** @if zh @brief 预期一元指令标记 @else @brief Expected unary instruction token @endif */
-        IEP4_1,
-
-        /** @if zh @brief 预期二元指令标记 @else @brief Expected binary instruction token @endif */
-        IEP5_1,
-
-        /** @if zh @brief 预期三元指令标记 @else @brief Expected ternary instruction token @endif */
-        IEP6_1,
-
-        /** @if zh @brief 预期四元指令标记 @else @brief Expected quaternary instruction token @endif */
-        IEP7_1,
-
-        /** @if zh @brief 预期五元指令标记 @else @brief Expected quinary instruction token @endif */
-        IEP8_1,
-
-        /** @if zh @brief 预期六元指令标记 @else @brief Expected senary instruction token @endif */
-        IEP9_1,
-
-        /** @if zh @brief 预期操作数标记 @else @brief Expected operand tokens @endif */
-        IEP10_1,
-
-        /** @if zh @brief 预期寄存器或设备标记 @else @brief Expected register or device token @endif */
-        IEP11_1,
-
-        /** @if zh @brief 预期寄存器或标识符标记 @else @brief Expected register or identifier token @endif */
-        IEP12_1,
-
-        /** @if zh @brief 预期设备引用标记 @else @brief Expected device reference token @endif */
-        IEP13_1,
-
-        /** @if zh @brief 预期宏调用标记 @else @brief Expected macro call token @endif */
-        IEP14_1,
-
-        /** @if zh @brief 预期标识符或数字标记 @else @brief Expected identifier or number token @endif */
-        IEP15_1,
-
-        /** @if zh @brief 预期数字标记 @else @brief Expected number token @endif */
-        IEP16_1,
-
-        /** @if zh @brief 缺少操作数 @else @brief Missing operand @endif */
-        IEP17,
-
-        /** @if zh @brief 缺少寄存器或设备 @else @brief Missing register or device @endif */
-        IEP18,
-
-        /** @if zh @brief 缺少寄存器或标识符 @else @brief Missing register or identifier @endif */
-        IEP19,
-
-        /** @if zh @brief 缺少设备引用 @else @brief Missing device reference @endif */
-        IEP20,
-
-        /** @if zh @brief 缺少宏调用 @else @brief Missing macro call @endif */
-        IEP21,
-
-        /** @if zh @brief 缺少标识符或数字 @else @brief Missing identifier or number @endif */
-        IEP22,
-
-        /** @if zh @brief 标签后缺少冒号 @else @brief Missing colon after label @endif */
+        ///< @if zh @brief 标签后缺少冒号 - 语法分析器。
+        ///< @else Missing colon after label - syntax analysis. @endif
         IEP23,
 
-        /** @if zh @brief 缺少alias关键字 @else @brief Missing alias keyword @endif */
-        IEP24,
-
-        /** @if zh @brief 缺少define关键字 @else @brief Missing define keyword @endif */
-        IEP25,
-
-        /** @if zh @brief 语句之间缺少换行符 @else @brief Missing newline between statements @endif */
+        ///< @if zh @brief 语句之间缺少换行符 - 语法分析器。
+        ///< @else Missing newline between statements - syntax analysis. @endif
         IEP26,
 
-        /** @if zh @brief 无效的文档标签 @else @brief Invalid doc tag @endif */
+        ///< @if zh @brief 无效的文档标记 - 语法分析器。
+        ///< @else Invalid doc tag - syntax analysis. @endif
         IEP27,
 
-        /** @if zh @brief 未闭合的@device块 @else @brief Unclosed @device block @endif */
+        ///< @if zh @brief 未闭合的@device块，应为@end-device - 语法分析。
+        ///< @else Unclosed @device block, expected @end-device - syntax analysis. @endif
         IEP28,
 
-        /** @if zh @brief 未闭合的@enum块 @else @brief Unclosed @enum block @endif */
+        ///< @if zh @brief 未闭合的@enum块，应为@end-enum - 语法分析。
+        ///< @else Unclosed @enum block, expected @end-enum - syntax analysis. @endif
         IEP29,
 
-        /** @if zh @brief 预期@device或@enum标记 @else @brief Expected @device or @enum token @endif */
+        ///< @if zh @brief 预期读取到@device或@enum标记 - 语法分析。
+        ///< @else Expected to read @device or @enum token - syntax analysis. @endif
         IEP30,
+
+        ///< @if zh @brief 非内置常量不允许为String类型 - 语法分析器。
+        ///< @else Non-builtin constant cannot be a String type - syntax analysis. @endif
+        IEP31,
+
+        ///< @if zh @brief 未知的内置常量'{}' - 语法分析器。
+        ///< @else Unknown builtin constant '{}' - syntax analysis. @endif
+        IEP32_1,
+
+        ///< @if zh @brief 要求却未找到预期的'{}'标记 - 语法分析器。
+        ///< @else Request but did not find the expected '{}' tag - syntax analysis. @endif
+        IEP33_1,
+
+        ///< @if zh @brief 不是'{}'中的任何一种类型 - 语法分析器。
+        ///< @else Not one of the types in '{}' - syntax analysis. @endif
+        IEP34_1,
+
+        ///< @if zh @brief 通用寄存器不在r0-r17范围内 - 语法分析。
+        ///< @else General registers are not within the range of r0-r17 - syntax analysis. @endif
+        IEP35,
+
+        ///< @if zh @brief 平凡设备不在r0-r5范围内 - 语法分析。
+        ///< @else Ordinary device are not within the range of r0-r5 - syntax analysis. @endif
+        IEP36,
 
         /* 语义分析阶段 (Analysis) */
 
-        /** @if zh @brief 不是Register类型 @else @brief Not a Register type @endif */
+        ///< @if zh @brief '{}'不是一个寄存器类型 - 语义分析。
+        ///< @else '{}' is not a Register type - semantic analysis. @endif
         IWA1_1,
 
-        /** @if zh @brief 不是Device类型 @else @brief Not a Device type @endif */
+        ///< @if zh @brief '{}'不是一个设备类型 - 语义分析。
+        ///< @else '{}' is not a Device type - semantic analysis. @endif
         IWA2_1,
 
-        /** @if zh @brief 不是Register或Number类型 @else @brief Not a Register or Number type @endif */
+        ///< @if zh @brief '{}'不是一个寄存器或数值类型 - 语义分析。
+        ///< @else '{}' is not a Register or Number type - semantic analysis. @endif
         IWA3_1,
 
-        /** @if zh @brief 不是Device或Register类型 @else @brief Not a Device or Register type @endif */
+        ///< @if zh @brief '{}'不是一个设备或寄存器类型 - 语义分析。
+        ///< @else '{}' is not a Device or Register type - semantic analysis. @endif
         IWA4_1,
 
-        /** @if zh @brief 不是LogicSlot类型 @else @brief Not a LogicSlot type @endif */
+        ///< @if zh @brief '{}'不是一个逻辑槽（LogicSlot）类型 - 语义分析。
+        ///< @else '{}' is not a LogicSlot type - semantic analysis. @endif
         IWA5_1,
 
-        /** @if zh @brief 不是ReagentMode类型 @else @brief Not a ReagentMode type @endif */
+        ///< @if zh @brief '{}'不是一个试剂模式（ReagentMode）类型 - 语义分析。
+        ///< @else '{}' is not a ReagentMode type - semantic analysis. @endif
         IWA6_1,
 
-        /** @if zh @brief 不是Label、Number或Register类型 @else @brief Not a Label, Number or Register type @endif */
+        ///< @if zh @brief '{}'不是一个标签、数值或寄存器类型 - 语义分析。
+        ///< @else '{}' is not a Label, Number or Register type - semantic analysis. @endif
         IWA7_1,
 
-        /** @if zh @brief 不是Logic类型 @else @brief Not a Logic type @endif */
+        ///< @if zh @brief '{}'不是一个逻辑（Logic）类型 - 语义分析。
+        ///< @else '{}' is not a Logic type - semantic analysis. @endif
         IWA8_1,
 
-        /** @if zh @brief 不是SlotIndex类型 @else @brief Not a SlotIndex type @endif */
+        ///< @if zh @brief '{}'不是一个槽索引（SlotIndex）类型 - 语义分析。
+        ///< @else '{}' is not a SlotIndex type - semantic analysis. @endif
         IWA9_1,
 
-        /** @if zh @brief 不是BatchMode类型 @else @brief Not a BatchMode type @endif */
+        ///< @if zh @brief '{}'不是一个批模式（BatchMode）类型 - 语义分析。
+        ///< @else '{}' is not a BatchMode type - semantic analysis. @endif
         IWA10_1,
 
-        /** @if zh @brief 不在设备的LogicSlot范围内 @else @brief Not within the LogicSlot of device @endif */
+        ///< @if zh @brief '{}'不在设备'{}'的LogicSlot之内 - 语义分析。
+        ///< @else '{}' is not within the LogicSlot of device '{}' - semantic analysis. @endif
         IWA11_2,
 
-        /** @if zh @brief 未知的LogicSlot @else @brief Not a known LogicSlot @endif */
+        ///< @if zh @brief '{}'不是已知的LogicSlot - 语义分析。
+        ///< @else '{}' is not a known LogicSlot - semantic analysis. @endif
         IWA12_1,
 
-        /** @if zh @brief 未知的ReagentMode @else @brief Not a known ReagentMode @endif */
+        ///< @if zh @brief '{}'不是已知的ReagentMode - 语义分析。
+        ///< @else '{}' is not a known ReagentMode - semantic analysis. @endif
         IWA13_1,
 
-        /** @if zh @brief 不在设备的Logic范围内 @else @brief Not within the Logic of device @endif */
+        ///< @if zh @brief '{}'不在设备'{}'的Logic之内 - 语义分析。
+        ///< @else '{}' is not within the Logic of device '{}' - semantic analysis. @endif
         IWA14_2,
 
-        /** @if zh @brief 未知的Logic @else @brief Not a known Logic @endif */
+        ///< @if zh @brief '{}'不是已知的Logic - 语义分析。
+        ///< @else '{}' is not a known Logic - semantic analysis. @endif
         IWA15_1,
 
-        /** @if zh @brief 不在设备的Slot范围内 @else @brief Not within the Slot of device @endif */
+        ///< @if zh @brief '{}'不在设备'{}'的Slot之内 - 语义分析。
+        ///< @else '{}' is not within the Slot of device '{}' - semantic analysis. @endif
         IWA16_2,
 
-        /** @if zh @brief 未知的BatchMode @else @brief Not a known BatchMode @endif */
+        ///< @if zh @brief '{}'不是已知的BatchMode - 语义分析。
+        ///< @else '{}' is not a known BatchMode - semantic analysis. @endif
         IWA17_1,
 
-        /** @if zh @brief 类型不匹配 @else @brief Type mismatch @endif */
+        ///< @if zh @brief '{}'不是一个寄存器或设备类型 - 语义分析。
+        ///< @else '{}' is not a Register or Device type - semantic analysis. @endif
+        IWA18_1,
+
+        ///< @if zh @brief '{}'不是一个地址类型 - 语义分析。
+        ///< @else '{}' is not an Address type - semantic analysis. @endif
+        IWA19_1,
+
+        ///< @if zh @brief '{}'不是一个硬件ID类型 - 语义分析。
+        ///< @else '{}' is not a HardwareId type - semantic analysis. @endif
+        IWA20_1,
+
+        ///< @if zh @brief '{}'不是一个试剂哈希类型 - 语义分析。
+        ///< @else '{}' is not a ReagentHash type - semantic analysis. @endif
+        IWA21_1,
+
+        ///< @if zh @brief '{}'不是一个设备哈希类型 - 语义分析。
+        ///< @else '{}' is not a DeviceHash type - semantic analysis. @endif
+        IWA22_1,
+
+        ///< @if zh @brief '{}'不是一个名称哈希类型 - 语义分析。
+        ///< @else '{}' is not a NameHash type - semantic analysis. @endif
+        IWA23_1,
+
+        ///< @if zh @brief 已废弃的语法 - 语义分析。
+        ///< @else Deprecated syntax - semantic analysis. @endif
+        IWA24,
+
+        ///< @if zh @brief 期望'{}'，结果找到'{}' - 语义分析。
+        ///< @else '{}' expected, but found '{}' - semantic analysis. @endif
         IEA1_2,
 
-        /** @if zh @brief 符号已被重定义 @else @brief Symbol has been redefined @endif */
+        ///< @if zh @brief 符号'{}'被重新定义了 - 语义分析。
+        ///< @else The symbol '{}' has been redefined - semantic analysis. @endif
         IEA2_1,
 
-        /** @if zh @brief 标识符未定义 @else @brief Identifier has not been defined @endif */
+        ///< @if zh @brief 未找到符号'{}' - 语义分析。
+        ///< @else Identifier '{}' has not been defined - semantic analysis. @endif
         IEA3_1,
 
-        /** @if zh @brief 不能为别名定义别名 @else @brief An alias cannot be defined for another alias @endif */
+        ///< @if zh @brief 不能对别名定义别名 - 语义分析。
+        ///< @else An alias cannot be defined for another alias - semantic analysis. @endif
         IEA4,
 
-        /** @if zh @brief 常量已被重定义 @else @brief Constant has been redefined @endif */
-        IEA5_1,
-
-        /** @if zh @brief 未知的语法类型 @else @brief Unknown Grammar Type @endif */
+        ///< @if zh @brief 未知语法类型'{}' - 语义分析。
+        ///< @else Unknown Grammar Type '{}' - semantic analysis. @endif
         IEA6,
 
-        /** @if zh @brief Device不能被标注为Enum类型 @else @brief Device should not be annotated as an Enum type @endif */
+        ///< @if zh @brief 设备'{}'不应被注释为Enum类型 - 语义分析。
+        ///< @else The Device '{}' should not be annotated as an Enum type - semantic analysis. @endif
         IEA7_1,
 
-        /** @if zh @brief 缺少标准库类型 @else @brief Missing standard library type @endif */
+        ///< @if zh @brief 缺失的标准库类型'{}' - 语义分析。
+        ///< @else Missing standard library type '{}' - semantic analysis. @endif
         IEA8_1,
+
+        ///< @if zh @brief SlotIndex类型不允许为负数 - 语义分析。
+        ///< @else SlotIndex type cannot be negative - semantic analysis. @endif
+        IEA9,
 
         /* 编译器命令行阶段 (Compiler IO) */
 
-        /** @if zh @brief 帮助消息 @else @brief Help message @endif */
+        ///< @if zh @brief ic10c - IC10编译器 用法: {} [选项...] <输入文件>...        [选项...] --link <输入文件>... 选项:   -h, --help           显示此帮助消息并退出   -v, --version        显示版本信息并退出   -o, --output FILE    将输出写入 FILE 而非 stdout 阶段选择:   --emit-tokens        将词法令牌流输出为JSON并退出   --emit-ast           将AST（抽象语法数）输出为JSON并退出   --emit-symbols       执行语义分析并将符号表输出为JSON                        (如果未指定 --emit-* 选项，则默认此设置)   --link               链接多个编译单元并输出合并后的符号表。                        允许指定多个输入文件；忽略 --emit-tokens/--emit-ast，                        强制输出符号表。 输出格式化:   --pretty             美观的输出JSON 本地化:   --locale LANG        设置本地化文本: zh-hans, en-us (默认: en-us) 退出码:   0  成功   1  命令行或文件错误   2  编译器生成的诊断 (警告或错误)
+        ///< @else ic10c - IC10 compiler Usage: {} [options] <input-file>...        [options] --link <input-file>... Options:   -h, --help           Show this help message and exit   -v, --version        Show version information and exit   -o, --output FILE    Write output to FILE instead of stdout Stage selection:   --emit-tokens        Output token stream as JSON and exit   --emit-ast           Output AST as JSON and exit   --emit-symbols       Perform semantic analysis and output symbol table as JSON                        (default if no --emit-* option is specified)   --link               Link multiple compilation units and output the merged                        symbol table. Multiple input files are allowed; ignores                        --emit-tokens/--emit-ast and forces symbol-table output. Output format:   --pretty             Pretty-print JSON output Localization:   --locale LANG        Set locale: zh-hans, en-us (default: en-us) Exit codes:   0  Success   1  Command-line or file error   2  Compilation produced diagnostics (warnings or errors) @endif
         IIO0_1,
 
-        /** @if zh @brief 选项需要参数 @else @brief Option requires parameters @endif */
+        ///< @if zh @brief 选项'{}'需要参数
+        ///< @else option '{}' requires parameters @endif
         IIO1_1,
 
-        /** @if zh @brief 未知选项 @else @brief Unknown option @endif */
+        ///< @if zh @brief 未知的选项'{}'
+        ///< @else unknown option '{}' @endif
         IIO2_1,
 
-        /** @if zh @brief 多余的输入文件 @else @brief Excess input files @endif */
+        ///< @if zh @brief 多余的输入文件'{}'
+        ///< @else excess input files '{}' @endif
         IIO3_1,
 
-        /** @if zh @brief 缺少输入文件 @else @brief Missing input file @endif */
+        ///< @if zh @brief 缺少输入文件
+        ///< @else missing input file @endif
         IIO4,
 
-        /** @if zh @brief 通用错误消息 @else @brief Generic error message @endif */
+        ///< @if zh @brief 错误: {} 使用 -h 或 --help 查看帮助信息
+        ///< @else Error: {} Use -h or --help to view help information  @endif
         IIO5_1,
 
-        /** @if zh @brief 不支持的语言 @else @brief Unsupported languages @endif */
+        ///< @if zh @brief 错误: 不支持的语言{}
+        ///< @else Error: Unsupported languages {} @endif
         IIO6_1,
-
     };
 
     /**

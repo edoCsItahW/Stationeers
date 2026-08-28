@@ -29,29 +29,10 @@ SP : 'sp' ;
 
 R : 'r' ;
 
-//SpecialRegister : AddressRegister | StackPointerRegister ;
-
-//GeneralPurposeRegister : 'r' ( [0-9] | '1' [0-7] ) ;
-
-//StaticRegister : SpecialRegister | GeneralPurposeRegister ;
-
-//DynamicRegister : 'r'+ ( GeneralPurposeRegister | AddressRegister );
-
-//Register : StaticRegister | DynamicRegister ;
-
 // 设备引脚
-//SelfReferenceDevice : 'db' ;
 DB : 'db' ;
 
 D : 'd' ;
-
-//OrdinaryDevice : 'd' [0-5] ;
-
-//StaticDevice : SelfReferenceDevice | OrdinaryDevice ;
-
-//DynamicDevice : 'd' DynamicRegister ;
-
-//Device : ( StaticDevice | DynamicDevice ) ( ':' [0-7] )? ;
 
 // 标识符
 Identifier : [a-zA-Z_] [a-zA-Z0-9_]* ;
