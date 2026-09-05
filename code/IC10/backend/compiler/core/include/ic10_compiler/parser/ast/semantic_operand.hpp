@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef STATIONEERS_SEMANTIC_OPERAND_HPP
-#define STATIONEERS_SEMANTIC_OPERAND_HPP
+#ifndef IC10_COMPILER_CORE_SEMANTIC_OPERAND_HPP
+#define IC10_COMPILER_CORE_SEMANTIC_OPERAND_HPP
 #pragma once
 
 #include "node.hpp"
@@ -137,4 +137,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // STATIONEERS_SEMANTIC_OPERAND_HPP
+#endif  // IC10_COMPILER_CORE_SEMANTIC_OPERAND_HPP

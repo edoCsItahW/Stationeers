@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef STATIONEERS_EXPAND_NODE_PARSER_HPP
-#define STATIONEERS_EXPAND_NODE_PARSER_HPP
+#ifndef IC10_COMPILER_CORE_EXPAND_NODE_PARSER_HPP
+#define IC10_COMPILER_CORE_EXPAND_NODE_PARSER_HPP
 #pragma once
 
 #include "node_parser.hpp"
@@ -27,24 +27,6 @@ namespace stationeers::ic10 {
     template<>
     struct NodeParser<Link> {
         static ShallowErrorable<Link> parse(Parser& p) noexcept;
-    };
-
-    // TypeHintType
-
-    template<>
-    struct NodeParser<TypeHintType> {
-        static TypeHintType parse(Parser& p);
-
-        [[nodiscard]] static bool is(const Parser& p) noexcept;
-    };
-
-    // TypeHintDesc
-
-    template<>
-    struct NodeParser<TypeHintDesc> {
-        static TypeHintDesc parse(Parser& p) noexcept;
-
-        [[nodiscard]] static bool is(const Parser& p) noexcept;
     };
 
     // TypeHint
@@ -137,4 +119,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // STATIONEERS_EXPAND_NODE_PARSER_HPP
+#endif  // IC10_COMPILER_CORE_EXPAND_NODE_PARSER_HPP

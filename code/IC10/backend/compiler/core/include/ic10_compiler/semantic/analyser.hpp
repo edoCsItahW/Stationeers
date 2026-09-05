@@ -25,8 +25,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
-#ifndef COMPILER_ANALYSER_HPP
-#define COMPILER_ANALYSER_HPP
+#ifndef IC10_COMPILER_CORE_ANALYSER_HPP
+#define IC10_COMPILER_CORE_ANALYSER_HPP
 #pragma once
 
 #include "common/async/task.hpp"
@@ -558,4 +558,4 @@ namespace stationeers::ic10 {
 #include "operand_check.hpp"
 #include "analyser.inl"
 
-#endif  // COMPILER_ANALYSER_HPP
+#endif  // IC10_COMPILER_CORE_ANALYSER_HPP

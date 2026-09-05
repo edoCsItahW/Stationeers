@@ -13,10 +13,10 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef COMPILER_PCH_AST_HPP
-#define COMPILER_PCH_AST_HPP
+#ifndef IC10_COMPILER_CORE_PCH_AST_HPP
+#define IC10_COMPILER_CORE_PCH_AST_HPP
 #pragma once
 
 #include "../parser/ast/ast.hpp"
 
-#endif  // COMPILER_PCH_AST_HPP
+#endif  // IC10_COMPILER_CORE_PCH_AST_HPP

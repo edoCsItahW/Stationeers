@@ -65,8 +65,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  * */
-#ifndef COMPILER_INC_PARSER_HPP
-#define COMPILER_INC_PARSER_HPP
+#ifndef IC10_COMPILER_CORE_INC_PARSER_HPP
+#define IC10_COMPILER_CORE_INC_PARSER_HPP
 #pragma once
 
 #include <vector>
@@ -266,4 +266,4 @@ namespace stationeers::ic10 {
 
 #include "inc_parser.inl"
 
-#endif  // COMPILER_INC_PARSER_HPP
+#endif  // IC10_COMPILER_CORE_INC_PARSER_HPP

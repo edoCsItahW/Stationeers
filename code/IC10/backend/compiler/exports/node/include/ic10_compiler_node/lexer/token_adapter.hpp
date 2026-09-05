@@ -147,6 +147,8 @@ namespace stationeers::ic10 {
 
         EXPORT_D_ATTR(Category)
 
+        EXPORT_D_ATTR(Keyword)
+
         EXPORT_D_METHOD_VALUE(toString)
 
         EXPORT_D_METHOD_VALUE(toJSON)

@@ -48,7 +48,7 @@ import lombok.Data;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "type",
+        property = "nodeName",  // TODO: 需重新编译验证 — 对齐当前 core 的 JSON 判别字段
         visible = true
 )
 @JsonSubTypes({

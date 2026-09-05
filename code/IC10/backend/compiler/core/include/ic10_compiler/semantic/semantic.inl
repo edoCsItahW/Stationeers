@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef COMPILER_SEMANTIC_INL
-#define COMPILER_SEMANTIC_INL
+#ifndef IC10_COMPILER_CORE_SEMANTIC_INL
+#define IC10_COMPILER_CORE_SEMANTIC_INL
 #pragma once
 
 namespace stationeers::ic10 {
@@ -55,4 +55,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_SEMANTIC_INL
+#endif  // IC10_COMPILER_CORE_SEMANTIC_INL

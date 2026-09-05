@@ -15,6 +15,7 @@
  * */
 import {BasicType} from "./types";
 import {TypeCategory} from "./types";
+import {Description} from "./type_table";
 
 
 /**
@@ -71,8 +72,8 @@ export interface Symbol {
     typeName?: string;
     /** 符号值（可选） */
     value?: string;
-    /** 描述信息（可选） */
-    desc?: string;
+    /** 描述信息（可选，链接或文本） */
+    desc?: Description;
 }
 
 

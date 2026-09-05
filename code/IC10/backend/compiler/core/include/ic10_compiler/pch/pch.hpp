@@ -1,5 +1,5 @@
-#ifndef COMPILER_IC10_PCH_HPP
-#define COMPILER_IC10_PCH_HPP
+#ifndef IC10_COMPILER_CORE_PCH_HPP
+#define IC10_COMPILER_CORE_PCH_HPP
 #pragma once
 
 // 标准库
@@ -32,4 +32,4 @@
 #include "ic10_compiler/lexer/token.hpp"
 #include "ic10_compiler/locals/local.hpp"
 
-#endif
+#endif  // IC10_COMPILER_CORE_PCH_HPP

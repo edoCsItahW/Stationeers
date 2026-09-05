@@ -1008,8 +1008,8 @@
  * @endif
  */
 
-#ifndef COMPILER_IC10_MAIN_HPP
-#define COMPILER_IC10_MAIN_HPP
+#ifndef IC10_COMPILER_CORE_MAIN_HPP
+#define IC10_COMPILER_CORE_MAIN_HPP
 
 /**
  * @page ic10_lexer_page Lexer / 词法分析器
@@ -4942,4 +4942,4 @@
 namespace stationeers::ic10 {
 }
 
-#endif  // COMPILER_IC10_MAIN_HPP
+#endif  // IC10_COMPILER_CORE_MAIN_HPP

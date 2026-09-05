@@ -45,7 +45,7 @@ namespace stationeers::ic10 {
 
         ss << "]";
 
-        return jsonBase<"statements">(ss.str());
+        return jsonBase<"statements">(JsonRaw{ss.str()});
     }
 
     // LabelDef

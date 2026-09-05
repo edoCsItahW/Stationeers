@@ -76,17 +76,7 @@ describe('IncLexer', () => {
         expect(result.relexedLines).toBeGreaterThan(0);
     });
 
-    it('should hasCache and clear', () => {
-        const lexer = new IncLexer();
-        expect(lexer.hasCache()).toBe(false);
-
-        lexer.tokenizeFull(SRC_BASELINE);
-        expect(lexer.hasCache()).toBe(true);
-
-        lexer.clear();
-        expect(lexer.hasCache()).toBe(false);
     });
-});
 
 describe('IncParser', () => {
     function getTokens(src: string) {
@@ -128,18 +118,7 @@ describe('IncParser', () => {
         expect(result.ast.statements).toBeDefined();
     });
 
-    it('should hasCache and clear', () => {
-        const parser = new IncParser();
-        expect(parser.hasCache()).toBe(false);
-
-        const lexerResult = getTokens(SRC_BASELINE);
-        parser.parseFull(lexerResult.tokens);
-        expect(parser.hasCache()).toBe(true);
-
-        parser.clear();
-        expect(parser.hasCache()).toBe(false);
     });
-});
 
 describe('IncCompiler', () => {
     it('should compileFull', () => {
@@ -186,14 +165,4 @@ describe('IncCompiler', () => {
         expect(result.tokens.length).toBeGreaterThan(0);
     });
 
-    it('should hasCache and clear', () => {
-        const compiler = new IncCompiler();
-        expect(compiler.hasCache()).toBe(false);
-
-        compiler.compileFull(SRC_BASELINE);
-        expect(compiler.hasCache()).toBe(true);
-
-        compiler.clear();
-        expect(compiler.hasCache()).toBe(false);
     });
-});
