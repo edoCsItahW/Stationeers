@@ -421,7 +421,7 @@ namespace stationeers::ic10 {
     DeviceAnnotationSlot NodeParser<DeviceAnnotationSlot>::parse(Parser& p) {
         DeviceAnnotationSlot result{p.expect(TokenType::TAG)->pos};
 
-        if (p.current() && p.current()->type == TokenType::IDENTIFIER)
+        if (p.current() && p.current()->type == TokenType::INTEGER)
             result.value = std::move(NodeParser<Integer>::parse(p).value);
 
         return result;

@@ -97,7 +97,11 @@ namespace stationeers::ic10 {
     bool Parser::matchFirst(auto& result) noexcept {
         // for seq in type.FIRST:
         return [&, this]<std::size_t... Is>(std::index_sequence<Is...>) {
-            return (... || (matchArray<T, detail::get_array<T, Is>>(result)));
+            return (
+                ...
+                || (idx_ + detail::get_array<T, Is>.size() < tokens_.size()
+                    && matchArray<T, detail::get_array<T, Is>>(result))
+            );
         }(std::make_index_sequence<std::tuple_size_v<detail::first_tuple_t<T>>>{});
     }
 
@@ -111,7 +115,7 @@ namespace stationeers::ic10 {
             }(std::make_index_sequence<Array.size()>{})) {
             if (matchPredicate<T>()) {
                 try {
-                    if constexpr ( IsVariant<decltype(NodeParser<T>::parse(*this))> )  // 结果是变体
+                    if constexpr (IsVariant<decltype(NodeParser<T>::parse(*this))>)  // 结果是变体
                         result = wide_cast<R>(NodeParser<T>::parse(*this));
                     else
                         result = NodeParser<T>::parse(*this);
@@ -121,7 +125,6 @@ namespace stationeers::ic10 {
                         result = ErrorNode{*tokenPtr, e.message().data()};
                     else
                         result = ErrorNode{Token{}, e.message().data()};
-
                 }
                 return true;
             }
@@ -145,10 +148,14 @@ namespace stationeers::ic10 {
     template<HasFirst T>
     bool Parser::isMatch() noexcept {
         return [this]<std::size_t... Is>(std::index_sequence<Is...>) {
-            return (... || ([this]<std::size_t... Js>(std::index_sequence<Js...>) {
+            return (
+                ...
+                || (idx_ + detail::get_array<T, Is>.size() < tokens_.size()
+                    && [this]<std::size_t... Js>(std::index_sequence<Js...>) {
                         constexpr auto array = detail::get_array<T, Is>;
                         return (... && (array[Js] == peek(Js)->type));
-                    }(std::make_index_sequence<detail::get_array<T, Is>.size()>{})));
+                    }(std::make_index_sequence<detail::get_array<T, Is>.size()>{}))
+            );
         }(std::make_index_sequence<std::tuple_size_v<detail::first_tuple_t<T>>>{});
     }
 

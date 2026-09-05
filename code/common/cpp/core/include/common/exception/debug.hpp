@@ -18,9 +18,9 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @elseif en
  * @brief Debug utilities and debugger implementation
- * @details Provides console output management, source location tracking, and function call stack debugging.
- *        Implements function wrapping through decorator pattern to automatically catch exceptions
- *        and output call stack information.
+ * @details Provides console output management, source location tracking, and function call stack
+ * debugging. Implements function wrapping through decorator pattern to automatically catch
+ * exceptions and output call stack information.
  * @note Only effective for non-MSVC compilers
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
@@ -29,15 +29,23 @@
 #define COMPILER_DEBUG_HPP
 #pragma once
 
-#include <source_location>
 #include <functional>
 #include <optional>
+#include <source_location>
 #include <string>
 #include <type_traits>
 
-#ifndef _MSC_VER
+#ifdef _MSC_VER
 
-#include <cstdint>
+    #include <windows.h>
+    #include <eh.h>
+
+    #undef ERROR
+    #undef OPTIONAL
+
+#else
+
+    #include <cstdint>
 
 #endif
 
@@ -57,7 +65,8 @@ namespace stationeers {
      *
      * @class Console
      * @brief Console output management class
-     * @details Provides level-based log output functionality, supporting INFO, WARNING, ERROR levels
+     * @details Provides level-based log output functionality, supporting INFO, WARNING, ERROR
+     * levels
      *
      * @endif
      */
@@ -224,8 +233,8 @@ namespace stationeers {
      * @elseif en
      *
      * @brief Whether the error caught by debugger is the first error of the program
-     * @details This variable records whether the error caught by the debugger is the first error of the program,
-     *        defaults to false
+     * @details This variable records whether the error caught by the debugger is the first error of
+     * the program, defaults to false
      * @note Only for use by @ref debuger::Debuger class
      * @see debuger::Debuger
      *
@@ -259,7 +268,7 @@ namespace stationeers {
          * @brief Line number
          * @endif
          */
-        std::uint_least32_t line   = 0;
+        std::uint_least32_t line = 0;
 
         /**
          * @if zh
@@ -277,7 +286,7 @@ namespace stationeers {
          * @brief File name
          * @endif
          */
-        const char* file           = "";
+        const char* file = "";
 
         /**
          * @if zh
@@ -286,7 +295,7 @@ namespace stationeers {
          * @brief Function name
          * @endif
          */
-        const char* function       = "";
+        const char* function = "";
 
         /**
          * @if zh
@@ -313,13 +322,12 @@ namespace stationeers {
          */
         static consteval SourceLocation current(
             const std::uint_least32_t line = __builtin_LINE(),
-            #ifdef _MSC_VER
-            const std::uint_least32_t col  = __builtin_COLUMN(),
-            #else
-            const std::uint_least32_t col  = 0,
-            #endif
-            const char* const file         = __builtin_FILE(),
-            const char* const func = __builtin_FUNCTION()
+#ifdef _MSC_VER
+            const std::uint_least32_t col = __builtin_COLUMN(),
+#else
+            const std::uint_least32_t col = 0,
+#endif
+            const char* const file = __builtin_FILE(), const char* const func = __builtin_FUNCTION()
         ) noexcept {
             return SourceLocation{line, col, file, func};
         }
@@ -352,8 +360,8 @@ namespace stationeers {
      *
      * @class Debugger
      * @brief Debugger template class
-     * @details Wraps functions through decorator pattern to capture, print, locate, and handle errors,
-     *        printing call stack information from bottom to top for easy debugging.
+     * @details Wraps functions through decorator pattern to capture, print, locate, and handle
+     * errors, printing call stack information from bottom to top for easy debugging.
      *
      * @tparam F Function type to debug
      *
@@ -516,9 +524,7 @@ namespace stationeers {
          *
          * @endif
          */
-        explicit Debugger(
-            F C::* func, bool exit = false
-        ) noexcept;
+        explicit Debugger(F C::* func, bool exit = false) noexcept;
 
         /**
          * @if zh
@@ -612,8 +618,25 @@ namespace stationeers {
          * @endif
          */
         bool exit;
-
     };
+
+    class SEHException : public std::exception {
+        unsigned int code_;
+
+    public:
+        explicit SEHException(unsigned int code)
+            : code_(code) {}
+
+        unsigned int code() const noexcept { return code_; }
+
+        const char* what() const noexcept override { return "Structured Exception"; }
+    };
+
+    #ifdef _MSC_VER
+    // 转换函数
+    static void se_translator(unsigned int code, EXCEPTION_POINTERS*) { throw SEHException(code); }
+
+    #endif
 
     // SafeExecuteResult
 
@@ -629,13 +652,14 @@ namespace stationeers {
 
     // Logger
 
-    #ifndef STATIONEERS_DEBUG_LOGGING
-        #define STATIONEERS_DEBUG_LOGGING false
-    #endif
+#ifndef STATIONEERS_DEBUG_LOGGING
+    #define STATIONEERS_DEBUG_LOGGING false
+#endif
 
-    #ifndef STATIONEERS_DEBUG_LOGGING_PATH
-        #define STATIONEERS_DEBUG_LOGGING_PATH (std::filesystem::temp_directory_path() / "stationeers_debug.log").string()
-    #endif
+#ifndef STATIONEERS_DEBUG_LOGGING_PATH
+    #define STATIONEERS_DEBUG_LOGGING_PATH                                                         \
+        (std::filesystem::temp_directory_path() / "stationeers_debug.log").string()
+#endif
 
 
     struct Logger {

@@ -141,14 +141,21 @@ namespace stationeers {
 
         SafeExecuteResult<R> result;
 
-        __try {
-            result.result    = func();
-            result.success   = true;
+        _se_translator_function old = _set_se_translator(se_translator);
+        try {
+            result.result = std::forward<F>(func)();   // 调用用户函数
+            result.success = true;
             result.errorCode = 0;
-        } __except (EXCEPTION_EXECUTE_HANDLER) {
-            result.success   = false;
-            result.errorCode = GetExceptionCode();
+        } catch (const SEHException& e) {
+            result.success = false;
+            result.errorCode = e.code();
+        } catch (...) {
+            // 其他 C++ 异常（理论上不会发生，但保留）
+            result.success = false;
+            result.errorCode = 0;
         }
+        // 恢复旧的转换器（若需要）
+        _set_se_translator(old);
 
         return result;
     }

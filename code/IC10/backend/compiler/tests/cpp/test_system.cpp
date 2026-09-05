@@ -682,7 +682,7 @@ TEST_F(SystemTestFixture, AllDeviceReferences) {
 
 TEST_F(SystemTestFixture, AllRegistersUsed) {
     std::string source;
-    for (int i = 0; i < 16; ++i) {
+    for (int i = 0; i < 18; ++i) {  // r0-r17
         source += "move r" + std::to_string(i) + " 0\n";
     }
     source += "hcf\n";
@@ -691,14 +691,21 @@ TEST_F(SystemTestFixture, AllRegistersUsed) {
 
     EXPECT_TRUE(result.lexerDiags.empty());
     EXPECT_TRUE(result.parserDiags.empty());
-    EXPECT_GE(result.ast.statements.size(), 17u);
+    EXPECT_GE(result.ast.statements.size(), 19u);
 }
 
-TEST_F(SystemTestFixture, RegisterOutOfRangeBecomesIdentifier) {
-    // r16 超出寄存器范围，应被识别为标识符而非寄存器
-    std::string source = "move r16 0\nhcf\n";
+TEST_F(SystemTestFixture, RegisterOutOfRangeProducesWarning) {
+    // r0-r17 是寄存器范围，r18 超出范围，语法分析器上报 IEP35 警告（仍解析为 REGISTER）
+    std::string source = "move r18 0\nhcf\n";
     auto result = compile(source);
 
-    // r16作为标识符在语义分析中应产生未定义错误
-    EXPECT_FALSE(result.analyserDiags.empty());
+    EXPECT_FALSE(result.parserDiags.empty());
+}
+
+TEST_F(SystemTestFixture, DeviceOutOfRangeProducesWarning) {
+    // d0-d5 是设备范围，d6 超出范围，语法分析器上报 IEP36 警告（仍解析为 DEVICE）
+    std::string source = "alias dev d6\nhcf\n";
+    auto result = compile(source);
+
+    EXPECT_FALSE(result.parserDiags.empty());
 }

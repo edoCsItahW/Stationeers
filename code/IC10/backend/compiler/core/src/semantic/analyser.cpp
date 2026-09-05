@@ -19,8 +19,8 @@
 namespace stationeers::ic10 {
 
     Analyser::Analyser(
-        TypeTable& typeTable, SymbolTable& symbolTable, DiagnosticReporter<IC10CompilerMsgPack>& reporter,
-        bool deferFailAllPending
+        TypeTable& typeTable, SymbolTable& symbolTable,
+        DiagnosticReporter<IC10CompilerMsgPack>& reporter, bool deferFailAllPending
     ) noexcept
         : typeTable_(&typeTable)
         , symbolTable_(&symbolTable)
@@ -75,7 +75,8 @@ namespace stationeers::ic10 {
     }
 
     // 解析符号：从符号表取 Future 并等待结果，失败则转化为诊断
-    Task<std::shared_ptr<Symbol>> Analyser::resolveSymbol(const std::string& name, const Pos& pos
+    Task<std::shared_ptr<Symbol>> Analyser::resolveSymbol(
+        const std::string& name, const Pos& pos
     ) const {
         auto result = co_await std::move(symbolTable_->resolve(name, pos));
 
@@ -97,9 +98,7 @@ namespace stationeers::ic10 {
         } catch (const Error& e) {
             reporter_->errorWith<ICMsgId::IE0_1>(*e.getStart(), *e.getEnd(), e.message());
         } catch (const std::exception& e) {
-            reporter_->errorWith<ICMsgId::IE0_1>(
-                pos, endPos(pos, name), std::string(e.what())
-            );
+            reporter_->errorWith<ICMsgId::IE0_1>(pos, endPos(pos, name), std::string(e.what()));
         }
     }
 
@@ -118,7 +117,10 @@ namespace stationeers::ic10 {
         if (std::holds_alternative<Identifier>(labelDef.identifier)) [[likely]] {
             const auto identifier = std::get<Identifier>(labelDef.identifier);
 
-            defineSymbol(identifier, {identifier.value, type_of<LabelDef>, std::to_string(labelDef.position.line())});
+            defineSymbol(
+                identifier,
+                {identifier.value, type_of<LabelDef>, std::to_string(labelDef.position.line())}
+            );
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
@@ -139,14 +141,12 @@ namespace stationeers::ic10 {
             const auto identifier = std::get<Identifier>(aliasDirective.identifier);
 
             std::visit(
-                [&]<typename U>(U&& ins) {
-                    using V = std::decay_t<U>;
-
+                [&]<typename T, typename U = std::decay_t<T>>(T&& ins) {
                     Symbol symbol;
                     symbol.name = identifier.value;
 
                     // 不允许为别名定义别名
-                    if constexpr (std::is_same_v<V, Identifier>) {
+                    if constexpr (std::is_same_v<U, Identifier>) {
                         reporter_->error<ICMsgId::IEA4>(
                             aliasDirective.start(), aliasDirective.end()
                         );
@@ -154,34 +154,43 @@ namespace stationeers::ic10 {
                     }
 
                     // ErrorNode: Parser 已报错，此处跳过
-                    else if constexpr (std::is_same_v<V, ErrorNode>)
+                    else if constexpr (std::is_same_v<U, ErrorNode>)
                         symbol.type = {};
 
-                    else if constexpr (std::is_same_v<V, Register>) {
-                        symbol.type = type_of<GeneralPurposeRegister>;
+                    else if constexpr (
+                        std::is_same_v<U, DynamicRegister> || std::is_same_v<U, DynamicDevice>
+                        || std::is_same_v<U, StaticDevice>
+                    ) {
+                        symbol.type = type_of<U>;
 
-                        symbol.value = ins.value;
+                        symbol.value = ins.toString();
                     }
 
-                    else if constexpr (std::is_same_v<V, Device>) {
-                        symbol.type = type_of<StaticDevice>;
+                    else if constexpr (
+                        container_helper<Device>::contains_v<U>
+                        || container_helper<Register>::contains_v<U>
+                    ) {
+                        symbol.type = type_of<U>;
 
                         symbol.value = ins.value;
                     }
 
                     else {
-                        symbol.type = type_of<V>;
+                        symbol.type = type_of<U>;
                     }
 
                     // 有类型注释
                     if (auto& typeHint = aliasDirective.typeHint; typeHint && typeHint->type) {
                         symbol.type.typeName = typeHint->type->value;
 
-                        if (auto it = symbolTable_->builtinSymbols.find(*symbol.value); it != symbolTable_->builtinSymbols.end())
-                            it->second.type.typeName = typeHint->type->value;
+                        if (symbol.value)
+                            if (auto it = symbolTable_->builtinSymbols.find(*symbol.value);
+                                it != symbolTable_->builtinSymbols.end())
+                                it->second.type.typeName = typeHint->type->value;
                     }
 
-                    if (auto& typeHint = aliasDirective.typeHint; typeHint && typeHint->desc) symbol.desc = typeHint->desc->desc;
+                    if (auto& typeHint = aliasDirective.typeHint; typeHint && typeHint->desc)
+                        symbol.desc = typeHint->desc->desc;
 
                     defineSymbol(identifier, std::move(symbol));
                 },
@@ -189,7 +198,8 @@ namespace stationeers::ic10 {
             );
 
             // 如果存在类型注释，先检查是否给设备进行了错误的枚举注释
-            if (auto& typeHint = aliasDirective.typeHint; typeHint && typeHint->desc)
+            if (auto& typeHint = aliasDirective.typeHint;
+                typeHint && typeHint->type && typeHint->desc)
                 if (auto* typePtr = typeTable_->find(typeHint->type->value); typePtr)
                     std::visit(
                         [&]<typename T>(T&&) {
@@ -206,7 +216,7 @@ namespace stationeers::ic10 {
         }
 
         // ErrorNode: identifier 解析失败，上报类型不匹配
-        else  [[unlikely]]
+        else [[unlikely]]
             reporter_->errorWith<ICMsgId::IEA1_2>(
                 aliasDirective.start(), aliasDirective.end(), Identifier::nodeName.value.data(),
                 std::get<ErrorNode>(aliasDirective.identifier).nodeName.value.data()
@@ -223,7 +233,6 @@ namespace stationeers::ic10 {
 
             std::visit(
                 [&]<typename U, typename V = std::remove_cvref_t<U>>(U&& ins) {
-
                     Symbol symbol;
                     symbol.name = identifier.value;
 
@@ -231,10 +240,13 @@ namespace stationeers::ic10 {
                     if constexpr (std::is_same_v<V, ErrorNode>)
                         symbol.type = {};
 
-                    else if constexpr (std::is_same_v<V, HashMacro> || std::is_same_v<V, StrMacro>) {
+                    else if constexpr (
+                        std::is_same_v<V, HashMacro> || std::is_same_v<V, StrMacro>
+                    ) {
                         symbol.type = type_of<V>;
 
-                        symbol.value = ins.value;
+                        if (auto value = std::get_if<String>(&ins.value); value)
+                            symbol.value = value->value;
                     }
 
                     // Number (Integer/Float/HexNumber/BinaryNumber):
@@ -244,7 +256,8 @@ namespace stationeers::ic10 {
                         symbol.value = ins.value;
                     }
 
-                    if (auto& typeHint = defineDirective.typeHint; typeHint && typeHint->desc) symbol.desc = typeHint->desc->desc;
+                    if (auto& typeHint = defineDirective.typeHint; typeHint && typeHint->desc)
+                        symbol.desc = typeHint->desc->desc;
 
                     defineSymbol(identifier, std::move(symbol));
                 },
@@ -277,7 +290,7 @@ namespace stationeers::ic10 {
     // STR 宏调用：仅检查 value 是否为 ErrorNode
     Task<> Analyser::operator()(const StrMacro& strCall) {
         // value 解析失败，上报类型不匹配
-        if (std::holds_alternative<ErrorNode>(strCall.value))  [[unlikely]]
+        if (std::holds_alternative<ErrorNode>(strCall.value)) [[unlikely]]
             reporter_->errorWith<ICMsgId::IEA1_2>(
                 strCall.start(), strCall.end(), String::nodeName.value.data(),
                 std::get<ErrorNode>(strCall.value).nodeName.value.data()

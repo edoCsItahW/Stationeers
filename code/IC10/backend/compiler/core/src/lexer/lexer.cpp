@@ -62,7 +62,7 @@ namespace stationeers::ic10 {
 
         if (const auto c = current(); *c == '\n') {
             pos_.newline();
-            result = {TokenType::NEWLINE, start, "\\n", TokenCategory::WHITESPACE};
+            return {TokenType::NEWLINE, start, "\\n", TokenCategory::WHITESPACE};
         }
 
         else if (*c == '$')
@@ -89,7 +89,8 @@ namespace stationeers::ic10 {
         else
             result = extractLetter();
 
-        if (auto c = current(); c && !isAsciiSpace(*c))
+        if (auto c = current(); result.category == TokenCategory::LITERAL && c && !isAsciiSpace(*c)
+                                && std::string_view("():-./").find(*c) == std::string_view::npos)
             reporter_.errorWith<ICMsgId::IEL3_1>(start, endPos(result), enumToStr(result.type));
 
         return result;
@@ -255,7 +256,7 @@ namespace stationeers::ic10 {
 
         const auto start = pos_;
 
-        while (inScope() && isAsciiAlnum(*current())) {
+        while (inScope() && isAsciiHexDigit(*current())) {
             value += *current();
             pos_.next(static_cast<unsigned char>(*current()));
         }

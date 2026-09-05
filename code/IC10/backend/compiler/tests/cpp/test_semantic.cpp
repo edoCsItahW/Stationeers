@@ -165,8 +165,6 @@ namespace {
             "#> @end-enum\n";
 
         /// @brief 测试设备：含 logics/logicSlots/slots / Test device with logics/logicSlots/slots
-        // TODO: @slot 语法依赖核心 DeviceAnnotationSlot 解析（存在预检 IDENTIFIER 却解析 Integer
-        //       的缺陷），待核心修复后 slots 才能正确注册，相关 SLOT_IDX 语义测试需同步复核。
         static constexpr std::string_view kTestDevice =
             "#> @device\n"
             "#> @name TestDevice\n"
@@ -175,6 +173,8 @@ namespace {
             "#> @logic On\n"
             "#> @logic-slot Quantity\n"
             "#> @logic-slot Charge\n"
+            "#> @slot 0\n"
+            "#> @slot 1\n"
             "#> @end-device\n";
 
         /// @brief 拼接所有标准库定义 + 用户源码 / Concatenate all stdlib defs + user source

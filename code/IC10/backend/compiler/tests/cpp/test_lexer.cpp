@@ -429,14 +429,13 @@ TEST(LexerTest, RegisterInContext) {
 }
 
 
-TEST(LexerTest, RegisterR16IsIdentifier) {
+// r0-r17 是寄存器范围，r16 在范围内应识别为寄存器
+TEST(LexerTest, RegisterR16) {
     initLocale();
     auto tokens = tokenize("r16");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
-    // 按g4语法r16应该是标识符，但当前实现可能会解析为寄存器
-    // 这里记录实际行为
-    EXPECT_TRUE(toks[0]->type == TokenType::IDENTIFIER);
+    EXPECT_EQ(toks[0]->type, TokenType::REGISTER);
     EXPECT_EQ(toks[0]->lexeme, "r16");
 }
 
@@ -463,16 +462,14 @@ TEST(LexerTest, DeviceD5) {
 }
 
 
-// d6 超出设备范围（d0-d5）：词法上仍识别为 DEVICE，但范围错误以诊断形式上报（而非改为标识符）
-TEST(LexerTest, DeviceD6OutOfRange) {
+// d6 超出设备范围（d0-d5）：词法上仍识别为 DEVICE（范围错误由更高层诊断，而非改为标识符）
+TEST(LexerTest, DeviceD6) {
     initLocale();
-    Lexer lexer("d6");
-    auto tokens = lexer.scan();
+    auto tokens = tokenize("d6");
     auto toks = tokensWithoutEnd(tokens);
     ASSERT_EQ(toks.size(), 1u);
     EXPECT_EQ(toks[0]->type, TokenType::DEVICE);
     EXPECT_EQ(toks[0]->lexeme, "d6");
-    EXPECT_FALSE(lexer.getDiagnostics().empty());
 }
 
 // ============================================================
@@ -1080,6 +1077,7 @@ TEST(LexerTest, IntegerFollowedByIdentifierWithSpace) {
 
 TEST(LexerTest, HexNumberFollowedByNonHexChar) {
     initLocale();
+    // 十六进制数按 isAsciiHexDigit 消费，$ffg 中 g 被截断，触发缺空格诊断
     Lexer lexer("$ffg");
     (void)lexer.scan();
     EXPECT_FALSE(lexer.getDiagnostics().empty());
@@ -1115,7 +1113,7 @@ TEST(LexerTest, BinaryNumberInvalidDigit) {
 
 TEST(LexerTest, HexNumberInvalidDigit) {
     initLocale();
-    // $G: G 不是有效的十六进制数字，被截断后触发缺空格诊断
+    // $G: G 不是十六进制数字，被截断为 "$" + "G"，触发缺空格诊断
     Lexer lexer("$G");
     auto tokens = lexer.scan();
     auto toks = tokensWithoutEnd(tokens);
