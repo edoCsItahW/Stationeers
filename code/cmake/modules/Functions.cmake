@@ -253,6 +253,8 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
         set(FILES "${SOURCES}")
     endif ()
 
+    list(SORT FILES)
+
     # 计算哈希（包含编译器和编译选项）
     set(FLAGS
             ${CMAKE_SYSTEM_NAME}
@@ -298,6 +300,20 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
             AND CMAKE_IMPORT_LIBRARY_SUFFIX)
         set(CACHE_IMPLIB_PATH
                 "${CACHE_DIR}/${CMAKE_IMPORT_LIBRARY_PREFIX}${TARGET}_${HASH}${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+    endif ()
+
+    # ========== 清理所有不匹配当前哈希的旧缓存文件 ==========
+    if (TARGET_KIND STREQUAL "LIBRARY")
+        # 清理主库文件（静态/动态）
+        _prune_cache_files("${CACHE_DIR}" "${TARGET}" "${HASH}" "${LIB_PREFIX}" "${LIB_SUFFIX}")
+        # 如果存在导入库，清理旧的导入库文件
+        if (DEFINED CACHE_IMPLIB_PATH)
+            _prune_cache_files("${CACHE_DIR}" "${TARGET}" "${HASH}"
+                    "${CMAKE_IMPORT_LIBRARY_PREFIX}" "${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+        endif ()
+    else ()  # EXECUTABLE
+        _prune_cache_files("${CACHE_DIR}" "${TARGET}" "${HASH}"
+                "${CMAKE_EXECUTABLE_PREFIX}" "${CMAKE_EXECUTABLE_SUFFIX}")
     endif ()
 
     # 检查缓存是否存在
@@ -459,6 +475,24 @@ function(_enable_binary_target CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR T
 
 endfunction()
 
+function(_prune_cache_files CACHE_DIR TARGET CURRENT_HASH FILE_PREFIX FILE_SUFFIX)
+    if(NOT EXISTS "${CACHE_DIR}")
+        return()
+    endif()
+
+    # 构建匹配模式：例如 libmytarget_*.a
+    file(GLOB CANDIDATES "${CACHE_DIR}/${FILE_PREFIX}${TARGET}_*${FILE_SUFFIX}")
+
+    foreach(CAND ${CANDIDATES})
+        get_filename_component(FNAME "${CAND}" NAME)
+        # 检查文件名是否以 “_当前哈希值+后缀” 结尾
+        string(REGEX MATCH "_${CURRENT_HASH}${FILE_SUFFIX}$" MATCHED "${FNAME}")
+        if(NOT MATCHED)
+            file(REMOVE "${CAND}")
+            st_l_debug_fmt(DFunctions7 ${CAND})
+        endif()
+    endforeach()
+endfunction()
 
 function(enable_library_cache CACHE_FLAG CACHE_DIR TARGET SOURCES INCLUDE_DIR)
     _enable_binary_target(${CACHE_FLAG} ${CACHE_DIR} ${TARGET} "${SOURCES}" "${INCLUDE_DIR}" "LIBRARY" ${ARGN})

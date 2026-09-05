@@ -70,19 +70,26 @@ function(auto_find_linker)
     find_program(MOLD_EXE mold)
 
     if (MOLD_EXE AND NOT DEFINED CMAKE_LINKER_TYPE)
-        # 仅应用于可执行文件和共享库，避免影响 MODULE 库（pybind11/N-API）
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=mold" CACHE STRING "" FORCE)
-        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=mold" CACHE STRING "" FORCE)
+        if(NOT CMAKE_EXE_LINKER_FLAGS MATCHES "-fuse-ld=mold")
+            # 仅应用于可执行文件和共享库，避免影响 MODULE 库（pybind11/N-API）
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=mold" CACHE STRING "" FORCE)
+        endif()
+        if(NOT CMAKE_SHARED_LINKER_FLAGS MATCHES "-fuse-ld=mold")
+            set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=mold" CACHE STRING "" FORCE)
+        endif()
         st_l_info_fmt(ICommonSettings0 "mold" "${MOLD_EXE}")
 
     else ()
         find_program(LLD_EXE lld)
 
         if (LLD_EXE AND NOT DEFINED CMAKE_LINKER_TYPE)
-            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld" CACHE STRING "" FORCE)
-            set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld" CACHE STRING "" FORCE)
+            if(NOT CMAKE_EXE_LINKER_FLAGS MATCHES "-fuse-ld=lld")
+                set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld" CACHE STRING "" FORCE)
+            endif()
+            if(NOT CMAKE_SHARED_LINKER_FLAGS MATCHES "-fuse-ld=lld")
+                set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld" CACHE STRING "" FORCE)
+            endif()
             st_l_info_fmt(ICommonSettings0 "lld" "${LLD_EXE}")
-
         endif ()
 
     endif ()
