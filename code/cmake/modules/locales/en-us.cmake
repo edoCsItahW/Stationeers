@@ -24,6 +24,7 @@ set(ST_IFunctions3 "Target '{0}' cache hit (hash '{1}')")
 set(ST_IFunctions4 "Target '{0}' cache miss, building from source(expected hash '{1}')")
 set(ST_DFunctions5 "Update cache for '{0}' to '{1}'")
 set(ST_EFunctions6 "File '{0}' does not exist")
+set(ST_EFunctions7 "Removed stale cache '{0}'")
 
 # ---- CommonSettings ----
 set(ST_ICommonSettings0 "Using '{0}', with '{1}'")
