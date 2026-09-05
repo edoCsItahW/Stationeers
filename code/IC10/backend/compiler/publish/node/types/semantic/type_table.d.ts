@@ -13,6 +13,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+import { DeviceAnnotation, EnumAnnotation } from '../parser';
 
 /**
  * @summary 类型表类
@@ -47,71 +48,9 @@ export class TypeTable {
     toJSON(): string;
 }
 
-/** 描述值 */
-export interface DescValue {
-    kind: "text" | "link";
-    value: string;
-}
 
-/** 设备插槽 */
-export interface DeviceSlot {
-    index: string;
-    direction: "input" | "output";
-    desc?: DescValue;
-}
-
-/** 设备逻辑 */
-export interface DeviceLogic {
-    name: string;
-    access: "R" | "W" | "RW";
-}
-
-/** 设备模式 */
-export interface DeviceMode {
-    index: string;
-    desc?: DescValue;
-}
-
-/** 设备逻辑插槽 */
-export interface DeviceLogicSlot {
-    name: string;
-}
-
-/** 设备连接 */
-export interface DeviceConnect {
-    index: string;
-    desc?: DescValue;
-}
-
-/** 设备类型 (from toJSON()) */
-export interface DeviceType {
-    type: "device";
-    name: string;
-    desc?: DescValue;
-    slots: DeviceSlot[];
-    logics: DeviceLogic[];
-    modes: DeviceMode[];
-    logicSlots: string[];
-    connects: DeviceConnect[];
-}
-
-/** 枚举值条目 */
-export interface EnumValueEntry {
-    name: string;
-    value: string;
-    desc?: DescValue;
-}
-
-/** 枚举类型 (from toJSON()) */
-export interface EnumType {
-    type: "enum";
-    name: string;
-    desc?: DescValue;
-    values: EnumValueEntry[];
-}
-
-/** 自定义类型 */
-export type CustomType = DeviceType | EnumType;
+/** 自定义类型：设备注解或枚举注解 */
+export type CustomType = DeviceAnnotation | EnumAnnotation;
 
 /** 类型表 JSON 映射 */
 export interface TypeTableMap {

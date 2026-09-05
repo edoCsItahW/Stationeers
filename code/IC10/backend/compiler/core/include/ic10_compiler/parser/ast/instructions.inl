@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef STATIONEERS_INSTRUCTIONS_INL
-#define STATIONEERS_INSTRUCTIONS_INL
+#ifndef IC10_COMPILER_CORE_INSTRUCTIONS_INL
+#define IC10_COMPILER_CORE_INSTRUCTIONS_INL
 #pragma once
 
 namespace stationeers::ic10 {
@@ -323,4 +323,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // STATIONEERS_INSTRUCTIONS_INL
+#endif  // IC10_COMPILER_CORE_INSTRUCTIONS_INL

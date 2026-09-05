@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef STATIONEERS_INSTRUCTIONS_HPP
-#define STATIONEERS_INSTRUCTIONS_HPP
+#ifndef IC10_COMPILER_CORE_INSTRUCTIONS_HPP
+#define IC10_COMPILER_CORE_INSTRUCTIONS_HPP
 #pragma once
 
 #include "../instruction_dispatcher.hpp"
@@ -23,7 +23,7 @@
 
 namespace stationeers::ic10 {
 
-    template<typename >
+    template<typename>
     struct is_instruction : std::false_type {};
 
     template<template<FString K, OperandType...> class Instruction, FString K, OperandType... Vs>
@@ -590,7 +590,7 @@ namespace stationeers::ic10 {
         using pascalCase##Instruction =                                                            \
             instructionBaseType<#lowerCase __VA_OPT__(, ) __VA_ARGS__>;                            \
         template<>                                                                                 \
-        struct TypeFor<ic10::TokenType::KEYWORD_##upperCase> {                                     \
+        struct InstructionMapper<InstructionKeyword::upperCase> {                                   \
             using type = pascalCase##Instruction;                                                  \
         };                                                                                         \
         extern template struct instructionBaseType<#lowerCase __VA_OPT__(, ) __VA_ARGS__>;
@@ -601,4 +601,4 @@ namespace stationeers::ic10 {
 
 #include "instructions.inl"
 
-#endif  // STATIONEERS_INSTRUCTIONS_HPP
+#endif  // IC10_COMPILER_CORE_INSTRUCTIONS_HPP

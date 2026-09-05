@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef STATIONEERS_OPERAND_CHECK_HPP
-#define STATIONEERS_OPERAND_CHECK_HPP
+#ifndef IC10_COMPILER_CORE_OPERAND_CHECK_HPP
+#define IC10_COMPILER_CORE_OPERAND_CHECK_HPP
 #pragma once
 
 namespace stationeers::ic10 {
@@ -102,4 +102,4 @@ namespace stationeers::ic10 {
 
 #include "operand_check.inl"
 
-#endif  // STATIONEERS_OPERAND_CHECK_HPP
+#endif  // IC10_COMPILER_CORE_OPERAND_CHECK_HPP

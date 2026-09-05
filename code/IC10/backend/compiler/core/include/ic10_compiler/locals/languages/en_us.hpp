@@ -14,8 +14,8 @@
  * @details Defines English (US) translations for all IC10 compiler diagnostic messages
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef COMPILER_EN_US_HPP
-#define COMPILER_EN_US_HPP
+#ifndef IC10_COMPILER_CORE_EN_US_HPP
+#define IC10_COMPILER_CORE_EN_US_HPP
 #pragma once
 
 #include "../local.hpp"
@@ -234,4 +234,4 @@ Exit codes:
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_EN_US_HPP
+#endif  // IC10_COMPILER_CORE_EN_US_HPP

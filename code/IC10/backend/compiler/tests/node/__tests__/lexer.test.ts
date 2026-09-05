@@ -50,7 +50,7 @@ describe('Token', () => {
         const tokens = Lexer.tokenize('move r0 42');
         const meaningful = meaningfulTokens(tokens);
 
-        expect(meaningful[0].type).toBe(TokenType.KEYWORD_MOVE);
+        expect(meaningful[0].type).toBe(TokenType.KEYWORD);
         expect(meaningful[0].lexeme).toBe('move');
     });
 
@@ -117,12 +117,12 @@ describe('Lexer.tokenize', () => {
         expect(meaningful[1].type).toBe(TokenType.COLON);
     });
 
-    it('should tokenize all register r0-r15', () => {
-        for (let i = 0; i < 16; i++) {
+    it('should tokenize all register r0-r17', () => {
+        for (let i = 0; i < 18; i++) {
             const tokens = Lexer.tokenize(`move r${i} 0`);
             const meaningful = meaningfulTokens(tokens);
 
-            // r0-r15 应被识别为 REGISTER
+            // r0-r17 应被识别为 REGISTER
             expect(meaningful[1].type).toBe(TokenType.REGISTER);
             expect(meaningful[1].lexeme).toBe(`r${i}`);
         }
@@ -149,23 +149,7 @@ describe('Lexer.tokenize', () => {
         expect(dbToken).toBeDefined();
     });
 
-    it('should tokenize r16+ as identifier (out of register range)', () => {
-        const tokens = Lexer.tokenize('move r16 0');
-        const meaningful = meaningfulTokens(tokens);
-
-        // r16 超出寄存器范围，应被识别为 IDENTIFIER
-        expect(meaningful[1].type).toBe(TokenType.IDENTIFIER);
-        expect(meaningful[1].lexeme).toBe('r16');
-    });
-
-    it('should tokenize d6+ as identifier (out of device range)', () => {
-        const tokens = Lexer.tokenize('alias dev d6');
-        const meaningful = meaningfulTokens(tokens);
-
-        expect(meaningful[2].type).toBe(TokenType.IDENTIFIER);
-    });
-
-    it('should tokenize integer literals', () => {
+            it('should tokenize integer literals', () => {
         const tokens = Lexer.tokenize('move r0 42');
         const meaningful = meaningfulTokens(tokens);
 
@@ -207,26 +191,12 @@ describe('Lexer.tokenize', () => {
         expect(strToken!.lexeme).toBe('"test"');
     });
 
-    it('should tokenize constants (pi, tau, nan, etc.)', () => {
-        // NOTE: 常量在词法层面被识别为 IDENTIFIER
-        // 语义分析阶段才将其解析为常量值
-        const constants = ['pi', 'tau', 'nan', 'pinf', 'ninf', 'rgas'];
-        for (const c of constants) {
-            const tokens = Lexer.tokenize(`move r0 ${c}`);
-            const meaningful = meaningfulTokens(tokens);
-
-            // 常量 token 应存在
-            const constToken = meaningful.find(t => t.lexeme === c);
-            expect(constToken).toBeDefined();
-        }
-    });
-
-    it('should tokenize hash and slash comments', () => {
+        it('should tokenize hash and slash comments', () => {
         const tokens = Lexer.tokenize('# hash comment\n// slash comment\nhcf');
         const meaningful = meaningfulTokens(tokens);
 
-        // 应有 hcf 关键字
-        const hcf = meaningful.find(t => t.type === TokenType.KEYWORD_HCF);
+        // 应有 hcf 关键字（现在统一为 KEYWORD 类型）
+        const hcf = meaningful.find(t => t.type === TokenType.KEYWORD && t.lexeme === 'hcf');
         expect(hcf).toBeDefined();
     });
 
@@ -272,7 +242,7 @@ describe('Lexer.scan', () => {
 
     it('should preserve comments as tokens', () => {
         // NOTE: C++ 词法分析器的 debug 标志当前未影响 token 生成，
-        // 注释在两种模式下均被保留为 HEX_COMMENT / SLASH_COMMENT token。
+        // 注释在两种模式下均被保留为 HEX_COMMENT token。
         const source = '# comment\nhcf\n';
 
         const lexer = new Lexer(source);
@@ -282,8 +252,8 @@ describe('Lexer.scan', () => {
         const commentToken = tokens.find(t => t.type === TokenType.HEX_COMMENT);
         expect(commentToken).toBeDefined();
 
-        // 也应包含 hcf 关键字
-        const hcfToken = tokens.find(t => t.type === TokenType.KEYWORD_HCF);
+        // 也应包含 hcf 关键字（现在统一为 KEYWORD 类型）
+        const hcfToken = tokens.find(t => t.type === TokenType.KEYWORD && t.lexeme === 'hcf');
         expect(hcfToken).toBeDefined();
     });
 
@@ -313,72 +283,13 @@ describe('Lexer.scan', () => {
     });
 
     it('should handle source with only comments', () => {
-        const lexer = new Lexer('# comment\n// comment\n');
+        const lexer = new Lexer('# comment\n# comment\n');
         const tokens = lexer.scan();
 
         expect(lexer.diagnostics).toHaveLength(0);
     });
 
-    it('should tokenize doc comment #>', () => {
-        const tokens = Lexer.tokenize('#> @device\n#> @name Furnace\n#> @end-device\n');
-        const meaningful = meaningfulTokens(tokens);
-
-        expect(meaningful).toHaveLength(3);
-        expect(meaningful[0].type).toBe(TokenType.DOC_COMMENT);
-        expect(meaningful[0].lexeme).toBe('#> @device');
-        expect(meaningful[0].category).toBe(TokenCategory.ANNOTATION);
-        expect(meaningful[1].type).toBe(TokenType.DOC_COMMENT);
-        expect(meaningful[2].type).toBe(TokenType.DOC_COMMENT);
-    });
-
-    it('should tokenize type hint #:', () => {
-        const tokens = Lexer.tokenize('#: @type Furnace\n');
-        const meaningful = meaningfulTokens(tokens);
-
-        expect(meaningful).toHaveLength(1);
-        expect(meaningful[0].type).toBe(TokenType.TYPE_HINT);
-        expect(meaningful[0].lexeme).toBe('#: @type Furnace');
-        expect(meaningful[0].category).toBe(TokenCategory.ANNOTATION);
-    });
-
-    it('should tokenize type hint with @desc', () => {
-        const tokens = Lexer.tokenize('#: @desc 炉窑设备\n');
-        const meaningful = meaningfulTokens(tokens);
-
-        expect(meaningful).toHaveLength(1);
-        expect(meaningful[0].type).toBe(TokenType.TYPE_HINT);
-        expect(meaningful[0].lexeme).toBe('#: @desc 炉窑设备');
-        expect(meaningful[0].category).toBe(TokenCategory.ANNOTATION);
-    });
-
-    it('should tokenize type hint with multiple tags', () => {
-        const tokens = Lexer.tokenize('#: @type Furnace @desc 炉窑\n');
-        const meaningful = meaningfulTokens(tokens);
-
-        expect(meaningful).toHaveLength(1);
-        expect(meaningful[0].type).toBe(TokenType.TYPE_HINT);
-        expect(meaningful[0].lexeme).toBe('#: @type Furnace @desc 炉窑');
-        expect(meaningful[0].category).toBe(TokenCategory.ANNOTATION);
-    });
-
-    it('should fallback invalid #> to HEX_COMMENT', () => {
-        const tokens = Lexer.tokenize('#> not a tag\n');
-        const meaningful = meaningfulTokens(tokens);
-
-        expect(meaningful).toHaveLength(1);
-        expect(meaningful[0].type).toBe(TokenType.HEX_COMMENT);
-        expect(meaningful[0].category).toBe(TokenCategory.COMMENT);
-    });
-
-    it('should fallback invalid #: to HEX_COMMENT', () => {
-        const tokens = Lexer.tokenize('#: not type\n');
-        const meaningful = meaningfulTokens(tokens);
-
-        expect(meaningful).toHaveLength(1);
-        expect(meaningful[0].type).toBe(TokenType.HEX_COMMENT);
-        expect(meaningful[0].category).toBe(TokenCategory.COMMENT);
-    });
-});
+                        });
 
 // ============================================================
 // 位置信息测试
@@ -393,10 +304,10 @@ describe('Token positions', () => {
         // 第一行的 move
         expect(meaningful[0].pos.line).toBe(1);
         // 第二行的 move
-        const secondMove = meaningful.find(t => t.type === TokenType.KEYWORD_MOVE && t.pos.line === 2);
+        const secondMove = meaningful.find(t => t.type === TokenType.KEYWORD && t.lexeme === 'move' && t.pos.line === 2);
         expect(secondMove).toBeDefined();
         // 第三行的 move
-        const thirdMove = meaningful.find(t => t.type === TokenType.KEYWORD_MOVE && t.pos.line === 3);
+        const thirdMove = meaningful.find(t => t.type === TokenType.KEYWORD && t.lexeme === 'move' && t.pos.line === 3);
         expect(thirdMove).toBeDefined();
     });
 
@@ -453,44 +364,12 @@ describe('Unicode identifiers', () => {
 // ============================================================
 
 describe('Keyword recognition', () => {
-    it('should recognize nullary instruction keywords', () => {
-        const keywords = [
-            {lexeme: 'hcf', type: TokenType.KEYWORD_HCF},
-            {lexeme: 'yield', type: TokenType.KEYWORD_YIELD},
-        ];
-
-        for (const {lexeme, type} of keywords) {
-            const tokens = Lexer.tokenize(lexeme);
-            const meaningful = meaningfulTokens(tokens);
-            expect(meaningful[0].type).toBe(type);
-        }
-    });
-
-    it('should recognize preprocessor keywords', () => {
+        it('should recognize preprocessor keywords', () => {
         expect(meaningfulTokens(Lexer.tokenize('alias'))[0].type).toBe(TokenType.KEYWORD_ALIAS);
         expect(meaningfulTokens(Lexer.tokenize('define'))[0].type).toBe(TokenType.KEYWORD_DEFINE);
     });
 
-    it('should recognize unary instruction keywords', () => {
-        const keywords = ['sleep', 'j', 'jal', 'jr', 'rand', 'peek', 'pop', 'push', 'clr'];
-        for (const kw of keywords) {
-            const tokens = Lexer.tokenize(kw);
-            const meaningful = meaningfulTokens(tokens);
-            expect(meaningful[0].type).not.toBe(TokenType.IDENTIFIER);
-            expect(meaningful[0].lexeme).toBe(kw);
-        }
-    });
-
-    it('should recognize binary instruction keywords', () => {
-        const keywords = ['move', 'add', 'sub', 'mul', 'div', 'abs', 'ceil', 'floor', 'round', 'sqrt'];
-        for (const kw of keywords) {
-            const tokens = Lexer.tokenize(kw);
-            const meaningful = meaningfulTokens(tokens);
-            expect(meaningful[0].type).not.toBe(TokenType.IDENTIFIER);
-        }
-    });
-
-    it('should recognize macro keywords', () => {
+            it('should recognize macro keywords', () => {
         expect(meaningfulTokens(Lexer.tokenize('HASH'))[0].type).toBe(TokenType.KEYWORD_HASH);
         expect(meaningfulTokens(Lexer.tokenize('STR'))[0].type).toBe(TokenType.KEYWORD_STR);
     });

@@ -63,8 +63,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  * */
-#ifndef COMPILER_INC_LEXER_HPP
-#define COMPILER_INC_LEXER_HPP
+#ifndef IC10_COMPILER_CORE_INC_LEXER_HPP
+#define IC10_COMPILER_CORE_INC_LEXER_HPP
 #pragma once
 
 #include "ic10_compiler/lexer/lexer.hpp"
@@ -353,4 +353,4 @@ namespace stationeers::ic10 {
 
 #include "inc_lexer.inl"
 
-#endif  // COMPILER_INC_LEXER_HPP
+#endif  // IC10_COMPILER_CORE_INC_LEXER_HPP

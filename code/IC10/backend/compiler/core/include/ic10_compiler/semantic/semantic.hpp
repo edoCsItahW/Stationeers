@@ -111,8 +111,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
-#ifndef COMPILER_SEMANTIC_HPP
-#define COMPILER_SEMANTIC_HPP
+#ifndef IC10_COMPILER_CORE_SEMANTIC_HPP
+#define IC10_COMPILER_CORE_SEMANTIC_HPP
 #pragma once
 
 #include <unordered_map>
@@ -462,4 +462,4 @@ namespace stationeers::ic10 {
 
 #include "semantic.inl"
 
-#endif  // COMPILER_SEMANTIC_HPP
+#endif  // IC10_COMPILER_CORE_SEMANTIC_HPP

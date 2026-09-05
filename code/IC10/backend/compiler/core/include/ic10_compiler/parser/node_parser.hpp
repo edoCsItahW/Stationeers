@@ -16,8 +16,8 @@
  * @note 由于Parser的match前瞻，因此NodeParser的parse方法可能为noexcept
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef STATIONEERS_NODE_PARSER_HPP
-#define STATIONEERS_NODE_PARSER_HPP
+#ifndef IC10_COMPILER_CORE_NODE_PARSER_HPP
+#define IC10_COMPILER_CORE_NODE_PARSER_HPP
 #pragma once
 
 namespace stationeers::ic10 {
@@ -204,4 +204,4 @@ namespace stationeers::ic10 {
 
 #include "node_parser.inl"
 
-#endif  // STATIONEERS_NODE_PARSER_HPP
+#endif  // IC10_COMPILER_CORE_NODE_PARSER_HPP

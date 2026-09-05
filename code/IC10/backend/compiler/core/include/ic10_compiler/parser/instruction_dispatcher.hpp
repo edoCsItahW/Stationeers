@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef STATIONEERS_INSTRUCTION_DISPATCHER_HPP
-#define STATIONEERS_INSTRUCTION_DISPATCHER_HPP
+#ifndef IC10_COMPILER_CORE_INSTRUCTION_DISPATCHER_HPP
+#define IC10_COMPILER_CORE_INSTRUCTION_DISPATCHER_HPP
 #pragma once
 
 #include "ic10_compiler/lexer/token.hpp"
@@ -45,4 +45,4 @@ namespace stationeers::ic10 {
 
 #include "instruction_dispatcher.inl"
 
-#endif  // STATIONEERS_INSTRUCTION_DISPATCHER_HPP
+#endif  // IC10_COMPILER_CORE_INSTRUCTION_DISPATCHER_HPP

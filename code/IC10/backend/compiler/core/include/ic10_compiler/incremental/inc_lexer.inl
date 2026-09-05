@@ -6,8 +6,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef COMPILER_INC_LEXER_INL
-#define COMPILER_INC_LEXER_INL
+#ifndef IC10_COMPILER_CORE_INC_LEXER_INL
+#define IC10_COMPILER_CORE_INC_LEXER_INL
 #pragma once
 
 namespace stationeers::ic10 {
@@ -45,4 +45,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif //COMPILER_INC_LEXER_INL
+#endif //IC10_COMPILER_CORE_INC_LEXER_INL

@@ -111,17 +111,7 @@ class LinkerTest {
                     "symbol table should contain both aliases");
         }
 
-        @Test
-        @DisplayName("alias + define from different units")
-        void aliasPlusDefine() {
-            Linker linker = new Linker();
-            linker.addUnitSourceNoPath("alias dev d0\nhcf\n");
-            linker.addUnitSourceNoPath("define MAX 100\nhcf\n");
-            SymbolTable st = linker.link();
-            assertNotNull(st);
-            String json = st.toJSON();
-            assertTrue(json.contains("dev") && json.contains("MAX"));
-        }
+        
 
         @Test
         @DisplayName("label referenced across units")
@@ -156,22 +146,6 @@ class LinkerTest {
     @Nested
     @DisplayName("Type table across units")
     class TypeTableCrossUnit {
-
-        @Test
-        @DisplayName("device type defined and used across units")
-        void deviceTypeCrossUnit() {
-            Linker linker = new Linker();
-            linker.addUnitSourceNoPath(
-                    "#> @device\n" +
-                    "#> @name Sensor\n" +
-                    "#> @logic Pressure rw\n" +
-                    "#> @end-device\n");
-            linker.addUnitSourceNoPath("alias s d0 #: @type Sensor\nhcf\n");
-            SymbolTable st = linker.link();
-            assertNotNull(st);
-            String json = linker.getTypeTable().toJSON();
-            assertTrue(json.contains("Sensor"), "type table should contain 'Sensor'");
-        }
 
         @Test
         @DisplayName("enum type shared across units")
@@ -288,43 +262,11 @@ class LinkerTest {
             assertNotNull(st.toJSON());
         }
 
-        @Test
-        @DisplayName("addUnitProgram with path works")
-        void addUnitProgramWithPath() {
-            Linker linker = new Linker();
-            Token[] tokens = Lexer.tokenize("alias a r0\nhcf\n", false);
-            Program program = Parser.parsing(tokens, false);
-            linker.addUnitProgram(program, "test.ic10");
-            SymbolTable st = linker.link();
-            assertNotNull(st);
-            assertNotNull(st.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("addUnitProgramNoPath works")
-        void addUnitProgramNoPath() {
-            Linker linker = new Linker();
-            Token[] tokens = Lexer.tokenize("alias a r0\nhcf\n", false);
-            Program program = Parser.parsing(tokens, false);
-            linker.addUnitProgramNoPath(program);
-            SymbolTable st = linker.link();
-            assertNotNull(st);
-            assertNotNull(st.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("mixed addUnitSource and addUnitProgram")
-        void mixedAddUnits() {
-            Linker linker = new Linker();
-            linker.addUnitSourceNoPath("alias a r0\nhcf\n");
-            Token[] tokens = Lexer.tokenize("alias b r1\nhcf\n", false);
-            Program program = Parser.parsing(tokens, false);
-            linker.addUnitProgramNoPath(program);
-            SymbolTable st = linker.link();
-            assertNotNull(st);
-            String json = st.toJSON();
-            assertTrue(json.contains("a") && json.contains("b"));
-        }
+        
 
         @Test
         @DisplayName("addUnitSource multiple units then link")

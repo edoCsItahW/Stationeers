@@ -48,19 +48,6 @@ namespace stationeers::ic10 {
         }));
     }
 
-    // TypeHintDesc
-
-    Pos TypeHintDesc::end() const {
-        return call(desc, [](const auto& desc) { return desc.end(); });
-    }
-
-    std::string TypeHintDesc::toString() const {
-        return std::format("@desc {}", call(desc, [](const auto& desc) {
-                               return desc.toString();
-                           }));
-    }
-
-    std::string TypeHintDesc::toJSON() const { return jsonBase<"desc", "tag">(desc, "desc"); }
 
     // TypeHint
 
@@ -69,9 +56,9 @@ namespace stationeers::ic10 {
     std::string TypeHint::toString() const {
         std::stringstream ss;
 
-        if (type) ss << type->toString() << " ";
+        if (type) ss << *type << " ";
 
-        if (desc) ss << desc->toString() << " ";
+        if (desc) ss << call(*desc, [](const auto& desc) { return desc.toString(); }) << " ";
 
         if (builtin) ss << "@builtin";
 
@@ -80,8 +67,8 @@ namespace stationeers::ic10 {
 
     std::string TypeHint::toJSON() const {
         return jsonBase<"type", "desc", "builtin">(
-            type ? std::optional(type->toJSON()) : std::nullopt,
-            desc ? std::optional(desc->toJSON()) : std::nullopt, builtin
+            type ? type : std::nullopt,
+            desc ? std::optional(call(*desc, [](const auto& desc) { return desc.toJSON(); })) : std::nullopt, builtin
         );
     }
 
@@ -164,7 +151,8 @@ namespace stationeers::ic10 {
 
     std::string DeviceAnnotation::toJSON() const {
         return jsonBase<
-            "name", "desc", "deviceHash", "nameHash", "logics", "logicSlots", "reagentHashes">(
+            "name", "desc", "deviceHash", "nameHash", "logics", "logicSlots", "reagentHashes",
+            "slots">(  // TODO: 需重新编译验证 — 补充序列化 slots 字段
             name,
             desc ? std::optional(call(*desc, [](const auto& desc) { return desc.toJSON(); }))
                  : std::nullopt,
@@ -172,7 +160,8 @@ namespace stationeers::ic10 {
             nameHash ? std::optional(nameHash->toJSON()) : std::nullopt,
             seqJSON(logics, [](const auto& logic) { return logic.toJSON(); }),
             seqJSON(logicSlots, [](const auto& logicSlot) { return logicSlot.toJSON(); }),
-            seqJSON(reagentHashes, [](const auto& reagentHash) { return reagentHash.toJSON(); })
+            seqJSON(reagentHashes, [](const auto& reagentHash) { return reagentHash.toJSON(); }),
+            seqJSON(slots, [](const auto& slot) { return slot.toJSON(); })
         );
     }
 

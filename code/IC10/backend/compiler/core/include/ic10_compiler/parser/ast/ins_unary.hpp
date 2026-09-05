@@ -34,8 +34,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
-#ifndef COMPILER_AST_UNARY_INS_HPP
-#define COMPILER_AST_UNARY_INS_HPP
+#ifndef IC10_COMPILER_CORE_INS_UNARY_HPP
+#define IC10_COMPILER_CORE_INS_UNARY_HPP
 #pragma once
 
 #include "instructions.hpp"
@@ -104,4 +104,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_AST_UNARY_INS_HPP
+#endif  // IC10_COMPILER_CORE_INS_UNARY_HPP

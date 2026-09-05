@@ -13,64 +13,17 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+import {LabelDefNode, PreprocessorDirective, ExecutableInstruction, Errorable, ErrorNode} from "./ast";
 import {Pos} from "../common";
-import {LabelDefNode, PreprocessorDirectiveNode, ErrorNode} from "./ast";
-import {
-    NullaryInstructionNode,
-    UnaryInstructionNode,
-    BinaryInstructionNode,
-    TernaryInstructionNode,
-    QuaternaryInstructionNode, QuinaryInstructionNode, SenaryInstructionNode
-} from "./instructions";
 
-
-/**
- * @summary 可执行指令联合类型
- *
- * @desc 包含所有可执行指令类型的联合，包括零元、一元、二元、三元、四元、五元和六元指令。
- * 这是 IC10 程序中所有可执行指令的完整集合。
- *
- * @elseif en
- * @summary Executable instruction union type
- *
- * @desc Union of all executable instruction types, including nullary, unary, binary, ternary, quaternary, quinary, and senary instructions.
- * This is the complete set of all executable instructions in IC10 programs.
- *
- * @public
- */
-export type ExecutableInstructionNode =
-    | NullaryInstructionNode
-    | UnaryInstructionNode
-    | BinaryInstructionNode
-    | TernaryInstructionNode
-    | QuaternaryInstructionNode
-    | QuinaryInstructionNode
-    | SenaryInstructionNode;
 
 export type PureExeInstructionNode = Exclude<ExecutableInstructionNode, ErrorNode>;
 
-/**
- * @summary 语句联合类型
- *
- * @desc 包含 IC10 程序中所有语句类型的联合：
- * - 可执行指令（{@link ExecutableInstructionNode}）
- * - 标签定义（{@link LabelDefNode}）
- * - 预处理指令（{@link PreprocessorDirectiveNode}）
- *
- * @elseif en
- * @summary Statement union type
- *
- * @desc Union of all statement types in IC10 programs:
- * - Executable instructions ({@link ExecutableInstructionNode})
- * - Label definitions ({@link LabelDefNode})
- * - Preprocessor directives ({@link PreprocessorDirectiveNode})
- *
- * @public
- */
-export type StatementNode =
-    | ExecutableInstructionNode
+
+export type Statement = Errorable<ExecutableInstruction
     | LabelDefNode
-    | PreprocessorDirectiveNode;
+    | PreprocessorDirective
+    | TypeAnnotation>;
 
 
 /**
@@ -102,19 +55,19 @@ export class Program {
      * @summary 节点名称
      * @desc 通常为 "Program"
      */
-    nodeName: string;
+    get nodeName(): "Program";
 
     /**
      * @summary 程序语句列表
      * @desc 包含程序中的所有语句（指令、标签、预处理指令等）
      */
-    statements: StatementNode[];
+    get statements(): Statement[];
 
     /**
      * @summary 结束位置
      * @desc 程序在源代码中的结束位置
      */
-    end: Pos;
+    get end(): Pos;
 
     /**
      * @summary 返回可读字符串表示

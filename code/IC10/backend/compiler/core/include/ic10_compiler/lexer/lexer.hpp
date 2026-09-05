@@ -105,8 +105,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
-#ifndef COMPILER_LEXER_HPP
-#define COMPILER_LEXER_HPP
+#ifndef IC10_COMPILER_CORE_LEXER_HPP
+#define IC10_COMPILER_CORE_LEXER_HPP
 #pragma once
 
 #include "common/exception/diagnostic.hpp"
@@ -502,4 +502,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_LEXER_HPP
+#endif  // IC10_COMPILER_CORE_LEXER_HPP

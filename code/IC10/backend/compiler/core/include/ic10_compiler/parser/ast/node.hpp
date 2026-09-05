@@ -25,8 +25,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
-#ifndef COMPILER_AST_NODE_HPP
-#define COMPILER_AST_NODE_HPP
+#ifndef IC10_COMPILER_CORE_NODE_HPP
+#define IC10_COMPILER_CORE_NODE_HPP
 #pragma once
 
 #include "common/utils/common.hpp"
@@ -52,8 +52,8 @@ namespace stationeers::ic10 {
     // AST (实现于ast_node.inl)
 
     template<typename T>
-    concept AstJsonAble =
-        JsonArgsAble<T> || IsVariant<std::decay_t<T>> || requires(T t) { t.toJSON(); };
+    concept AstJsonAble = JsonArgsAble<T> || IsVariant<std::decay_t<T>>
+                       || std::is_same_v<std::decay_t<T>, JsonRaw> || requires(T t) { t.toJSON(); };
 
     template<typename T>
     concept HasFirst = requires {
@@ -617,8 +617,9 @@ namespace stationeers::ic10 {
     struct Enum : AST<Enum> {
         static constexpr auto nodeName = "Enum"_fs;
 
-        static constexpr auto FIRST =
-            std::make_tuple(std::array{TokenType::IDENTIFIER, TokenType::DOT, TokenType::IDENTIFIER});
+        static constexpr auto FIRST = std::make_tuple(
+            std::array{TokenType::IDENTIFIER, TokenType::DOT, TokenType::IDENTIFIER}
+        );
 
         ShallowErrorable<Identifier> name;
 
@@ -647,7 +648,7 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct HashMacro : AST<HashMacro> {
-        static constexpr auto nodeName = "HashCall"_fs;
+        static constexpr auto nodeName = "HashMacro"_fs;
 
         static constexpr auto FIRST = std::make_tuple(std::array{TokenType::KEYWORD_HASH});
 
@@ -686,7 +687,7 @@ namespace stationeers::ic10 {
      * @endif
      */
     struct StrMacro : AST<StrMacro> {
-        static constexpr auto nodeName = "StrCall"_fs;
+        static constexpr auto nodeName = "StrMacro"_fs;
 
         static constexpr auto FIRST = std::make_tuple(std::array{TokenType::KEYWORD_STR});
 
@@ -789,7 +790,8 @@ namespace stationeers::ic10 {
     struct LabelDef : AST<LabelDef> {
         static constexpr auto nodeName = "LabelDef"_fs;
 
-        static constexpr auto FIRST = std::make_tuple(std::array{TokenType::IDENTIFIER, TokenType::COLON});
+        static constexpr auto FIRST =
+            std::make_tuple(std::array{TokenType::IDENTIFIER, TokenType::COLON});
 
         ShallowErrorable<Identifier> identifier;
 
@@ -802,4 +804,4 @@ namespace stationeers::ic10 {
 
 #include "node.inl"
 
-#endif  // COMPILER_AST_NODE_HPP
+#endif  // IC10_COMPILER_CORE_NODE_HPP

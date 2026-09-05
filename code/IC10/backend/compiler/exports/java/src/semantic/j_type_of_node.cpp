@@ -36,14 +36,18 @@ namespace stationeers::ic10 {
             String,
             StrMacro,
             HashMacro,
-            Register,
-            Device,
+            DynamicRegister,
+            AddressRegister,
+            StackPointerRegister,
+            GeneralPurposeRegister,
+            DynamicDevice,
+            StaticDevice,
+            Enum,
             LabelDef,
             ErrorNode,
-            Constant,
             BinaryNumber,
             HexNumber
-        >;
+        >;  // TODO: 需重新编译验证 — 对齐当前 core 的节点类型列表
 
         /**
          * @if zh

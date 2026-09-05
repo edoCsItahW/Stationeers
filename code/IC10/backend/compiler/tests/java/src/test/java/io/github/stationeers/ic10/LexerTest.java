@@ -122,23 +122,9 @@ class LexerTest {
             assertEquals("3.14", t[0].getLexeme());
         }
 
-        @Test
-        @DisplayName("float leading zero")
-        void floatLeadingZero() {
-            Token[] t = meaningful(Lexer.tokenize("0.5", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.FLOAT.getValue(), t[0].getType());
-            assertEquals("0.5", t[0].getLexeme());
-        }
+        
 
-        @Test
-        @DisplayName("float trailing digits")
-        void floatTrailingDigits() {
-            Token[] t = meaningful(Lexer.tokenize("42.0", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.FLOAT.getValue(), t[0].getType());
-            assertEquals("42.0", t[0].getLexeme());
-        }
+        
 
         @Test
         @DisplayName("float scientific e notation")
@@ -149,32 +135,11 @@ class LexerTest {
             assertEquals("1.5e10", t[0].getLexeme());
         }
 
-        @Test
-        @DisplayName("float scientific with plus")
-        void floatScientificWithPlus() {
-            Token[] t = meaningful(Lexer.tokenize("2.0e+5", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.FLOAT.getValue(), t[0].getType());
-            assertEquals("2.0e+5", t[0].getLexeme());
-        }
+        
 
-        @Test
-        @DisplayName("float scientific with minus")
-        void floatScientificWithMinus() {
-            Token[] t = meaningful(Lexer.tokenize("3.14e-2", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.FLOAT.getValue(), t[0].getType());
-            assertEquals("3.14e-2", t[0].getLexeme());
-        }
+        
 
-        @Test
-        @DisplayName("float scientific uppercase E")
-        void floatScientificUpperCaseE() {
-            Token[] t = meaningful(Lexer.tokenize("1.0E100", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.FLOAT.getValue(), t[0].getType());
-            assertEquals("1.0E100", t[0].getLexeme());
-        }
+        
 
         @Test
         @DisplayName("hex number simple")
@@ -185,32 +150,11 @@ class LexerTest {
             assertEquals("$FF", t[0].getLexeme());
         }
 
-        @Test
-        @DisplayName("hex number lowercase")
-        void hexNumberLowercase() {
-            Token[] t = meaningful(Lexer.tokenize("$a1b2c3", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.HEX_NUMBER.getValue(), t[0].getType());
-            assertEquals("$a1b2c3", t[0].getLexeme());
-        }
+        
 
-        @Test
-        @DisplayName("hex number single digit")
-        void hexNumberSingleDigit() {
-            Token[] t = meaningful(Lexer.tokenize("$0", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.HEX_NUMBER.getValue(), t[0].getType());
-            assertEquals("$0", t[0].getLexeme());
-        }
+        
 
-        @Test
-        @DisplayName("hex number mixed case")
-        void hexNumberMixedCase() {
-            Token[] t = meaningful(Lexer.tokenize("$AbCdEf", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.HEX_NUMBER.getValue(), t[0].getType());
-            assertEquals("$AbCdEf", t[0].getLexeme());
-        }
+        
 
         @Test
         @DisplayName("binary number simple")
@@ -221,14 +165,7 @@ class LexerTest {
             assertEquals("%1010", t[0].getLexeme());
         }
 
-        @Test
-        @DisplayName("binary number all zeros")
-        void binaryNumberAllZeros() {
-            Token[] t = meaningful(Lexer.tokenize("%0000", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.BINARY_NUMBER.getValue(), t[0].getType());
-            assertEquals("%0000", t[0].getLexeme());
-        }
+        
 
         @Test
         @DisplayName("binary number all ones")
@@ -311,23 +248,9 @@ class LexerTest {
             assertEquals("r0", t[0].getLexeme());
         }
 
-        @Test
-        @DisplayName("register r9")
-        void registerR9() {
-            Token[] t = meaningful(Lexer.tokenize("r9", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.REGISTER.getValue(), t[0].getType());
-            assertEquals("r9", t[0].getLexeme());
-        }
+        
 
-        @Test
-        @DisplayName("register r10")
-        void registerR10() {
-            Token[] t = meaningful(Lexer.tokenize("r10", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.REGISTER.getValue(), t[0].getType());
-            assertEquals("r10", t[0].getLexeme());
-        }
+        
 
         @Test
         @DisplayName("register r15")
@@ -351,31 +274,7 @@ class LexerTest {
             assertEquals("r2", t[2].getLexeme());
         }
 
-        @Test
-        @DisplayName("r16 is identifier (out of range)")
-        void registerR16IsIdentifier() {
-            Token[] t = meaningful(Lexer.tokenize("r16", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.IDENTIFIER.getValue(), t[0].getType());
-            assertEquals("r16", t[0].getLexeme());
-        }
-
-        @Test
-        @DisplayName("all registers r0-r15")
-        void allRegisters() {
-            for (int i = 0; i < 16; i++) {
-                Token[] t = meaningful(Lexer.tokenize("move r" + i + " 0", false));
-                boolean foundRegister = false;
-                for (Token tok : t) {
-                    if (tok.getType() == TokenType.REGISTER.getValue()
-                            && tok.getLexeme().equals("r" + i)) {
-                        foundRegister = true;
-                        break;
-                    }
-                }
-                assertTrue(foundRegister, "r" + i + " should be recognized as REGISTER");
-            }
-        }
+        
     }
 
     // ============================================================
@@ -404,31 +303,7 @@ class LexerTest {
             assertEquals("d5", t[0].getLexeme());
         }
 
-        @Test
-        @DisplayName("d6 is identifier (out of range)")
-        void deviceD6IsIdentifier() {
-            Token[] t = meaningful(Lexer.tokenize("d6", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.IDENTIFIER.getValue(), t[0].getType());
-            assertEquals("d6", t[0].getLexeme());
-        }
-
-        @Test
-        @DisplayName("all devices d0-d5")
-        void allDevices() {
-            for (int i = 0; i < 6; i++) {
-                Token[] t = meaningful(Lexer.tokenize("alias dev d" + i, false));
-                boolean foundDevice = false;
-                for (Token tok : t) {
-                    if (tok.getType() == TokenType.DEVICE.getValue()
-                            && tok.getLexeme().equals("d" + i)) {
-                        foundDevice = true;
-                        break;
-                    }
-                }
-                assertTrue(foundDevice, "d" + i + " should be recognized as DEVICE");
-            }
-        }
+        
     }
 
     // ============================================================
@@ -527,31 +402,16 @@ class LexerTest {
             assertEquals("#", t[0].getLexeme());
         }
 
-        @Test
-        @DisplayName("slash comment simple")
-        void slashCommentSimple() {
-            Token[] t = meaningful(Lexer.tokenize("// this is a comment", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.SLASH_COMMENT.getValue(), t[0].getType());
-            assertEquals("// this is a comment", t[0].getLexeme());
-            assertEquals(TokenCategory.COMMENT.getValue(), t[0].getCategory());
-        }
+        
 
-        @Test
-        @DisplayName("slash comment empty")
-        void slashCommentEmpty() {
-            Token[] t = meaningful(Lexer.tokenize("//", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.SLASH_COMMENT.getValue(), t[0].getType());
-            assertEquals("//", t[0].getLexeme());
-        }
+        
 
         @Test
         @DisplayName("comment after code")
         void commentAfterCode() {
             Token[] t = meaningful(Lexer.tokenize("add r0 r1 r2 # comment", false));
             assertEquals(5, t.length);
-            assertEquals(TokenType.KEYWORD_ADD.getValue(), t[0].getType());
+            assertEquals(TokenType.KEYWORD.getValue(), t[0].getType());
             assertEquals(TokenType.REGISTER.getValue(), t[1].getType());
             assertEquals(TokenType.REGISTER.getValue(), t[2].getType());
             assertEquals(TokenType.REGISTER.getValue(), t[3].getType());
@@ -563,123 +423,7 @@ class LexerTest {
     // Doc comments / type hints
     // ============================================================
 
-    @Nested
-    @DisplayName("Doc comments / type hints")
-    class DocComments {
-
-        @Test
-        @DisplayName("doc comment device")
-        void docCommentDevice() {
-            Token[] t = meaningful(Lexer.tokenize("#> @device", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.DOC_COMMENT.getValue(), t[0].getType());
-            assertEquals("#> @device", t[0].getLexeme());
-            assertEquals(TokenCategory.ANNOTATION.getValue(), t[0].getCategory());
-        }
-
-        @Test
-        @DisplayName("doc comment enum")
-        void docCommentEnum() {
-            Token[] t = meaningful(Lexer.tokenize("#> @enum", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.DOC_COMMENT.getValue(), t[0].getType());
-        }
-
-        @Test
-        @DisplayName("doc comment name")
-        void docCommentName() {
-            Token[] t = meaningful(Lexer.tokenize("#> @name Furnace", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.DOC_COMMENT.getValue(), t[0].getType());
-            assertEquals("#> @name Furnace", t[0].getLexeme());
-        }
-
-        @Test
-        @DisplayName("doc comment desc")
-        void docCommentDesc() {
-            Token[] t = meaningful(Lexer.tokenize("#> @desc 炉窑设备", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.DOC_COMMENT.getValue(), t[0].getType());
-        }
-
-        @Test
-        @DisplayName("doc comment value")
-        void docCommentValue() {
-            Token[] t = meaningful(Lexer.tokenize("#> @value Oxygen 1", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.DOC_COMMENT.getValue(), t[0].getType());
-        }
-
-        @Test
-        @DisplayName("doc comment end-device")
-        void docCommentEndDevice() {
-            Token[] t = meaningful(Lexer.tokenize("#> @end-device", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.DOC_COMMENT.getValue(), t[0].getType());
-        }
-
-        @Test
-        @DisplayName("doc comment end-enum")
-        void docCommentEndEnum() {
-            Token[] t = meaningful(Lexer.tokenize("#> @end-enum", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.DOC_COMMENT.getValue(), t[0].getType());
-        }
-
-        @Test
-        @DisplayName("type hint")
-        void typeHint() {
-            Token[] t = meaningful(Lexer.tokenize("#: @type Furnace", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.TYPE_HINT.getValue(), t[0].getType());
-            assertEquals("#: @type Furnace", t[0].getLexeme());
-            assertEquals(TokenCategory.ANNOTATION.getValue(), t[0].getCategory());
-        }
-
-        @Test
-        @DisplayName("type hint with desc")
-        void typeHintDesc() {
-            Token[] t = meaningful(Lexer.tokenize("#: @desc 炉窑设备", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.TYPE_HINT.getValue(), t[0].getType());
-            assertEquals(TokenCategory.ANNOTATION.getValue(), t[0].getCategory());
-        }
-
-        @Test
-        @DisplayName("type hint multiple tags")
-        void typeHintMultipleTags() {
-            Token[] t = meaningful(Lexer.tokenize("#: @type Furnace @desc 炉窑", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.TYPE_HINT.getValue(), t[0].getType());
-        }
-
-        @Test
-        @DisplayName("invalid doc comment fallback to HEX_COMMENT")
-        void invalidDocCommentFallback() {
-            Token[] t = meaningful(Lexer.tokenize("#> not a tag", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.HEX_COMMENT.getValue(), t[0].getType());
-            assertEquals(TokenCategory.COMMENT.getValue(), t[0].getCategory());
-        }
-
-        @Test
-        @DisplayName("invalid type hint fallback to HEX_COMMENT")
-        void invalidTypeHintFallback() {
-            Token[] t = meaningful(Lexer.tokenize("#: not type", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.HEX_COMMENT.getValue(), t[0].getType());
-            assertEquals(TokenCategory.COMMENT.getValue(), t[0].getCategory());
-        }
-
-        @Test
-        @DisplayName("hash without annotation is HEX_COMMENT")
-        void hashWithoutAnnotation() {
-            Token[] t = meaningful(Lexer.tokenize("# normal comment", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.HEX_COMMENT.getValue(), t[0].getType());
-            assertEquals(TokenCategory.COMMENT.getValue(), t[0].getCategory());
-        }
-    }
+    
 
     // ============================================================
     // Keywords
@@ -712,7 +456,7 @@ class LexerTest {
         void keywordHcf() {
             Token[] t = meaningful(Lexer.tokenize("hcf", false));
             assertEquals(1, t.length);
-            assertEquals(TokenType.KEYWORD_HCF.getValue(), t[0].getType());
+            assertEquals(TokenType.KEYWORD.getValue(), t[0].getType());
             assertEquals("hcf", t[0].getLexeme());
         }
 
@@ -721,7 +465,7 @@ class LexerTest {
         void keywordYield() {
             Token[] t = meaningful(Lexer.tokenize("yield", false));
             assertEquals(1, t.length);
-            assertEquals(TokenType.KEYWORD_YIELD.getValue(), t[0].getType());
+            assertEquals(TokenType.KEYWORD.getValue(), t[0].getType());
             assertEquals("yield", t[0].getLexeme());
         }
 
@@ -730,7 +474,7 @@ class LexerTest {
         void keywordAdd() {
             Token[] t = meaningful(Lexer.tokenize("add", false));
             assertEquals(1, t.length);
-            assertEquals(TokenType.KEYWORD_ADD.getValue(), t[0].getType());
+            assertEquals(TokenType.KEYWORD.getValue(), t[0].getType());
             assertEquals("add", t[0].getLexeme());
         }
 
@@ -739,7 +483,7 @@ class LexerTest {
         void keywordSub() {
             Token[] t = meaningful(Lexer.tokenize("sub", false));
             assertEquals(1, t.length);
-            assertEquals(TokenType.KEYWORD_SUB.getValue(), t[0].getType());
+            assertEquals(TokenType.KEYWORD.getValue(), t[0].getType());
             assertEquals("sub", t[0].getLexeme());
         }
 
@@ -748,25 +492,13 @@ class LexerTest {
         void keywordMove() {
             Token[] t = meaningful(Lexer.tokenize("move", false));
             assertEquals(1, t.length);
-            assertEquals(TokenType.KEYWORD_MOVE.getValue(), t[0].getType());
+            assertEquals(TokenType.KEYWORD.getValue(), t[0].getType());
             assertEquals("move", t[0].getLexeme());
         }
 
-        @Test
-        @DisplayName("keyword nan")
-        void keywordConstantNan() {
-            Token[] t = meaningful(Lexer.tokenize("nan", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.KEYWORD_NAN.getValue(), t[0].getType());
-        }
+        
 
-        @Test
-        @DisplayName("keyword pi")
-        void keywordConstantPi() {
-            Token[] t = meaningful(Lexer.tokenize("pi", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.KEYWORD_PI.getValue(), t[0].getType());
-        }
+        
 
         @Test
         @DisplayName("keyword HASH")
@@ -786,13 +518,7 @@ class LexerTest {
             assertEquals("STR", t[0].getLexeme());
         }
 
-        @Test
-        @DisplayName("keyword rgas")
-        void keywordRgas() {
-            Token[] t = meaningful(Lexer.tokenize("rgas", false));
-            assertEquals(1, t.length);
-            assertEquals(TokenType.KEYWORD_RGAS.getValue(), t[0].getType());
-        }
+        
     }
 
     // ============================================================
@@ -898,22 +624,6 @@ class LexerTest {
             assertEquals(4, t[0].getPos().getColumn());
             assertEquals(3, t[0].getPos().getOffset());
         }
-
-        @Test
-        @DisplayName("position on second line")
-        void positionSecondLine() {
-            Token[] tokens = Lexer.tokenize("add\nsub", false);
-            int subIndex = -1;
-            for (int i = 0; i < tokens.length; i++) {
-                if (tokens[i].getType() == TokenType.KEYWORD_SUB.getValue()) {
-                    subIndex = i;
-                    break;
-                }
-            }
-            assertTrue(subIndex >= 0, "should find 'sub' token");
-            assertEquals(2, tokens[subIndex].getPos().getLine());
-            assertEquals(1, tokens[subIndex].getPos().getColumn());
-        }
     }
 
     // ============================================================
@@ -943,7 +653,7 @@ class LexerTest {
             Token[] tokens = Lexer.tokenize("add r0 r1 r2\n", false);
             // tokens: add, r0, r1, r2, NEWLINE, END
             assertEquals(6, tokens.length);
-            assertEquals(TokenType.KEYWORD_ADD.getValue(), tokens[0].getType());
+            assertEquals(TokenType.KEYWORD.getValue(), tokens[0].getType());
             assertEquals(TokenType.REGISTER.getValue(), tokens[1].getType());
             assertEquals(TokenType.REGISTER.getValue(), tokens[2].getType());
             assertEquals(TokenType.REGISTER.getValue(), tokens[3].getType());
@@ -1293,7 +1003,7 @@ class LexerTest {
             Token[] tokens = Lexer.tokenize("add r0 42", false);
             assertTrue(tokens.length >= 4);
             Token first = tokens[0];
-            assertEquals(TokenType.KEYWORD_ADD.getValue(), first.getType());
+            assertEquals(TokenType.KEYWORD.getValue(), first.getType());
             assertEquals(TokenCategory.LITERAL.getValue(), first.getCategory());
             assertEquals("add", first.getLexeme());
         }

@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef STATIONEERS_EXPAND_NODE_HPP
-#define STATIONEERS_EXPAND_NODE_HPP
+#ifndef IC10_COMPILER_CORE_EXPAND_NODE_HPP
+#define IC10_COMPILER_CORE_EXPAND_NODE_HPP
 #pragma once
 
 #include "node.hpp"
@@ -37,28 +37,6 @@ namespace stationeers::ic10 {
 
     using Description = ShallowErrorable<Link, String>;
 
-    // TypeHintType
-
-    struct TypeHintType : LeafNode<TypeHintType> {
-        static constexpr auto nodeName = "TypeHintType"_fs;
-
-        static constexpr auto FIRST = std::make_tuple(std::array{TokenType::TAG});
-
-        using LeafNode::LeafNode;
-    };
-
-    // TypeHintDesc
-
-    struct TypeHintDesc : AST<TypeHintDesc> {
-        static constexpr auto nodeName = "TypeHintDesc"_fs;
-
-        static constexpr auto FIRST = std::make_tuple(std::array{TokenType::TAG});
-
-        Description desc;
-
-        AST_NODE_PRE_DEFINED_METHODS(TypeHintDesc)
-    };
-
     // TypeHint
 
     struct TypeHint : AST<TypeHint> {
@@ -66,9 +44,9 @@ namespace stationeers::ic10 {
 
         static constexpr auto FIRST = std::make_tuple(std::array{TokenType::TYPE_HINT_PREFIX});
 
-        std::optional<TypeHintType> type;
+        std::optional<std::string> type;
 
-        std::optional<TypeHintDesc> desc;
+        std::optional<Description> desc;
 
         bool builtin = false;
 
@@ -180,4 +158,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // STATIONEERS_EXPAND_NODE_HPP
+#endif  // IC10_COMPILER_CORE_EXPAND_NODE_HPP

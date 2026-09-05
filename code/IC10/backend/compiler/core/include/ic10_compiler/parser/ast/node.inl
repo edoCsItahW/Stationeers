@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef COMPILER_AST_NODE_INL
-#define COMPILER_AST_NODE_INL
+#ifndef IC10_COMPILER_CORE_NODE_INL
+#define IC10_COMPILER_CORE_NODE_INL
 #pragma once
 
 #include "common/utils/common.hpp"
@@ -44,8 +44,11 @@ namespace stationeers::ic10 {
         if constexpr (IsVariant<U>)
             return call(arg, [](auto&& o) { return process(o); });
 
+        else if constexpr (std::is_same_v<U, JsonRaw>)
+            return std::forward<T>(arg).str;
+
         else if constexpr (JsonStringAble<U>)
-            return toJsonString(arg);
+            return arg;
 
         else if constexpr (requires { arg.toJSON(); })
             return arg.toJSON();
@@ -73,7 +76,7 @@ namespace stationeers::ic10 {
     template<FString... Vs, AstJsonAble... Args>
         requires(sizeof...(Vs) == sizeof...(Args))
     std::string AST<Derived>::jsonBase(Args&&... args) const {
-        return toJson<"type", "position", "end", Vs...>(
+        return toJson<"nodeName", "position", "end", Vs...>(
             Derived::nodeName, position.toJSON(), end().toJSON(), [](auto&& arg) -> decltype(auto) {
                 using U = std::decay_t<decltype(arg)>;
                 if constexpr (std::is_same_v<U, std::nullopt_t>)
@@ -125,4 +128,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_AST_NODE_INL
+#endif  // IC10_COMPILER_CORE_NODE_INL
