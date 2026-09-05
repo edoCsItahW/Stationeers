@@ -23,8 +23,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
-#ifndef COMPILER_AST_HPP
-#define COMPILER_AST_HPP
+#ifndef IC10_COMPILER_CORE_AST_HPP
+#define IC10_COMPILER_CORE_AST_HPP
 #pragma once
 
 #include "ins_nullary.hpp"
@@ -65,7 +65,7 @@ namespace stationeers::ic10 {
 
         static constexpr auto FIRST = std::make_tuple(std::array{TokenType::KEYWORD_ALIAS});
 
-        ShallowErrorable<Identifier> identifier;
+        AliasDef identifier;
 
         RegOrDev registerOrDevice;
 
@@ -107,7 +107,7 @@ namespace stationeers::ic10 {
 
         static constexpr auto FIRST = std::make_tuple(std::array{TokenType::KEYWORD_DEFINE});
 
-        ShallowErrorable<Identifier> identifier;
+        ConstDef identifier;
 
         ConstNum operand;
 
@@ -235,4 +235,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_AST_HPP
+#endif  // IC10_COMPILER_CORE_AST_HPP

@@ -133,7 +133,7 @@ TEST_F(ParserTestFixture, ParseAliasWithTypeHint) {
     auto& alias = std::get<AliasDirective>(stmt);
     ASSERT_TRUE(alias.typeHint.has_value());
     ASSERT_TRUE(alias.typeHint->type.has_value());
-    EXPECT_EQ(alias.typeHint->type->value, "Furnace");
+    EXPECT_EQ(alias.typeHint->type, "Furnace");
 }
 
 TEST_F(ParserTestFixture, ParseAliasWithoutTypeHint) {
@@ -154,7 +154,7 @@ TEST_F(ParserTestFixture, ParseAliasWithDescTypeHint) {
     ASSERT_TRUE(alias.typeHint.has_value());
     EXPECT_FALSE(alias.typeHint->type.has_value());
     ASSERT_TRUE(alias.typeHint->desc.has_value());
-    const auto* desc = std::get_if<String>(&alias.typeHint->desc->desc);
+    const auto* desc = std::get_if<String>(&*alias.typeHint->desc);
     ASSERT_NE(desc, nullptr);
     EXPECT_EQ(desc->value, "\"炉窑设备\"");
 }
@@ -167,9 +167,9 @@ TEST_F(ParserTestFixture, ParseAliasWithTypeAndDesc) {
     auto& alias = std::get<AliasDirective>(stmt);
     ASSERT_TRUE(alias.typeHint.has_value());
     ASSERT_TRUE(alias.typeHint->type.has_value());
-    EXPECT_EQ(alias.typeHint->type->value, "Furnace");
+    EXPECT_EQ(alias.typeHint->type, "Furnace");
     ASSERT_TRUE(alias.typeHint->desc.has_value());
-    const auto* desc = std::get_if<String>(&alias.typeHint->desc->desc);
+    const auto* desc = std::get_if<String>(&*alias.typeHint->desc);
     ASSERT_NE(desc, nullptr);
     EXPECT_EQ(desc->value, "\"炉窑\"");
 }
@@ -183,7 +183,7 @@ TEST_F(ParserTestFixture, ParseDefineWithDescTypeHint) {
     ASSERT_TRUE(def.typeHint.has_value());
     EXPECT_FALSE(def.typeHint->type.has_value());
     ASSERT_TRUE(def.typeHint->desc.has_value());
-    const auto* desc = std::get_if<String>(&def.typeHint->desc->desc);
+    const auto* desc = std::get_if<String>(&*def.typeHint->desc);
     ASSERT_NE(desc, nullptr);
     EXPECT_EQ(desc->value, "\"最大值\"");
 }
@@ -196,9 +196,9 @@ TEST_F(ParserTestFixture, ParseDefineWithTypeAndDesc) {
     auto& def = std::get<DefineDirective>(stmt);
     ASSERT_TRUE(def.typeHint.has_value());
     ASSERT_TRUE(def.typeHint->type.has_value());
-    EXPECT_EQ(def.typeHint->type->value, "Pressure");
+    EXPECT_EQ(def.typeHint->type, "Pressure");
     ASSERT_TRUE(def.typeHint->desc.has_value());
-    const auto* desc = std::get_if<String>(&def.typeHint->desc->desc);
+    const auto* desc = std::get_if<String>(&*def.typeHint->desc);
     ASSERT_NE(desc, nullptr);
     EXPECT_EQ(desc->value, "\"标准大气压\"");
 }
@@ -221,19 +221,20 @@ TEST_F(ParserTestFixture, DocCommentWithLinkDesc) {
 }
 
 TEST_F(ParserTestFixture, DeviceDocWithSlots) {
-    // TODO: 核心 DeviceAnnotationSlot::parse 存在缺陷（预检 IDENTIFIER 却调用 Integer 解析），
-    //       @slot 语法尚未就绪，待核心修复后再补充 slot 值断言。
     auto ast = parse(
         "#> @device\n"
         "#> @name Furnace\n"
+        "#> @slot 0\n"
+        "#> @slot 1\n"
         "#> @end-device\n"
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
     ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
     auto& doc = std::get<DeviceAnnotation>(stmt);
-    EXPECT_EQ(doc.name, "Furnace");
-    EXPECT_TRUE(doc.slots.empty());
+    ASSERT_EQ(doc.slots.size(), 2u);
+    EXPECT_EQ(doc.slots[0].value, "0");
+    EXPECT_EQ(doc.slots[1].value, "1");
 }
 
 TEST_F(ParserTestFixture, DeviceDocWithLogics) {
@@ -273,6 +274,7 @@ TEST_F(ParserTestFixture, DeviceDocWithLogicSlots) {
 TEST_F(ParserTestFixture, EnumValueWithLinkDesc) {
     auto ast = parse(
         "#> @enum\n"
+        "#> @name GasType\n"
         "#> @value Oxygen 1 ./locals/gas.desc\n"
         "#> @end-enum\n"
     );

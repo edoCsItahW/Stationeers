@@ -353,10 +353,10 @@ namespace stationeers::ic10 {
             tokenBeforeError = parser.expect(TokenType::LPAREN);
 
             if (tokenBeforeError = parser.current();
-                tokenBeforeError && tokenBeforeError->type == TokenType::IDENTIFIER)
+                tokenBeforeError && tokenBeforeError->type == TokenType::STRING)
                 hashCall.value = NodeParser<String>::parse(parser);
             else
-                parser.expect(TokenType::IDENTIFIER);  // 引发错误
+                parser.expect(TokenType::STRING);  // 引发错误
 
             tokenBeforeError = parser.expect(TokenType::RPAREN);
             hashCall.endPos  = std::move(tokenBeforeError->pos);
@@ -377,10 +377,10 @@ namespace stationeers::ic10 {
             tokenBeforeError = parser.expect(TokenType::LPAREN);
 
             if (tokenBeforeError = parser.current();
-                tokenBeforeError && tokenBeforeError->type == TokenType::IDENTIFIER)
+                tokenBeforeError && tokenBeforeError->type == TokenType::STRING)
                 strCall.value = NodeParser<String>::parse(parser);
             else
-                parser.expect(TokenType::IDENTIFIER);  // 引发错误
+                parser.expect(TokenType::STRING);  // 引发错误
 
             tokenBeforeError = parser.expect(TokenType::RPAREN);
             strCall.endPos   = std::move(tokenBeforeError->pos);

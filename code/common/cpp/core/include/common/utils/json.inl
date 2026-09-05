@@ -16,6 +16,10 @@
 
 namespace stationeers {
 
+    struct JsonRaw {
+        std::string str;
+    };
+
     /**
      * @if zh
      * @brief 对字符串中的特殊字符进行 JSON 转义
@@ -54,8 +58,9 @@ namespace stationeers {
     std::string toJsonString(T value) {
         static auto fmt = [](const std::string& str) -> std::string {
             if (!str.empty()) {
-                // 已经是 JSON 字面量（对象、数组、字符串），直接返回
-                if (str[0] == '"' || str[0] == '[' || str[0] == '{') return str;
+                // 只识别 JSON 对象或数组字面量（以 { 或 [ 开头）
+                if (str[0] == '{' || str[0] == '[') return str;
+                // 其他字符串（包括以 " 开头）均作为普通字符串处理
                 return '"' + escapeJsonString(str) + '"';
             }
             return "\"\"";

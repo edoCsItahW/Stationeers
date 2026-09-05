@@ -27,8 +27,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
-#ifndef COMPILER_TOKEN_HPP
-#define COMPILER_TOKEN_HPP
+#ifndef IC10_COMPILER_CORE_TOKEN_HPP
+#define IC10_COMPILER_CORE_TOKEN_HPP
 #pragma once
 
 #include "common/utils/bidirectional_map.hpp"
@@ -96,6 +96,10 @@ namespace stationeers::ic10 {
         END,         ///< @if zh 文件结束 @else End of file @endif
         INVALID      ///< @if zh 无效标记 @else Invalid token @endif
     };
+
+#ifdef SNAN
+#undef SNAN
+#endif
 
     enum class InstructionKeyword {
         // 空指令
@@ -431,4 +435,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_TOKEN_HPP
+#endif  // IC10_COMPILER_CORE_TOKEN_HPP

@@ -14,8 +14,8 @@
  * @details 定义IC10编译器所有诊断消息的中文(简体)翻译
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef COMPILER_ZH_HANS_HPP
-#define COMPILER_ZH_HANS_HPP
+#ifndef IC10_COMPILER_CORE_ZH_HANS_HPP
+#define IC10_COMPILER_CORE_ZH_HANS_HPP
 #pragma once
 
 #include "../local.hpp"
@@ -224,4 +224,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_ZH_HANS_HPP
+#endif  // IC10_COMPILER_CORE_ZH_HANS_HPP

@@ -74,8 +74,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  * */
-#ifndef COMPILER_IC10_LOCAL_HPP
-#define COMPILER_IC10_LOCAL_HPP
+#ifndef IC10_COMPILER_CORE_LOCAL_HPP
+#define IC10_COMPILER_CORE_LOCAL_HPP
 #pragma once
 
 #include "common/locals/local.hpp"
@@ -490,4 +490,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_IC10_LOCAL_HPP
+#endif  // IC10_COMPILER_CORE_LOCAL_HPP

@@ -33,6 +33,9 @@ namespace stationeers::ic10 {
 
         if (auto catVal = args.get(3); catVal.IsNumber())
             token_.category = static_cast<TokenCategory>(catVal.As<node::Number>().Uint32Value());
+
+        if (auto kwVal = args.get(4); kwVal.IsNumber())
+            token_.keyword = static_cast<InstructionKeyword>(kwVal.As<node::Number>().Uint32Value());
     }
 
     node::Object TokenAdapter::init(node::Env env, node::Object exports) {
@@ -46,11 +49,13 @@ namespace stationeers::ic10 {
                     InstanceAccessor("pos", &TokenAdapter::getPos, &TokenAdapter::setPos),
                     InstanceAccessor("lexeme", &TokenAdapter::getLexeme, &TokenAdapter::setLexeme),
                     InstanceAccessor("category", &TokenAdapter::getCategory, &TokenAdapter::setCategory),
+                    InstanceAccessor("keyword", &TokenAdapter::getKeyword, &TokenAdapter::setKeyword),
 #else
                     InstanceAccessor<&TokenAdapter::getType, &TokenAdapter::setType>("type"),
                     InstanceAccessor<&TokenAdapter::getPos, &TokenAdapter::setPos>("pos"),
                     InstanceAccessor<&TokenAdapter::getLexeme, &TokenAdapter::setLexeme>("lexeme"),
                     InstanceAccessor<&TokenAdapter::getCategory, &TokenAdapter::setCategory>("category"),
+                    InstanceAccessor<&TokenAdapter::getKeyword, &TokenAdapter::setKeyword>("keyword"),
 #endif
                     InstanceMethod("toString", &TokenAdapter::toString),
                     InstanceMethod("toJSON", &TokenAdapter::toJSON)
@@ -67,6 +72,7 @@ namespace stationeers::ic10 {
         // 保证与 C++ 枚举定义自动同步,无需手工维护
         (void)exports.Set("TokenType", exportEnum<TokenType>(env));
         (void)exports.Set("TokenCategory", exportEnum<TokenCategory>(env));
+        (void)exports.Set("InstructionKeyword", exportEnum<InstructionKeyword>(env));
 
         return exports;
     }
@@ -123,6 +129,20 @@ namespace stationeers::ic10 {
 
     void TokenAdapter::setCategory(const node::CallbackInfo& info, const node::Value& value) {
         token_.category = static_cast<TokenCategory>(value.As<node::Number>().Uint32Value());
+    }
+
+    node::Value TokenAdapter::getKeyword(const node::CallbackInfo& info) {
+        if (token_.keyword)
+            return node::Number::New(info.Env(), static_cast<int>(*token_.keyword));
+
+        return info.Env().Undefined();
+    }
+
+    void TokenAdapter::setKeyword(const node::CallbackInfo& info, const node::Value& value) {
+        if (value.IsUndefined() || value.IsNull())
+            token_.keyword = std::nullopt;
+        else
+            token_.keyword = static_cast<InstructionKeyword>(value.As<node::Number>().Uint32Value());
     }
 
     node::Value TokenAdapter::toString(const node::CallbackInfo& info) {

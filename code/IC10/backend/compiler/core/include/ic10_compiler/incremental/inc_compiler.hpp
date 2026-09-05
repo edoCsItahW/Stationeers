@@ -65,8 +65,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  * */
-#ifndef COMPILER_INC_COMPILER_HPP
-#define COMPILER_INC_COMPILER_HPP
+#ifndef IC10_COMPILER_CORE_INC_COMPILER_HPP
+#define IC10_COMPILER_CORE_INC_COMPILER_HPP
 #pragma once
 
 #include <memory>
@@ -213,4 +213,4 @@ namespace stationeers::ic10 {
 
 }
 
-#endif  // COMPILER_INC_COMPILER_HPP
+#endif  // IC10_COMPILER_CORE_INC_COMPILER_HPP

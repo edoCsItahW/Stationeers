@@ -15,6 +15,7 @@
  * */
 #include "ic10_compiler/parser/expand_node_parser.hpp"
 #include "ic10_compiler/parser/parser.hpp"
+#include <unordered_set>
 
 namespace stationeers::ic10 {
 
@@ -36,7 +37,9 @@ namespace stationeers::ic10 {
                 tokenBeforeError = p.expect(TokenType::DIV);
 
                 Identifier identifier;
-                if (tokenBeforeError = p.current(); tokenBeforeError && tokenBeforeError->type == TokenType::IDENTIFIER)  // 预检Identifier
+                if (tokenBeforeError = p.current();
+                    tokenBeforeError
+                    && tokenBeforeError->type == TokenType::IDENTIFIER)  // 预检Identifier
                     identifier = NodeParser<Identifier>::parse(p);
                 else [[unlikely]]
                     tokenBeforeError = p.expect(TokenType::IDENTIFIER);  // 引发错误，中断
@@ -49,7 +52,9 @@ namespace stationeers::ic10 {
                     tokenBeforeError = p.expect(TokenType::DOT);
 
                     Identifier id;
-                    if (tokenBeforeError = p.current(); tokenBeforeError && tokenBeforeError->type == TokenType::IDENTIFIER)  // 预检Identifier
+                    if (tokenBeforeError = p.current();
+                        tokenBeforeError
+                        && tokenBeforeError->type == TokenType::IDENTIFIER)  // 预检Identifier
                         id = NodeParser<Identifier>::parse(p);
                     else [[unlikely]]
                         tokenBeforeError = p.expect(TokenType::IDENTIFIER);  // 引发错误，中断
@@ -72,44 +77,6 @@ namespace stationeers::ic10 {
         return result;
     }
 
-    // TypeHintType
-
-    TypeHintType NodeParser<TypeHintType>::parse(Parser& p) {
-        // 已通过前瞻确定TokenType::TAG，无需try-catch
-        TypeHintType result{p.expect(TokenType::TAG)->pos};
-
-        if (const auto& tokenPtr = p.current();
-            tokenPtr && tokenPtr->type == TokenType::IDENTIFIER)  // 预检Identifier
-            result.value = NodeParser<Identifier>::parse(p).value;
-        else [[unlikely]]
-            p.expect(TokenType::IDENTIFIER);  // 引发错误，交给TypeHint
-
-        return result;
-    }
-
-    bool NodeParser<TypeHintType>::is(const Parser& p) noexcept {
-        const auto& tokenPtr = p.current();
-
-        return tokenPtr->type == TokenType::TAG && tokenPtr->lexeme.substr(1) == "type";
-    }
-
-    // TypeHintDesc
-
-    TypeHintDesc NodeParser<TypeHintDesc>::parse(Parser& p) noexcept {
-        // 已通过前瞻确定TokenType::TAG，无需try-catch
-        TypeHintDesc result{p.expect(TokenType::TAG)->pos};
-
-        result.desc = p.matchVariant<decltype(TypeHintDesc::desc)>();
-
-        return result;
-    }
-
-    bool NodeParser<TypeHintDesc>::is(const Parser& p) noexcept {
-        const auto& t = p.current();
-
-        return t->type == TokenType::TAG && t->lexeme.substr(1) == "desc";
-    }
-
     // TypeHint
 
     TypeHint NodeParser<TypeHint>::parse(Parser& p) noexcept {
@@ -119,41 +86,73 @@ namespace stationeers::ic10 {
         TypeHint result{c->pos};
         result.endPos = endPos(*c);
 
-        while (p.inScope()) {
-            // @type
-            if (!result.type && NodeParser<TypeHintType>::is(p)) {
-                try {
-                    result.type = NodeParser<TypeHintType>::parse(p);
+        NodeParserDispatcher units{p, result};
+        using Cardinality = decltype(units)::Cardinality;
 
-                    result.endPos = result.type->end();
-                } catch (const Error&) {
-                    // 解析失败则放空result.type，错误已被except上报
-                    result.type = std::nullopt;
+        units.add<"type", Cardinality::OPTIONAL>(
+            [](Parser& parser) {
+                const auto& tokenPtr = parser.current();
+
+                return tokenPtr && tokenPtr->type == TokenType::TAG
+                    && tokenPtr->lexeme.substr(1) == "type";
+            },
+            [](Parser& parser, auto& result) {
+                parser.consume();  // TAG
+
+                if (const auto& tokenPtr = parser.current();
+                    tokenPtr && tokenPtr->type == TokenType::IDENTIFIER)
+                    [[likely]] {  // 预检Identifier
+                    auto identifier = NodeParser<Identifier>::parse(parser);
+
+                    result.endPos = identifier.end();
+
+                    result.type = std::move(identifier.value);
                 }
-
             }
-            // @desc
-            else if (!result.desc && NodeParser<TypeHintDesc>::is(p)) {
-                result.desc = NodeParser<TypeHintDesc>::parse(p);
+        );
 
-                result.endPos = result.desc->end();
+        units.add<"desc", Cardinality::OPTIONAL>(
+            [](Parser& parser) {
+                const auto& tokenPtr = parser.current();
 
+                return tokenPtr && tokenPtr->type == TokenType::TAG
+                    && tokenPtr->lexeme.substr(1) == "desc";
+            },
+            [](Parser& parser, auto& result) {
+                parser.consume();  // TAG
+
+                result.desc = parser.matchVariant<Description>();
+
+                result.endPos = call(*result.desc, [](const auto& v) { return v.end(); });
             }
-            // @builtin
-            else if (
-                auto tokenPtr = p.current(); !result.builtin && tokenPtr
-                                             && tokenPtr->type == TokenType::TAG
-                                             && tokenPtr->lexeme.substr(1) == "builtin"
-            ) {
-                result.endPos = tokenPtr->pos;
+        );
+
+        units.add<"builtin", Cardinality::OPTIONAL>(
+            [](Parser& parser) {
+                const auto& tokenPtr = parser.current();
+
+                return tokenPtr && tokenPtr->type == TokenType::TAG
+                    && tokenPtr->lexeme.substr(1) == "builtin";
+            },
+            [](Parser& parser, auto& result) {
+                // 不为空
+                auto token = parser.expect(TokenType::TAG);
+
+                result.endPos = token->pos;
 
                 result.builtin = true;
+            }
+        );
 
-                p.consume();
+        units.until([](const Parser& parser) {
+            const auto& tokenPtr = parser.current();
 
-            } else [[unlikely]]
-                break;
-        }
+            static const std::unordered_set<std::string> set{"type", "desc", "builtin"};
+
+
+            return !tokenPtr || tokenPtr->type != TokenType::TAG
+                || !set.contains(tokenPtr->lexeme.substr(1));
+        });
 
         return result;
     }
@@ -421,7 +420,7 @@ namespace stationeers::ic10 {
     DeviceAnnotationSlot NodeParser<DeviceAnnotationSlot>::parse(Parser& p) {
         DeviceAnnotationSlot result{p.expect(TokenType::TAG)->pos};
 
-        if (p.current() && p.current()->type == TokenType::IDENTIFIER)
+        if (p.current() && p.current()->type == TokenType::INTEGER)
             result.value = std::move(NodeParser<Integer>::parse(p).value);
 
         return result;

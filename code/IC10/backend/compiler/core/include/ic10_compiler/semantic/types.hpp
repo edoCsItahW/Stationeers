@@ -77,8 +77,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  * */
-#ifndef COMPILER_TYPES_HPP
-#define COMPILER_TYPES_HPP
+#ifndef IC10_COMPILER_CORE_TYPES_HPP
+#define IC10_COMPILER_CORE_TYPES_HPP
 #pragma once
 
 #include "ic10_compiler/pch/ast.hpp"
@@ -408,4 +408,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_TYPES_HPP
+#endif  // IC10_COMPILER_CORE_TYPES_HPP

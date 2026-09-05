@@ -115,8 +115,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * @endif
  */
-#ifndef COMPILER_PARSER_HPP
-#define COMPILER_PARSER_HPP
+#ifndef IC10_COMPILER_CORE_PARSER_HPP
+#define IC10_COMPILER_CORE_PARSER_HPP
 #pragma once
 
 #include "ic10_compiler/locals/local.hpp"
@@ -527,4 +527,4 @@ namespace stationeers::ic10 {
 
 #include "parser.inl"
 
-#endif  // COMPILER_PARSER_HPP
+#endif  // IC10_COMPILER_CORE_PARSER_HPP

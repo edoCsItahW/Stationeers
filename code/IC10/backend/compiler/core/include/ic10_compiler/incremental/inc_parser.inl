@@ -13,8 +13,8 @@
  * @brief
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-#ifndef COMPILER_INC_PARSER_INL
-#define COMPILER_INC_PARSER_INL
+#ifndef IC10_COMPILER_CORE_INC_PARSER_INL
+#define IC10_COMPILER_CORE_INC_PARSER_INL
 #pragma once
 
 #include "ic10_compiler/parser/parser.hpp"
@@ -36,4 +36,4 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
-#endif  // COMPILER_INC_PARSER_INL
+#endif  // IC10_COMPILER_CORE_INC_PARSER_INL
