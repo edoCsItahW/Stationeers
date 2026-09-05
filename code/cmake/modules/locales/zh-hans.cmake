@@ -25,6 +25,8 @@ set(ST_IFunctions3 "目标'{0}'缓存命中（哈希'{1}'）")
 set(ST_IFunctions4 "目标'{0}'缓存未命中，从源代码构建（期望哈希'{1}'）")
 set(ST_DFunctions5 "将'{0}'的缓存更新为'{1}'")
 set(ST_EFunctions6 "文件'{0}'不存在")
+set(ST_EFunctions6 "文件'{0}'不存在")
+set(ST_EFunctions7 "已删除过时缓存'{0}'")
 
 # ---- CommonSettings ----
 set(ST_ICommonSettings0 "使用'{0}'，位于'{1}'")
