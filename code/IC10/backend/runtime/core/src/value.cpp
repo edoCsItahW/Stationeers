@@ -69,12 +69,12 @@ namespace stationeers::ic10 {
         return std::nullopt;
     }
 
-    std::optional<double> macroCall(const MacroCall& macroCall) {
+    std::optional<double> macroCall(const Macro& macroCall) {
         return std::visit([&]<typename T, typename U = std::decay_t<T>>(const T& arg) -> std::optional<double> {
             if constexpr (std::is_same_v<U, ErrorNode>)
                 return std::nullopt;
 
-            else if constexpr (std::is_same_v<U, StrCall>)
+            else if constexpr (std::is_same_v<U, StrMacro>)
                 return strValue(getValue<String>(arg.value).value);
 
             else
@@ -106,7 +106,7 @@ namespace stationeers::ic10 {
             else if constexpr (std::is_same_v<U, Constant>)
                 return constantValue(arg.keyword);
 
-            else if constexpr (std::is_same_v<U, HashCall> || std::is_same_v<U, StrCall>)
+            else if constexpr (std::is_same_v<U, HashMacro> || std::is_same_v<U, StrMacro>)
                 return macroCall(arg);
             else
                 return std::nullopt;

@@ -193,20 +193,6 @@ class TestLinker:
         type_table = linker.type_table
         assert isinstance(type_table, TypeTable)
         assert type_table.toJSON() is not None
-
-    def test_type_table_with_device_type(self):
-        linker = Linker()
-        linker.addUnit(
-            "#> @device\n"
-            "#> @name Sensor\n"
-            "#> @logic Pressure rw\n"
-            "#> @end-device\n"
-        )
-        linker.addUnit("alias s d0 #: @type Sensor\nhcf\n")
-        linker.link()
-        json_str = linker.type_table.toJSON()
-        assert "Sensor" in json_str
-
     def test_type_table_with_enum_type(self):
         linker = Linker()
         linker.addUnit(

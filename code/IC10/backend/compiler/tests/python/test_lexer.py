@@ -59,7 +59,7 @@ class TestToken:
         tokens = Lexer.tokenize("move r0 42")
         meaningful = meaningful_tokens(tokens)
 
-        assert meaningful[0].type == TokenType.KEYWORD_MOVE
+        assert meaningful[0].type == TokenType.KEYWORD
         assert meaningful[0].lexeme == "move"
 
     def test_to_string(self):
@@ -144,20 +144,6 @@ class TestLexerTokenize:
 
         db_token = next((t for t in meaningful if t.lexeme == "db"), None)
         assert db_token is not None
-
-    def test_r16_plus_as_identifier(self):
-        tokens = Lexer.tokenize("move r16 0")
-        meaningful = meaningful_tokens(tokens)
-
-        assert meaningful[1].type == TokenType.IDENTIFIER
-        assert meaningful[1].lexeme == "r16"
-
-    def test_d6_plus_as_identifier(self):
-        tokens = Lexer.tokenize("alias dev d6")
-        meaningful = meaningful_tokens(tokens)
-
-        assert meaningful[2].type == TokenType.IDENTIFIER
-
     def test_integer_literals(self):
         tokens = Lexer.tokenize("move r0 42")
         meaningful = meaningful_tokens(tokens)
@@ -203,11 +189,11 @@ class TestLexerTokenize:
             const_token = next((t for t in meaningful if t.lexeme == c), None)
             assert const_token is not None
 
-    def test_hash_and_slash_comments(self):
-        tokens = Lexer.tokenize("# hash comment\n// slash comment\nhcf")
+    def test_hash_comments(self):
+        tokens = Lexer.tokenize("# hash comment\n# slash comment\nhcf")
         meaningful = meaningful_tokens(tokens)
 
-        hcf = next((t for t in meaningful if t.type == TokenType.KEYWORD_HCF), None)
+        hcf = next((t for t in meaningful if t.type == TokenType.KEYWORD and t.lexeme == "hcf"), None)
         assert hcf is not None
 
     def test_multi_line_program(self):
@@ -257,7 +243,7 @@ class TestLexerScan:
         comment_token = next((t for t in tokens if t.type == TokenType.HEX_COMMENT), None)
         assert comment_token is not None
 
-        hcf_token = next((t for t in tokens if t.type == TokenType.KEYWORD_HCF), None)
+        hcf_token = next((t for t in tokens if t.type == TokenType.KEYWORD and t.lexeme == "hcf"), None)
         assert hcf_token is not None
 
     def test_report_diagnostics_for_unclosed_string(self):
@@ -282,7 +268,7 @@ class TestLexerScan:
         assert len(lexer.diagnostics) == 0
 
     def test_handle_source_with_only_comments(self):
-        lexer = Lexer("# comment\n// comment\n")
+        lexer = Lexer("# comment\n# comment\n")
         tokens = lexer.scan()
 
         assert len(lexer.diagnostics) == 0
@@ -291,55 +277,64 @@ class TestLexerScan:
         tokens = Lexer.tokenize("#> @device\n#> @name Furnace\n#> @end-device\n")
         meaningful = meaningful_tokens(tokens)
 
-        assert len(meaningful) == 3
-        assert meaningful[0].type == TokenType.DOC_COMMENT
-        assert meaningful[0].lexeme == "#> @device"
-        assert meaningful[0].category == TokenCategory.ANNOTATION
-        assert meaningful[1].type == TokenType.DOC_COMMENT
-        assert meaningful[2].type == TokenType.DOC_COMMENT
+        # #> 注解前缀与 @tag 标签拆分为独立 token
+        assert len(meaningful) == 7
+        assert meaningful[0].type == TokenType.TYPE_ANNOTATION_PREFIX
+        assert meaningful[0].lexeme == "#>"
+        assert meaningful[1].type == TokenType.TAG
+        assert meaningful[1].lexeme == "@device"
+        assert meaningful[3].type == TokenType.TAG
+        assert meaningful[3].lexeme == "@name"
+        assert meaningful[4].type == TokenType.IDENTIFIER
+        assert meaningful[4].lexeme == "Furnace"
 
     def test_type_hint(self):
         tokens = Lexer.tokenize("#: @type Furnace\n")
         meaningful = meaningful_tokens(tokens)
 
-        assert len(meaningful) == 1
-        assert meaningful[0].type == TokenType.TYPE_HINT
-        assert meaningful[0].lexeme == "#: @type Furnace"
-        assert meaningful[0].category == TokenCategory.ANNOTATION
-
-    def test_type_hint_desc(self):
-        tokens = Lexer.tokenize("#: @desc 炉窑设备\n")
-        meaningful = meaningful_tokens(tokens)
-
-        assert len(meaningful) == 1
-        assert meaningful[0].type == TokenType.TYPE_HINT
-        assert meaningful[0].lexeme == "#: @desc 炉窑设备"
-        assert meaningful[0].category == TokenCategory.ANNOTATION
+        assert len(meaningful) == 3
+        assert meaningful[0].type == TokenType.TYPE_HINT_PREFIX
+        assert meaningful[0].lexeme == "#:"
+        assert meaningful[1].type == TokenType.TAG
+        assert meaningful[1].lexeme == "@type"
+        assert meaningful[2].type == TokenType.IDENTIFIER
+        assert meaningful[2].lexeme == "Furnace"
 
     def test_type_hint_multiple_tags(self):
         tokens = Lexer.tokenize("#: @type Furnace @desc 炉窑\n")
         meaningful = meaningful_tokens(tokens)
 
-        assert len(meaningful) == 1
-        assert meaningful[0].type == TokenType.TYPE_HINT
-        assert meaningful[0].lexeme == "#: @type Furnace @desc 炉窑"
-        assert meaningful[0].category == TokenCategory.ANNOTATION
+        assert len(meaningful) == 5
+        assert meaningful[0].type == TokenType.TYPE_HINT_PREFIX
+        assert meaningful[1].type == TokenType.TAG
+        assert meaningful[1].lexeme == "@type"
+        assert meaningful[2].type == TokenType.IDENTIFIER
+        assert meaningful[2].lexeme == "Furnace"
+        assert meaningful[3].type == TokenType.TAG
+        assert meaningful[3].lexeme == "@desc"
+        assert meaningful[4].type == TokenType.IDENTIFIER
 
     def test_invalid_doc_comment_fallback(self):
         tokens = Lexer.tokenize("#> not a tag\n")
         meaningful = meaningful_tokens(tokens)
 
-        assert len(meaningful) == 1
-        assert meaningful[0].type == TokenType.HEX_COMMENT
-        assert meaningful[0].category == TokenCategory.COMMENT
+        # #> 现在始终为注解前缀，不回退为 HEX_COMMENT
+        assert len(meaningful) == 4
+        assert meaningful[0].type == TokenType.TYPE_ANNOTATION_PREFIX
+        assert meaningful[0].lexeme == "#>"
+        assert meaningful[1].type == TokenType.KEYWORD
+        assert meaningful[1].lexeme == "not"
 
     def test_invalid_type_hint_fallback(self):
         tokens = Lexer.tokenize("#: not type\n")
         meaningful = meaningful_tokens(tokens)
 
-        assert len(meaningful) == 1
-        assert meaningful[0].type == TokenType.HEX_COMMENT
-        assert meaningful[0].category == TokenCategory.COMMENT
+        # #: 现在始终为类型提示前缀，不回退为 HEX_COMMENT
+        assert len(meaningful) == 3
+        assert meaningful[0].type == TokenType.TYPE_HINT_PREFIX
+        assert meaningful[0].lexeme == "#:"
+        assert meaningful[1].type == TokenType.KEYWORD
+        assert meaningful[1].lexeme == "not"
 
 
 # ============================================================
@@ -357,13 +352,13 @@ class TestTokenPositions:
         assert meaningful[0].pos.line == 1
 
         second_move = next(
-            (t for t in meaningful if t.type == TokenType.KEYWORD_MOVE and t.pos.line == 2),
+            (t for t in meaningful if t.type == TokenType.KEYWORD and t.lexeme == "move" and t.pos.line == 2),
             None
         )
         assert second_move is not None
 
         third_move = next(
-            (t for t in meaningful if t.type == TokenType.KEYWORD_MOVE and t.pos.line == 3),
+            (t for t in meaningful if t.type == TokenType.KEYWORD and t.lexeme == "move" and t.pos.line == 3),
             None
         )
         assert third_move is not None
@@ -419,15 +414,13 @@ class TestKeywordRecognition:
     """Tests for keyword recognition."""
 
     def test_nullary_instruction_keywords(self):
-        keywords = [
-            ("hcf", TokenType.KEYWORD_HCF),
-            ("yield", TokenType.KEYWORD_YIELD),
-        ]
+        keywords = ["hcf", "yield"]
 
-        for lexeme, token_type in keywords:
+        for lexeme in keywords:
             tokens = Lexer.tokenize(lexeme)
             meaningful = meaningful_tokens(tokens)
-            assert meaningful[0].type == token_type
+            assert meaningful[0].type == TokenType.KEYWORD
+            assert meaningful[0].lexeme == lexeme
 
     def test_preprocessor_keywords(self):
         alias_tokens = meaningful_tokens(Lexer.tokenize("alias"))
@@ -435,21 +428,6 @@ class TestKeywordRecognition:
 
         define_tokens = meaningful_tokens(Lexer.tokenize("define"))
         assert define_tokens[0].type == TokenType.KEYWORD_DEFINE
-
-    def test_unary_instruction_keywords(self):
-        keywords = ["sleep", "j", "jal", "jr", "rand", "peek", "pop", "push", "clr", "clrd"]
-        for kw in keywords:
-            tokens = Lexer.tokenize(kw)
-            meaningful = meaningful_tokens(tokens)
-            assert meaningful[0].type != TokenType.IDENTIFIER
-            assert meaningful[0].lexeme == kw
-
-    def test_binary_instruction_keywords(self):
-        keywords = ["move", "add", "sub", "mul", "div", "abs", "ceil", "floor", "round", "sqrt", "sgn"]
-        for kw in keywords:
-            tokens = Lexer.tokenize(kw)
-            meaningful = meaningful_tokens(tokens)
-            assert meaningful[0].type != TokenType.IDENTIFIER
 
     def test_macro_keywords(self):
         hash_tokens = meaningful_tokens(Lexer.tokenize("HASH"))

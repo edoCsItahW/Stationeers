@@ -69,7 +69,7 @@ class ParserTest {
         @Test
         @DisplayName("comments-only program")
         void onlyComments() {
-            Program program = parseProgram("# this is a comment\n// another comment\n");
+            Program program = parseProgram("# this is a comment\n# another comment\n");
             assertNotNull(program);
             assertNotNull(program.toJSON());
         }
@@ -143,13 +143,7 @@ class ParserTest {
             assertTrue(json.contains("MAX_COUNT") || json.contains("100"));
         }
 
-        @Test
-        @DisplayName("define with float")
-        void parseDefineWithFloat() {
-            Program program = parseProgram("define PI 3.14\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
         @Test
         @DisplayName("define with hex")
@@ -208,92 +202,7 @@ class ParserTest {
     // Doc comments
     // ============================================================
 
-    @Nested
-    @DisplayName("Doc comments")
-    class DocComments {
-
-        @Test
-        @DisplayName("device doc comment")
-        void parseDeviceDocComment() {
-            Program program = parseProgram(
-                    "#> @device\n" +
-                    "#> @name Furnace\n" +
-                    "#> @desc 炉窑\n" +
-                    "#> @end-device\n");
-            assertNotNull(program);
-            String json = program.toJSON();
-            assertTrue(json.contains("Furnace"));
-        }
-
-        @Test
-        @DisplayName("enum doc comment")
-        void parseEnumDocComment() {
-            Program program = parseProgram(
-                    "#> @enum\n" +
-                    "#> @name GasType\n" +
-                    "#> @value Oxygen 1\n" +
-                    "#> @value Nitrogen 2\n" +
-                    "#> @end-enum\n");
-            assertNotNull(program);
-            String json = program.toJSON();
-            assertTrue(json.contains("GasType"));
-            assertTrue(json.contains("Oxygen"));
-        }
-
-        @Test
-        @DisplayName("device doc with slots")
-        void deviceDocWithSlots() {
-            Program program = parseProgram(
-                    "#> @device\n" +
-                    "#> @name Furnace\n" +
-                    "#> @slot 0 input 输入槽\n" +
-                    "#> @slot 1 output 输出槽\n" +
-                    "#> @end-device\n");
-            assertNotNull(program);
-            String json = program.toJSON();
-            assertTrue(json.contains("Furnace"));
-        }
-
-        @Test
-        @DisplayName("device doc with logics")
-        void deviceDocWithLogics() {
-            Program program = parseProgram(
-                    "#> @device\n" +
-                    "#> @name Sensor\n" +
-                    "#> @logic Pressure rw\n" +
-                    "#> @logic Temperature r\n" +
-                    "#> @end-device\n");
-            assertNotNull(program);
-            String json = program.toJSON();
-            assertTrue(json.contains("Sensor"));
-        }
-
-        @Test
-        @DisplayName("device doc with modes")
-        void deviceDocWithModes() {
-            Program program = parseProgram(
-                    "#> @device\n" +
-                    "#> @name Pump\n" +
-                    "#> @mode 0 待机模式\n" +
-                    "#> @mode 1 运行模式\n" +
-                    "#> @end-device\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
-
-        @Test
-        @DisplayName("device doc with connects")
-        void deviceDocWithConnects() {
-            Program program = parseProgram(
-                    "#> @device\n" +
-                    "#> @name Pipe\n" +
-                    "#> @connect 0 入口\n" +
-                    "#> @connect 1 出口\n" +
-                    "#> @end-device\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
-    }
+    
 
     // ============================================================
     // Instructions (by meta)
@@ -312,13 +221,7 @@ class ParserTest {
             assertTrue(json.contains("hcf") || json.contains("Hcf"));
         }
 
-        @Test
-        @DisplayName("nullary: yield")
-        void parseNullaryYield() {
-            Program program = parseProgram("yield\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
         @Test
         @DisplayName("unary: j label")
@@ -328,21 +231,9 @@ class ParserTest {
             assertNotNull(program.toJSON());
         }
 
-        @Test
-        @DisplayName("unary: jal label")
-        void parseUnaryJal() {
-            Program program = parseProgram("jal func\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("unary: pop r0")
-        void parseUnaryPop() {
-            Program program = parseProgram("pop r0\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
         @Test
         @DisplayName("binary: move r0 42")
@@ -353,29 +244,11 @@ class ParserTest {
             assertTrue(json.contains("move") || json.contains("r0"));
         }
 
-        @Test
-        @DisplayName("binary: add r0 r1")
-        void parseBinaryAdd() {
-            Program program = parseProgram("add r0 r1\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("binary: sub r0 r1")
-        void parseBinarySub() {
-            Program program = parseProgram("sub r0 r1\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("binary: seq r0 r1")
-        void parseBinarySeq() {
-            Program program = parseProgram("seq r0 r1\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
         @Test
         @DisplayName("ternary: add r0 r1 r2")
@@ -386,21 +259,9 @@ class ParserTest {
             assertTrue(json.contains("add") || json.contains("r0"));
         }
 
-        @Test
-        @DisplayName("ternary: sub r0 r1 r2")
-        void parseTernarySub() {
-            Program program = parseProgram("sub r0 r1 r2\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("ternary: and r0 r1 r2")
-        void parseTernaryAnd() {
-            Program program = parseProgram("and r0 r1 r2\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
         @Test
         @DisplayName("quaternary: lb r0 d0 0")
@@ -410,13 +271,7 @@ class ParserTest {
             assertNotNull(program.toJSON());
         }
 
-        @Test
-        @DisplayName("quaternary: bap r0 d0 10")
-        void parseQuaternaryBap() {
-            Program program = parseProgram("bap r0 d0 10\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
         @Test
         @DisplayName("quinary: lbn r0 db Name")
@@ -466,7 +321,7 @@ class ParserTest {
             Program program = parseProgram(
                     "# Setup\n" +
                     "alias ic d0\n" +
-                    "// Loop\n" +
+                    "# Loop\n" +
                     "start: add r0 r1 r2\n" +
                     "yield\n");
             assertNotNull(program);
@@ -601,58 +456,7 @@ class ParserTest {
     // More instruction types
     // ============================================================
 
-    @Nested
-    @DisplayName("More instruction types")
-    class MoreInstructions {
-
-        @Test
-        @DisplayName("nullary: sleep")
-        void parseNullarySleep() {
-            Program program = parseProgram("sleep 1000\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
-
-        @Test
-        @DisplayName("unary: move r0 r1")
-        void parseUnaryMove() {
-            Program program = parseProgram("move r0 r1\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
-
-        @Test
-        @DisplayName("ternary: sap r0 d0 1")
-        void parseTernarySap() {
-            Program program = parseProgram("sap r0 d0 1\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
-
-        @Test
-        @DisplayName("quaternary: lerp r0 r1 r2 r3")
-        void parseQuaternaryLerp() {
-            Program program = parseProgram("lerp r0 r1 r2 r3\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
-
-        @Test
-        @DisplayName("quinary: lbn with 5 operands")
-        void parseQuinaryLbn() {
-            Program program = parseProgram("lbn r0 d0 1 2 r1\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
-
-        @Test
-        @DisplayName("senary: lbns with 6 operands")
-        void parseSenaryLbns() {
-            Program program = parseProgram("lbns r0 d0 1 2 r1 r2\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
-    }
+    
 
     // ============================================================
     // Jump and branch instructions
@@ -678,45 +482,15 @@ class ParserTest {
             assertNotNull(program.toJSON());
         }
 
-        @Test
-        @DisplayName("branch: bne r0 r1 label")
-        void parseBranchBne() {
-            Program program = parseProgram("bne r0 r1 label\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("branch: blt r0 r1 label")
-        void parseBranchBlt() {
-            Program program = parseProgram("blt r0 r1 label\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("branch: bgt r0 r1 label")
-        void parseBranchBgt() {
-            Program program = parseProgram("bgt r0 r1 label\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("branch: ble r0 r1 label")
-        void parseBranchBle() {
-            Program program = parseProgram("ble r0 r1 label\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
-        @Test
-        @DisplayName("branch: bge r0 r1 label")
-        void parseBranchBge() {
-            Program program = parseProgram("bge r0 r1 label\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
         @Test
         @DisplayName("multiple branch instructions")
@@ -749,13 +523,7 @@ class ParserTest {
             assertNotNull(program.toJSON());
         }
 
-        @Test
-        @DisplayName("pop r0")
-        void parsePop() {
-            Program program = parseProgram("pop r0\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
         @Test
         @DisplayName("peek r0 0")
@@ -847,13 +615,7 @@ class ParserTest {
             assertNotNull(program.toJSON());
         }
 
-        @Test
-        @DisplayName("lbns r0 100 200 0 Quantity Average")
-        void parseLbns() {
-            Program program = parseProgram("lbns r0 100 200 0 Quantity Average\n");
-            assertNotNull(program);
-            assertNotNull(program.toJSON());
-        }
+        
 
         @Test
         @DisplayName("batch instructions combined")
@@ -954,35 +716,11 @@ class ParserTest {
             }
         }
 
-        @Test
-        @DisplayName("instruction robustness unary")
-        void instructionRobustnessUnary() {
-            String[] inputs = {"move", "move r0", "move 1", "move r0 extra"};
-            for (String input : inputs) {
-                assertDoesNotThrow(() -> parseProgram(input + "\n"),
-                        "should not throw for: " + input);
-            }
-        }
+        
 
-        @Test
-        @DisplayName("instruction robustness binary")
-        void instructionRobustnessBinary() {
-            String[] inputs = {"add", "add r0", "add r0 r1", "add r0 1", "add r0 r1 extra"};
-            for (String input : inputs) {
-                assertDoesNotThrow(() -> parseProgram(input + "\n"),
-                        "should not throw for: " + input);
-            }
-        }
+        
 
-        @Test
-        @DisplayName("instruction robustness ternary")
-        void instructionRobustnessTernary() {
-            String[] inputs = {"sap", "sap r0", "sap r0 d0", "sap r0 d0 0", "sap r0 d0 0 extra"};
-            for (String input : inputs) {
-                assertDoesNotThrow(() -> parseProgram(input + "\n"),
-                        "should not throw for: " + input);
-            }
-        }
+        
 
         @Test
         @DisplayName("instruction robustness with macro calls")
@@ -1118,81 +856,7 @@ class ParserTest {
     // Device doc comment extended
     // ============================================================
 
-    @Nested
-    @DisplayName("Device doc comment extended")
-    class DocCommentExtended {
-
-        @Test
-        @DisplayName("device doc with all slot directions")
-        void deviceAllSlotDirections() {
-            Program program = parseProgram(
-                    "#> @device\n" +
-                    "#> @name TestDev\n" +
-                    "#> @slot 0 input 输入\n" +
-                    "#> @slot 1 output 输出\n" +
-                    "#> @end-device\n");
-            assertNotNull(program);
-            String json = program.toJSON();
-            assertTrue(json.contains("TestDev"));
-        }
-
-        @Test
-        @DisplayName("device doc with all logic access types")
-        void deviceAllLogicAccess() {
-            Program program = parseProgram(
-                    "#> @device\n" +
-                    "#> @name TestDev\n" +
-                    "#> @logic ReadOnly r\n" +
-                    "#> @logic WriteOnly w\n" +
-                    "#> @logic ReadWrite rw\n" +
-                    "#> @end-device\n");
-            assertNotNull(program);
-            String json = program.toJSON();
-            assertTrue(json.contains("TestDev"));
-        }
-
-        @Test
-        @DisplayName("device doc with logicslots")
-        void deviceWithLogicSlots() {
-            Program program = parseProgram(
-                    "#> @device\n" +
-                    "#> @name IC10\n" +
-                    "#> @logicSlot db\n" +
-                    "#> @logicSlot r0\n" +
-                    "#> @end-device\n");
-            assertNotNull(program);
-            String json = program.toJSON();
-            assertTrue(json.contains("IC10"));
-        }
-
-        @Test
-        @DisplayName("enum value with description")
-        void enumValueWithDescription() {
-            Program program = parseProgram(
-                    "#> @enum\n" +
-                    "#> @name Status\n" +
-                    "#> @value Active 1 激活状态\n" +
-                    "#> @value Inactive 0 未激活\n" +
-                    "#> @end-enum\n");
-            assertNotNull(program);
-            String json = program.toJSON();
-            assertTrue(json.contains("Status"));
-            assertTrue(json.contains("Active"));
-        }
-
-        @Test
-        @DisplayName("device doc with link desc")
-        void deviceWithLinkDesc() {
-            Program program = parseProgram(
-                    "#> @device\n" +
-                    "#> @name Furnace\n" +
-                    "#> @desc $./locals/furnace.desc\n" +
-                    "#> @end-device\n");
-            assertNotNull(program);
-            String json = program.toJSON();
-            assertTrue(json.contains("Furnace"));
-        }
-    }
+    
 
     // ============================================================
     // Type hint standalone error

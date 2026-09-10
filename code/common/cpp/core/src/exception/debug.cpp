@@ -16,8 +16,8 @@
 
 #include "common/exception/debug.hpp"
 #include <filesystem>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 namespace stationeers {
 
@@ -85,9 +85,19 @@ namespace stationeers {
 
         ofs << message;
 
-        if (newline) [[likely]] ofs << std::endl;
+        if (newline) [[likely]]
+            ofs << std::endl;
 
         ofs.close();
     }
+
+    // SEHException
+
+    SEHException::SEHException(unsigned int code)
+        : code_(code) {}
+
+    unsigned int SEHException::code() const noexcept { return code_; }
+
+    const char *SEHException::what() const noexcept { return "Structured Exception"; }
 
 }  // namespace stationeers

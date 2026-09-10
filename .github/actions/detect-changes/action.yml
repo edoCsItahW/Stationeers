@@ -21,16 +21,16 @@ outputs:
 
     ic10-compiler-core:
         description: "IC10 compiler core files changed mark || IC10编译器核心文件变更标记"
-        value: ${{ steps.filter.outputs.shared || steps.filter.outputs.common-core || steps.filter.outputs.ic10-compiler-core }}
+        value: ${{ steps.filter.outputs.shared == 'true' || steps.filter.outputs.common-core == 'true' || steps.filter.outputs.ic10-compiler-core == 'true' }}
     ic10-compiler-node:
         description: "IC10 compiler Node.js binding files changed mark || IC10编译器Node.js绑定文件变更标记"
-        value: ${{ steps.filter.outputs.shared || steps.filter.outputs.common-core || steps.filter.outputs.common-node || steps.filter.outputs.ic10-compiler-core || steps.filter.outputs.ic10-compiler-node }}
+        value: ${{ steps.filter.outputs.shared == 'true' || steps.filter.outputs.common-core == 'true' || steps.filter.outputs.common-node == 'true' || steps.filter.outputs.ic10-compiler-core == 'true' || steps.filter.outputs.ic10-compiler-node == 'true' }}
     ic10-compiler-python:
         description: "IC10 compiler Python binding files changed mark || IC10编译器Python绑定文件变更标记"
-        value: ${{ steps.filter.outputs.shared || steps.filter.outputs.common-core || steps.filter.outputs.common-python || steps.filter.outputs.ic10-compiler-core || steps.filter.outputs.ic10-compiler-python }}
+        value: ${{ steps.filter.outputs.shared == 'true' || steps.filter.outputs.common-core == 'true' || steps.filter.outputs.common-python == 'true' || steps.filter.outputs.ic10-compiler-core == 'true' || steps.filter.outputs.ic10-compiler-python == 'true' }}
     ic10-compiler-java:
         description: "IC10 compiler Java binding files changed mark || IC10编译器Java绑定文件变更标记"
-        value: ${{ steps.filter.outputs.shared || steps.filter.outputs.common-core || steps.filter.outputs.common-java || steps.filter.outputs.ic10-compiler-core || steps.filter.outputs.ic10-compiler-java }}
+        value: ${{ steps.filter.outputs.shared == 'true' || steps.filter.outputs.common-core == 'true' || steps.filter.outputs.common-java == 'true' || steps.filter.outputs.ic10-compiler-core == 'true' || steps.filter.outputs.ic10-compiler-java == 'true' }}
 
 runs:
     using: composite

@@ -43,30 +43,23 @@ export enum TokenType {
     LPAREN,
     RPAREN,
     COLON,
+    DOT,
+    SUB,
+    DIV,
 
     /* 注释 */
     HEX_COMMENT,
     SLASH_COMMENT,
-    DOC_COMMENT,
-    TYPE_HINT,
 
     /* 换行 */
     NEWLINE,
 
-    /* 关键字 - 宏与函数 */
+    /* 关键字 */
+    KEYWORD,
     KEYWORD_HASH,
     KEYWORD_STR,
-
-    /* 关键字 - 常量 */
-    KEYWORD_NAN,
-    KEYWORD_PINF,
-    KEYWORD_NINF,
-    KEYWORD_PI,
-    KEYWORD_TAU,
-    KEYWORD_DEG2RAD,
-    KEYWORD_RAD2DEG,
-    KEYWORD_EPSILON,
-    KEYWORD_RGAS,
+    KEYWORD_ALIAS,
+    KEYWORD_DEFINE,
 
     /* 文件结束标记 */
     END,
@@ -74,170 +67,182 @@ export enum TokenType {
     /* 未知标记 */
     UNKNOWN,
 
-    /* 关键字 - 空指令 */
-    KEYWORD_HCF,
-    KEYWORD_YIELD,
+    /* 类型提示/注解前缀与标签 */
+    TYPE_HINT_PREFIX,
+    TYPE_ANNOTATION_PREFIX,
+    TAG
+}
 
-    /* 关键字 - 预处理指令 */
-    KEYWORD_ALIAS,
-    KEYWORD_DEFINE,
+/**
+ * IC10 指令关键字枚举。
+ *
+ * 对应 C++ `ic10::InstructionKeyword`，值从 0 开始递增。
+ * 指令关键字不再拥有独立的 TokenType，而是统一由 `TokenType.KEYWORD` 承载，
+ * 具体指令通过 `Token.keyword` 字段（`InstructionKeyword`）区分。
+ *
+ * @public
+ */
+export enum InstructionKeyword {
+    /* 空指令 */
+    HCF = 0,
+    YIELD,
 
-    /* 关键字 - 一元指令 */
-    KEYWORD_PEEK,
-    KEYWORD_POP,
-    KEYWORD_PUSH,
-    KEYWORD_CLR,
-    KEYWORD_J,
-    KEYWORD_JAL,
-    KEYWORD_JR,
-    KEYWORD_RAND,
-    KEYWORD_SLEEP,
-    KEYWORD_CLRD,
+    /* 一元指令 */
+    PEEK,
+    POP,
+    PUSH,
+    CLR,
+    J,
+    JAL,
+    JR,
+    RAND,
+    SLEEP,
+    CLRD,
 
-    /* 关键字 - 二元指令 */
-    KEYWORD_ABS,
-    KEYWORD_ACOS,
-    KEYWORD_ADD,
-    KEYWORD_ASIN,
-    KEYWORD_ATAN,
-    KEYWORD_ATAN2,
-    KEYWORD_CEIL,
-    KEYWORD_COS,
-    KEYWORD_DIV,
-    KEYWORD_EXP,
-    KEYWORD_FLOOR,
-    KEYWORD_LOG,
-    KEYWORD_MAX,
-    KEYWORD_MIN,
-    KEYWORD_MOD,
-    KEYWORD_MUL,
-    KEYWORD_POW,
-    KEYWORD_ROUND,
-    KEYWORD_SIN,
-    KEYWORD_SQRT,
-    KEYWORD_SGN,
-    KEYWORD_SUB,
-    KEYWORD_TAN,
-    KEYWORD_TRUNC,
-    KEYWORD_NOT,
-    KEYWORD_MOVE,
-    KEYWORD_POKE,
-    KEYWORD_BEQZ,
-    KEYWORD_BEQZAL,
-    KEYWORD_BNEZ,
-    KEYWORD_BNEZAL,
-    KEYWORD_BGEZ,
-    KEYWORD_BGEZAL,
-    KEYWORD_BGTZ,
-    KEYWORD_BGTZAL,
-    KEYWORD_BLEZ,
-    KEYWORD_BLEZAL,
-    KEYWORD_BLTZ,
-    KEYWORD_BLTZAL,
-    KEYWORD_BNAN,
-    KEYWORD_BDNS,
-    KEYWORD_BDNSAL,
-    KEYWORD_BDSE,
-    KEYWORD_BDSEAL,
-    KEYWORD_BREQZ,
-    KEYWORD_BRNEZ,
-    KEYWORD_BRGEZ,
-    KEYWORD_BRGTZ,
-    KEYWORD_BRLEZ,
-    KEYWORD_BRLTZ,
-    KEYWORD_BRNAN,
-    KEYWORD_BRDNS,
-    KEYWORD_BRDSE,
-    KEYWORD_SEQZ,
-    KEYWORD_SNEZ,
-    KEYWORD_SGEZ,
-    KEYWORD_SGTZ,
-    KEYWORD_SLEZ,
-    KEYWORD_SLTZ,
-    KEYWORD_SNAN,
-    KEYWORD_SNANZ,
-    KEYWORD_SDNS,
-    KEYWORD_SDSE,
+    /* 二元指令 */
+    ABS,
+    ACOS,
+    ASIN,
+    ATAN,
+    ATAN2,
+    CEIL,
+    COS,
+    DIV,
+    EXP,
+    FLOOR,
+    LOG,
+    MAX,
+    MIN,
+    MOD,
+    MUL,
+    POW,
+    ROUND,
+    SIN,
+    SQRT,
+    SGN,
+    SUB,
+    TAN,
+    TRUNC,
+    NOT,
+    MOVE,
+    POKE,
+    BEQZ,
+    BEQZAL,
+    BNEZ,
+    BNEZAL,
+    BGEZ,
+    BGEZAL,
+    BGTZ,
+    BGTZAL,
+    BLEZ,
+    BLEZAL,
+    BLTZ,
+    BLTZAL,
+    BNAN,
+    BDNS,
+    BDNSAL,
+    BDSE,
+    BDSEAL,
+    BREQZ,
+    BRGEZ,
+    BRGTZ,
+    BRLEZ,
+    BRLTZ,
+    BRNAN,
+    BRNEZ,
+    BRDNS,
+    BRDSE,
+    SEQZ,
+    SNEZ,
+    SGEZ,
+    SGTZ,
+    SLEZ,
+    SLTZ,
+    SNAN,
+    SNANZ,
+    SDNS,
+    SDSE,
 
-    /* 关键字 - 三元指令 */
-    KEYWORD_AND,
-    KEYWORD_NOR,
-    KEYWORD_OR,
-    KEYWORD_SLA,
-    KEYWORD_SLL,
-    KEYWORD_SRA,
-    KEYWORD_SRL,
-    KEYWORD_XOR,
-    KEYWORD_GET,
-    KEYWORD_PUT,
-    KEYWORD_L,
-    KEYWORD_LS,
-    KEYWORD_LR,
-    KEYWORD_S,
-    KEYWORD_SB,
-    KEYWORD_ROL,
-    KEYWORD_ROR,
-    KEYWORD_RMAP,
-    KEYWORD_BEQ,
-    KEYWORD_BEQAL,
-    KEYWORD_BNE,
-    KEYWORD_BNEAL,
-    KEYWORD_BGE,
-    KEYWORD_BGEAL,
-    KEYWORD_BGT,
-    KEYWORD_BGTAL,
-    KEYWORD_BLE,
-    KEYWORD_BLEAL,
-    KEYWORD_BLT,
-    KEYWORD_BLTAL,
-    KEYWORD_BAPZ,
-    KEYWORD_BAPZAL,
-    KEYWORD_BNAZ,
-    KEYWORD_BNAZAL,
-    KEYWORD_BDNVL,
-    KEYWORD_BDNVS,
-    KEYWORD_BREQ,
-    KEYWORD_BRNE,
-    KEYWORD_BRGE,
-    KEYWORD_BRGT,
-    KEYWORD_BRLE,
-    KEYWORD_BRLT,
-    KEYWORD_BRAPZ,
-    KEYWORD_BRNAZ,
-    KEYWORD_SAPZ,
-    KEYWORD_SNAZ,
-    KEYWORD_SEQ,
-    KEYWORD_SNE,
-    KEYWORD_SGE,
-    KEYWORD_SGT,
-    KEYWORD_SLE,
-    KEYWORD_SLT,
+    /* 三元指令 */
+    ADD,
+    AND,
+    NOR,
+    OR,
+    SLA,
+    SLL,
+    SRA,
+    SRL,
+    XOR,
+    GET,
+    PUT,
+    L,
+    LS,
+    LR,
+    S,
+    SB,
+    ROL,
+    ROR,
+    RMAP,
+    BEQ,
+    BEQAL,
+    BNE,
+    BNEAL,
+    BGE,
+    BGEAL,
+    BGT,
+    BGTAL,
+    BLE,
+    BLEAL,
+    BLT,
+    BLTAL,
+    BAPZ,
+    BAPZAL,
+    BNAZ,
+    BNAZAL,
+    BDNVL,
+    BDNVS,
+    BREQ,
+    BRNE,
+    BRGE,
+    BRGT,
+    BRLE,
+    BRLT,
+    BRAPZ,
+    BRNAZ,
+    SAPZ,
+    SNAZ,
+    SEQ,
+    SNE,
+    SGE,
+    SGT,
+    SLE,
+    SLT,
 
-    /* 关键字 - 四元指令 */
-    KEYWORD_LERP,
-    KEYWORD_CLAMP,
-    KEYWORD_EXT,
-    KEYWORD_INS,
-    KEYWORD_SS,
-    KEYWORD_LB,
-    KEYWORD_SBN,
-    KEYWORD_SBS,
-    KEYWORD_BAP,
-    KEYWORD_BAPAL,
-    KEYWORD_BNA,
-    KEYWORD_BNAAL,
-    KEYWORD_BRAP,
-    KEYWORD_BRNA,
-    KEYWORD_SAP,
-    KEYWORD_SNA,
-    KEYWORD_SELECT,
+    /* 四元指令 */
+    CLAMP,
+    LERP,
+    EXT,
+    INS,
+    SS,
+    LB,
+    SBN,
+    SBS,
+    BAP,
+    BAPAL,
+    BNA,
+    BNAAL,
+    BRAP,
+    BRNA,
+    SAP,
+    SNA,
+    SELECT,
 
-    /* 关键字 - 五元指令 */
-    KEYWORD_LBN,
-    KEYWORD_LBS,
+    /* 五元指令 */
+    LBN,
+    LBS,
 
-    /* 关键字 - 六元指令 */
-    KEYWORD_LBNS
+    /* 六元指令 */
+    LBNS
 }
 
 
@@ -292,16 +297,29 @@ export class Token {
      * const pos = new ic10.Pos();
      * pos.line = 0;
      * pos.column = 0;
-     * const token = new ic10.Token(TokenType.KEYWORD_MOVE, pos, 'move', TokenCategory.LITERAL);
+     * const token = new ic10.Token(TokenType.KEYWORD, pos, 'move', TokenCategory.LITERAL, InstructionKeyword.MOVE);
      * ```
      */
-    constructor(type: TokenType, pos: Pos, lexeme?: string, category?: TokenCategory);
+    constructor(
+        type: TokenType,
+        pos: Pos,
+        lexeme?: string,
+        category?: TokenCategory,
+        keyword?: InstructionKeyword
+    );
 
     /**
      * @summary Token 类型
      * @desc 对应 ic10::TokenType 枚举值，表示 Token 的语法类别
      */
     type: TokenType;
+
+    /**
+     * @summary 指令关键字（可选）
+     * @desc 当 type 为 TokenType.KEYWORD 时，此字段表示具体的指令关键字
+     *       （对应 ic10::InstructionKeyword 枚举值），其余情况为 undefined。
+     */
+    keyword?: InstructionKeyword;
 
     /**
      * @summary 位置信息

@@ -138,8 +138,15 @@ export interface Position {
     column: number;
 
     /**
-    * @summary 字节偏移量
-    * @desc 从源代码起始位置到该节点的字节偏移量
-    */
+     * @summary 字节偏移量
+     * @desc 从源代码起始位置到该节点的字节偏移量
+     */
     offset: number;
+}
+
+
+export namespace IC10Utils {
+
+    export type Optional<T> = T | undefined;
+
 }

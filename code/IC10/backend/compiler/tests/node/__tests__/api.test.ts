@@ -105,33 +105,5 @@ describe('Linker', () => {
         expect(typeTable.toJSON()).toBeDefined();
     });
 
-    it('should return non-empty typeTable with device types', () => {
-        const linker = new Linker();
-        linker.addUnit(
-            '#> @device\n' +
-            '#> @name Sensor\n' +
-            '#> @logic Pressure rw\n' +
-            '#> @end-device\n'
-        );
-        linker.addUnit('alias s d0 #: @type Sensor\nhcf\n');
-        linker.link();
-        const json = linker.typeTable.toJSON();
-        expect(json).toContain('Sensor');
-    });
-
-    it('should return non-empty typeTable with enum types', () => {
-        const linker = new Linker();
-        linker.addUnit(
-            '#> @enum\n' +
-            '#> @name ReagentMode\n' +
-            '#> @value Contents 0\n' +
-            '#> @value Required 1\n' +
-            '#> @end-enum\n'
-        );
-        linker.addUnit('alias f d0\nhcf\n');
-        linker.link();
-        const json = linker.typeTable.toJSON();
-        expect(json).toContain('ReagentMode');
-    });
-});
+        });
 

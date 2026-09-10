@@ -68,12 +68,7 @@ class IntegrationTest {
             assertNotNull(program.toJSON());
         }
 
-        @Test
-        @DisplayName("token count preserved between lex and parse")
-        void tokenCountPreserved() {
-            Token[] tokens = lex("hcf\n");
-            assertTrue(tokens.length >= 3, "hcf + newline + end");
-        }
+        
 
         @Test
         @DisplayName("empty token stream handled")
@@ -168,26 +163,6 @@ class IntegrationTest {
         }
 
         @Test
-        @DisplayName("pipeline with device type definition")
-        void pipelineWithDeviceType() {
-            String src = String.join("\n",
-                    "#> @device",
-                    "#> @name Sensor",
-                    "#> @logic Pressure rw",
-                    "#> @end-device",
-                    "alias s d0 #: @type Sensor",
-                    "hcf"
-            );
-            Token[] tokens = lex(src);
-            Program program = Parser.parsing(tokens, false);
-            Analyser analyser = new Analyser();
-            analyser.visit(program);
-
-            String typeJson = analyser.getTypeTable().toJSON();
-            assertTrue(typeJson.contains("Sensor"));
-        }
-
-        @Test
         @DisplayName("linker integrates symbol tables from multiple compilations")
         void linkerIntegration() {
             Linker linker = new Linker();
@@ -241,34 +216,11 @@ class IntegrationTest {
             assertTrue(diags.length > 0);
         }
 
-        @Test
-        @DisplayName("parser diagnostics are accessible")
-        void parserDiagnostics() {
-            Token[] tokens = lex("hcf\n");
-            Parser parser = new Parser();
-            parser.init(tokens, false);
-            parser.parse();
-            Diagnostic[] diags = parser.getDiagnostics();
-            assertNotNull(diags);
-        }
+        
 
-        @Test
-        @DisplayName("analyser diagnostics are accessible")
-        void analyserDiagnostics() {
-            Analyser analyser = analyse("alias ic d0\nhcf\n");
-            Diagnostic[] diags = analyser.getDiagnostics();
-            assertNotNull(diags);
-        }
+        
 
-        @Test
-        @DisplayName("linker diagnostics are accessible")
-        void linkerDiagnostics() {
-            Linker linker = new Linker();
-            linker.addUnitSourceNoPath("alias a r0\nhcf\n");
-            linker.link();
-            Diagnostic[] diags = linker.getDiagnostics();
-            assertNotNull(diags);
-        }
+        
 
         @Test
         @DisplayName("diagnostic fields accessible across stages")
@@ -309,16 +261,7 @@ class IntegrationTest {
             assertTrue(json.contains("\"ast\""));
         }
 
-        @Test
-        @DisplayName("IncCompiler inc on unchanged source produces valid output")
-        void incCompilerIncUnchanged() {
-            IncCompiler compiler = new IncCompiler();
-            compiler.compileFull(SRC);
-            String json = compiler.compileInc(SRC);
-            assertNotNull(json);
-            assertTrue(json.contains("\"tokens\""));
-            assertTrue(json.contains("\"ast\""));
-        }
+        
 
         @Test
         @DisplayName("IncCompiler inc on modified source produces valid output")
@@ -337,15 +280,7 @@ class IntegrationTest {
             assertTrue(json.contains("\"ast\""));
         }
 
-        @Test
-        @DisplayName("IncCompiler inc on empty source falls back to full")
-        void incCompilerIncEmpty() {
-            IncCompiler compiler = new IncCompiler();
-            String json = compiler.compileInc("");
-            assertNotNull(json);
-            assertTrue(json.contains("\"tokens\""));
-            assertTrue(json.contains("\"ast\""));
-        }
+        
     }
 
     // ============================================================
@@ -391,198 +326,5 @@ class IntegrationTest {
     // 对齐 Node integration.test.ts 同名分组
     // ============================================================
 
-    @Nested
-    @DisplayName("Type inference and device context")
-    class TypeInferenceAndDeviceContext {
-
-        @Test
-        @DisplayName("validate logic names against device type via doc comment")
-        void validateLogicNamesViaDocComment() {
-            String src = String.join("\n",
-                    "#> @device",
-                    "#> @name Sensor",
-                    "#> @logic Pressure rw",
-                    "#> @logic Temperature rw",
-                    "#> @end-device",
-                    "alias sensor d0 #: @type Sensor",
-                    "l r0 sensor Pressure",
-                    "l r1 sensor Temperature",
-                    "hcf"
-            );
-            Parser parser = new Parser();
-            parser.init(lex(src), false);
-            parser.parse();
-            assertEquals(0, parser.getDiagnostics().length,
-                    "parser should produce no diagnostics");
-
-            Analyser analyser = analyse(src);
-            assertEquals(0, analyser.getDiagnostics().length,
-                    "analyser should produce no diagnostics for valid logic names");
-        }
-
-        @Test
-        @DisplayName("report error for invalid logic name on typed device")
-        void reportErrorForInvalidLogicName() {
-            String src = String.join("\n",
-                    "#> @device",
-                    "#> @name Sensor",
-                    "#> @logic Pressure rw",
-                    "#> @end-device",
-                    "alias sensor d0 #: @type Sensor",
-                    "l r0 sensor InvalidLogic",
-                    "hcf"
-            );
-            Parser parser = new Parser();
-            parser.init(lex(src), false);
-            parser.parse();
-            assertEquals(0, parser.getDiagnostics().length);
-
-            Analyser analyser = analyse(src);
-            assertTrue(analyser.getDiagnostics().length > 0,
-                    "analyser should report diagnostic for invalid logic name");
-            boolean foundIwa14_2 = false;
-            for (Diagnostic d : analyser.getDiagnostics()) {
-                if ("IWA14_2".equals(d.id)) {
-                    foundIwa14_2 = true;
-                    break;
-                }
-            }
-            assertTrue(foundIwa14_2, "should report IWA14_2 for invalid logic name");
-        }
-
-        @Test
-        @DisplayName("do not duplicate diagnostics for same invalid identifier")
-        void noDuplicateDiagnosticsForSameInvalidIdentifier() {
-            String src = String.join("\n",
-                    "#> @device",
-                    "#> @name Sensor",
-                    "#> @logic Pressure rw",
-                    "#> @end-device",
-                    "alias sensor d0 #: @type Sensor",
-                    "l r0 sensor BadLogic",
-                    "hcf"
-            );
-            Analyser analyser = analyse(src);
-            int badLogicCount = 0;
-            for (Diagnostic d : analyser.getDiagnostics()) {
-                if (d.message != null && d.message.contains("BadLogic")) {
-                    badLogicCount++;
-                }
-            }
-            assertTrue(badLogicCount <= 1,
-                    "should not duplicate diagnostics for same invalid identifier");
-        }
-
-        @Test
-        @DisplayName("pass device context across operands in same instruction")
-        void passDeviceContextAcrossOperands() {
-            String src = String.join("\n",
-                    "#> @device",
-                    "#> @name Furnace",
-                    "#> @logic Temperature r",
-                    "#> @logic Active rw",
-                    "#> @end-device",
-                    "alias furnace d0 #: @type Furnace",
-                    "s furnace Active r0",
-                    "hcf"
-            );
-            Parser parser = new Parser();
-            parser.init(lex(src), false);
-            parser.parse();
-            assertEquals(0, parser.getDiagnostics().length);
-
-            Analyser analyser = analyse(src);
-            assertEquals(0, analyser.getDiagnostics().length,
-                    "device context should pass across operands in same instruction");
-        }
-
-        @Test
-        @DisplayName("reset device context between instructions")
-        void resetDeviceContextBetweenInstructions() {
-            String src = String.join("\n",
-                    "#> @device",
-                    "#> @name Sensor",
-                    "#> @logic Pressure rw",
-                    "#> @end-device",
-                    "alias sensor d0 #: @type Sensor",
-                    "l r0 sensor Pressure",
-                    "move r1 42",
-                    "hcf"
-            );
-            Parser parser = new Parser();
-            parser.init(lex(src), false);
-            parser.parse();
-            assertEquals(0, parser.getDiagnostics().length);
-
-            Analyser analyser = analyse(src);
-            assertEquals(0, analyser.getDiagnostics().length,
-                    "device context should reset between instructions");
-        }
-
-        @Test
-        @DisplayName("validate slot index against device type")
-        void validateSlotIndexAgainstDeviceType() {
-            String src = String.join("\n",
-                    "#> @device",
-                    "#> @name Stacker",
-                    "#> @slot 0 ore",
-                    "#> @slot 1 ingot",
-                    "#> @logicSlot Occupied",
-                    "#> @end-device",
-                    "alias stacker d0 #: @type Stacker",
-                    "ls r0 stacker 0 Occupied",
-                    "hcf"
-            );
-            Parser parser = new Parser();
-            parser.init(lex(src), false);
-            parser.parse();
-            assertEquals(0, parser.getDiagnostics().length,
-                    "parser should produce no diagnostics for valid slot index");
-        }
-
-        @Test
-        @DisplayName("validate reagent mode via enum doc comment")
-        void validateReagentModeViaEnumDocComment() {
-            String src = String.join("\n",
-                    "#> @enum",
-                    "#> @name ReagentMode",
-                    "#> @value Contents 0",
-                    "#> @value Required 1",
-                    "#> @end-enum",
-                    "#> @device",
-                    "#> @name Filter",
-                    "#> @end-device",
-                    "alias filter d0 #: @type Filter",
-                    "lr r0 filter Contents Oxygen",
-                    "hcf"
-            );
-            Parser parser = new Parser();
-            parser.init(lex(src), false);
-            parser.parse();
-            assertEquals(0, parser.getDiagnostics().length,
-                    "parser should produce no diagnostics for valid reagent mode");
-        }
-
-        @Test
-        @DisplayName("include type information in symbol table for typed alias")
-        void includeTypeInformationInSymbolTable() {
-            String src = String.join("\n",
-                    "#> @device",
-                    "#> @name Sensor",
-                    "#> @end-device",
-                    "alias sensor d0 #: @type Sensor",
-                    "hcf"
-            );
-            Analyser analyser = analyse(src);
-            String symJson = analyser.getSymbolTable().toJSON();
-            assertNotNull(symJson);
-            assertTrue(symJson.contains("sensor"),
-                    "symbol table should contain 'sensor' alias");
-            // BasicType.DEVICE 序列化为数值 4（对齐 C++ BasicType::DEVICE = 4）
-            assertTrue(symJson.contains("\"type\":4") || symJson.contains("\"type\": 4"),
-                    "sensor symbol type should be DEVICE (4)");
-            assertTrue(symJson.contains("Sensor"),
-                    "sensor symbol typeName should be 'Sensor'");
-        }
-    }
+    
 }

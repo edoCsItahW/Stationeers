@@ -13,7 +13,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {Position} from "../common";
+import {Position, IC10Utils} from "../common";
 import {Token} from "../lexer";
 
 
@@ -27,26 +27,40 @@ import {Token} from "../lexer";
  * @public
  */
 export enum OperandType {
-    /** 寄存器或标识符 */
-    REG_IDENT = 0,
-    /** 设备别名引用 */
-    DEV_ALIAS,
-    /** 寄存器或数字 */
-    REG_NUM,
-    /** 设备引用 */
-    DEV_REF,
-    /** 逻辑槽类型 */
-    LOGIC_SLOT,
-    /** 试剂模式 */
-    REAGENT_MODE,
-    /** 跳转目标 */
-    JUMP_TARGET,
-    /** 逻辑类型 */
-    LOGIC_TYPE,
-    /** 槽索引 */
+    /** 寄存器目标（寄存器或标识符） */
+    REG_TARGET = 0,
+    /** 寄存器或设备（alias 专用） */
+    REG_OR_DEV,
+    /** 数值（数字、寄存器、标识符、枚举） */
+    NUM_VALUE,
+    /** 跳转目标（数字、寄存器、标识符） */
+    JUMP_LINE,
+    /** 地址（数字、寄存器、标识符、枚举） */
+    ADDRESS,
+    /** 槽索引（数字、寄存器、标识符、枚举） */
     SLOT_IDX,
-    /** 批处理模式 */
-    BATCH_MODE
+    /** 硬件 ID（数字、寄存器、标识符、枚举） */
+    HARDWARE_ID,
+    /** 试剂哈希（数字、寄存器、标识符、枚举） */
+    REAGENT_HASH,
+    /** 设备引用（设备或标识符） */
+    DEVICE_REF,
+    /** 严格设备引用（仅设备） */
+    DEVICE_REF_STRICT,
+    /** 逻辑属性（标识符） */
+    LOGIC_PROP,
+    /** 逻辑槽属性（标识符） */
+    LOGIC_SLOT_PROP,
+    /** 批处理模式（数字、标识符、枚举） */
+    AGG_MODE,
+    /** 试剂模式（数字、标识符、枚举） */
+    REAGENT_MODE,
+    /** 设备哈希（数字、标识符、HASH 宏） */
+    DEVICE_HASH,
+    /** 名称哈希（数字、标识符、STR 宏） */
+    NAME_HASH,
+    /** 常量数值（仅数字） */
+    CONST_NUM
 }
 
 
@@ -83,19 +97,19 @@ export interface ASTNode {
      * }
      * ```
      */
-    type: string;
+    get nodeName(): string;
 
     /**
      * @summary 节点位置
      * @desc 节点在源代码中的起始位置
      */
-    position: Position;
+    get position(): Position;
 
     /**
-    * @summary 节点结束位置
-    * @desc 节点在源代码中的结束位置
-    */
-    end: Position;
+     * @summary 节点结束位置
+     * @desc 节点在源代码中的结束位置
+     */
+    get end(): Position;
 }
 
 
@@ -113,13 +127,14 @@ export interface ASTNode {
  * - **字符串字面量**：{@link StringNode}
  * - **寄存器引用**：{@link RegisterNode}
  * - **设备引用**：{@link DeviceNode}
- * - **常量关键字**：{@link ConstantNode}
- * - **宏调用**：{@link HashCallNode}、{@link StrCallNode}
+ * - **宏调用**：{@link HashMacroNode}、{@link StrMacroNode}
  * - **错误节点**：{@link ErrorNode}
  *
  * @see {@link NumberNode} - 数值字面量的联合类型
  * @see {@link OperandNode} - 操作数类型的联合类型
  */
+
+export type Errorable<T> = T | ErrorNode;
 
 /**
  * @summary 整数字面量节点
@@ -140,12 +155,13 @@ export interface ASTNode {
  * @public
  */
 export interface IntegerNode extends ASTNode {
-    type: "Integer";
+    get nodeName(): "Integer";
+
     /**
      * @summary 整数值
      * @desc 十进制整数，可正可负
      */
-    value: number;
+    get value(): number;
 }
 
 
@@ -168,12 +184,13 @@ export interface IntegerNode extends ASTNode {
  * @public
  */
 export interface FloatNode extends ASTNode {
-    type: "Float";
+    get nodeName(): "Float";
+
     /**
      * @summary 浮点数值
      * @desc 十进制浮点数
      */
-    value: number;
+    get value(): number;
 }
 
 
@@ -197,12 +214,13 @@ export interface FloatNode extends ASTNode {
  * @public
  */
 export interface HexNumberNode extends ASTNode {
-    type: "HexNumber";
+    get nodeName(): "HexNumber";
+
     /**
      * @summary 十六进制字符串
      * @desc 包含前缀的十六进制字符串，如 "0xFF"
      */
-    value: string;
+    get value(): string;
 }
 
 
@@ -226,14 +244,39 @@ export interface HexNumberNode extends ASTNode {
  * @public
  */
 export interface BinaryNumberNode extends ASTNode {
-    type: "BinaryNumber";
+    get nodeName(): "BinaryNumber";
+
     /**
      * @summary 二进制字符串
      * @desc 包含前缀的二进制字符串，如 "0b1010"
      */
-    value: string;
+    get value(): string;
 }
 
+/**
+ * @summary 数值字面量联合类型
+ *
+ * @desc 表示所有可能的数值字面量类型，包括十进制整数、浮点数、十六进制数和二进制数。
+ * 也可能包含错误节点（当数值解析失败时）。
+ *
+ * @example
+ * ```typescript
+ * function processNumber(node: NumberNode) {
+ *     if (node.type === 'Integer') {
+ *         console.log('Integer:', node.value);
+ *     } else if (node.type === 'Float') {
+ *         console.log('Float:', node.value);
+ *     } else if (node.type === 'HexNumber') {
+ *         console.log('Hex:', node.value);
+ *     } else if (node.type === 'BinaryNumber') {
+ *         console.log('Binary:', node.value);
+ *     }
+ * }
+ * ```
+ *
+ * @public
+ */
+export type Number = Errorable<IntegerNode | FloatNode | HexNumberNode | BinaryNumberNode>;
 
 /**
  * @summary 标识符节点
@@ -254,12 +297,13 @@ export interface BinaryNumberNode extends ASTNode {
  * @public
  */
 export interface IdentifierNode extends ASTNode {
-    type: "Identifier";
+    get nodeName(): "Identifier";
+
     /**
      * @summary 标识符名称
      * @desc 标识符的字符串名称
      */
-    value: string;
+    get value(): string;
 }
 
 
@@ -282,98 +326,73 @@ export interface IdentifierNode extends ASTNode {
  * @public
  */
 export interface StringNode extends ASTNode {
-    type: "String";
+    get nodeName(): "String";
+
     /**
      * @summary 字符串内容
      * @desc 包括引号的完整字符串值
      */
-    value: string;
+    get value(): string;
 }
 
 
-/**
- * @summary 寄存器引用节点
- *
- * @desc 表示 IC10 程序中对寄存器的引用。
- * 寄存器是 IC10 CPU 的内部存储单元，名称格式为 `r0` 到 `r15`（共16个寄存器）。
- *
- * @example
- * ```typescript
- * // JSON 表示
- * {
- *   "type": "Register",
- *   "position": { "line": 0, "column": 5 },
- *   "value": "r0"
- * }
- * ```
- *
- * @public
- */
-export interface RegisterNode extends ASTNode {
-    type: "Register";
-    /**
-     * @summary 寄存器名称
-     * @desc 格式为 "r0" 到 "r15"
-     */
-    value: string;
+interface StaticRegisterBase<Name extends string> extends ASTNode {
+    get nodeName(): Name;
+
+    get value(): string;
 }
 
+export type GeneralPurposeRegisterNode = StaticRegisterBase<"GeneralPurposeRegister">;
 
-/**
- * @summary 设备引用节点
- *
- * @desc 表示 IC10 程序中对设备的引用。
- * 设备是通过 `alias` 指令定义的逻辑设备名称。
- *
- * @example
- * ```typescript
- * // JSON 表示
- * {
- *   "type": "Device",
- *   "position": { "line": 0, "column": 6 },
- *   "value": "console1"
- * }
- * ```
- *
- * @public
- */
-export interface DeviceNode extends ASTNode {
-    type: "Device";
-    /**
-     * @summary 设备名称
-     * @desc 通过 alias 指令定义的设备别名
-     */
-    value: string;
+export type AddressRegisterNode = StaticRegisterBase<"AddressRegister">;
+
+export type StackPointerRegisterNode = StaticRegisterBase<"StackPointerRegister">;
+
+export type SpecialRegisterNode = Errorable<AddressRegisterNode | StackPointerRegisterNode>;
+
+export type StaticRegisterNode = Errorable<SpecialRegisterNode | GeneralPurposeRegisterNode>;
+
+export interface DynamicRegisterNode extends ASTNode {
+    get nodeName(): "DynamicRegister";
+
+    get register(): Errorable<DynamicRegisterNode | GeneralPurposeRegisterNode | AddressRegisterNode>;
 }
 
+export type Register = Errorable<StaticRegisterNode | DynamicRegisterNode>;
 
-/**
- * @summary 常量关键字节点
- *
- * @desc 表示 IC10 程序中的预定义常量关键字。
- * 常用常量包括：`nan`（非数字）、`pi`（圆周率）、`e`（自然常数）等。
- *
- * @example
- * ```typescript
- * // JSON 表示
- * {
- *   "type": "Constant",
- *   "position": { "line": 0, "column": 5 },
- *   "keyword": "pi"
- * }
- * ```
- *
- * @public
- */
-export interface ConstantNode extends ASTNode {
-    type: "Constant";
-    /**
-     * @summary 常量关键字
-     * @desc 如 "nan"、"pi"、"e" 等
-     */
-    keyword: string;
+export interface StaticDeviceBase<T extends string> extends ASTNode {
+    get nodeName(): T;
+
+    get value(): string;
 }
 
+export type SelfReferenceDeviceNode = StaticDeviceBase<"SelfReferenceDevice">;
+
+export type OrdinaryDeviceNode = StaticDeviceBase<"OrdinaryDevice">;
+
+export interface StaticDeviceNode extends ASTNode {
+    get nodeName(): "StaticDevice";
+
+    get device(): Errorable<SelfReferenceDeviceNode | OrdinaryDeviceNode>;
+
+    get pin(): IC10Utils.Optional<IntegerNode>;
+}
+
+export interface DynamicDeviceNode extends ASTNode {
+    get nodeName(): "DynamicDeviceNode";
+
+    get register(): Errorable<DynamicRegisterNode | GeneralPurposeRegisterNode | AddressRegisterNode>;
+}
+
+export type Device = Errorable<DynamicDeviceNode | DynamicRegisterNode>;
+
+export interface EnumNode extends ASTNode {
+    get nodeName(): "Enum";
+
+    get name(): Errorable<IdentifierNode>;
+
+    get value(): Errorable<IdentifierNode>;
+}
 
 /**
  * @summary HASH 宏调用节点
@@ -398,13 +417,14 @@ export interface ConstantNode extends ASTNode {
  *
  * @public
  */
-export interface HashCallNode extends ASTNode {
-    type: "HashCall";
+export interface HashMacroNode extends ASTNode {
+    get nodeName(): "HashMacro";
+
     /**
      * @summary 参数字符串
      * @desc 要计算哈希的字符串参数
      */
-    value: StringNode;
+    get value(): Errorable<StringNode>;
 }
 
 
@@ -430,13 +450,14 @@ export interface HashCallNode extends ASTNode {
  *
  * @public
  */
-export interface StrCallNode extends ASTNode {
-    type: "StrCall";
+export interface StrMacroNode extends ASTNode {
+    get nodeName(): "StrMacro";
+
     /**
      * @summary 参数字符串
      * @desc 要获取长度的字符串参数
      */
-    value: StringNode;
+    get value(): Errorable<StringNode>;
 }
 
 
@@ -464,17 +485,19 @@ export interface StrCallNode extends ASTNode {
  * @public
  */
 export interface ErrorNode extends ASTNode {
-    type: "Error";
+    get nodeName(): "Error";
+
     /**
      * @summary 导致错误的 Token
      * @desc 触发错误的源 Token，用于定位错误位置
      */
-    token: Token;
+    get token(): Token;
+
     /**
      * @summary 错误消息
      * @desc 描述错误原因的文本
      */
-    message: string;
+    get message(): string;
 }
 
 
@@ -494,35 +517,6 @@ export interface ErrorNode extends ASTNode {
  * - {@link RegisterOrIdentifierNode}：寄存器或标识符（用于可读写的位置）
  */
 
-/**
- * @summary 数值字面量联合类型
- *
- * @desc 表示所有可能的数值字面量类型，包括十进制整数、浮点数、十六进制数和二进制数。
- * 也可能包含错误节点（当数值解析失败时）。
- *
- * @example
- * ```typescript
- * function processNumber(node: NumberNode) {
- *     if (node.type === 'Integer') {
- *         console.log('Integer:', node.value);
- *     } else if (node.type === 'Float') {
- *         console.log('Float:', node.value);
- *     } else if (node.type === 'HexNumber') {
- *         console.log('Hex:', node.value);
- *     } else if (node.type === 'BinaryNumber') {
- *         console.log('Binary:', node.value);
- *     }
- * }
- * ```
- *
- * @public
- */
-export type NumberNode =
-    | IntegerNode
-    | FloatNode
-    | HexNumberNode
-    | BinaryNumberNode
-    | ErrorNode;
 
 /**
  * @summary 宏调用联合类型
@@ -531,7 +525,9 @@ export type NumberNode =
  *
  * @public
  */
-export type MacroCallNode = HashCallNode | StrCallNode | ErrorNode;
+export type Macro = Errorable<HashMacroNode | StrMacroNode>;
+
+export type RegTarget = Errorable<Register | IdentifierNode>;
 
 /**
  * @summary 寄存器或标识符联合类型
@@ -542,99 +538,65 @@ export type MacroCallNode = HashCallNode | StrCallNode | ErrorNode;
  *
  * @public
  */
-export type RegisterOrIdentifierNode = RegisterNode | IdentifierNode | ErrorNode;
+export type RegOrDev = Errorable<Register | Device>;
 
-/**
- * @summary 设备引用联合类型
- *
- * @desc 表示设备引用的可能形式：
- * - 直接的设备名称（如 `console1`）
- * - 寄存器或标识符（用于间接引用）
- * - 数值（用于立即数地址）
- *
- * @public
- */
-export type DeviceReferenceNode =
-    | DeviceNode
-    | RegisterOrIdentifierNode
-    | NumberNode;
+export type NumValue = Errorable<Number | Register | IdentifierNode | EnumNode>;
 
-/**
- * @summary 寄存器或设备联合类型
- *
- * @desc 表示可以绑定到 alias 的目标类型。
- * alias 指令可以将设备绑定到寄存器，或将设备绑定到另一个设备别名。
- *
- * @example
- * ```typescript
- * // alias myReg r0 - 将寄存器绑定到别名
- * // alias console1 console0 - 将设备绑定到别名
- * ```
- *
- * @public
- */
-export type RegisterOrDeviceNode = RegisterOrIdentifierNode | DeviceNode;
+export type JumpLine = Errorable<Number | Register | IdentifierNode>;
 
-/**
- * @summary 试剂模式联合类型
- *
- * @desc 用于库存管理指令中的试剂筛选模式。
- * 可以是标识符（如 `"ic2"`）或数值。
- *
- * @public
- */
-export type ReagentModeNode = IdentifierNode | NumberNode;
+export type Address = Errorable<Number | Register | IdentifierNode | EnumNode>;
 
-/**
- * @summary 批处理模式联合类型
- *
- * @desc 用于库存管理指令中的批处理控制。
- * 可以是标识符或数值。
- *
- * @public
- */
-export type BatchModeNode = IdentifierNode | NumberNode;
+/** 槽索引 */
+export type SlotIdx = Errorable<Number | Register | IdentifierNode | EnumNode>;
 
-/**
- * @summary 逻辑槽类型联合类型
- *
- * @desc 用于指定设备逻辑槽的类型。
- * 可以是标识符（如 `"logic"`）或数值编码。
- *
- * @public
- */
-export type LogicSlotTypeNode = IdentifierNode | NumberNode;
+/** 硬件 ID */
+export type HardwareId = Errorable<Number | Register | IdentifierNode | EnumNode>;
 
-/**
- * @summary 槽索引类型
- *
- * @desc 用于指定设备槽的索引位置。
- * 通常为数值类型。
- *
- * @public
- */
-export type SlotIndexNode = NumberNode;
+/** 试剂哈希 */
+export type ReagentHash = Errorable<Number | Register | IdentifierNode | EnumNode>;
 
-/**
- * @summary 逻辑类型联合类型
- *
- * @desc 用于指定逻辑类型（如数字、逻辑、字符等）。
- * 可以是标识符或数值编码。
- *
- * @public
- */
-export type LogicTypeNode = IdentifierNode | NumberNode;
+/** 设备引用（允许标识符） */
+export type DeviceRef = Errorable<Device | IdentifierNode>;
+
+/** 严格设备引用（仅设备） */
+export type DeviceRefStrict = Errorable<Device>;
+
+/** 逻辑属性（兼容旧语法允许数字） */
+export type LogicProp = Errorable<IdentifierNode | Number>;
+
+/** 逻辑槽属性（兼容旧语法允许数字） */
+export type LogicSlotProp = Errorable<Number | Register | IdentifierNode | EnumNode>;
+
+/** 批处理模式 */
+export type AggMode = Errorable<Number | IdentifierNode | EnumNode>;
+
+/** 试剂模式 */
+export type ReagentMode = Errorable<Number | Register | IdentifierNode | EnumNode>;
+
+/** 设备哈希（允许 HASH 宏） */
+export type DeviceHash = Errorable<Number | IdentifierNode | HashMacroNode>;
+
+/** 名称哈希（允许 STR 宏） */
+export type NameHash = Errorable<Number | IdentifierNode | StrMacroNode>;
+
+/** 别名定义（用于预处理指令） */
+export type AliasDef = Errorable<IdentifierNode>;
+
+/** 常量定义（用于预处理指令） */
+export type ConstDef = Errorable<IdentifierNode>;
+
+/** 常量数值（允许宏） */
+export type ConstNum = Errorable<Number | Macro>;
 
 /**
  * @summary 操作数联合类型
  *
  * @desc 表示指令中操作数可能的所有类型。
  * 操作数是指令的参数，可以是：
- * - 寄存器（r0-r15）
+ * - 寄存器（r0-r17）
  * - 设备引用
  * - 数值（整数、浮点、十六进制、二进制）
  * - 标识符
- * - 常量关键字
  * - 宏调用（HASH、STR）
  *
  * @example
@@ -652,8 +614,6 @@ export type LogicTypeNode = IdentifierNode | NumberNode;
  *             return `Variable ${op.value}`;
  *         case 'Device':
  *             return `Device ${op.value}`;
- *         case 'Constant':
- *             return `Constant ${op.keyword}`;
  *         case 'HashCall':
  *             return `Hash of ${op.value.value}`;
  *         case 'StrCall':
@@ -667,77 +627,64 @@ export type LogicTypeNode = IdentifierNode | NumberNode;
  *
  * @public
  */
-export type OperandNode =
-    | RegisterNode
-    | DeviceNode
-    | NumberNode
-    | IdentifierNode
-    | ConstantNode
-    | MacroCallNode;
+export type Operand = Register | Device | Number | IdentifierNode | EnumNode | Macro;
 
 // -------------------------------------------------------------------------
 // 预处理指令节点
 // -------------------------------------------------------------------------
 
-/**
- * @summary 预处理指令概述
- *
- * @desc 预处理指令在程序编译前处理，用于定义别名、常量等。
- * IC10 支持的预处理指令包括：
- * - {@link AliasDirectiveNode}：`alias` - 为设备或寄存器定义别名
- * - {@link DefineDirectiveNode}：`define` - 定义常量
- *
- * 预处理指令必须在程序主体之前声明。
- *
- * @see {@link PreprocessorDirectiveNode} - 预处理指令联合类型
- */
+export interface LinkNode extends ASTNode {
+    reference: Array<Array<string>>;
+}
+
+export type Description = ErrorNode<StringNode | LinkNode>;
 
 /**
- * @summary alias 预处理指令节点
+ * @summary 类型提示节点
  *
- * @desc 表示 IC10 程序中的 `alias` 预处理指令。
- * alias 指令用于为设备引用或寄存器定义别名，使代码更易读。
- *
- * 语法：`alias <identifier> <registerOrDevice>`
- *
- * @example
- * ```typescript
- * // alias console1 console0
- * // 含义：将 console0 设备绑定到别名 console1
- *
- * // JSON 表示
- * {
- *   "type": "AliasDirective",
- *   "position": { "line": 0, "column": 0 },
- *   "identifier": { "type": "Identifier", "value": "console1", ... },
- *   "registerOrDevice": { "type": "Identifier", "value": "console0", ... }
- * }
- * ```
- *
- * @public
+ * @desc 由 `#: @type ... @desc ... @builtin` 类型提示解析而来。
+ * 对应 C++ `ic10::TypeHint`。
  */
+export interface TypeHintNode {
+    /**
+     * @summary 类型名（可选）
+     * @desc 由 @type 注解指定的类型名
+     */
+    get type(): IC10Utils.Optional<string>;
+
+    /**
+     * @summary 描述（可选）
+     * @desc 由 @desc 注解指定的描述（链接或文本）
+     */
+    get desc(): IC10Utils.Optional<string>;
+
+    /**
+     * @summary 内置常量标记（可选）
+     * @desc 由 @builtin 注解标记，用于将 define 字符串解析为预定义常量
+     */
+    get builtin(): IC10Utils.Optional<boolean>;
+}
+
 export interface AliasDirectiveNode extends ASTNode {
-    type: "AliasDirective";
+    get nodeName(): "AliasDirective";
+
     /**
      * @summary 别名标识符
      * @desc 别名的名称，用于在后续代码中引用
      */
-    identifier: IdentifierNode;
+    get identifier(): AliasDef;
+
     /**
      * @summary 被绑定的寄存器或设备
      * @desc 实际的目标，可以是寄存器或设备
      */
-    registerOrDevice: RegisterOrDeviceNode;
+    get registerOrDevice(): RegOrDev;
+
     /**
-     * @summary 类型名（可选）
-     * @desc 由 @type 注解指定的设备类型名
+     * @summary 类型提示（可选）
+     * @desc 由 `#: @type ... @desc ... @builtin` 类型提示解析而来
      */
-    typeName?: string;
-    /**
-     * @summary 描述（可选）
-     * @desc 由 @desc 注解指定的描述（与 typeName 互斥）
-     */
-    desc?: string;
+    get typeHint(): IC10Utils.Optional<TypeHintNode>;
 }
 
 
@@ -766,27 +713,26 @@ export interface AliasDirectiveNode extends ASTNode {
  * @public
  */
 export interface DefineDirectiveNode extends ASTNode {
-    type: "DefineDirective";
+    get nodeName(): "DefineDirective";
+
     /**
      * @summary 常量标识符
      * @desc 常量的名称
      */
-    identifier: IdentifierNode;
+    get identifier(): ConstDef;
+
     /**
-     * @summary 常量值
-     * @desc 可以是任何操作数类型（寄存器、设备、数值、标识符等）
+     * @summary 常量数值
+     * @desc 仅接受数值字面量（Integer/Float/HexNumber/BinaryNumber），
+     *       或经 @builtin 由字符串解析得到的浮点常量
      */
-    number: OperandNode;
+    get operand(): ConstNum;
+
     /**
-     * @summary 类型名（可选）
-     * @desc 由 @type 注解指定的类型名
+     * @summary 类型提示（可选）
+     * @desc 由 `#: @type ... @desc ... @builtin` 类型提示解析而来
      */
-    typeName?: string;
-    /**
-     * @summary 描述（可选）
-     * @desc 由 @desc 注解指定的描述（与 typeName 互斥）
-     */
-    desc?: string;
+    get typeHint(): IC10Utils.Optional<TypeHintNode>;
 }
 
 
@@ -797,10 +743,10 @@ export interface DefineDirectiveNode extends ASTNode {
  *
  * @public
  */
-export type PreprocessorDirectiveNode =
-    | AliasDirectiveNode
+export type PreprocessorDirective = ErrorNode<
+    AliasDirectiveNode
     | DefineDirectiveNode
-    | ErrorNode;
+>;
 
 // -------------------------------------------------------------------------
 // 标签定义节点
@@ -843,6 +789,126 @@ export interface LabelDefNode extends ASTNode {
 }
 
 
-export interface InstructionNode extends ASTNode {
-    keyword: string;
+export interface NullaryInstructionNode extends ASTNode {
+    get nodeName(): `${string}Instruction`;
+
+    get keyword(): string;
 }
+
+export interface UnaryInstructionNode extends NullaryInstructionNode {
+    get operand1(): Operand;
+
+    get type1(): OperandType;
+}
+
+export interface BinaryInstructionNode extends UnaryInstructionNode {
+    get operand2(): Operand;
+
+    get type2(): OperandType;
+}
+
+export interface TernaryInstructionNode extends BinaryInstructionNode {
+    get operand3(): Operand;
+
+    get type3(): OperandType;
+}
+
+export interface QuaternaryInstructionNode extends TernaryInstructionNode {
+    get operand4(): Operand;
+
+    get type4(): OperandType;
+}
+
+export interface QuinaryInstructionNode extends QuaternaryInstructionNode {
+    get operand5(): Operand;
+
+    get type5(): OperandType;
+}
+
+export interface SenaryInstructionNode extends QuinaryInstructionNode {
+    get operand6(): SenaryInstructionNode;
+
+    get type6(): OperandType;
+}
+
+/**
+ * @summary 可执行指令联合类型
+ *
+ * @desc 包含所有可执行指令类型的联合，包括零元、一元、二元、三元、四元、五元和六元指令。
+ * 这是 IC10 程序中所有可执行指令的完整集合。
+ *
+ * @elseif en
+ * @summary Executable instruction union type
+ *
+ * @desc Union of all executable instruction types, including nullary, unary, binary, ternary, quaternary, quinary, and senary instructions.
+ * This is the complete set of all executable instructions in IC10 programs.
+ *
+ * @public
+ */
+export type ExecutableInstruction = Errorable<NullaryInstructionNode | UnaryInstructionNode | BinaryInstructionNode | TernaryInstructionNode | QuaternaryInstructionNode | QuinaryInstructionNode | SenaryInstructionNode>;
+
+
+export interface EnumAnnotationValue extends ASTNode {
+    get nodeName(): "EnumAnnotationValue";
+
+    get tag(): "value";
+
+    get name(): string;
+
+    get value(): string;
+
+    get desc(): IC10Utils.Optional<Description>;
+}
+
+/** 枚举注解（对应 C++ `ic10::EnumAnnotation`，由 `#> @enum ... #> @end-enum` 定义） */
+export interface EnumAnnotation extends ASTNode {
+    get nodeName(): "EnumAnnotation";
+
+    get name(): string;
+
+    get desc(): IC10Utils.Optional<Description>;
+
+    get values(): EnumAnnotationValue[];
+}
+
+interface TypeAnnotationLineBase<N extends string, T extends string> extends ASTNode {
+    get nodeName(): N;
+
+    get tag(): T;
+
+    get value(): string;
+}
+
+export type DeviceAnnotationLogic = TypeAnnotationLineBase<"DeviceAnnotationLogic", "logic">;
+
+export type DeviceAnnotationLogicSlot = TypeAnnotationLineBase<"DeviceAnnotationLogicSlot", "logic-slot">;
+
+export type DeviceAnnotationDeviceHash = TypeAnnotationLineBase<"DeviceAnnotationDeviceHash", "device-hash">;
+
+export type DeviceAnnotationNameHash = TypeAnnotationLineBase<"DeviceAnnotationNameHash", "name-hash">;
+
+export type DeviceAnnotationReagentHash = TypeAnnotationLineBase<"DeviceAnnotationReagentHash", "reagent-hash">;
+
+export type DeviceAnnotationSlot = TypeAnnotationLineBase<"DeviceAnnotationSlot", "slot">;
+
+export interface DeviceAnnotation {
+    get nodeName(): "DeviceAnnotation";
+
+    get name(): string;
+
+    get desc(): IC10Utils.Optional<Description>;
+
+    get deviceHash(): IC10Utils.Optional<DeviceAnnotationDeviceHash>;
+
+    get nameHash(): IC10Utils.Optional<DeviceAnnotationNameHash>;
+
+    get lgoics(): DeviceAnnotationLogic[];
+
+    get logicSlots(): DeviceAnnotationLogicSlot[];
+
+    get slots(): DeviceAnnotationSlot[];
+
+    get reagentHash(): DeviceAnnotationReagentHash[];
+}
+
+export type TypeAnnotation = Errorable<DeviceAnnotation | EnumAnnotation>;
