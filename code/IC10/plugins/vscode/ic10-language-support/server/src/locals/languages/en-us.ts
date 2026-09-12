@@ -51,7 +51,13 @@ export default {
         },
         operandType: {
             register: "Register",
+            general_purpose_register: "General Purpose Register",
+            address_register: "Address register",
+            stack_pointer_register: "Stack pointer register",
+            dynamic_register: "Dynamic addressing register",
             device: "Device",
+            static_device: "Static device",
+            dynamic_device: "Dynamic addressing device",
             number: "Number",
             constant: "Builtin Constant",
             error: "Unknown",

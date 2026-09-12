@@ -13,11 +13,11 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { StatementNode, PureExeInstructionNode, TokenCategory, TokenType } from "ic10c-node";
+import { TokenCategory, TokenType } from "ic10c-node";
 import { Connection } from "vscode-languageserver";
 
-import { findRangeTokens, getOperandType, isInstruction, isDirectiveNode } from "../../utils"
-import { debug, lowerBound, Optional, Console } from "common";
+import { findRangeTokens, getOperandType, AST } from "../../utils"
+import { debug, lowerBound, Optional, Console, traceback } from "common";
 import { INS_META_MAP, INS_LOCAL_MAP } from "../../mateData";
 import { locale, t } from "../../locals";
 import { DocumentCache } from "../cache";
@@ -44,18 +44,14 @@ type OnSignatureHelpHandlerType = Parameters<Connection["onSignatureHelp"]>[0];
 export class SignatureHandler {
     constructor(private readonly docCache: DocumentCache) {}
 
-    @debug({
-        message: err => t("server.handler.error", { name: "signature", err: (err as Error).message }),
-        logger: msg => Console.error(msg, "signature"),
-        rethrow: false
-    })
+//    @debug({
+//        message: err => t("server.handler.error", { name: "signature", err: (err as Error).message }),
+//        logger: msg => Console.error(msg, "signature"),
+//        rethrow: false
+//    })
+    @traceback()
     handle(
-        ...[
-            {
-                textDocument,
-                position
-            }
-        ]: Parameters<OnSignatureHelpHandlerType>
+        ...[{ textDocument, position }]: Parameters<OnSignatureHelpHandlerType>
     ): ReturnType<OnSignatureHelpHandlerType> {
         const cache = this.docCache.getCache(textDocument.uri);
 
@@ -70,9 +66,9 @@ export class SignatureHandler {
 
         let keyword: Optional<string> = undefined;
 
-        if (this.isInstruction(stmt)) keyword = stmt.keyword;
-        else if (stmt.type === "AliasDirective") keyword = "alias";
-        else if (stmt.type === "DefineDirective") keyword = "define";
+        if (AST.belongInstruction(stmt)) keyword = stmt.keyword;
+        else if (AST.isAliasDirective(stmt)) keyword = "alias";
+        else if (AST.isDefineDirective(stmt)) keyword = "define";
 
         if (!keyword) return;
 
@@ -96,9 +92,9 @@ export class SignatureHandler {
         if (prevBlocks > 0 || opIdx === -1) opIdx++;
 
         if (prevBlocks > 0) {
-            if (isInstruction(stmt) && getOperandType(stmt, opIdx) === undefined) return;
+            if (AST.belongInstruction(stmt) && getOperandType(stmt, opIdx) === undefined) return;
 
-            if (isDirectiveNode(stmt) && opIdx > 2) return;
+            if (AST.belongDirective(stmt) && opIdx > 2) return;
         }
 
         return {
@@ -128,9 +124,5 @@ export class SignatureHandler {
 
         // 跳过第一个 token（keyword），返回后续所有 token 的位置
         return tokens.slice(1).map(t => [t.start, t.end]);
-    }
-
-    private isInstruction(stmt: StatementNode): stmt is PureExeInstructionNode {
-        return stmt.type.endsWith("Instruction");
     }
 }
