@@ -167,16 +167,19 @@ namespace stationeers::ic10 {
 
         if (inScope() && current()->type == type) return tokens_[idx_++];
 
+        // 出错 token 必须在 errorConsume 之前取出，否则报错的位置与类型会错位到下一个 token
+        const auto errorToken = current();
+
         if (inScope() && errorConsume) consume();
 
         reporter_.errorWith<ICMsgId::IEP1_1>(
-            current()->pos, endPos(*current()), enumToStr(current()->type)
+            errorToken->pos, endPos(*errorToken), enumToStr(errorToken->type)
         );
 
         throw Error{
             RuntimeError{
-                         ICLoc::msgFormat<ICMsgId::IEP1_1>(enumToStr(current()->type)), current()->pos,
-                         endPos(*current())
+                         ICLoc::msgFormat<ICMsgId::IEP1_1>(enumToStr(errorToken->type)),
+                         errorToken->pos, endPos(*errorToken)
             }
         };
     }
