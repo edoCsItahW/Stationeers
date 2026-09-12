@@ -182,7 +182,7 @@ export class Server {
                 this.semanticHandler.handleRange.bind(this.semanticHandler)
             );
             this.connection.onCompletion(this.compHandler.handle.bind(this.compHandler));
-            this.connection.onCompletionResolve(this.compHandler.handleResolve.bind(this.compHandler));
+//            this.connection.onCompletionResolve(this.compHandler.handleResolve.bind(this.compHandler));
             this.connection.onSignatureHelp(this.signatureHandler.handle.bind(this.signatureHandler));
             this.connection.onDocumentFormatting(this.fmtHandler.handle.bind(this.fmtHandler));
 

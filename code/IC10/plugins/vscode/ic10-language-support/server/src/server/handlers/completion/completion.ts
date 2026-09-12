@@ -28,23 +28,23 @@ import {
     Connection
 } from "vscode-languageserver";
 import {
+    DeviceAnnotation,
     IdentifierNode,
-    StatementNode,
     TokenCategory,
-    RegisterNode,
     TypeCategory,
     TypeTableMap,
     OperandType,
-    DeviceNode,
-    DeviceType,
+    Statement,
     SymbolMap,
     BasicType,
     ErrorNode,
-    TokenType
+    TokenType,
+    Register,
+    Device
 } from "ic10c-node";
 
 import { ENUMS_LOCAL_MAP, INS_LOCAL_MAP, INS_META_MAP, LOGIC_LOCAL_MAP, LOGIC_SLOT_LOCAL_MAP } from "../../../mateData";
-import { end, getOperandType, isInstruction, RadixTree, findRangeTokens } from "../../../utils";
+import { end, getOperandType, RadixTree, findRangeTokens, AST, SemanticMap, GenericOperandType } from "../../../utils";
 import { Console, debug, lowerBound, Optional } from "common";
 import { DocumentCache } from "../../cache";
 import { locale, t } from "../../../locals";
@@ -168,7 +168,7 @@ enum State {
  * completeOperand method chain.
  * */
 interface CompletionContext {
-    stmt: Optional<StatementNode>;
+    stmt: Optional<Statement>;
     symbols: Optional<SymbolMap>;
     types: Optional<TypeTableMap>;
 
@@ -314,15 +314,15 @@ export class CompletionHandler {
         let opIdx = prevIdx; // -1则补keyword(0)，其余补operand${opIdx}
 
         if (
-            prevBlocks > 0 ||  // 存在空格则应判断为下一个操作数
-            opIdx === -1       // 没有前一个token表示位于行首，则加1成0
+            prevBlocks > 0 || // 存在空格则应判断为下一个操作数
+            opIdx === -1 // 没有前一个token表示位于行首，则加1成0
         )
             opIdx++;
 
         // 相对位置状态，该形式仅用于简化分支，其中1为特殊情况，使其命中正确的索引
         const rel: RelativeState = [
             [RelativeState.INSIDE_WORD, RelativeState.END_WORD],
-            [RelativeState.START_WORD , currIdx > 0 ? RelativeState.INSIDE_WORD : RelativeState.INSIDE_GAP]
+            [RelativeState.START_WORD, currIdx > 0 ? RelativeState.INSIDE_WORD : RelativeState.INSIDE_GAP]
         ][prevIdx >= 0 ? Number(prevBlocks > 0 /* 光标前的空格数 */) : 1][
             nextIdx >= 0 ? Number(tokens[nextIdx].pos.column - column > 0 /* 光标后的空格数 */) : 1
         ];
@@ -454,16 +454,36 @@ export class CompletionHandler {
         // 不是行首
         if (opIdx && ctx.stmt) {
             // 是可执行指令，则补全操作数
-            if (isInstruction(ctx.stmt) && getOperandType(ctx.stmt, opIdx) !== undefined)
+            if (AST.belongInstruction(ctx.stmt) && getOperandType(ctx.stmt, opIdx) !== undefined)
                 return this.completeOperand(ctx, getOperandType(ctx.stmt, opIdx)!, prefix);
 
             // 是预处理指令，则不补全第一个操作数（用户自定义标识符），如果是第二个操作数则提供补全
-            else if (ctx.stmt.type === "AliasDirective" && opIdx === 2) return this.completeRegOrDev(ctx, prefix);
-            else if (ctx.stmt.type === "DefineDirective" && opIdx === 2) return this.completeNumber(ctx, prefix);
+            else if (AST.isAliasDirective(ctx.stmt) && opIdx === 2) return this.completeRegOrDev(ctx, prefix);
+            else if (AST.isDefineDirective(ctx.stmt) && opIdx === 2) return this.completeNumber(ctx, prefix);
         }
 
         // 是行首，提供关键字补全
         else return this.completeKeyword(ctx, prefix);
+    }
+
+    private completeOperandType(type: OperandType, ctx: CompletionContext, prefix: string): CompletionItem[] {
+        const types = SemanticMap[type];
+
+        const result: CompletionItem[] = [];
+
+        for (const type of types)
+            switch (type) {
+                case "register":
+                    result.concat(this.completeBuiltinRegister(ctx, prefix));
+                    break;
+                case "device":
+                    result.concat(this.completeBuiltinDevice(ctx, prefix));
+                    break;
+                case "number":
+                    result.concat(this.completeNumber(ctx, prefix));
+            }
+
+        return result;
     }
 
     /**
@@ -482,17 +502,49 @@ export class CompletionHandler {
      * @returns 补全项数组 / Array of completion items
      * */
     private completeKeyword(ctx: CompletionContext, prefix: string): CompletionItem[] {
-        return CompletionHandler.insTree
-            .entriesWithPrefix(prefix)
-            // 过滤掉不是指令的元数据
-            .filter(([, v]) => v.type === "Instruction")
-            .map(([key, value]) => ({
-                label: key,
-                kind: CompletionItemKind.Keyword,
-                insertText: key,
-                detail: value.signature,
-                data: { local: ctx.getLocale(), name: key, key: "Instruction" } satisfies CompletionData
-            }));
+        return (
+            CompletionHandler.insTree
+                .entriesWithPrefix(prefix)
+                // 过滤掉不是指令的元数据
+                .filter(([, v]) => v.type === "Instruction")
+                .map(([key, value]) => ({
+                    label: key,
+                    kind: CompletionItemKind.Keyword,
+                    insertText: key,
+                    detail: value.signature,
+                    data: { local: ctx.getLocale(), name: key, key: "Instruction" } satisfies CompletionData
+                }))
+        );
+    }
+
+    private completeBuiltinRegister(ctx: CompletionContext, prefix: string): CompletionItem[] {
+        // 内置寄存器
+        const builtins = CompletionHandler.REGISTERS;
+
+        if (prefix.length) builtins.concat(this.filterByPrefix(builtins, prefix));
+
+        return builtins.map(({ value, sort }) => ({
+            label: value,
+            kind: CompletionItemKind.Variable,
+            insertText: value,
+            detail: t("hover.operandType.register"),
+            sortText: sort
+        }));
+    }
+
+    private completeBuiltinDevice(ctx: CompletionContext, prefix: string): CompletionItem[] {
+        // 内置设备
+        const builtins = CompletionHandler.DEVICE_REFS;
+
+        if (prefix.length) builtins.concat(this.filterByPrefix(builtins, prefix));
+
+        return builtins.map(({ value, sort }) => ({
+            label: value,
+            kind: CompletionItemKind.Reference,
+            insertText: value,
+            detail: t("hover.operandType.device"),
+            sortText: sort
+        }));
     }
 
     /**
@@ -519,17 +571,9 @@ export class CompletionHandler {
      * */
     private completeOperand(ctx: CompletionContext, opType: OperandType, prefix: string): CompletionItem[] {
         switch (opType) {
-            case OperandType.REG_IDENT:  // 寄存器类型
-            case OperandType.REG_NUM: {  // 寄存器或数值类型
-                // 内置寄存器
-                const matching = this.filterByPrefix(CompletionHandler.REGISTERS, prefix);
-                const builtin: CompletionItem[] = matching.map(({ value, sort }) => ({
-                    label: value,
-                    kind: CompletionItemKind.Variable,
-                    insertText: value,
-                    detail: t("hover.operandType.register"),
-                    sortText: sort
-                }));
+            case OperandType.REG_TARGET: // 寄存器类型
+            case OperandType.REG_OR_DEV: { // 寄存器或数值类型
+                const builtin = this.completeBuiltinRegister(ctx, opType, prefix);
 
                 // 用户定义的别名（从符号表，单次 for...in 避免 Object.entries 中间数组分配）
                 const userAliases: CompletionItem[] = [];
@@ -572,16 +616,11 @@ export class CompletionHandler {
                 return result;
             }
 
-            case OperandType.DEV_ALIAS:  // 设备别名类型
-            case OperandType.DEV_REF: {  // 设备引用类型
+            case OperandType.DEV_ALIAS: // 设备别名类型
+            case OperandType.DEV_REF: {
+                // 设备引用类型
                 // 设备引用: d0-d5, db  + 用户别名
-                const builtin = this.filterByPrefix(CompletionHandler.DEVICE_REFS, prefix).map(({ value, sort }) => ({
-                    label: value,
-                    kind: CompletionItemKind.Reference,
-                    insertText: value,
-                    detail: t("hover.operandType.device"),
-                    sortText: sort
-                }));
+
                 // 用户定义的别名（从符号表，单次 for...in 避免 Object.entries 中间数组分配）
                 const userAliases: CompletionItem[] = [];
                 if (ctx.symbols) {
@@ -653,7 +692,7 @@ export class CompletionHandler {
         const device = this.findPrevDevice(ctx.stmt!);
 
         if (device)
-            switch (device.type) {
+            switch (device.nodeName) {
                 case "Device":
 
                 case "Identifier":
@@ -662,7 +701,7 @@ export class CompletionHandler {
                     if (symbol && symbol.typeName) {
                         const type = ctx.types![symbol.typeName];
 
-                        if (type && type.type === "device" && opType !== OperandType.REAGENT_MODE)
+                        if (type && AST.isDeviceAnnotation(type) && opType !== OperandType.REAGENT_MODE)
                             return this.deviceCompletions(ctx, type, opType);
                     }
             }
@@ -671,7 +710,7 @@ export class CompletionHandler {
             case OperandType.LOGIC_SLOT: {
                 const type = ctx.types!["LogicSlotType"];
 
-                if (type.type === "enum")
+                if (AST.isEnumAnnotation(type))
                     return type.values.map(entry => ({
                         label: entry.name,
                         kind: CompletionItemKind.Constant,
@@ -693,7 +732,7 @@ export class CompletionHandler {
             case OperandType.BATCH_MODE: {
                 const type = ctx.types!["BatchMode"];
 
-                if (type.type === "enum")
+                if (AST.isEnumAnnotation(type))
                     return type.values.map(entry => ({
                         label: entry.name,
                         kind: CompletionItemKind.Constant,
@@ -711,7 +750,7 @@ export class CompletionHandler {
             case OperandType.LOGIC_TYPE: {
                 const type = ctx.types!["LogicType"];
 
-                if (type.type === "enum")
+                if (AST.isEnumAnnotation(type))
                     return type.values.map(entry => ({
                         label: entry.name,
                         kind: CompletionItemKind.Constant,
@@ -729,7 +768,7 @@ export class CompletionHandler {
             case OperandType.REAGENT_MODE: {
                 const type = ctx.types!["ReagentMode"];
 
-                if (type.type === "enum")
+                if (AST.isEnumAnnotation(type))
                     return type.values.map(entry => ({
                         label: entry.name,
                         kind: CompletionItemKind.Constant,
@@ -766,7 +805,7 @@ export class CompletionHandler {
      * @param opType 操作数类型 / Operand type
      * @returns 补全项数组 / Array of completion items
      * */
-    private deviceCompletions(ctx: CompletionContext, type: DeviceType, opType: OperandType): CompletionItem[] {
+    private deviceCompletions(ctx: CompletionContext, type: DeviceAnnotation, opType: OperandType): CompletionItem[] {
         switch (opType) {
             case OperandType.LOGIC_SLOT:
                 return type.logicSlots.map(s => ({
@@ -916,7 +955,7 @@ export class CompletionHandler {
     private completeConstant(ctx: CompletionContext, prefix: string): CompletionItem[] {
         return CompletionHandler.insTree
             .entriesWithPrefix(prefix)
-            .filter(([, v]) => v.type === "Constant")
+            .filter(([, v]) => v.nodeName === "Constant")
             .map(([k, v]) => ({
                 label: k,
                 kind: CompletionItemKind.Constant,
@@ -941,12 +980,11 @@ export class CompletionHandler {
      * @param stmt 语句节点 / Statement node
      * @returns 设备/寄存器/标识符节点，或 null / Device, register, identifier node, or null
      * */
-    private findPrevDevice(stmt: StatementNode): Optional<DeviceNode | RegisterNode | IdentifierNode | ErrorNode> {
+    private findPrevDevice(stmt: Statement): Optional<Device | Register | IdentifierNode | ErrorNode> {
         // 用 for...in 代替 Object.entries 避免中间数组分配
         for (const k in stmt) {
             if (!k.startsWith("type")) continue;
-            const v = (stmt as any)[k];
-            if (v === OperandType.DEV_REF || v === OperandType.DEV_ALIAS) {
+            if ((stmt as any)[k] === OperandType.DEVICE_REF) {
                 const idx = Number.parseInt(k.replace("type", ""), 10);
                 return (stmt as any)[`operand${idx}`];
             }

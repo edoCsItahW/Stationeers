@@ -264,3 +264,14 @@ export function getEnumName<T extends Record<string, string | number>>(
     // 在键数组中查找，使得 enumObj[key] === value
     return keys.find(key => enumObj[key] === value);
 }
+
+export function pascalToSnake(str: string): string {
+    return (
+        str
+            // 处理 "HTTPServer" -> "HTTP_Server"
+            .replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2")
+            // 处理 "PascalCase" -> "Pascal_Case"
+            .replace(/([a-z\d])([A-Z])/g, "$1_$2")
+            .toLowerCase()
+    );
+}

@@ -15,7 +15,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic, StatementNode } from "ic10c-node";
+import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic, Statement } from "ic10c-node";
 import stdLib from "ic10c-node/static/stdLib.ic.json";
 import { createHash } from "node:crypto";
 
@@ -47,9 +47,9 @@ const DECLARATIVE_TYPES = new Set(["AliasDirective", "DefineDirective", "LabelDe
  * @returns 若包含声明式节点返回 true
  * @returns true if declarative nodes are present
  */
-function hasDeclarativeChanges(statements: StatementNode[], startIdx: number): boolean {
+function hasDeclarativeChanges(statements: Statement[], startIdx: number): boolean {
     for (let i = startIdx; i < statements.length; i++) {
-        if (DECLARATIVE_TYPES.has(statements[i].type)) return true;
+        if (DECLARATIVE_TYPES.has(statements[i].nodeName)) return true;
     }
     return false;
 }

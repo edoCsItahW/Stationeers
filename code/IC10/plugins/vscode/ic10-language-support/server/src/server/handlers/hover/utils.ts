@@ -16,20 +16,11 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import type { Hover } from "vscode-languageserver/node";
 import { BasicType } from "ic10c-node";
-import type {
-    PureExeInstructionNode,
-    IdentifierNode,
-    StatementNode,
-    OperandNode,
-    SymbolMap,
-} from "ic10c-node";
+import type { PureExeInstructionNode, IdentifierNode, SymbolMap, Statement, Operand } from "ic10c-node";
 
 import { lowerBound, getEnumName, type Nullable, type Optional } from "common";
-import { groupHandlers, visit, operandValueLength } from "../../../utils";
-import svgBuilder from "../../../utils/svgBuilder";
-import type { HoverContext } from "./types";
+import { groupHandlers, visit, AST, visitOperand } from "../../../utils";
 
 /**
  * @summary 通过二分查找定位指定行的语句
@@ -44,7 +35,7 @@ import type { HoverContext } from "./types";
  * @returns 匹配的语句节点，未找到返回 null
  * @returns The matching statement node, or null if not found
  */
-export function findStatementAtPosition(statements: StatementNode[], line: number): Nullable<StatementNode> {
+export function findStatementAtPosition(statements: Statement[], line: number): Nullable<Statement> {
     const idx = lowerBound(statements, item => item.position.line >= line);
     return idx >= 0 && idx < statements.length ? statements[idx] : null;
 }
@@ -81,17 +72,14 @@ export function isInsideNode(col: number, length: number, character: number): bo
  * @returns 找到的操作数节点（或关键字字符串）及其索引
  * @returns The found operand node (or keyword string) and its index
  */
-export function findOperand(
-    node: PureExeInstructionNode,
-    a: number
-): { result: OperandNode | string; index: number } {
+export function findOperand(node: PureExeInstructionNode, a: number): { result: Operand | string; index: number } {
     let maxCol = -Infinity;
-    let foundOperand: Nullable<OperandNode> = null;
+    let foundOperand: Nullable<Operand> = null;
     let index = -1;
 
     for (const key in node)
         if (key.startsWith("operand")) {
-            const operand: Optional<OperandNode> = (node as any)[key];
+            const operand: Optional<Operand> = (node as any)[key];
             if (operand && operand.position && typeof operand.position.column === "number") {
                 const col = operand.position.column;
                 if (col <= a && col > maxCol) {
@@ -119,18 +107,8 @@ export function findOperand(
  * @returns 格式化后的字符串（如 HASH("value")、寄存器名、数字等）
  * @returns Formatted string (e.g. HASH("value"), register name, number, etc.)
  */
-export function formatOperand(op: OperandNode): string {
-    return visit(
-        {
-            Error: node => node.message,
-            Constant: node => node.keyword,
-            HashCall: node => `HASH("${node.value.value}")`,
-            StrCall: node => `STR("${node.value.value}")`,
-            ...groupHandlers(["BinaryNumber", "HexNumber", "Identifier", "Register", "Device"], node => node.value),
-            ...groupHandlers(["Integer", "Float"], node => node.value.toString())
-        },
-        op
-    );
+export function formatOperand(op: Operand): string {
+    return op.toString();
 }
 
 /**
@@ -167,19 +145,4 @@ export function formatType(identifier: IdentifierNode, symbols: SymbolMap): Opti
         if (symbol.typeName) return symbol.typeName;
         return formatBasicType(symbol.type);
     }
-}
-
-/**
- * @summary 类型守卫：判断语句节点是否为可执行指令（排除 ErrorNode）
- *
- * @summary Type guard: check if a statement node is an executable instruction (excluding ErrorNode)
- *
- * @param node 语句 AST 节点
- * @param node Statement AST node
- *
- * @returns 如果节点类型以 "Instruction" 结尾返回 true
- * @returns True if the node type ends with "Instruction"
- */
-export function isInstruction(node: StatementNode): node is PureExeInstructionNode {
-    return node.type.endsWith("Instruction");
 }
