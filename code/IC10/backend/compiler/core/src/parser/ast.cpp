@@ -83,7 +83,7 @@ namespace stationeers::ic10 {
     }
 
     std::string DefineDirective::toJSON() const {
-        return jsonBase<"identifier", "number", "typeHint">(
+        return jsonBase<"identifier", "operand", "typeHint">(
             identifier, operand, typeHint ? std::optional(typeHint->toJSON()) : std::nullopt
         );
     }
