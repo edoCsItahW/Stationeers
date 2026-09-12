@@ -17,7 +17,7 @@ import { Languages, DiagnosticSeverity } from "vscode-languageserver";
 import { Diagnostic } from "ic10c-node";
 
 import { DocumentCache } from "../cache";
-import { Console, debug } from "common";
+import { Console, debug, traceback } from "common";
 import { t } from "../../locals";
 
 type OnHandlerType = Parameters<Languages["diagnostics"]["on"]>[0];
@@ -62,11 +62,12 @@ export class DiagnosticHandler {
      * @returns 包含诊断项列表的 full diagnostic report
      * @returns Full diagnostic report containing the list of diagnostic items
      * */
-    @debug({
-        message: err => t("server.handler.error", { name: "diagnostic", err: (err as Error).message }),
-        logger: msg => Console.error(msg, "diagnostic"),
-        rethrow: false
-    })
+//    @debug({
+//        message: err => t("server.handler.error", { name: "diagnostic", err: (err as Error).message }),
+//        logger: msg => Console.error(msg, "diagnostic"),
+//        rethrow: false
+//    })
+    @traceback()
     handle(...[params]: Parameters<OnHandlerType>): ReturnType<OnHandlerType> {
         const cache = this.docCache.getCache(params.textDocument.uri);
 
@@ -76,7 +77,9 @@ export class DiagnosticHandler {
                 items: cache.diagnostics.map(d => ({
                     severity: this.levelTrans(d.level),
                     range: {
-                        start: d.start ? { line: d.start.line - 1, character: d.start.column - 1 } : { line: 0, character: 0 },
+                        start: d.start
+                            ? { line: d.start.line - 1, character: d.start.column - 1 }
+                            : { line: 0, character: 0 },
                         end: d.end ? { line: d.end.line - 1, character: d.end.column - 1 } : { line: 0, character: 0 }
                     },
                     message: d.message,

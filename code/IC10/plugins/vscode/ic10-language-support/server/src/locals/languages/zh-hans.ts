@@ -51,7 +51,13 @@ export default {
         },
         operandType: {
             register: "寄存器",
+            general_purpose_register: "通用寄存器",
+            address_register: "地址寄存器",
+            stack_pointer_register: "栈指针寄存器",
+            dynamic_register: "动态寻址寄存器",
             device: "设备",
+            static_device: "静态设备",
+            dynamic_device: "动态寻址设备",
             number: "数值",
             constant: "内置常量",
             error: "未知",

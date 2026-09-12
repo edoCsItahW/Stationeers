@@ -17,20 +17,24 @@ import { Optional } from "type-fest";
 import { Position } from "common";
 import {
     PureExeInstructionNode,
-    DefineDirectiveNode,
-    AliasDirectiveNode,
-    StatementNode,
     TokenCategory,
-    OperandNode,
     OperandType,
+    StringNode,
     TokenType,
-    Program,
+    Statement,
+    Operand,
+    ASTNode,
     Token
 } from "ic10c-node";
 
-type NodeType = Program["statements"][number] | OperandNode;
 
-type ExtractNodeByType<T extends NodeType["type"]> = Extract<NodeType, { type: T }>;
+type NodeType = Statement | Operand | StringNode;
+
+type ExtractNodeByNodeName<T extends NodeType["nodeName"]> = Extract<NodeType, {
+    readonly nodeName: T;
+}>;
+
+type ExtractNodeBySuffix<S extends string> = Extract<NodeType, { readonly nodeName: `${string}${S}` }>;
 
 /**
  * @summary AST 节点访问器，根据节点类型分发到对应的处理函数
@@ -44,10 +48,10 @@ type ExtractNodeByType<T extends NodeType["type"]> = Extract<NodeType, { type: T
  * a node, calls the matching handler. Used for traversing IC10 program ASTs.
  * */
 export function visit<T extends NodeType = NodeType, R = any>(
-    visitor: { [K in T["type"]]: (node: ExtractNodeByType<K>) => R },
+    visitor: { [K in T["nodeName"]]: (node: ExtractNodeByNodeName<K>) => R },
     node: T
 ): R {
-    return visitor[node.type as T["type"]](node as any);
+    return visitor[node.nodeName as T["nodeName"]](node as any);
 }
 
 /**
@@ -62,11 +66,51 @@ export function visit<T extends NodeType = NodeType, R = any>(
  * (Device, Register, Integer, Float, Identifier, etc.) for precise type inference.
  * */
 export function visitOperand<R = any>(
-    visitor: { [K in OperandNode["type"]]: (node: Extract<OperandNode, { type: K }>) => R },
-    node: OperandNode
+    visitor: { [K in Operand["nodeName"]]: (node: ExtractNodeByNodeName<K>) => R },
+    node: Operand
 ): R {
-    return visitor[node.type as OperandNode["type"]](node as any);
+    return visitor[node.nodeName](node as any);
 }
+
+type ASTChecker = {
+    [K in NodeType["nodeName"] as `is${K}`]: (node: ASTNode) => node is ExtractNodeByNodeName<K>;
+};
+
+type KnownSuffix = "Directive" | "Instruction";
+
+type ASTBelongChecker = {
+    [K in KnownSuffix as `belong${K}`]: (node: { readonly nodeName: string }) => node is ExtractNodeBySuffix<K>;
+};
+
+export const AST = new Proxy({} as ASTChecker & ASTBelongChecker, {
+    get(target, prop: string | symbol, receiver) {
+        if (typeof prop !== "string")
+            return Reflect.get(target, prop, receiver);
+
+        // isXxx：精确匹配（类型谓词在 ASTChecker 里声明）
+        if (prop.startsWith("is") && prop.length > 2) {
+            const nodeName = prop.slice(2);
+            return (node: ASTNode) => {
+                if (!node.nodeName)
+                    throw Error(`"nodeName" not in ${node}`);
+
+                return node.nodeName === nodeName;
+            };
+        }
+
+        // belongXxx：后缀匹配（类型谓词在 ASTBelongChecker 里声明）
+        if (prop.startsWith("belong") && prop.length > 6) {
+            const suffix = prop.slice(6);
+            return (node: { readonly nodeName: string }) => {
+                if (!node.nodeName) throw Error(`"nodeName" not in ${node}`);
+
+                return node.nodeName.endsWith(suffix);
+            };
+        }
+
+        return Reflect.get(target, prop, receiver);
+    }
+});
 
 /**
  * @summary 节点类型到处理函数的映射组
@@ -79,8 +123,8 @@ export function visitOperand<R = any>(
  * @desc Maps a set of AST node types to their handler function types.
  * Typically used with visit() to construct type-safe visitors.
  * */
-export type HandleGroup<T extends NodeType["type"] = NodeType["type"], R = any> = {
-    [K in T]: (node: ExtractNodeByType<K>) => R;
+export type HandleGroup<T extends NodeType["nodeName"] = NodeType["nodeName"], R = any> = {
+    [K in T]: (node: ExtractNodeByNodeName<K>) => R;
 };
 
 /**
@@ -94,9 +138,9 @@ export type HandleGroup<T extends NodeType["type"] = NodeType["type"], R = any> 
  * @desc Convenience utility that takes a type array and a single handler,
  * producing a HandleGroup. Useful when multiple node types share the same logic.
  * */
-export function groupHandlers<T extends NodeType["type"], R = any>(
+export function groupHandlers<T extends NodeType["nodeName"], R = any>(
     types: T[],
-    handler: (node: ExtractNodeByType<T>) => R
+    handler: (node: ExtractNodeByNodeName<T>) => R
 ): HandleGroup<T, R> {
     const result = {} as HandleGroup<T, R>;
 
@@ -116,21 +160,8 @@ export function groupHandlers<T extends NodeType["type"], R = any>(
  * @desc Returns the character count of an operand's string representation
  * based on its type. Used for formatting/alignment calculations.
  * */
-export function operandValueLength(node: OperandNode): number {
-    return visitOperand(
-        {
-            ...groupHandlers(
-                ["Device", "Register", "HexNumber", "BinaryNumber", "Identifier"],
-                node => node.value.length
-            ),
-            ...groupHandlers(["Integer", "Float"], node => node.value.toString().length),
-            Constant: node => node.keyword.length,
-            HashCall: node => node.value.value.length + 8,
-            StrCall: node => node.value.value.length + 7,
-            Error: node => node.token.lexeme.length
-        },
-        node
-    );
+export function operandValueLength(node: Operand): number {
+    return node.end.column - node.position.column;
 }
 
 /**
@@ -145,23 +176,13 @@ export function operandValueLength(node: OperandNode): number {
  * E.g., HashCall → `HASH("...")`, StrCall → `STR("...")`, plain identifiers
  * and numbers are returned as-is.
  * */
-export function operandToString(node: OperandNode): string {
-    return visitOperand(
-        {
-            ...groupHandlers(["Device", "Register", "HexNumber", "BinaryNumber", "Identifier"], node => node.value),
-            ...groupHandlers(["Integer", "Float"], node => node.value.toString()),
-            Constant: node => node.keyword,
-            HashCall: node => `HASH("${node.value.value}")`,
-            StrCall: node => `STR("${node.value.value}")`,
-            Error: node => node.token.lexeme
-        },
-        node
-    );
+export function operandToString(node: Operand): string {
+    return node.toString();
 }
 
-export function end(node: OperandNode): Position;
+export function end(node: Operand): Position;
 export function end(token: Token): Position;
-export function end(item: OperandNode | Token): Position {
+export function end(item: Operand | Token): Position {
     if ("pos" in item) return { line: item.pos.line /* 无换行 */, column: item.pos.column + item.lexeme.length };
 
     return item.end;
@@ -171,13 +192,27 @@ export function getOperandType(ins: PureExeInstructionNode, idx: number): Option
     return (ins as any)[`type${idx}`];
 }
 
-export function isInstruction(stmt: StatementNode): stmt is PureExeInstructionNode {
-    return stmt.type.endsWith("Instruction");
-}
-
-export function isDirectiveNode(stmt: StatementNode): stmt is AliasDirectiveNode | DefineDirectiveNode {
-    return stmt.type.endsWith("Directive");
-}
+// `identifier`表示语法，因为有些不允许标识符，其余表示语义，通常`identifier`更具体的语义就是列举中非本身的那些
+export type GenericOperandType = "register" | "device" | "identifier" | "number" | "enum";
+export const SemanticMap = {
+    [OperandType.REG_TARGET]: ["register", "identifier"] as const,
+    [OperandType.REG_OR_DEV]: ["register", "device"] as const,
+    [OperandType.NUM_VALUE]: ["register", "identifier", "number", "enum"] as const,
+    [OperandType.JUMP_LINE]: ["register", "identifier", "number"] as const,
+    [OperandType.ADDRESS]: ["register", "number"] as const,
+    [OperandType.SLOT_IDX]: ["number"] as const,
+    [OperandType.HARDWARE_ID]: ["register", "number"] as const,
+    [OperandType.REAGENT_HASH]: ["register", "number"] as const,
+    [OperandType.DEVICE_REF]: ["device", "register", "identifier"] as const,
+    [OperandType.DEVICE_REF_STRICT]: ["device"] as const,
+    [OperandType.LOGIC_PROP]: ["identifier", "number"] as const,
+    [OperandType.LOGIC_SLOT_PROP]: ["identifier", "number"] as const,
+    [OperandType.AGG_MODE]: ["identifier", "number"] as const,
+    [OperandType.REAGENT_MODE]: ["identifier", "number"] as const,
+    [OperandType.DEVICE_HASH]: ["number"] as const,
+    [OperandType.NAME_HASH]: ["number"] as const,
+    [OperandType.CONST_NUM]: ["number"] as const
+} satisfies Record<OperandType, GenericOperandType[]>;
 
 /**
  * @summary 寻找所在列附近范围内的token
