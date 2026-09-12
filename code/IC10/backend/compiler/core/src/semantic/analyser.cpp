@@ -180,17 +180,20 @@ namespace stationeers::ic10 {
                     }
 
                     // 有类型注释
-                    if (auto& typeHint = aliasDirective.typeHint; typeHint && typeHint->type) {
-                        symbol.type.typeName = *typeHint->type;
+                    if (auto& typeHint = aliasDirective.typeHint; typeHint) {
+                        if (typeHint->type) {
+                            symbol.type.typeName = *typeHint->type;
 
-                        if (symbol.value)
-                            if (auto it = symbolTable_->builtinSymbols.find(*symbol.value);
-                                it != symbolTable_->builtinSymbols.end())
-                                it->second.type.typeName = *typeHint->type;
+                            if (symbol.value)
+                                if (auto it = symbolTable_->builtinSymbols.find(*symbol.value);
+                                    it != symbolTable_->builtinSymbols.end())
+                                    it->second.type.typeName = *typeHint->type;
+                        }
+
+                        if (typeHint->desc) symbol.desc = *typeHint->desc;
+
+                        symbol.isBuiltin = typeHint->builtin;
                     }
-
-                    if (auto& typeHint = aliasDirective.typeHint; typeHint && typeHint->desc)
-                        symbol.desc = *typeHint->desc;
 
                     defineSymbol(identifier, std::move(symbol));
                 },

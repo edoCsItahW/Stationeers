@@ -23,12 +23,12 @@
 namespace stationeers::ic10 {
 
     std::string Symbol::toJSON() const {
-        return toJson<"name", "type", "category", "typeName", "value", "desc">(
+        return toJson<"name", "type", "category", "typeName", "value", "desc", "builtin">(
             name, static_cast<int>(type.kind), static_cast<int>(type.category),
-            type.typeName ? std::optional(*type.typeName) : std::nullopt,
-            value ? std::optional(*value) : std::nullopt,
+            type.typeName ? type.typeName : std::nullopt, value ? value : std::nullopt,
             desc ? std::optional(call(*desc, [](const auto& d) { return d.toJSON(); }))
-                 : std::nullopt
+                 : std::nullopt,
+            isBuiltin
         );
     }
 

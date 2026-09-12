@@ -27,37 +27,97 @@ import {Token} from "../lexer";
  * @public
  */
 export enum OperandType {
-    /** 寄存器目标（寄存器或标识符） */
+    /**
+     * Register | Identifier
+     * r? : 目标寄存器（写入结果），必须是纯寄存器
+     * 寄存器目标（寄存器或标识符）
+     * */
     REG_TARGET = 0,
     /** 寄存器或设备（alias 专用） */
     REG_OR_DEV,
-    /** 数值（数字、寄存器、标识符、枚举） */
+    /**
+     * Register | Identifier | Enum | [Number]
+     * r?|num : 通用数值操作数（读取值参与运算/比较/赋值）
+     * 数值（数字、寄存器、标识符、枚举）
+     * */
     NUM_VALUE,
-    /** 跳转目标（数字、寄存器、标识符） */
+    /**
+     * Identifier | Register | [Number]
+     * int, r?|num : （跳转指令中）跳转目标行号（绝对或相对），需解析为整数行号。
+     * 跳转目标（数字、寄存器、标识符）
+     * */
     JUMP_LINE,
-    /** 地址（数字、寄存器、标识符、枚举） */
+    /**
+     * Register | Number（get/put/poke 的堆栈地址索引）
+     * address(r?|num) : 堆栈地址索引（用于 get/put/poke）
+     * 地址（数字、寄存器、标识符、枚举）
+     * */
     ADDRESS,
-    /** 槽索引（数字、寄存器、标识符、枚举） */
+    /**
+     * [Number]
+     * slotIdx : 设备槽位索引（需为非负整数）
+     * 槽索引（数字、寄存器、标识符、枚举）
+     * */
     SLOT_IDX,
-    /** 硬件 ID（数字、寄存器、标识符、枚举） */
+    /**
+     * Register | Number（clrd 的设备硬件 ID）
+     * id(r?|num) | （clrd/getd 等）设备数字硬件 ID（非端口名）
+     * 硬件 ID（数字、寄存器、标识符、枚举）
+     * */
     HARDWARE_ID,
-    /** 试剂哈希（数字、寄存器、标识符、枚举） */
+    /**
+     * Register | Number（rmap 的试剂哈希）
+     * reagentHash(r?|num) : 试剂材料哈希值（用于配方查询）
+     * 试剂哈希（数字、寄存器、标识符、枚举）
+     * */
     REAGENT_HASH,
-    /** 设备引用（设备或标识符） */
+    /**
+     * Device | Register | Identifier
+     * device(d?|r?|id), d? : 设备引用（可为静态/动态端口或设备别名）
+     * 设备引用（设备或标识符）
+     * */
     DEVICE_REF,
-    /** 严格设备引用（仅设备） */
+    /**
+     * Device（clr/rmap 的 d?）
+     * d? : （clr 指令独有）严格设备端口（不接受别名或动态设备）
+     * 严格设备引用（仅设备）
+     * */
     DEVICE_REF_STRICT,
-    /** 逻辑属性（标识符） */
+    /**
+     * Identifier | [Number]
+     * logicType : 设备逻辑属性路径（仅单标识符，如 Pressure、Activate）
+     * 逻辑属性（标识符）
+     * */
     LOGIC_PROP,
-    /** 逻辑槽属性（标识符） */
+    /**
+     * Identifier | [Number]
+     * logicSlotType : 槽位物品逻辑属性路径（仅单标识符）
+     * 逻辑槽属性（标识符）
+     * */
     LOGIC_SLOT_PROP,
-    /** 批处理模式（数字、标识符、枚举） */
+    /**
+     * Identifier | [Number]
+     * batchMode : 聚合模式（如 Average、Sum 或枚举常量）
+     * 批处理模式（数字、标识符、枚举）
+     * */
     AGG_MODE,
-    /** 试剂模式（数字、标识符、枚举） */
+    /**
+     * Identifier | [Number]
+     * reagentMode : 试剂模式（如 Contents、Recipe）
+     * 试剂模式（数字、标识符、枚举）
+     * */
     REAGENT_MODE,
-    /** 设备哈希（数字、标识符、HASH 宏） */
+    /**
+     * Number（lb/lbn/lbs/lbns/sb/sbn/sbs 的设备类型哈希）
+     * deviceHash : 设备类型哈希值（支持字面量、常量别名、枚举、HASH 宏）
+     * 设备哈希（数字、标识符、HASH 宏）
+     * */
     DEVICE_HASH,
-    /** 名称哈希（数字、标识符、STR 宏） */
+    /**
+     * Number（lbn/lbns/sbn 的设备名称哈希）
+     * nameHash : 设备名称哈希值
+     * 名称哈希（数字、标识符、STR 宏）
+     * */
     NAME_HASH,
     /** 常量数值（仅数字） */
     CONST_NUM
@@ -97,19 +157,21 @@ export interface ASTNode {
      * }
      * ```
      */
-    get nodeName(): string;
+    readonly nodeName: string;
 
     /**
      * @summary 节点位置
      * @desc 节点在源代码中的起始位置
      */
-    get position(): Position;
+    readonly position: Position;
 
     /**
      * @summary 节点结束位置
      * @desc 节点在源代码中的结束位置
      */
-    get end(): Position;
+    readonly end: Position;
+
+    toString(): string;
 }
 
 
@@ -155,13 +217,13 @@ export type Errorable<T> = T | ErrorNode;
  * @public
  */
 export interface IntegerNode extends ASTNode {
-    get nodeName(): "Integer";
+    readonly nodeName: "Integer";
 
     /**
      * @summary 整数值
      * @desc 十进制整数，可正可负
      */
-    get value(): number;
+    readonly value: number;
 }
 
 
@@ -184,13 +246,13 @@ export interface IntegerNode extends ASTNode {
  * @public
  */
 export interface FloatNode extends ASTNode {
-    get nodeName(): "Float";
+    readonly nodeName: "Float";
 
     /**
      * @summary 浮点数值
      * @desc 十进制浮点数
      */
-    get value(): number;
+    readonly value: number;
 }
 
 
@@ -214,13 +276,13 @@ export interface FloatNode extends ASTNode {
  * @public
  */
 export interface HexNumberNode extends ASTNode {
-    get nodeName(): "HexNumber";
+    readonly nodeName: "HexNumber";
 
     /**
      * @summary 十六进制字符串
      * @desc 包含前缀的十六进制字符串，如 "0xFF"
      */
-    get value(): string;
+    readonly value: string;
 }
 
 
@@ -244,13 +306,13 @@ export interface HexNumberNode extends ASTNode {
  * @public
  */
 export interface BinaryNumberNode extends ASTNode {
-    get nodeName(): "BinaryNumber";
+    readonly nodeName: "BinaryNumber";
 
     /**
      * @summary 二进制字符串
      * @desc 包含前缀的二进制字符串，如 "0b1010"
      */
-    get value(): string;
+    readonly value: string;
 }
 
 /**
@@ -297,13 +359,13 @@ export type Number = Errorable<IntegerNode | FloatNode | HexNumberNode | BinaryN
  * @public
  */
 export interface IdentifierNode extends ASTNode {
-    get nodeName(): "Identifier";
+    readonly nodeName: "Identifier";
 
     /**
      * @summary 标识符名称
      * @desc 标识符的字符串名称
      */
-    get value(): string;
+    readonly value: string;
 }
 
 
@@ -326,20 +388,20 @@ export interface IdentifierNode extends ASTNode {
  * @public
  */
 export interface StringNode extends ASTNode {
-    get nodeName(): "String";
+    readonly nodeName: "String";
 
     /**
      * @summary 字符串内容
      * @desc 包括引号的完整字符串值
      */
-    get value(): string;
+    readonly value: string;
 }
 
 
 interface StaticRegisterBase<Name extends string> extends ASTNode {
-    get nodeName(): Name;
+    readonly nodeName: Name;
 
-    get value(): string;
+    readonly value: string;
 }
 
 export type GeneralPurposeRegisterNode = StaticRegisterBase<"GeneralPurposeRegister">;
@@ -353,17 +415,17 @@ export type SpecialRegisterNode = Errorable<AddressRegisterNode | StackPointerRe
 export type StaticRegisterNode = Errorable<SpecialRegisterNode | GeneralPurposeRegisterNode>;
 
 export interface DynamicRegisterNode extends ASTNode {
-    get nodeName(): "DynamicRegister";
+    readonly nodeName: "DynamicRegister";
 
-    get register(): Errorable<DynamicRegisterNode | GeneralPurposeRegisterNode | AddressRegisterNode>;
+    readonly register: Errorable<DynamicRegisterNode | GeneralPurposeRegisterNode | AddressRegisterNode>;
 }
 
 export type Register = Errorable<StaticRegisterNode | DynamicRegisterNode>;
 
 export interface StaticDeviceBase<T extends string> extends ASTNode {
-    get nodeName(): T;
+    readonly nodeName: T;
 
-    get value(): string;
+    readonly value: string;
 }
 
 export type SelfReferenceDeviceNode = StaticDeviceBase<"SelfReferenceDevice">;
@@ -371,27 +433,27 @@ export type SelfReferenceDeviceNode = StaticDeviceBase<"SelfReferenceDevice">;
 export type OrdinaryDeviceNode = StaticDeviceBase<"OrdinaryDevice">;
 
 export interface StaticDeviceNode extends ASTNode {
-    get nodeName(): "StaticDevice";
+    readonly nodeName: "StaticDevice";
 
-    get device(): Errorable<SelfReferenceDeviceNode | OrdinaryDeviceNode>;
+    readonly device: Errorable<SelfReferenceDeviceNode | OrdinaryDeviceNode>;
 
-    get pin(): IC10Utils.Optional<IntegerNode>;
+    readonly pin: IC10Utils.Optional<IntegerNode>;
 }
 
 export interface DynamicDeviceNode extends ASTNode {
-    get nodeName(): "DynamicDeviceNode";
+    readonly nodeName: "DynamicDevice";
 
-    get register(): Errorable<DynamicRegisterNode | GeneralPurposeRegisterNode | AddressRegisterNode>;
+    readonly register: Errorable<DynamicRegisterNode | GeneralPurposeRegisterNode | AddressRegisterNode>;
 }
 
-export type Device = Errorable<DynamicDeviceNode | DynamicRegisterNode>;
+export type Device = Errorable<StaticDeviceNode | DynamicDeviceNode>;
 
 export interface EnumNode extends ASTNode {
-    get nodeName(): "Enum";
+    readonly nodeName: "Enum";
 
-    get name(): Errorable<IdentifierNode>;
+    readonly name: Errorable<IdentifierNode>;
 
-    get value(): Errorable<IdentifierNode>;
+    readonly value: Errorable<IdentifierNode>;
 }
 
 /**
@@ -418,13 +480,13 @@ export interface EnumNode extends ASTNode {
  * @public
  */
 export interface HashMacroNode extends ASTNode {
-    get nodeName(): "HashMacro";
+    readonly nodeName: "HashMacro";
 
     /**
      * @summary 参数字符串
      * @desc 要计算哈希的字符串参数
      */
-    get value(): Errorable<StringNode>;
+    readonly value: Errorable<StringNode>;
 }
 
 
@@ -451,13 +513,13 @@ export interface HashMacroNode extends ASTNode {
  * @public
  */
 export interface StrMacroNode extends ASTNode {
-    get nodeName(): "StrMacro";
+    readonly nodeName: "StrMacro";
 
     /**
      * @summary 参数字符串
      * @desc 要获取长度的字符串参数
      */
-    get value(): Errorable<StringNode>;
+    readonly value: Errorable<StringNode>;
 }
 
 
@@ -485,19 +547,19 @@ export interface StrMacroNode extends ASTNode {
  * @public
  */
 export interface ErrorNode extends ASTNode {
-    get nodeName(): "Error";
+    readonly nodeName: "Error";
 
     /**
      * @summary 导致错误的 Token
      * @desc 触发错误的源 Token，用于定位错误位置
      */
-    get token(): Token;
+    readonly token: Token;
 
     /**
      * @summary 错误消息
      * @desc 描述错误原因的文本
      */
-    get message(): string;
+    readonly message: string;
 }
 
 
@@ -634,7 +696,7 @@ export type Operand = Register | Device | Number | IdentifierNode | EnumNode | M
 // -------------------------------------------------------------------------
 
 export interface LinkNode extends ASTNode {
-    reference: Array<Array<string>>;
+    readonly reference: Array<Array<string>>;
 }
 
 export type Description = ErrorNode<StringNode | LinkNode>;
@@ -650,41 +712,41 @@ export interface TypeHintNode {
      * @summary 类型名（可选）
      * @desc 由 @type 注解指定的类型名
      */
-    get type(): IC10Utils.Optional<string>;
+    readonly type: IC10Utils.Optional<string>;
 
     /**
      * @summary 描述（可选）
      * @desc 由 @desc 注解指定的描述（链接或文本）
      */
-    get desc(): IC10Utils.Optional<string>;
+    readonly desc: IC10Utils.Optional<string>;
 
     /**
      * @summary 内置常量标记（可选）
      * @desc 由 @builtin 注解标记，用于将 define 字符串解析为预定义常量
      */
-    get builtin(): IC10Utils.Optional<boolean>;
+    readonly builtin: IC10Utils.Optional<boolean>;
 }
 
 export interface AliasDirectiveNode extends ASTNode {
-    get nodeName(): "AliasDirective";
+    readonly nodeName: "AliasDirective";
 
     /**
      * @summary 别名标识符
      * @desc 别名的名称，用于在后续代码中引用
      */
-    get identifier(): AliasDef;
+    readonly identifier: AliasDef;
 
     /**
      * @summary 被绑定的寄存器或设备
      * @desc 实际的目标，可以是寄存器或设备
      */
-    get registerOrDevice(): RegOrDev;
+    readonly registerOrDevice: RegOrDev;
 
     /**
      * @summary 类型提示（可选）
      * @desc 由 `#: @type ... @desc ... @builtin` 类型提示解析而来
      */
-    get typeHint(): IC10Utils.Optional<TypeHintNode>;
+    readonly typeHint: IC10Utils.Optional<TypeHintNode>;
 }
 
 
@@ -713,26 +775,26 @@ export interface AliasDirectiveNode extends ASTNode {
  * @public
  */
 export interface DefineDirectiveNode extends ASTNode {
-    get nodeName(): "DefineDirective";
+    readonly nodeName: "DefineDirective";
 
     /**
      * @summary 常量标识符
      * @desc 常量的名称
      */
-    get identifier(): ConstDef;
+    readonly identifier: ConstDef;
 
     /**
      * @summary 常量数值
      * @desc 仅接受数值字面量（Integer/Float/HexNumber/BinaryNumber），
      *       或经 @builtin 由字符串解析得到的浮点常量
      */
-    get operand(): ConstNum;
+    readonly operand: ConstNum;
 
     /**
      * @summary 类型提示（可选）
      * @desc 由 `#: @type ... @desc ... @builtin` 类型提示解析而来
      */
-    get typeHint(): IC10Utils.Optional<TypeHintNode>;
+    readonly typeHint: IC10Utils.Optional<TypeHintNode>;
 }
 
 
@@ -743,7 +805,7 @@ export interface DefineDirectiveNode extends ASTNode {
  *
  * @public
  */
-export type PreprocessorDirective = ErrorNode<
+export type PreprocessorDirective = Errorable<
     AliasDirectiveNode
     | DefineDirectiveNode
 >;
@@ -780,55 +842,55 @@ export type PreprocessorDirective = ErrorNode<
  * @public
  */
 export interface LabelDefNode extends ASTNode {
-    type: "LabelDef";
+    readonly nodeName: "LabelDef";
     /**
      * @summary 标签标识符
      * @desc 标签的名称，用于作为跳转目标
      */
-    identifier: IdentifierNode;
+    readonly identifier: IdentifierNode;
 }
 
 
 export interface NullaryInstructionNode extends ASTNode {
-    get nodeName(): `${string}Instruction`;
+    readonly nodeName: `${string}Instruction`;
 
-    get keyword(): string;
+    readonly keyword: string;
 }
 
 export interface UnaryInstructionNode extends NullaryInstructionNode {
-    get operand1(): Operand;
+    readonly operand1: Operand;
 
-    get type1(): OperandType;
+    readonly type1: OperandType;
 }
 
 export interface BinaryInstructionNode extends UnaryInstructionNode {
-    get operand2(): Operand;
+    readonly operand2: Operand;
 
-    get type2(): OperandType;
+    readonly type2: OperandType;
 }
 
 export interface TernaryInstructionNode extends BinaryInstructionNode {
-    get operand3(): Operand;
+    readonly operand3: Operand;
 
-    get type3(): OperandType;
+    readonly type3: OperandType;
 }
 
 export interface QuaternaryInstructionNode extends TernaryInstructionNode {
-    get operand4(): Operand;
+    readonly operand4: Operand;
 
-    get type4(): OperandType;
+    readonly type4: OperandType;
 }
 
 export interface QuinaryInstructionNode extends QuaternaryInstructionNode {
-    get operand5(): Operand;
+    readonly operand5: Operand;
 
-    get type5(): OperandType;
+    readonly type5: OperandType;
 }
 
 export interface SenaryInstructionNode extends QuinaryInstructionNode {
-    get operand6(): SenaryInstructionNode;
+    readonly operand6: SenaryInstructionNode;
 
-    get type6(): OperandType;
+    readonly type6: OperandType;
 }
 
 /**
@@ -849,34 +911,34 @@ export type ExecutableInstruction = Errorable<NullaryInstructionNode | UnaryInst
 
 
 export interface EnumAnnotationValue extends ASTNode {
-    get nodeName(): "EnumAnnotationValue";
+    readonly nodeName: "EnumAnnotationValue";
 
-    get tag(): "value";
+    readonly tag: "value";
 
-    get name(): string;
+    readonly name: string;
 
-    get value(): string;
+    readonly value: string;
 
-    get desc(): IC10Utils.Optional<Description>;
+    readonly desc: IC10Utils.Optional<Description>;
 }
 
 /** 枚举注解（对应 C++ `ic10::EnumAnnotation`，由 `#> @enum ... #> @end-enum` 定义） */
 export interface EnumAnnotation extends ASTNode {
-    get nodeName(): "EnumAnnotation";
+    readonly nodeName: "EnumAnnotation";
 
-    get name(): string;
+    readonly name: string;
 
-    get desc(): IC10Utils.Optional<Description>;
+    readonly desc: IC10Utils.Optional<Description>;
 
-    get values(): EnumAnnotationValue[];
+    readonly values: EnumAnnotationValue[];
 }
 
 interface TypeAnnotationLineBase<N extends string, T extends string> extends ASTNode {
-    get nodeName(): N;
+    readonly nodeName: N;
 
-    get tag(): T;
+    readonly tag: T;
 
-    get value(): string;
+    readonly value: string;
 }
 
 export type DeviceAnnotationLogic = TypeAnnotationLineBase<"DeviceAnnotationLogic", "logic">;
@@ -891,24 +953,24 @@ export type DeviceAnnotationReagentHash = TypeAnnotationLineBase<"DeviceAnnotati
 
 export type DeviceAnnotationSlot = TypeAnnotationLineBase<"DeviceAnnotationSlot", "slot">;
 
-export interface DeviceAnnotation {
-    get nodeName(): "DeviceAnnotation";
+export interface DeviceAnnotation extends ASTNode {
+    readonly nodeName: "DeviceAnnotation";
 
-    get name(): string;
+    readonly name: string;
 
-    get desc(): IC10Utils.Optional<Description>;
+    readonly desc: IC10Utils.Optional<Description>;
 
-    get deviceHash(): IC10Utils.Optional<DeviceAnnotationDeviceHash>;
+    readonly deviceHash: IC10Utils.Optional<DeviceAnnotationDeviceHash>;
 
-    get nameHash(): IC10Utils.Optional<DeviceAnnotationNameHash>;
+    readonly nameHash: IC10Utils.Optional<DeviceAnnotationNameHash>;
 
-    get lgoics(): DeviceAnnotationLogic[];
+    readonly logics: DeviceAnnotationLogic[];
 
-    get logicSlots(): DeviceAnnotationLogicSlot[];
+    readonly logicSlots: DeviceAnnotationLogicSlot[];
 
-    get slots(): DeviceAnnotationSlot[];
+    readonly slots: DeviceAnnotationSlot[];
 
-    get reagentHash(): DeviceAnnotationReagentHash[];
+    readonly reagentHash: DeviceAnnotationReagentHash[];
 }
 
 export type TypeAnnotation = Errorable<DeviceAnnotation | EnumAnnotation>;
