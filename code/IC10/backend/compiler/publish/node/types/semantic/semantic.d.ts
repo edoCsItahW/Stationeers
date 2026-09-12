@@ -13,9 +13,8 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {BasicType} from "./types";
-import {TypeCategory} from "./types";
-import {Description} from "./type_table";
+import {BasicType, TypeCategory} from "./types";
+import {Description} from "../parser";
 
 
 /**
@@ -74,6 +73,7 @@ export interface Symbol {
     value?: string;
     /** 描述信息（可选，链接或文本） */
     desc?: Description;
+    builtin: boolean;
 }
 
 

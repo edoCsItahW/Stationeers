@@ -38,7 +38,7 @@ AirControl:
                 zh: 离线
                 en: Offline
             type: Constant
-            value: null
+            value: 1
         Pressure:
             desc:
                 zh: 压力
@@ -74,7 +74,7 @@ Color:
                 zh: 灰色
                 en: Gray
             type: Constant
-            value: null
+            value: 1
         Green:
             desc:
                 zh: 绿色
@@ -104,7 +104,7 @@ Color:
                 zh: 紫色
                 en: Purple
             type: Constant
-            value: null
+            value: 11
         Red:
             desc:
                 zh: 红色
@@ -194,25 +194,25 @@ DisplayMode:
                 zh: 开尔文
                 en: Kelvin
             type: Constant
-            value: null
+            value: 3
         Litres:
             desc:
                 zh: 升
                 en: Litres
             type: Constant
-            value: null
+            value: 12
         Meters:
             desc:
                 zh: 米
                 en: Meters
             type: Constant
-            value: null
+            value: 5
         Minutes:
             desc:
                 zh: 分钟
                 en: Minutes
             type: Constant
-            value: null
+            value: 8
         Mol:
             desc:
                 zh: 摩尔
@@ -242,19 +242,19 @@ DisplayMode:
                 zh: 功率
                 en: Power
             type: Constant
-            value: null
+            value: 2
         Seconds:
             desc:
                 zh: 秒
                 en: Seconds
             type: Constant
-            value: null
+            value: 7
         String:
             desc:
                 zh: 字符串
                 en: String
             type: Constant
-            value: null
+            value: 10
 
 ElevatorMode:
     desc:
@@ -266,7 +266,7 @@ ElevatorMode:
                 zh: 向下
                 en: Downward
             type: Constant
-            value: null
+            value: 2
         Stationary:
             desc:
                 zh: 静止
@@ -572,25 +572,25 @@ LogicSlotType:
                 zh: 成熟比
                 en: Maturity Ratio
             type: Constant
-            value: null
+            value: 29
         MaxQuantity:
             desc:
                 zh: 最大数量
                 en: Max Quantity
             type: Constant
-            value: null
+            value: 15
         Mode:
             desc:
                 zh: 模式
                 en: Mode
             type: Constant
-            value: null
+            value: 28
         None:
             desc:
                 zh: 无
                 en: None
             type: Constant
-            value: null
+            value: 0
         OccupantHash:
             desc:
                 zh: 占用者哈希
@@ -842,25 +842,25 @@ LogicType:
                 zh: 清除内存
                 en: Clear Memory
             type: Constant
-            value: null
+            value: 62
         CollectableGoods:
             desc:
                 zh: 可收集物品
                 en: Collectable Goods
             type: Constant
-            value: null
+            value: 101
         Color:
             desc:
                 zh: 颜色
                 en: Color
             type: Constant
-            value: null
+            value: 38
         Combustion:
             desc:
                 zh: 燃烧
                 en: Combustion
             type: Constant
-            value: null
+            value: 98
         CombustionInput:
             desc:
                 zh: 燃烧输入
@@ -1226,7 +1226,7 @@ LogicType:
                 zh: 打开
                 en: Open
             type: Constant
-            value: null
+            value: 2
         OperationalTemperatureEfficiency:
             desc:
                 zh: 操作温度效率
@@ -1394,25 +1394,25 @@ LogicType:
                 zh: 比率
                 en: Ratio
             type: Constant
-            value: null
+            value: 24
         RatioCarbonDioxide:
             desc:
                 zh: 二氧化碳比率
                 en: Carbon Dioxide Ratio
             type: Constant
-            value: null
+            value: 15
         RatioCarbonDioxideInput:
             desc:
                 zh: 二氧化碳输入比率
                 en: Carbon Dioxide Input Ratio
             type: Constant
-            value: null
+            value: 109
         RatioCarbonDioxideInput2:
             desc:
                 zh: 二氧化碳输入比率2
                 en: Carbon Dioxide Input Ratio 2
             type: Constant
-            value: null
+            value: 119
         RatioCarbonDioxideOutput:
             desc:
                 zh: 二氧化碳输出比率
@@ -1788,25 +1788,25 @@ LogicType:
                 zh: 挥发物输入比率2
                 en: Volatiles Input Ratio 2
             type: Constant
-            value: null
+            value: 122
         RatioVolatilesOutput:
             desc:
                 zh: 挥发物输出比率
                 en: Volatiles Output Ratio
             type: Constant
-            value: null
+            value: 132
         RatioVolatilesOutput2:
             desc:
                 zh: 挥发物输出比率2
                 en: Volatiles Output Ratio 2
             type: Constant
-            value: null
+            value: 142
         RatioWater:
             desc:
                 zh: 水比率
                 en: Water Ratio
             type: Constant
-            value: null
+            value: 19
         RatioWaterInput:
             desc:
                 zh: 水输入比率
@@ -3032,19 +3032,19 @@ Sound:
                 zh: 危险
                 en: Danger
             type: Constant
-            value: null
+            value: 15
         Depressurising:
             desc:
                 zh: 减压中
                 en: Depressurising
             type: Constant
-            value: null
+            value: 20
         FireFireFire:
             desc:
                 zh: 火警
                 en: Fire Fire Fire
             type: Constant
-            value: null
+            value: 28
         Five:
             desc:
                 zh: 五

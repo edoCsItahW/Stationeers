@@ -13,11 +13,11 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import {LabelDefNode, PreprocessorDirective, ExecutableInstruction, Errorable, ErrorNode} from "./ast";
+import {LabelDefNode, PreprocessorDirective, ExecutableInstruction, TypeAnnotation, Errorable, ErrorNode} from "./ast";
 import {Pos} from "../common";
 
 
-export type PureExeInstructionNode = Exclude<ExecutableInstructionNode, ErrorNode>;
+export type PureExeInstructionNode = Exclude<ExecutableInstruction, ErrorNode>;
 
 
 export type Statement = Errorable<ExecutableInstruction

@@ -157,6 +157,8 @@ namespace stationeers::ic10 {
 
         std::vector<std::string> inferredTypes = {};
 
+        bool isBuiltin = false;
+
         /**
          * @if zh
          *

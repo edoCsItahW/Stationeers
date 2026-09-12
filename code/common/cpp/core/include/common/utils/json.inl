@@ -71,6 +71,10 @@ namespace stationeers {
             if (value.has_value()) return fmt(std::string(*value));
         }
 
+        // bool 亦满足 is_arithmetic_v，必须先单独处理，否则会经 std::to_string 输出 1/0
+        else if constexpr (std::is_same_v<U, bool>)
+            return value ? "true" : "false";
+
         else if constexpr (std::is_arithmetic_v<U>)
             return std::to_string(value);
 
