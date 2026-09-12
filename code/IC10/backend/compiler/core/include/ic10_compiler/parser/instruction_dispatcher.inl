@@ -3,8 +3,27 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/08/28 16:21
- * @brief
+ * @if zh
+ * @brief 指令关键字到 AST 节点的运行时分派实现
+ * @details 实现 @ref dispatch：以 @c std::index_sequence 在编译期展开全部 @ref InstructionKeyword 取值，构造出覆盖所有指令节点的返回变体，再按运行时的关键字取值取出对应节点的回调结果。
+ *          全部取值均不匹配时返回空的 @c std::optional，而非抛出异常。
+ *
+ * @note 该展开同时充当穷尽性校验：新增指令关键字而未提供对应的 @c InstructionMapper 特化时，此处会直接编译失败。
+ * @see instruction_dispatcher.hpp 分派接口声明
+ * @see instructions.hpp 指令节点定义
+ *
  * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @elseif en
+ * @brief Runtime dispatch from instruction keyword to AST node
+ * @details Implements @ref dispatch: a @c std::index_sequence expands every @ref InstructionKeyword value at compile time to build the return variant covering all instruction nodes, then the runtime keyword selects the matching node's callback result.
+ *          When no value matches it returns an empty @c std::optional rather than throwing.
+ *
+ * @note The expansion doubles as an exhaustiveness check: adding an instruction keyword without a matching @c InstructionMapper specialization fails to compile right here.
+ * @see instruction_dispatcher.hpp dispatch interface
+ * @see instructions.hpp instruction node definitions
+ *
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
  * */
 #ifndef IC10_COMPILER_CORE_INSTRUCTION_DISPATCHER_INL
 #define IC10_COMPILER_CORE_INSTRUCTION_DISPATCHER_INL

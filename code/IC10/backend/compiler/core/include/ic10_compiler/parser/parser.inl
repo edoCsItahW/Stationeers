@@ -10,8 +10,31 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/08/28 21:30
- * @brief
+ * @if zh
+ * @brief @ref Parser 匹配设施的模板实现
+ * @details 实现 @ref Parser 的模板匹配接口 @c match、@c matchFirst、@c matchArray、@c matchOperand、@c matchVariant、@c matchPredicate、@c isMatch 与 @c isAnyMatch。
+ *          这些接口把"尝试解析某一类 AST 节点"的样板集中到一处：依次比对候选类型的 FIRST 首部序列，命中且通过 @c NodeParser<T>::is 前瞻后才真正调用解析器写入结果，调用方无需自行保存与恢复 Token 游标。
+ *
+ * @note @c match 按候选类型的逆序尝试（与原型的 @c reversed(types) 一致）；全部候选均不匹配时消费一个 Token、报告 IEP34_1，并产出类型名以 @c | 连接的 @c ErrorNode 而非抛异常，使语法分析得以在错误之后继续。
+ * @note @c matchArray 会捕获 @c NodeParser<T>::parse 抛出的 @ref Error 并转换为 @c ErrorNode，因此单个节点的解析失败不会中断整棵语法树的构建。
+ *
+ * @see parser.hpp @ref Parser 声明
+ * @see node_parser.hpp 各节点的解析器
+ *
  * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @elseif en
+ * @brief Template implementation of the @ref Parser matching facilities
+ * @details Implements @ref Parser's template matching interface: @c match, @c matchFirst, @c matchArray, @c matchOperand, @c matchVariant, @c matchPredicate, @c isMatch and @c isAnyMatch.
+ *          They gather the "try to parse one kind of AST node" boilerplate into one place: candidate types are probed against their FIRST head sequences, and only a hit that also passes the @c NodeParser<T>::is lookahead actually invokes the parser and writes the result, so callers never save and restore the token cursor themselves.
+ *
+ * @note @c match probes candidate types in reverse order (matching the @c reversed(types) prototype); when nothing matches it consumes one token, reports IEP34_1 and yields an @c ErrorNode whose type names are joined with @c | instead of throwing, so parsing continues past the error.
+ * @note @c matchArray catches the @ref Error thrown by @c NodeParser<T>::parse and converts it into an @c ErrorNode, so one failing node does not abort construction of the whole syntax tree.
+ *
+ * @see parser.hpp @ref Parser declaration
+ * @see node_parser.hpp per-node parsers
+ *
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
  * */
 #ifndef IC10_COMPILER_CORE_PARSER_INL
 #define IC10_COMPILER_CORE_PARSER_INL

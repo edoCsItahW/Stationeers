@@ -10,8 +10,27 @@
  * @author edocsitahw
  * @version 1.1
  * @date 2026/06/06 22:32
- * @brief
+ * @if zh
+ * @brief AST 节点基类的模板实现
+ * @details 实现 @ref AST 与 @c LeafNode 两个模板基类共用的序列化与定位设施：@c process 把变体、可选值、字符串与算术类型统一归约为 JSON 片段，@c seqJSON 拼接 JSON 数组，@c jsonBase 组装 @c nodeName/@c position/@c end 前缀；@c LeafNode::end() 对字符串值按内容长度推进结束位置，其他值退化为起始位置。
+ *          所有具体节点都复用这些设施，因此 JSON 输出的整体形状在此处统一，而非散落在各节点实现中。
+ *
+ * @note @c jsonBase 对算术类型刻意保持原类型而不转成字符串，使 @c toJson 能走 @c std::is_arithmetic_v 分支输出 JSON 数字，而不是带引号的字符串。
+ *
+ * @see node.hpp AST 节点声明
+ *
  * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @elseif en
+ * @brief Template implementation of the AST node base classes
+ * @details Implements the serialization and position facilities shared by the @ref AST and @c LeafNode template bases: @c process reduces variants, optionals, strings and arithmetic types to JSON fragments, @c seqJSON joins a JSON array, and @c jsonBase assembles the @c nodeName/@c position/@c end prefix; @c LeafNode::end() advances the end position by the string value's length and falls back to the start position for any other value.
+ *          Every concrete node reuses these, so the overall shape of the JSON output is defined here rather than scattered across node implementations.
+ *
+ * @note @c jsonBase deliberately preserves arithmetic types instead of stringifying them, so @c toJson takes its @c std::is_arithmetic_v branch and emits a JSON number rather than a quoted string.
+ *
+ * @see node.hpp AST node declarations
+ *
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
  * */
 #ifndef IC10_COMPILER_CORE_NODE_INL
 #define IC10_COMPILER_CORE_NODE_INL
