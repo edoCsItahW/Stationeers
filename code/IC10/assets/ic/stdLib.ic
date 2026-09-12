@@ -10,7 +10,7 @@
 #> @desc ./locals/enums.AirControl.desc
 #> @value Draught 4 ./locals/enums.AirControl.enums.Draught.desc
 #> @value None 0 ./locals/enums.AirControl.enums.None.desc
-#> @value Offline None ./locals/enums.AirControl.enums.Offline.desc
+#> @value Offline 1 ./locals/enums.AirControl.enums.Offline.desc
 #> @value Pressure 2 ./locals/enums.AirControl.enums.Pressure.desc
 #> @end-enum
 
@@ -20,12 +20,12 @@
 #> @value Black 7 ./locals/enums.Color.enums.Black.desc
 #> @value Blue 0 ./locals/enums.Color.enums.Blue.desc
 #> @value Brown 8 ./locals/enums.Color.enums.Brown.desc
-#> @value Gray None ./locals/enums.Color.enums.Gray.desc
+#> @value Gray 1 ./locals/enums.Color.enums.Gray.desc
 #> @value Green 2 ./locals/enums.Color.enums.Green.desc
 #> @value Khaki 9 ./locals/enums.Color.enums.Khaki.desc
 #> @value Orange 3 ./locals/enums.Color.enums.Orange.desc
 #> @value Pink 10 ./locals/enums.Color.enums.Pink.desc
-#> @value Purple None ./locals/enums.Color.enums.Purple.desc
+#> @value Purple 11 ./locals/enums.Color.enums.Purple.desc
 #> @value Red 4 ./locals/enums.Color.enums.Red.desc
 #> @value White 6 ./locals/enums.Color.enums.White.desc
 #> @value Yellow 5 ./locals/enums.Color.enums.Yellow.desc
@@ -57,23 +57,23 @@
 #> @value Default 0 ./locals/enums.DisplayMode.enums.Default.desc
 #> @value Degrees 16 ./locals/enums.DisplayMode.enums.Degrees.desc
 #> @value Fahrenheit 11 ./locals/enums.DisplayMode.enums.Fahrenheit.desc
-#> @value Kelvin None ./locals/enums.DisplayMode.enums.Kelvin.desc
-#> @value Litres None ./locals/enums.DisplayMode.enums.Litres.desc
-#> @value Meters None ./locals/enums.DisplayMode.enums.Meters.desc
-#> @value Minutes None ./locals/enums.DisplayMode.enums.Minutes.desc
+#> @value Kelvin 3 ./locals/enums.DisplayMode.enums.Kelvin.desc
+#> @value Litres 12 ./locals/enums.DisplayMode.enums.Litres.desc
+#> @value Meters 5 ./locals/enums.DisplayMode.enums.Meters.desc
+#> @value Minutes 8 ./locals/enums.DisplayMode.enums.Minutes.desc
 #> @value Mol 13 ./locals/enums.DisplayMode.enums.Mol.desc
 #> @value Newtons 15 ./locals/enums.DisplayMode.enums.Newtons.desc
 #> @value Pa 14 ./locals/enums.DisplayMode.enums.Pa.desc
 #> @value Percent 1 ./locals/enums.DisplayMode.enums.Percent.desc
-#> @value Power None ./locals/enums.DisplayMode.enums.Power.desc
-#> @value Seconds None ./locals/enums.DisplayMode.enums.Seconds.desc
-#> @value String None ./locals/enums.DisplayMode.enums.String.desc
+#> @value Power 2 ./locals/enums.DisplayMode.enums.Power.desc
+#> @value Seconds 7 ./locals/enums.DisplayMode.enums.Seconds.desc
+#> @value String 10 ./locals/enums.DisplayMode.enums.String.desc
 #> @end-enum
 
 #> @enum
 #> @name ElevatorMode
 #> @desc ./locals/enums.ElevatorMode.desc
-#> @value Downward None ./locals/enums.ElevatorMode.enums.Downward.desc
+#> @value Downward 2 ./locals/enums.ElevatorMode.enums.Downward.desc
 #> @value Stationary 0 ./locals/enums.ElevatorMode.enums.Stationary.desc
 #> @value Upward 1 ./locals/enums.ElevatorMode.enums.Upward.desc
 #> @end-enum
@@ -135,10 +135,10 @@
 #> @value LineNumber 19 ./locals/enums.LogicSlotType.enums.LineNumber.desc
 #> @value Lock 23 ./locals/enums.LogicSlotType.enums.Lock.desc
 #> @value Mature 16 ./locals/enums.LogicSlotType.enums.Mature.desc
-#> @value MaturityRatio None ./locals/enums.LogicSlotType.enums.MaturityRatio.desc
-#> @value MaxQuantity None ./locals/enums.LogicSlotType.enums.MaxQuantity.desc
-#> @value Mode None ./locals/enums.LogicSlotType.enums.Mode.desc
-#> @value None None ./locals/enums.LogicSlotType.enums.None.desc
+#> @value MaturityRatio 29 ./locals/enums.LogicSlotType.enums.MaturityRatio.desc
+#> @value MaxQuantity 15 ./locals/enums.LogicSlotType.enums.MaxQuantity.desc
+#> @value Mode 28 ./locals/enums.LogicSlotType.enums.Mode.desc
+#> @value None 0 ./locals/enums.LogicSlotType.enums.None.desc
 #> @value OccupantHash 2 ./locals/enums.LogicSlotType.enums.OccupantHash.desc
 #> @value Occupled 1 ./locals/enums.LogicSlotType.enums.Occupled.desc
 #> @value true 22 ./locals/enums.LogicSlotType.enums.True.desc
@@ -184,10 +184,10 @@
 #> @value Charge 11 ./locals/enums.LogicType.enums.Charge.desc
 #> @value Chart 256 ./locals/enums.LogicType.enums.Chart.desc
 #> @value ChartedNavPoints 259 ./locals/enums.LogicType.enums.ChartedNavPoints.desc
-#> @value ClearMemory None ./locals/enums.LogicType.enums.ClearMemory.desc
-#> @value CollectableGoods None ./locals/enums.LogicType.enums.CollectableGoods.desc
-#> @value Color None ./locals/enums.LogicType.enums.Color.desc
-#> @value Combustion None ./locals/enums.LogicType.enums.Combustion.desc
+#> @value ClearMemory 62 ./locals/enums.LogicType.enums.ClearMemory.desc
+#> @value CollectableGoods 101 ./locals/enums.LogicType.enums.CollectableGoods.desc
+#> @value Color 38 ./locals/enums.LogicType.enums.Color.desc
+#> @value Combustion 98 ./locals/enums.LogicType.enums.Combustion.desc
 #> @value CombustionInput 146 ./locals/enums.LogicType.enums.CombustionInput.desc
 #> @value CombustionInput2 147 ./locals/enums.LogicType.enums.CombustionInput2.desc
 #> @value CombustionLimiter 153 ./locals/enums.LogicType.enums.CombustionLimiter.desc
@@ -248,7 +248,7 @@
 #> @value NextWeatherEventTime 97 ./locals/enums.LogicType.enums.NextWeatherEventTime.desc
 #> @value NextWeatherHash 281 ./locals/enums.LogicType.enums.NextWeatherHash.desc
 #> @value true 28 ./locals/enums.LogicType.enums.True.desc
-#> @value Open None ./locals/enums.LogicType.enums.Open.desc
+#> @value Open 2 ./locals/enums.LogicType.enums.Open.desc
 #> @value OperationalTemperatureEfficiency 150 ./locals/enums.LogicType.enums.OperationalTemperatureEfficiency.desc
 #> @value OrbitPeriod 245 ./locals/enums.LogicType.enums.OrbitPeriod.desc
 #> @value Orientation 230 ./locals/enums.LogicType.enums.Orientation.desc
@@ -276,10 +276,10 @@
 #> @value Progress 214 ./locals/enums.LogicType.enums.Progress.desc
 #> @value ProportionalGain 274 ./locals/enums.LogicType.enums.ProportionalGain.desc
 #> @value Quantity 27 ./locals/enums.LogicType.enums.Quantity.desc
-#> @value Ratio None ./locals/enums.LogicType.enums.Ratio.desc
-#> @value RatioCarbonDioxide None ./locals/enums.LogicType.enums.RatioCarbonDioxide.desc
-#> @value RatioCarbonDioxideInput None ./locals/enums.LogicType.enums.RatioCarbonDioxideInput.desc
-#> @value RatioCarbonDioxideInput2 None ./locals/enums.LogicType.enums.RatioCarbonDioxideInput2.desc
+#> @value Ratio 24 ./locals/enums.LogicType.enums.Ratio.desc
+#> @value RatioCarbonDioxide 15 ./locals/enums.LogicType.enums.RatioCarbonDioxide.desc
+#> @value RatioCarbonDioxideInput 109 ./locals/enums.LogicType.enums.RatioCarbonDioxideInput.desc
+#> @value RatioCarbonDioxideInput2 119 ./locals/enums.LogicType.enums.RatioCarbonDioxideInput2.desc
 #> @value RatioCarbonDioxideOutput 129 ./locals/enums.LogicType.enums.RatioCarbonDioxideOutput.desc
 #> @value RatioCarbonDioxideOutput2 139 ./locals/enums.LogicType.enums.RatioCarbonDioxideOutput2.desc
 #> @value RatioHydrogen 252 ./locals/enums.LogicType.enums.RatioHydrogen.desc
@@ -341,10 +341,10 @@
 #> @value RatioSteamOutput2 197 ./locals/enums.LogicType.enums.RatioSteamOutput2.desc
 #> @value RatioVolatiles 18 ./locals/enums.LogicType.enums.RatioVolatiles.desc
 #> @value RatioVolatilesInput 112 ./locals/enums.LogicType.enums.RatioVolatilesInput.desc
-#> @value RatioVolatilesInput2 None ./locals/enums.LogicType.enums.RatioVolatilesInput2.desc
-#> @value RatioVolatilesOutput None ./locals/enums.LogicType.enums.RatioVolatilesOutput.desc
-#> @value RatioVolatilesOutput2 None ./locals/enums.LogicType.enums.RatioVolatilesOutput2.desc
-#> @value RatioWater None ./locals/enums.LogicType.enums.RatioWater.desc
+#> @value RatioVolatilesInput2 122 ./locals/enums.LogicType.enums.RatioVolatilesInput2.desc
+#> @value RatioVolatilesOutput 132 ./locals/enums.LogicType.enums.RatioVolatilesOutput.desc
+#> @value RatioVolatilesOutput2 142 ./locals/enums.LogicType.enums.RatioVolatilesOutput2.desc
+#> @value RatioWater 19 ./locals/enums.LogicType.enums.RatioWater.desc
 #> @value RatioWaterInput 113 ./locals/enums.LogicType.enums.RatioWaterInput.desc
 #> @value RatioWaterInput2 123 ./locals/enums.LogicType.enums.RatioWaterInput2.desc
 #> @value RatioWaterOutput 133 ./locals/enums.LogicType.enums.RatioWaterOutput.desc
@@ -592,9 +592,9 @@
 #> @value Alarm8 10 ./locals/enums.Sound.enums.Alarm8.desc
 #> @value Alarm9 11 ./locals/enums.Sound.enums.Alarm9.desc
 #> @value Alert 17 ./locals/enums.Sound.enums.Alert.desc
-#> @value Danger None ./locals/enums.Sound.enums.Danger.desc
-#> @value Depressurising None ./locals/enums.Sound.enums.Depressurising.desc
-#> @value FireFireFire None ./locals/enums.Sound.enums.FireFireFire.desc
+#> @value Danger 15 ./locals/enums.Sound.enums.Danger.desc
+#> @value Depressurising 20 ./locals/enums.Sound.enums.Depressurising.desc
+#> @value FireFireFire 28 ./locals/enums.Sound.enums.FireFireFire.desc
 #> @value Five 33 ./locals/enums.Sound.enums.Five.desc
 #> @value Floor 34 ./locals/enums.Sound.enums.Floor.desc
 #> @value Four 32 ./locals/enums.Sound.enums.Four.desc
@@ -681,12 +681,12 @@
 #> @value Sum 1
 #> @end-enum
 
-
-#> @device
-#> @name TestDevice
-#> @desc 测试设备
-#> @end-device
-
-define ra 1  #: @type __register__ @desc 返回地址寄存器，专门用于存储子程序（函数）的返回地址。
-define db 2  #: @type __device__ @desc 自身设备引脚，始终指向 IC10 芯片当前所在的设备。
-define sp 3  #：@type __register__ @desc 栈指针寄存器，管理芯片内部的 512 个栈内存单元。
+define rgas    "rags"     #: @builtin
+define deg2rad "deg2rad"  #: @builtin
+define tau     "tau"      #: @builtin
+define epsilon "epsilon"  #: @builtin
+define nan     "nan"      #: @builtin
+define pinf    "pinf"     #: @builtin
+define ninf    "ninf"     #: @builtin
+define pi      "pi"       #: @builtin
+define rad2deg "rad2deg"  #: @builtin
