@@ -1197,78 +1197,78 @@
                 "type": "Constant",
                 "value": 199
             },
-            "Ratiol.iquidCarbonDioxideInput": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideInput.desc",
+            "RatioLiquidCarbonDioxideInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput.desc",
                 "type": "Constant",
                 "value": 200
             },
-            "Ratiol.iquidCarbonDioxideInput2": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideInput2.desc",
+            "RatioLiquidCarbonDioxideInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput2.desc",
                 "type": "Constant",
                 "value": 201
             },
-            "Ratiol.iquidCarbonDioxideOutput": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideOutput.desc",
+            "RatioLiquidCarbonDioxideOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput.desc",
                 "type": "Constant",
                 "value": 202
             },
-            "Ratiol.iquidCarbonDioxideOutput2": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideOutput2.desc",
+            "RatioLiquidCarbonDioxideOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput2.desc",
                 "type": "Constant",
                 "value": 203
             },
-            "Ratiol.iquidNitrogen": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidNitrogen.desc",
+            "RatioLiquidNitrogen": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrogen.desc",
                 "type": "Constant",
                 "value": 253
             },
-            "Ratiol.iquidNitrogenInput": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidNitrogenInput.desc",
+            "RatioLiquidNitrogenInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrogenInput.desc",
                 "type": "Constant",
                 "value": 178
             },
-            "Ratiol.iquidNitrogenInput2": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.iquidNitrogenInput2.desc",
+            "RatioLiquidNitrogenInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrogenInput2.desc",
                 "type": "Constant",
                 "value": 179
             },
-            "Ratiol.IquidNitrogenOutput": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrogenOutput.desc",
+            "RatioLiquidNitrogenOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput.desc",
                 "type": "Constant",
                 "value": 180
             },
-            "Ratiol.IquidNitrogenOutput2": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrogenOutput2.desc",
+            "RatioLiquidNitrogenOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput2.desc",
                 "type": "Constant",
                 "value": 181
             },
-            "Ratiol.IquidNitrousOxide": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxide.desc",
+            "RatioLiquidNitrousOxide": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrousOxide.desc",
                 "type": "Constant",
                 "value": 209
             },
-            "Ratiol.IquidNitrousOxideInput": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideInput.desc",
+            "RatioLiquidNitrousOxideInput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput.desc",
                 "type": "Constant",
                 "value": 210
             },
-            "Ratiol.IquidNitrousOxideInput2": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideInput2.desc",
+            "RatioLiquidNitrousOxideInput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput2.desc",
                 "type": "Constant",
                 "value": 211
             },
-            "Ratiol.IquidNitrousOxideOutput": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideOutput.desc",
+            "RatioLiquidNitrousOxideOutput": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput.desc",
                 "type": "Constant",
                 "value": 212
             },
-            "Ratiol.IquidNitrousOxideOutput2": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideOutput2.desc",
+            "RatioLiquidNitrousOxideOutput2": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput2.desc",
                 "type": "Constant",
                 "value": 213
             },
-            "Ratiol.IquidOxygen": {
-                "desc": "$./locals/enums.LogicType.enums.Ratiol.IquidOxygen.desc",
+            "RatioLiquidOxygen": {
+                "desc": "$./locals/enums.LogicType.enums.RatioLiquidOxygen.desc",
                 "type": "Constant",
                 "value": 183
             },

@@ -4,7 +4,7 @@
 #> @value Cold 0 ./locals/enums.AirCon.enums.Cold.desc
 #> @value Hot 1 ./locals/enums.AirCon.enums.Hot.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name AirControl
 #> @desc ./locals/enums.AirControl.desc
@@ -13,7 +13,7 @@
 #> @value Offline 1 ./locals/enums.AirControl.enums.Offline.desc
 #> @value Pressure 2 ./locals/enums.AirControl.enums.Pressure.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name Color
 #> @desc ./locals/enums.Color.desc
@@ -30,7 +30,7 @@
 #> @value White 6 ./locals/enums.Color.enums.White.desc
 #> @value Yellow 5 ./locals/enums.Color.enums.Yellow.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name CompareOperator
 #> @desc ./locals/enums.CompareOperator.desc
@@ -39,7 +39,7 @@
 #> @value Less 2 ./locals/enums.CompareOperator.enums.Less.desc
 #> @value NotEquals 3 ./locals/enums.CompareOperator.enums.NotEquals.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name DaylightsensorMode
 #> @desc ./locals/enums.DaylightsensorMode.desc
@@ -47,7 +47,7 @@
 #> @value Horizontal 1 ./locals/enums.DaylightsensorMode.enums.Horizontal.desc
 #> @value Vertical 2 ./locals/enums.DaylightsensorMode.enums.Vertical.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name DisplayMode
 #> @desc ./locals/enums.DisplayMode.desc
@@ -69,7 +69,7 @@
 #> @value Seconds 7 ./locals/enums.DisplayMode.enums.Seconds.desc
 #> @value String 10 ./locals/enums.DisplayMode.enums.String.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name ElevatorMode
 #> @desc ./locals/enums.ElevatorMode.desc
@@ -77,7 +77,7 @@
 #> @value Stationary 0 ./locals/enums.ElevatorMode.enums.Stationary.desc
 #> @value Upward 1 ./locals/enums.ElevatorMode.enums.Upward.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name EntityState
 #> @desc ./locals/enums.EntityState.desc
@@ -86,7 +86,7 @@
 #> @value Decay 3 ./locals/enums.EntityState.enums.Decay.desc
 #> @value Unconscious 2 ./locals/enums.EntityState.enums.Unconscious.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name GasType
 #> @desc ./locals/enums.GasType.desc
@@ -111,14 +111,14 @@
 #> @value Volatiles 8 ./locals/enums.GasType.enums.Volatiles.desc
 #> @value Water 32 ./locals/enums.GasType.enums.Water.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name HashType
 #> @desc ./locals/enums.HashType.desc
 #> @value GasLiquid 1 ./locals/enums.HashType.enums.GasLiquid.desc
 #> @value Prefab 0 ./locals/enums.HashType.enums.Prefab.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name LogicSlotType
 #> @desc ./locals/enums.LogicSlotType.desc
@@ -156,7 +156,7 @@
 #> @value TotalSlots 32 ./locals/enums.LogicSlotType.enums.TotalSlots.desc
 #> @value Volume 20 ./locals/enums.LogicSlotType.enums.Volume.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name LogicType
 #> @desc ./locals/enums.LogicType.desc
@@ -284,21 +284,21 @@
 #> @value RatioCarbonDioxideOutput2 139 ./locals/enums.LogicType.enums.RatioCarbonDioxideOutput2.desc
 #> @value RatioHydrogen 252 ./locals/enums.LogicType.enums.RatioHydrogen.desc
 #> @value RatioLiquidCarbonDioxide 199 ./locals/enums.LogicType.enums.RatioLiquidCarbonDioxide.desc
-#> @value Ratiol.iquidCarbonDioxideInput 200 ./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideInput.desc
-#> @value Ratiol.iquidCarbonDioxideInput2 201 ./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideInput2.desc
-#> @value Ratiol.iquidCarbonDioxideOutput 202 ./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideOutput.desc
-#> @value Ratiol.iquidCarbonDioxideOutput2 203 ./locals/enums.LogicType.enums.Ratiol.iquidCarbonDioxideOutput2.desc
-#> @value Ratiol.iquidNitrogen 253 ./locals/enums.LogicType.enums.Ratiol.iquidNitrogen.desc
-#> @value Ratiol.iquidNitrogenInput 178 ./locals/enums.LogicType.enums.Ratiol.iquidNitrogenInput.desc
-#> @value Ratiol.iquidNitrogenInput2 179 ./locals/enums.LogicType.enums.Ratiol.iquidNitrogenInput2.desc
-#> @value Ratiol.IquidNitrogenOutput 180 ./locals/enums.LogicType.enums.Ratiol.IquidNitrogenOutput.desc
-#> @value Ratiol.IquidNitrogenOutput2 181 ./locals/enums.LogicType.enums.Ratiol.IquidNitrogenOutput2.desc
-#> @value Ratiol.IquidNitrousOxide 209 ./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxide.desc
-#> @value Ratiol.IquidNitrousOxideInput 210 ./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideInput.desc
-#> @value Ratiol.IquidNitrousOxideInput2 211 ./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideInput2.desc
-#> @value Ratiol.IquidNitrousOxideOutput 212 ./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideOutput.desc
-#> @value Ratiol.IquidNitrousOxideOutput2 213 ./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideOutput2.desc
-#> @value Ratiol.IquidOxygen 183 ./locals/enums.LogicType.enums.Ratiol.IquidOxygen.desc
+#> @value RatioLiquidCarbonDioxideInput 200 ./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput.desc
+#> @value RatioLiquidCarbonDioxideInput2 201 ./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput2.desc
+#> @value RatioLiquidCarbonDioxideOutput 202 ./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput.desc
+#> @value RatioLiquidCarbonDioxideOutput2 203 ./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput2.desc
+#> @value RatioLiquidNitrogen 253 ./locals/enums.LogicType.enums.RatioLiquidNitrogen.desc
+#> @value RatioLiquidNitrogenInput 178 ./locals/enums.LogicType.enums.RatioLiquidNitrogenInput.desc
+#> @value RatioLiquidNitrogenInput2 179 ./locals/enums.LogicType.enums.RatioLiquidNitrogenInput2.desc
+#> @value RatioLiquidNitrogenOutput 180 ./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput.desc
+#> @value RatioLiquidNitrogenOutput2 181 ./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput2.desc
+#> @value RatioLiquidNitrousOxide 209 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxide.desc
+#> @value RatioLiquidNitrousOxideInput 210 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput.desc
+#> @value RatioLiquidNitrousOxideInput2 211 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput2.desc
+#> @value RatioLiquidNitrousOxideOutput 212 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput.desc
+#> @value RatioLiquidNitrousOxideOutput2 213 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput2.desc
+#> @value RatioLiquidOxygen 183 ./locals/enums.LogicType.enums.RatioLiquidOxygen.desc
 #> @value RatioLiquidOxygenInput 184 ./locals/enums.LogicType.enums.RatioLiquidOxygenInput.desc
 #> @value RatioLiquidOxygenInput2 185 ./locals/enums.LogicType.enums.RatioLiquidOxygenInput2.desc
 #> @value RatioLiquidOxygenOutput 186 ./locals/enums.LogicType.enums.RatioLiquidOxygenOutput.desc
@@ -418,7 +418,7 @@
 #> @value Weight 222 ./locals/enums.LogicType.enums.Weight.desc
 #> @value WorkingGasEfficiency 105 ./locals/enums.LogicType.enums.WorkingGasEfficiency.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name PowerMode
 #> @desc ./locals/enums.PowerMode.desc
@@ -428,7 +428,7 @@
 #> @value Discharging 2 ./locals/enums.PowerMode.enums.Discharging.desc
 #> @value Idle 0 ./locals/enums.PowerMode.enums.Idle.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name PrinterInstruction
 #> @desc ./locals/enums.PrinterInstruction.desc
@@ -443,7 +443,7 @@
 #> @value StackPointer 1 ./locals/enums.PrinterInstruction.enums.StackPointer.desc
 #> @value WaitUntilNextValid 3 ./locals/enums.PrinterInstruction.enums.WaitUntilNextValid.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name ReEntryProfile
 #> @desc ./locals/enums.ReEntryProfile.desc
@@ -453,7 +453,7 @@
 #> @value Medium 2 ./locals/enums.ReEntryProfile.enums.Medium.desc
 #> @value None 0 ./locals/enums.ReEntryProfile.enums.None.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name RobotMode
 #> @desc ./locals/enums.RobotMode.desc
@@ -465,7 +465,7 @@
 #> @value StorageFull 6 ./locals/enums.RobotMode.enums.StorageFull.desc
 #> @value Unload 4 ./locals/enums.RobotMode.enums.Unload.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name RocketMode
 #> @desc ./locals/enums.RocketMode.desc
@@ -477,14 +477,14 @@
 #> @value None 1 ./locals/enums.RocketMode.enums.None.desc
 #> @value Survey 3 ./locals/enums.RocketMode.enums.Survey.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name SettingDisplayMode
 #> @desc ./locals/enums.SettingDisplayMode.desc
 #> @value Number 0 ./locals/enums.SettingDisplayMode.enums.Number.desc
 #> @value String 1 ./locals/enums.SettingDisplayMode.enums.String.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name ShuttleType
 #> @desc ./locals/enums.ShuttleType.desc
@@ -498,7 +498,7 @@
 #> @value Small 1 ./locals/enums.ShuttleType.enums.Small.desc
 #> @value SmallGas 2 ./locals/enums.ShuttleType.enums.SmallGas.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name SlotClass
 #> @desc ./locals/enums.SlotClass.desc
@@ -546,7 +546,7 @@
 #> @value Uniform 12 ./locals/enums.SlotClass.enums.Uniform.desc
 #> @value Wreckage 33 ./locals/enums.SlotClass.enums.Wreckage.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name SorterInstruction
 #> @desc ./locals/enums.SorterInstruction.desc
@@ -558,7 +558,7 @@
 #> @value LimitNextExecutionByCount 6 ./locals/enums.SorterInstruction.enums.LimitNextExecutionByCount.desc
 #> @value None 0 ./locals/enums.SorterInstruction.enums.None.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name SortingClass
 #> @desc ./locals/enums.SortingClass.desc
@@ -574,7 +574,7 @@
 #> @value Storage 8 ./locals/enums.SortingClass.enums.Storage.desc
 #> @value Tools 2 ./locals/enums.SortingClass.enums.Tools.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name Sound
 #> @desc ./locals/enums.Sound.desc
@@ -625,7 +625,7 @@
 #> @value Warning 16 ./locals/enums.Sound.enums.Warning.desc
 #> @value Welcome 25 ./locals/enums.Sound.enums.Welcome.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name TraderInstruction
 #> @desc ./locals/enums.TraderInstruction.desc
@@ -649,36 +649,36 @@
 #> @value WriteTraderData 1 ./locals/enums.TraderInstruction.enums.WriteTraderData.desc
 #> @value WriteTraderSellData 6 ./locals/enums.TraderInstruction.enums.WriteTraderSellData.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name TransmitterMode
 #> @desc ./locals/enums.TransmitterMode.desc
 #> @value Active 1 ./locals/enums.TransmitterMode.enums.Active.desc
 #> @value Passive 0 ./locals/enums.TransmitterMode.enums.Passive.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name Vent
 #> @desc ./locals/enums.Vent.desc
 #> @value Inward 1 ./locals/enums.Vent.enums.Inward.desc
 #> @value Outward 0 ./locals/enums.Vent.enums.Outward.desc
 #> @end-enum
-
+ 
 #> @enum
 #> @name ReagentMode
-#> @value Contents 0
-#> @value Recipe 2
-#> @value Required 1
-#> @value TotalContents 3
+#> @value Contents 0 
+#> @value Recipe 2 
+#> @value Required 1 
+#> @value TotalContents 3 
 #> @end-enum
-
+ 
 #> @enum
 #> @name BatchMode
-#> @value Average 0
-#> @value Count 4
-#> @value Maximum 3
-#> @value Minimum 2
-#> @value Sum 1
+#> @value Average 0 
+#> @value Count 4 
+#> @value Maximum 3 
+#> @value Minimum 2 
+#> @value Sum 1 
 #> @end-enum
 
 define rgas    "rags"     #: @builtin
