@@ -27,13 +27,11 @@ namespace stationeers::ic10 {
 
         p.consume();  // DOT
 
-        std::vector<std::vector<std::string>> references;
-
         tokenBeforeError = p.current();
 
         try {
-            // DOT ( DIV Identifier ( DOT Identifier )* )+
-            do {  // 至少一个 DIV Identifier ( DOT Identifier )* 即/xxx.xxx
+            // DOT ( DIV Identifier )+ ( DOT Identifier )*
+            do {  // 至少一个 DIV Identifier 即/xxx
                 tokenBeforeError = p.expect(TokenType::DIV);
 
                 Identifier identifier;
@@ -44,35 +42,29 @@ namespace stationeers::ic10 {
                 else [[unlikely]]
                     tokenBeforeError = p.expect(TokenType::IDENTIFIER);  // 引发错误，中断
 
-                std::vector reference({std::move(identifier.value)});
-
                 result.endPos = identifier.end();
 
-                while (p.current() && p.current()->type == TokenType::DOT) {
-                    tokenBeforeError = p.expect(TokenType::DOT);
+                result.paths.push_back(std::move(identifier.value));
 
-                    Identifier id;
-                    if (tokenBeforeError = p.current();
-                        tokenBeforeError
-                        && tokenBeforeError->type == TokenType::IDENTIFIER)  // 预检Identifier
+            } while (p.current() && p.current()->type == TokenType::DIV);
+
+            while (p.current() && p.current()->type == TokenType::DOT) {
+                tokenBeforeError = p.expect(TokenType::DOT);
+
+                Identifier id;
+                if (tokenBeforeError = p.current();
+                    tokenBeforeError
+                    && tokenBeforeError->type == TokenType::IDENTIFIER)  // 预检Identifier
                         id = NodeParser<Identifier>::parse(p);
-                    else [[unlikely]]
-                        tokenBeforeError = p.expect(TokenType::IDENTIFIER);  // 引发错误，中断
+                else [[unlikely]]
+                    tokenBeforeError = p.expect(TokenType::IDENTIFIER);  // 引发错误，中断
 
-                    result.endPos = id.end();
+                result.endPos = id.end();
 
-                    reference.push_back(std::move(id.value));
-                }
-
-                references.push_back(std::move(reference));
-
-                tokenBeforeError = p.current();
-
-            } while (tokenBeforeError && tokenBeforeError->type == TokenType::DIV);
+                result.fields.push_back(std::move(id.value));
+            }
 
         } catch (const Error& e) { return ErrorNode{*tokenBeforeError, std::string(e.message())}; }
-
-        result.references = std::move(references);
 
         return result;
     }
