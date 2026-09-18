@@ -17,7 +17,7 @@ GT : '>' ;
 AT : '@' ;
 DIV : '/' ;
 
-link : DOT ( DIV Identifier ( DOT Identifier )* )+ ;
+link : DOT ( DIV Identifier )+ ( DOT Identifier )* ;
 
 description : link
             | string
