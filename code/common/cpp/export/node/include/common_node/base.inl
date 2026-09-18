@@ -16,6 +16,7 @@
 #ifndef EXPORT_BASE_INL
 #define EXPORT_BASE_INL
 #pragma once
+#include <iostream>
 
 namespace stationeers {
 
@@ -26,26 +27,10 @@ namespace stationeers {
 
             if (auto jsonObj = env.Global().Get("JSON"); jsonObj.IsObject())
                 if (auto jsonParse = jsonObj.As<node::Object>().Get("parse");
-                    jsonParse.IsFunction()) {
-                    auto result = jsonParse.As<node::Function>().Call(
+                    jsonParse.IsFunction())
+                    return jsonParse.As<node::Function>().Call(
                         jsonObj, {node::String::New(env, value.toJSON())}
                     );
-
-                    if constexpr (requires {
-                                      { value.toString() } -> std::convertible_to<std::string>;
-                                  })
-                        result.template As<node::Object>().Set(
-                            "toString",
-                            node::Function::New(
-                                env, [&](const node::CallbackInfo& info) -> node::Value {
-                                    return node::String::New(info.Env(), value.toString());
-                                }
-                            )
-                        );
-
-                    return result;
-                }
-
 
             return env.Undefined();
         }

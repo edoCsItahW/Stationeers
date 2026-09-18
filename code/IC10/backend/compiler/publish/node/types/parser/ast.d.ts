@@ -170,8 +170,6 @@ export interface ASTNode {
      * @desc 节点在源代码中的结束位置
      */
     readonly end: Position;
-
-    toString(): string;
 }
 
 
@@ -696,10 +694,14 @@ export type Operand = Register | Device | Number | IdentifierNode | EnumNode | M
 // -------------------------------------------------------------------------
 
 export interface LinkNode extends ASTNode {
-    readonly reference: Array<Array<string>>;
+    readonly nodeName: "Link";
+
+    readonly paths: string[];
+
+    readonly fields: string[];
 }
 
-export type Description = ErrorNode<StringNode | LinkNode>;
+export type Description = Errorable<StringNode | LinkNode>;
 
 /**
  * @summary 类型提示节点
