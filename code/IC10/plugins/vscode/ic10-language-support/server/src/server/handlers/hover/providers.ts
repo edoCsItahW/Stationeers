@@ -132,16 +132,18 @@ abstract class HoverOperand extends HoverProvider<HoverRendererKey> {
             case "AddressRegister":
             case "StackPointerRegister":
             case "DynamicRegister":
-            case "StaticDevice":
             case "DynamicDevice":
             case "Error":
                 type = ctx.t(`hover.operandType.${pascalToSnake(operand.nodeName)}` as any);
                 break;
+            case "StaticDevice":
+                type = ctx.t(`hover.operandType.${pascalToSnake(operand.device.nodeName)}` as any);
+                break;
             case "HashMacro":
             case "StrMacro":
-                if (AST.isString(operand.value))
-                    value = hashValue(operand.value.value).toString();
-                // fullthrough
+                if (AST.isString(operand.value)) value = hashValue(operand.value.value).toString();
+                type = ctx.t("hover.operandType.number");
+                break;
             default:
                 type = ctx.t("hover.operandType.number");
         }

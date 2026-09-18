@@ -108,7 +108,45 @@ export function findOperand(node: PureExeInstructionNode, a: number): { result: 
  * @returns Formatted string (e.g. HASH("value"), register name, number, etc.)
  */
 export function formatOperand(op: Operand): string {
-    return op.toString();
+    return visitOperand<string>(
+        {
+            Error: error => error.token.lexeme,
+            ...groupHandlers(
+                [
+                    "GeneralPurposeRegister",
+                    "AddressRegister",
+                    "StackPointerRegister",
+                    "Identifier",
+                    "String",
+                    "BinaryNumber",
+                    "HexNumber"
+                ],
+                node => node.value
+            ),
+            Enum: node => (AST.isError(node.name) || AST.isError(node.value) ? "" : `${node.name}.${node.value}`),
+            DynamicRegister: dr => `r${formatOperand(dr.register)}`,
+            DynamicDevice: dd => `d${formatOperand(dd.register)}`,
+            StaticDevice(sd) {
+                let result: string = "";
+
+                switch (sd.device.nodeName) {
+                    case "Error":
+                        return formatOperand(sd.device);
+                    case "OrdinaryDevice":
+                    case "SelfReferenceDevice":
+                        result += sd.device.value;
+                }
+
+                if (sd.pin) result += `:${sd.pin.value}`;
+
+                return result;
+            },
+            HashMacro: hm => `HASH("${AST.isError(hm.value) ? formatOperand(hm.value) : hm.value.value}")`,
+            StrMacro: sm => `STR("${AST.isError(sm.value) ? formatOperand(sm.value) : sm.value.value}")`,
+            ...groupHandlers(["Integer", "Float"], n => n.value.toString())
+        },
+        op
+    );
 }
 
 /**
