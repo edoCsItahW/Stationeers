@@ -19,12 +19,13 @@ import {
     PureExeInstructionNode,
     TokenCategory,
     OperandType,
+    Description,
     StringNode,
     TokenType,
     Statement,
     Operand,
     ASTNode,
-    Token
+    Token,
 } from "ic10c-node";
 
 
@@ -255,4 +256,22 @@ export function findRangeTokens(
     });
 
     return result;
+}
+
+
+class DescriptionSolver {
+    static solve(description: Description): Optional<string> {
+        switch (description.nodeName) {
+            case "Link":
+                return this.link(description.references);
+            case "String":
+                return description.value;
+            default:
+                return;
+        }
+    }
+
+    static link(references: string[][]): Optional<string> {
+
+    }
 }
