@@ -28,7 +28,9 @@ namespace stationeers::ic10 {
 
         static constexpr auto FIRST = std::make_tuple(std::array{TokenType::DOT});
 
-        std::vector<std::vector<std::string>> references;
+        std::vector<std::string> fields;
+
+        std::vector<std::string> paths;
 
         Pos endPos;
 

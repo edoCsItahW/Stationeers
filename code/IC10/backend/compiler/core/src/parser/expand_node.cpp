@@ -26,26 +26,17 @@ namespace stationeers::ic10 {
 
         ss << ".";
 
-        for (const auto& ref : references) {
-            ss << "/";
+        for (const auto& path : paths)
+            ss << "/" << path;
 
-            bool first = true;
-            for (const auto& section : ref) {
-                if (first)
-                    first = false;
-                else ss << ".";
-
-                ss << section;
-            }
-        }
+        for (const auto& field : fields)
+            ss << "." << field;
 
         return ss.str();
     }
 
     std::string Link::toJSON() const {
-        return jsonBase<"references">(seqJSON(references, [](const auto& ref) {
-            return toJson(ref);
-        }));
+        return jsonBase<"paths", "fields">(toJson(paths), toJson(fields));
     }
 
 
