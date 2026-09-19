@@ -31,4 +31,11 @@ export type OperandProvider = (ctx: CompletionProviderContext, opType: OperandTy
 export interface BuiltinSymbolInfo {
     value: string;
     sort: string;
+    data: {
+        description: {
+            nodeName: "Link";
+            paths: string[];
+            fields: string[];
+        };
+    };
 }

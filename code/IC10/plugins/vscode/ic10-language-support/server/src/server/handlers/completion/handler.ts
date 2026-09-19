@@ -13,27 +13,31 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { OperandType, TokenCategory, TokenType, TypeTableMap } from "ic10c-node";
-import { Connection } from "vscode-languageserver";
+import { OperandType, Token, TokenCategory, TokenType, TypeTableMap } from "ic10c-node";
+import { CompletionItem, CompletionItemKind, Connection } from "vscode-languageserver";
 
-import { AST, end, findRangeTokens, getOperandType } from "../../../utils";
+import { AST, DescriptionSolver, end, findRangeTokens, getOperandType } from "../../../utils";
+import { Console, debug, lowerBound, traceback } from "common";
 import { CompletionProviderContext } from "./providers/types";
 import { provideKeyword, provideOperand } from "./providers";
 import { combine, RelativeState, State } from "./state";
-import { Console, debug, lowerBound, traceback } from "common";
 import { DocumentCache } from "../../cache";
 import { locale, t } from "../../../locals";
+import { enumItem } from "./providers/enum";
+
 
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];
+type OnCompletionResolveHandlerType = Parameters<Connection["onCompletionResolve"]>[0];
+
 
 export class CompletionHandler {
     constructor(private readonly docCache: DocumentCache) {}
 
-//    @debug({
-//        message: err => t("server.handler.error", { name: "completion", err: (err as Error).message }),
-//        logger: msg => Console.error(msg, "completion"),
-//        rethrow: false
-//    })
+    //    @debug({
+    //        message: err => t("server.handler.error", { name: "completion", err: (err as Error).message }),
+    //        logger: msg => Console.error(msg, "completion"),
+    //        rethrow: false
+    //    })
     @traceback()
     handle(
         ...[
@@ -48,13 +52,7 @@ export class CompletionHandler {
 
         if (!cache || !cache.ast || !cache.symbols || !context)
             // 无内容则补全关键字
-            return provideKeyword(
-                // TODO
-                {
-                    getLocale: () => locale.getLocale()
-                } as CompletionProviderContext,
-                ""
-            );
+            return provideKeyword({/* provideKeyword不使用context */} as CompletionProviderContext, "");
 
         // 统一为1-based
         const line = position.line + 1;
@@ -83,6 +81,11 @@ export class CompletionHandler {
 
         // 光标的前一个token
         const prevToken = tokens[prevIdx];
+
+        // 局部语法上下文解析
+        const syntaxCtx = this.detectSyntaxContext(tokens, prevIdx, column, context.triggerCharacter);
+        if (syntaxCtx)
+            return this.completeSyntax(syntaxCtx, ctx);
 
         // 前一个token与当前光标间的空格数
         const prevBlocks = prevToken ? column - end(prevToken).column : 0;
@@ -124,10 +127,11 @@ export class CompletionHandler {
             case State.END_WORD_TRIGGER_INCOMPLETE:
             case State.END_WORD_INVOKED:
                 const inside = rel === RelativeState.INSIDE_WORD;
+                const token = tokens[inside ? currIdx : prevIdx];
                 return this.completeWord(
                     ctx,
                     opIdx,
-                    tokens[inside ? currIdx : prevIdx].lexeme.substring(0, column - 1) // TODO: column - 1?
+                    token.lexeme.substring(0, column - 1)
                 );
 
             // 没有明确意图，重新弹出该位置的补全
@@ -146,6 +150,19 @@ export class CompletionHandler {
         }
     }
 
+    @debug({
+        message: err => t("server.handler.error", { name: "completion resolve", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "completion resolve"),
+        rethrow: false
+    })
+    handleResolve(...[params]: Parameters<OnCompletionResolveHandlerType>) {
+        if (params.data)
+            if (params.data.description)
+                params.documentation = DescriptionSolver.solve(params.data.description, locale.getLocale());
+
+        return params;
+    }
+
     private completeWord(ctx: CompletionProviderContext, opIdx: number, prefix: string = "") {
         // 不是行首
         if (opIdx && ctx.stmt) {
@@ -162,5 +179,45 @@ export class CompletionHandler {
 
         // 是行首，提供关键字补全
         else return provideKeyword(ctx, prefix);
+    }
+
+    private detectSyntaxContext(tokens: Token[], prevIdx: number, column: number, char?: string) {
+        if (!char) return;
+
+        const prev = tokens[prevIdx];
+        if (!prev) return;
+
+        //光标与触发字符间存在空格
+        if (end(prev).column !== column) return;
+
+        if (char === ":") {
+            const device = tokens[prevIdx - 1];
+            if (device && device.type === TokenType.DEVICE)
+                return { kind: "pin", device } as const;
+        }
+
+        if (char === ".") {
+            const name = tokens[prevIdx - 1];
+            if (name && name.type === TokenType.IDENTIFIER)
+                return { kind: "value", name } as const;
+        }
+    }
+
+    private completeSyntax(synCtx: Exclude<ReturnType<typeof this.detectSyntaxContext>, undefined>, cmpCtx: CompletionProviderContext): CompletionItem[] {
+        switch (synCtx.kind) {
+            case "pin":
+                return Array.from({ length: 7 }).map((_, i) => ({
+                    label: i.toString(),
+                    kind: CompletionItemKind.Value,
+                    insertText: i.toString(),
+                    detail: t("hover.operandType.pin")
+                }));
+            case "value":
+                const type = cmpCtx.types?.[synCtx.name.lexeme];
+
+                if (!type || !AST.isEnumAnnotation(type)) return [];
+
+                return type.values.map(v => enumItem(v, synCtx.name.lexeme));
+        }
     }
 }

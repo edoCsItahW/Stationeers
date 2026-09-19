@@ -17,7 +17,7 @@ import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { BasicType, Symbol, TypeCategory } from "ic10c-node";
 
 import { CompletionProviderContext, OperandProvider } from "./types";
-import { SemanticMap } from "../../../../utils";
+import { DescriptionSolver, SemanticMap } from "../../../../utils";
 import { t } from "../../../../locals";
 
 
@@ -36,7 +36,7 @@ export const provideIdentifier: OperandProvider = (ctx, opType, prefix) => {
                         prefix,
                         s => ({
                             detail: t("hover.operandType.register"),
-                            labelDetails: { detail: `: ${s.value}`, description: t("hover.operandType.register") }
+                            labelDetails: { detail: `: ${s.value}`, description: t("hover.operandType.register") },
                         }),
                         s => s.type === BasicType.REGISTER
                     )
@@ -91,13 +91,15 @@ function symbolWhere(
 ): CompletionItem[] {
     if (!ctx.symbols) return [];
 
-    return Object.entries(ctx.symbols)
+    return Object.entries(ctx.symbols.symbols)
         .filter(([name, sym]) => name.startsWith(prefix) && conditionCallback(sym))
         .map(([name, sym]) => ({
             label: name,
             kind: CompletionItemKind.Variable,
             insertText: name,
-            documentation: sym.desc, // TODO: Description解析逻辑
+            data: {
+                description: sym.desc
+            },
             ...itemCallback(sym)
         }));
 }
