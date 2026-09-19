@@ -21,17 +21,38 @@ import { t } from "../../../../locals";
 
 const GENERAL_PURPOSE_REGISTERS: BuiltinSymbolInfo[] = Array.from({ length: 16 }).map((_, i) => ({
     value: `r${i}`,
-    sort: "r" + i.toString().padStart(2, "0")
+    sort: "r" + i.toString().padStart(2, "0"),
+    data: {
+        description: {
+            nodeName: "Link",
+            paths: ["locals", "builtin"],
+            fields: ["general_purpose_registers", "desc"]
+        }
+    }
 }));
 
 const ADDRESS_REGISTER: BuiltinSymbolInfo = {
     value: "ra",
-    sort: "ra"
+    sort: "ra",
+    data: {
+        description: {
+            nodeName: "Link",
+            paths: ["locals", "builtin"],
+            fields: ["address_register", "desc"]
+        }
+    }
 };
 
 const STACK_POINTER_REGISTER: BuiltinSymbolInfo = {
     value: "sp",
-    sort: "sp"
+    sort: "sp",
+    data: {
+        description: {
+            nodeName: "Link",
+            paths: ["locals", "builtin"],
+            fields: ["stack_pointer_register", "desc"]
+        }
+    }
 };
 
 const ADDRESSABLE_REGISTERS = [...GENERAL_PURPOSE_REGISTERS, ADDRESS_REGISTER];
@@ -50,10 +71,11 @@ export const provideRegister: OperandProvider = (ctx, opType, prefix) => {
 };
 
 
-const registerItem = ({ value, sort }: BuiltinSymbolInfo): CompletionItem => ({
+const registerItem = ({ value, sort, data }: BuiltinSymbolInfo): CompletionItem => ({
     label: value,
     kind: CompletionItemKind.Variable,
     insertText: value,
     detail: t("hover.operandType.register"),
-    sortText: sort
+    sortText: sort,
+    data
 });

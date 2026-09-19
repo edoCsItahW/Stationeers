@@ -26,7 +26,7 @@ import zhHans from "./languages/zh-hans";
 import enUS from "./languages/en-us";
 import { Locale } from "common";
 
-const resources = {
+export const resources = {
     "zh-hans": zhHans,
     "en-us": enUS
 } as const;

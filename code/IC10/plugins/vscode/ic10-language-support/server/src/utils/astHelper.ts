@@ -14,7 +14,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Optional } from "type-fest";
-import { Position } from "common";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import {
     PureExeInstructionNode,
     TokenCategory,
@@ -23,17 +24,24 @@ import {
     StringNode,
     TokenType,
     Statement,
+    LinkNode,
     Operand,
     ASTNode,
-    Token,
+    Token
 } from "ic10c-node";
 
+import { resources } from "../locals";
+import { Position } from "common";
+import * as process from "node:process";
 
 type NodeType = Statement | Operand | StringNode;
 
-type ExtractNodeByNodeName<T extends NodeType["nodeName"]> = Extract<NodeType, {
-    readonly nodeName: T;
-}>;
+type ExtractNodeByNodeName<T extends NodeType["nodeName"]> = Extract<
+    NodeType,
+    {
+        readonly nodeName: T;
+    }
+>;
 
 type ExtractNodeBySuffix<S extends string> = Extract<NodeType, { readonly nodeName: `${string}${S}` }>;
 
@@ -85,15 +93,13 @@ type ASTBelongChecker = {
 
 export const AST = new Proxy({} as ASTChecker & ASTBelongChecker, {
     get(target, prop: string | symbol, receiver) {
-        if (typeof prop !== "string")
-            return Reflect.get(target, prop, receiver);
+        if (typeof prop !== "string") return Reflect.get(target, prop, receiver);
 
         // isXxx：精确匹配（类型谓词在 ASTChecker 里声明）
         if (prop.startsWith("is") && prop.length > 2) {
             const nodeName = prop.slice(2);
             return (node: ASTNode) => {
-                if (!node.nodeName)
-                    throw Error(`"nodeName" not in ${node}`);
+                if (!node.nodeName) throw Error(`"nodeName" not in ${node}`);
 
                 return node.nodeName === nodeName;
             };
@@ -178,7 +184,45 @@ export function operandValueLength(node: Operand): number {
  * and numbers are returned as-is.
  * */
 export function operandToString(node: Operand): string {
-    return node.toString();
+    return visitOperand<string>(
+        {
+            Error: error => error.token.lexeme,
+            ...groupHandlers(
+                [
+                    "GeneralPurposeRegister",
+                    "AddressRegister",
+                    "StackPointerRegister",
+                    "Identifier",
+                    "String",
+                    "BinaryNumber",
+                    "HexNumber"
+                ],
+                node => node.value
+            ),
+            Enum: node => (AST.isError(node.name) || AST.isError(node.value) ? "" : `${node.name}.${node.value}`),
+            DynamicRegister: dr => `r${operandToString(dr.register)}`,
+            DynamicDevice: dd => `d${operandToString(dd.register)}`,
+            StaticDevice(sd) {
+                let result: string = "";
+
+                switch (sd.device.nodeName) {
+                    case "Error":
+                        return operandToString(sd.device);
+                    case "OrdinaryDevice":
+                    case "SelfReferenceDevice":
+                        result += sd.device.value;
+                }
+
+                if (sd.pin) result += `:${sd.pin.value}`;
+
+                return result;
+            },
+            HashMacro: hm => `HASH("${AST.isError(hm.value) ? operandToString(hm.value) : hm.value.value}")`,
+            StrMacro: sm => `STR("${AST.isError(sm.value) ? operandToString(sm.value) : sm.value.value}")`,
+            ...groupHandlers(["Integer", "Float"], n => n.value.toString())
+        },
+        node
+    );
 }
 
 export function end(node: Operand): Position;
@@ -208,12 +252,20 @@ export const SemanticMap = {
     [OperandType.DEVICE_REF_STRICT]: ["device"] as const,
     [OperandType.LOGIC_PROP]: ["identifier", "number"] as const,
     [OperandType.LOGIC_SLOT_PROP]: ["identifier", "number"] as const,
-    [OperandType.AGG_MODE]: ["identifier", "number"] as const,
-    [OperandType.REAGENT_MODE]: ["identifier", "number"] as const,
+    [OperandType.AGG_MODE]: ["identifier", "number", "enum"] as const,
+    [OperandType.REAGENT_MODE]: ["identifier", "number", "enum"] as const,
     [OperandType.DEVICE_HASH]: ["number"] as const,
     [OperandType.NAME_HASH]: ["number"] as const,
     [OperandType.CONST_NUM]: ["number"] as const
 } satisfies Record<OperandType, GenericOperandType[]>;
+
+export const EnumKeyMap = {
+    [OperandType.LOGIC_PROP]: "LogicType",
+    [OperandType.LOGIC_SLOT_PROP]: "LogicSlotType",
+    [OperandType.AGG_MODE]: "BatchMode",
+    [OperandType.REAGENT_MODE]: "ReagentMode",
+    [OperandType.SLOT_IDX]: "SlotIdx"
+} as const;
 
 /**
  * @summary 寻找所在列附近范围内的token
@@ -258,12 +310,13 @@ export function findRangeTokens(
     return result;
 }
 
+export class DescriptionSolver {
+    public static ROOT = "../mateData";
 
-class DescriptionSolver {
-    static solve(description: Description): Optional<string> {
+    static solve(description: Description, lang: keyof typeof resources): Optional<string> {
         switch (description.nodeName) {
             case "Link":
-                return this.link(description.references);
+                return this.link(description)?.[lang];
             case "String":
                 return description.value;
             default:
@@ -271,7 +324,64 @@ class DescriptionSolver {
         }
     }
 
-    static link(references: string[][]): Optional<string> {
+    static parse(input: string): Optional<{
+        nodeName: "Link";
+        paths: string[];
+        fields: string[];
+    }> {
+        let i = 0;
+        const n = input.length;
 
+        // 辅助：读一个 identifier [A-Za-z_][A-Za-z0-9_]*
+        const readIdentifier = (): string => {
+            const start = i;
+            if (i >= n) throw new Error();
+            const c = input[i];
+            if (!/[A-Za-z_]/.test(c)) throw new Error();
+            i++;
+            while (i < n && /[A-Za-z0-9_]/.test(input[i])) i++;
+            return input.slice(start, i);
+        };
+
+        try {
+            // 起始必须为 '.'
+            if (i >= n || input[i] !== ".") throw new Error();
+            i++;
+
+            const paths: string[] = [];
+            const fields: string[] = [];
+
+            // ( DIV Identifier )+  —— 至少一个 /xxx
+            if (i >= n || input[i] !== "/") throw new Error();
+            do {
+                i++; // 消费 '/'
+                paths.push(readIdentifier());
+            } while (i < n && input[i] === "/");
+
+            // ( DOT Identifier )*  —— 零个或多个 .xxx
+            while (i < n && input[i] === ".") {
+                i++; // 消费 '.'
+                fields.push(readIdentifier());
+            }
+
+            if (i !== n) throw new Error();
+            return { nodeName: "Link", paths, fields };
+        } catch {}
+    }
+
+    static link(link: LinkNode): Optional<{
+        [K in keyof typeof resources]: string;
+    }> {
+        let path = DescriptionSolver.ROOT;
+
+        for (const p of link.paths) path += `/${p}`;
+
+        path += ".json";
+
+        let json = JSON.parse(readFileSync(resolve(__dirname, path), "utf-8"));
+
+        for (const field of link.fields) json = json[field];
+
+        return json;
     }
 }

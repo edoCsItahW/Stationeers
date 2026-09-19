@@ -96,58 +96,6 @@ export function findOperand(node: PureExeInstructionNode, a: number): { result: 
     };
 }
 
-/**
- * @summary 将操作数节点格式化为可读的字符串表示
- *
- * @summary Format an operand node into a readable string representation
- *
- * @param op 操作数 AST 节点
- * @param op Operand AST node
- *
- * @returns 格式化后的字符串（如 HASH("value")、寄存器名、数字等）
- * @returns Formatted string (e.g. HASH("value"), register name, number, etc.)
- */
-export function formatOperand(op: Operand): string {
-    return visitOperand<string>(
-        {
-            Error: error => error.token.lexeme,
-            ...groupHandlers(
-                [
-                    "GeneralPurposeRegister",
-                    "AddressRegister",
-                    "StackPointerRegister",
-                    "Identifier",
-                    "String",
-                    "BinaryNumber",
-                    "HexNumber"
-                ],
-                node => node.value
-            ),
-            Enum: node => (AST.isError(node.name) || AST.isError(node.value) ? "" : `${node.name}.${node.value}`),
-            DynamicRegister: dr => `r${formatOperand(dr.register)}`,
-            DynamicDevice: dd => `d${formatOperand(dd.register)}`,
-            StaticDevice(sd) {
-                let result: string = "";
-
-                switch (sd.device.nodeName) {
-                    case "Error":
-                        return formatOperand(sd.device);
-                    case "OrdinaryDevice":
-                    case "SelfReferenceDevice":
-                        result += sd.device.value;
-                }
-
-                if (sd.pin) result += `:${sd.pin.value}`;
-
-                return result;
-            },
-            HashMacro: hm => `HASH("${AST.isError(hm.value) ? formatOperand(hm.value) : hm.value.value}")`,
-            StrMacro: sm => `STR("${AST.isError(sm.value) ? formatOperand(sm.value) : sm.value.value}")`,
-            ...groupHandlers(["Integer", "Float"], n => n.value.toString())
-        },
-        op
-    );
-}
 
 /**
  * @summary 将 BasicType 枚举值格式化为小写字符串名称
@@ -178,7 +126,7 @@ export function formatBasicType(type: BasicType): string {
  * @returns Type name (prefers typeName, falls back to BasicType name), or undefined if not found
  */
 export function formatType(identifier: IdentifierNode, symbols: SymbolMap): Optional<string> {
-    const symbol = symbols[identifier.value];
+    const symbol = symbols.symbols[identifier.value];
     if (symbol) {
         if (symbol.typeName) return symbol.typeName;
         return formatBasicType(symbol.type);

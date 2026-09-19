@@ -15,31 +15,30 @@
  * */
 import { Languages } from "vscode-languageserver";
 import {
-    PureExeInstructionNode,
-    DefineDirectiveNode,
     AliasDirectiveNode,
-    IdentifierNode,
-    HashMacroNode,
-    LabelDefNode,
-    TypeCategory,
-    StrMacroNode,
-    OperandType,
-    TypeOfNode,
     BasicType,
+    DefineDirectiveNode,
+    DynamicDeviceNode,
     ErrorNode,
-    Statement,
-    SymbolMap,
+    HashMacroNode,
+    IdentifierNode,
+    LabelDefNode,
     Operand,
+    OperandType,
     Program,
+    PureExeInstructionNode,
     RegOrDev,
+    Statement,
     StaticDeviceNode,
-    DynamicDeviceNode
+    StrMacroNode,
+    SymbolMap,
+    TypeCategory,
+    TypeOfNode
 } from "ic10c-node";
 
-import { Console, debug, upperBound, Position, traceback } from "common";
-import { groupHandlers, visit, AST, operandValueLength } from "../../utils";
+import { Console, Optional, Position, traceback, upperBound } from "common";
+import { AST, groupHandlers, visit } from "../../utils";
 import { DocumentCache } from "../cache";
-import { t } from "../../locals";
 
 type OnHandlerType = Parameters<Languages["semanticTokens"]["on"]>[0];
 type OnRangeHandlerType = Parameters<Languages["semanticTokens"]["onRange"]>[0];
@@ -194,11 +193,11 @@ export class SemanticTokenHandler {
 
     constructor(private readonly docCache: DocumentCache) {}
 
-//    @debug({
-//        message: err => t("server.handler.error", { name: "semantic token", err: (err as Error).message }),
-//        logger: msg => Console.error(msg, "semantic token"),
-//        rethrow: false
-//    })
+    //    @debug({
+    //        message: err => t("server.handler.error", { name: "semantic token", err: (err as Error).message }),
+    //        logger: msg => Console.error(msg, "semantic token"),
+    //        rethrow: false
+    //    })
     @traceback()
     handle(...[params]: Parameters<OnHandlerType>): ReturnType<OnHandlerType> {
         try {
@@ -223,11 +222,11 @@ export class SemanticTokenHandler {
         } catch (error) {}
     }
 
-//    @debug({
-//        message: err => t("server.handler.error", { name: "semantic token range", err: (err as Error).message }),
-//        logger: msg => Console.error(msg, "semantic token range"),
-//        rethrow: false
-//    })
+    //    @debug({
+    //        message: err => t("server.handler.error", { name: "semantic token range", err: (err as Error).message }),
+    //        logger: msg => Console.error(msg, "semantic token range"),
+    //        rethrow: false
+    //    })
     @traceback()
     handleRange(
         ...[
@@ -508,11 +507,20 @@ export class SemanticTokenHandler {
     ): SemanticToken {
         const gap = this.getGap(context, identifier.position);
 
-        const symbol = context.table[identifier.value];
+        const symbol = context.table.symbols[identifier.value];
 
-        const type = symbol
-            ? this.toLegend(symbol.type, symbol.category, true)
-            : this.operandTypeToLegend(operandType!);
+        let type: Optional<TokenLegend>;
+        operandType ??= OperandType.CONST_NUM; // 使operandType落在default
+        switch (operandType) {
+            case OperandType.LOGIC_PROP:
+            case OperandType.LOGIC_SLOT_PROP:
+            case OperandType.AGG_MODE:
+                type = TokenLegend.Constant;
+                break;
+            default:
+                type = symbol ? this.toLegend(symbol.type, symbol.category, true) : TokenLegend.Unknown;
+                break;
+        }
 
         return {
             line: gap.line,
@@ -617,22 +625,6 @@ export class SemanticTokenHandler {
         }
 
         return TokenLegend.Unknown;
-    }
-
-    private operandTypeToLegend(operandType: OperandType): TokenLegend {
-        // TODO:
-        switch (operandType) {
-            case OperandType.LOGIC_PROP:
-            case OperandType.LOGIC_SLOT_PROP:
-            case OperandType.REAGENT_MODE:
-            case OperandType.AGG_MODE:
-            case OperandType.SLOT_IDX:
-                return TokenLegend.Constant;
-            case OperandType.JUMP_LINE:
-                return TokenLegend.Label;
-            default:
-                return TokenLegend.Unknown;
-        }
     }
 
     private getGap(context: HandlerContext, pos: Position): Position {
