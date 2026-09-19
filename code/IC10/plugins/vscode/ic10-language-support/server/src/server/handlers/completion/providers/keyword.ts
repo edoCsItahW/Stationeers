@@ -17,7 +17,7 @@ import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 
 import { INS_META_MAP } from "../../../../mateData";
 import { CompletionProviderContext } from "./types";
-import { RadixTree } from "../../../../utils";
+import { DescriptionSolver, RadixTree } from "../../../../utils";
 
 
 const INSTRUCTIONS_META_TREE = RadixTree.fromMap(INS_META_MAP);
@@ -31,8 +31,8 @@ export function provideKeyword(ctx: CompletionProviderContext, prefix: string): 
                 label: key,
                 kind: CompletionItemKind.Keyword,
                 insertText: key,
-                detail: value.signature
-                // TODO: data
+                detail: value.signature,
+                data: { description: DescriptionSolver.parse(value.desc) }
             }))
     );
 }

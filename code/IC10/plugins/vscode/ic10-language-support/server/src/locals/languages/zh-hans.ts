@@ -33,7 +33,8 @@ export default {
     hover: {
         common: {
             description: "描述",
-            value: "值"
+            value: "值",
+            identifier: "标识符"
         },
         labelDef: {
             type: "标签"
@@ -66,7 +67,8 @@ export default {
             logicSlotType: "逻辑槽类型",
             logicType: "逻辑类型",
             reagentMode: "试剂模式",
-            slotIdx: "槽索引"
+            slotIdx: "槽索引",
+            pin: "引脚"
         }
     },
     completion: {

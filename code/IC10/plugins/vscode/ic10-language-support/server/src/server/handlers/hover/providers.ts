@@ -29,16 +29,17 @@ import {
     TypeOfNode,
     Statement,
     BasicType,
+    ErrorNode,
     Operand
 } from "ic10c-node";
 import { hashValue, strValue } from "ic10r-node";
 
-import { formatBasicType, formatOperand, isInsideNode, findOperand, formatType } from "./utils";
+import { formatBasicType, isInsideNode, findOperand, formatType } from "./utils";
+import { AST, operandValueLength, operandToString } from "../../../utils";
 import { INS_LOCAL_MAP, INS_META_MAP } from "../../../mateData";
 import type { HoverContext, IHoverProvider } from "./types";
-import { AST, operandValueLength } from "../../../utils";
-import svgBuilder from "../../../utils/svgBuilder";
 import  { Nullable, Optional, pascalToSnake } from "common";
+import svgBuilder from "../../../utils/svgBuilder";
 import { SettingsManager } from "../../services";
 import { t } from "../../../locals";
 import { s } from "../../../style";
@@ -62,6 +63,15 @@ abstract class HoverProvider<R extends HoverRendererKey> implements IHoverProvid
     abstract canHandle(node: Statement): boolean;
 
     abstract provideHover(node: Statement, ctx: HoverContext): Nullable<Hover>;
+    
+    provideErrorHover(error: ErrorNode, ctx: HoverContext): Hover {
+        return {
+            contents: {
+                kind: "markdown",
+                value: `(**(${ctx.t("hover.operandType.error")}**) ${error.token.toString()}: ${error.message}`
+            }
+        };
+    }
 
     supplement(args: {
         [K in R]: Parameters<(typeof this.adapter)[K]["supplement"]>;
@@ -133,7 +143,6 @@ abstract class HoverOperand extends HoverProvider<HoverRendererKey> {
             case "StackPointerRegister":
             case "DynamicRegister":
             case "DynamicDevice":
-            case "Error":
                 type = ctx.t(`hover.operandType.${pascalToSnake(operand.nodeName)}` as any);
                 break;
             case "StaticDevice":
@@ -144,6 +153,8 @@ abstract class HoverOperand extends HoverProvider<HoverRendererKey> {
                 if (AST.isString(operand.value)) value = hashValue(operand.value.value).toString();
                 type = ctx.t("hover.operandType.number");
                 break;
+            case "Error":
+                return this.provideErrorHover(operand, ctx);
             default:
                 type = ctx.t("hover.operandType.number");
         }
@@ -152,12 +163,12 @@ abstract class HoverOperand extends HoverProvider<HoverRendererKey> {
             svg: [
                 [
                     { text: `(${type}) ` },
-                    { text: formatOperand(operand) },
+                    { text: operandToString(operand) },
                     { text: ": " },
                     { text: operand.nodeName }
                 ]
             ],
-            markdown: [`(${type}) ${formatOperand(operand)}: ${operand.nodeName}`]
+            markdown: [`(${type}) ${operandToString(operand)}: ${operand.nodeName}`]
         });
 
         return {
@@ -292,11 +303,10 @@ export class AliasDirectiveHoverProvider extends HoverOperand {
             });
 
         this.supplement({
-            svg: [{ text: ` = ${formatOperand(stmt.registerOrDevice)}` }],
-            markdown: [` = ${formatOperand(stmt.registerOrDevice)}`]
+            svg: [{ text: ` = ${operandToString(stmt.registerOrDevice)}` }],
+            markdown: [` = ${operandToString(stmt.registerOrDevice)}`]
         })
 
-        // TODO: 解析Description
         const descPart = stmt.typeHint?.desc ? `  \n**${ctx.t("hover.common.description")}**: ${stmt.typeHint.desc}` : "";
         
         return {
@@ -364,18 +374,17 @@ export class DefineDirectiveHoverProvider extends HoverOperand {
                             text: (ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) || stmt.operand.nodeName,
                             color: s("hover.defineDirective.type")
                         },
-                        { text: ` = ${formatOperand(stmt.operand)}` }
+                        { text: ` = ${operandToString(stmt.operand)}` }
                     ]
                 ],
                 markdown: [
-                    `(${ctx.t("hover.defineDirective.type")}) **${stmt.identifier.value}**: ${(ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) || stmt.operand.nodeName} = ${formatOperand(stmt.operand)}`
+                    `(${ctx.t("hover.defineDirective.type")}) **${stmt.identifier.value}**: ${(ctx.symbols ? formatType(stmt.identifier, ctx.symbols) : null) || stmt.operand.nodeName} = ${operandToString(stmt.operand)}`
                 ]
             });
         
         // 复用操作数悬停
         else return this.provideOperandHover(stmt.operand, ctx);
 
-        // TODO: 解析Description
         const descPart = stmt.typeHint?.desc ? `  \n**${ctx.t("hover.common.description")}**: ${stmt.typeHint.desc}` : "";
 
         let value: Optional<string>;
@@ -462,56 +471,17 @@ export class InstructionHoverProvider extends HoverOperand {
         };
     }
 
-    private provideIdentifierHover(operand: Operand, ctx: HoverContext, type?: OperandType): Nullable<Hover> {
-        const ident = operand as IdentifierNode;
-        if (!isInsideNode(ident.position.column, ident.value.length, ctx.character)) return { contents: [] };
+    private provideIdentifierHover(identifier: IdentifierNode, ctx: HoverContext, type?: OperandType): Nullable<Hover> {
+        if (!isInsideNode(identifier.position.column, identifier.value.length, ctx.character)) return { contents: [] };
 
-        const symbol = ctx.symbols?.[ident.value];
-        if (!symbol) {
-            if (type) {
-                let text: string = "";
-                let tp: string = "";
-
-                switch (type) {
-                    case OperandType.AGG_MODE:
-                        text = t("hover.operandType.batchMode");
-                        tp = "BatchMode";
-                        break;
-                    case OperandType.LOGIC_SLOT_PROP:
-                        text = t("hover.operandType.logicSlotType");
-                        tp = "LogicSlotType";
-                        break;
-                    case OperandType.LOGIC_PROP:
-                        text = t("hover.operandType.logicType");
-                        tp = "LogicType";
-                        break;
-                    case OperandType.REAGENT_MODE:
-                        text = t("hover.operandType.reagentMode");
-                        tp = "ReagentMode";
-                        break;
-                    case OperandType.SLOT_IDX:
-                        text = t("hover.operandType.slotIdx");
-                        tp = "SlotIndex";
-                        break;
+        const symbol = ctx.symbols?.symbols[identifier.value];
+        if (!symbol) 
+            return {
+                contents: {
+                    kind: "markdown",
+                    value: `(${ctx.t("hover.common.identifier")}) ${identifier.value}`
                 }
-
-                this.supplement({
-                    svg: [
-                        [
-                            { text: `(${text ?? "unknown"}) ` },
-                            { text: ident.value, color: s("hover.contant.identifier") },
-                            { text: ": " },
-                            { text: tp, color: s("hover.contant.type") }
-                        ]
-                    ],
-                    markdown: [`(${text ?? "unknown"}) ${ident.value}: ${tp}`]
-                });
-
-                return { contents: { kind: "markdown", value: this.renderer() } };
             }
-
-            return { contents: { kind: "markdown", value: ident.value } };
-        }
 
         let prefix = "";
         let color = "";

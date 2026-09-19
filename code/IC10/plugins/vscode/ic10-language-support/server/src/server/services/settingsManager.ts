@@ -246,7 +246,7 @@ export class SettingsManager {
                         "e", "f", "g", "h", "i",
                         "j", "l", "m", "n", "o",
                         "p", "r", "s", "t", "x",
-                        "y"
+                        "y", ":", "."
                     ]
                 },
 

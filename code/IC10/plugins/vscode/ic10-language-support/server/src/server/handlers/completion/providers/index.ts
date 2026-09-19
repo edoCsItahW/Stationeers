@@ -14,7 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { CompletionItem } from "vscode-languageserver";
-import { OperandType } from "ic10c-node";
+import { OperandType, Token } from "ic10c-node";
 
 import { GenericOperandType, SemanticMap } from "../../../../utils";
 import { CompletionProviderContext, OperandProvider } from "./types";
@@ -35,7 +35,7 @@ const COMPLETE_PROVIDERS: Record<GenericOperandType, OperandProvider> = {
 };
 
 
-export function provideOperand(ctx: CompletionProviderContext, opType: OperandType, prefix: string): CompletionItem[] {
+export function provideOperand(ctx: CompletionProviderContext, opType: OperandType, prefix: string, preToken?: Token): CompletionItem[] {
     const generics = SemanticMap[opType];
     if (!generics) return [];
 

@@ -13,20 +13,65 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Device, ErrorNode, IdentifierNode, OperandType, Register, Statement } from "ic10c-node";
+import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
+import {
+    DeviceAnnotationLogicSlot,
+    DeviceAnnotationLogic,
+    DeviceAnnotationSlot,
+    EnumAnnotationValue,
+    DeviceAnnotation,
+    IdentifierNode,
+    OperandType,
+    ErrorNode,
+    Statement,
+    Register,
+    Device
+} from "ic10c-node";
 
-import { OperandProvider } from "./types";
+import { AST, EnumKeyMap, operandToString } from "../../../../utils";
+import type { OperandProvider } from "./types";
+import { t } from "../../../../locals";
 import { Optional } from "common";
 
 export const provideEnum: OperandProvider = (ctx, opType, prefix) => {
-    // TODO: 设备感知
-    //    if (ctx.stmt) {
-    //        const device = findPrevDevice(ctx.stmt);
-    //        if (device)
-    //    }
+    const res = () => provideGlobalEnum(ctx, opType, prefix);
 
-    return [];  // TODO
+    if (!ctx.stmt || !ctx.symbols || !ctx.types) return res();
+
+    const device = findPrevDevice(ctx.stmt);
+    if (!device) return res();
+
+    const symbol = ctx.symbols.symbols[operandToString(device)];
+    if (!symbol || !symbol.typeName) return res();
+
+    const type = ctx.types[symbol.typeName];
+    if (type && AST.isDeviceAnnotation(type)) return provideDeviceCompletion(type, opType, prefix);
+
+    return res();
 };
+
+const provideGlobalEnum: OperandProvider = (ctx, opType, prefix) => {
+    if (!ctx.types) return [];
+
+    const key = EnumKeyMap[opType];
+
+    const type = ctx.types[key];
+    if (!type || !AST.isEnumAnnotation(type)) return []; // TODO: warning: 没有找到类型
+
+    return type.values.filter(v => v.name.startsWith(prefix)).map(v => enumItem(v, opType));
+};
+
+function provideDeviceCompletion(type: DeviceAnnotation, opType: OperandType, prefix: string): CompletionItem[] {
+    const key = (
+        {
+            [OperandType.LOGIC_PROP]: "logics",
+            [OperandType.LOGIC_SLOT_PROP]: "logicSlots",
+            [OperandType.SLOT_IDX]: "slots"
+        } as const
+    )[opType];
+
+    return type[key].filter(l => l.value.startsWith(prefix)).map(enumItem);
+}
 
 /**
  * @summary 在语句中查找前序设备操作数
@@ -52,4 +97,43 @@ function findPrevDevice(stmt: Statement): Optional<Device | Register | Identifie
             return (stmt as any)[`operand${idx}`];
         }
     }
+}
+
+export function enumItem(value: EnumAnnotationValue, opType: OperandType | string): CompletionItem;
+export function enumItem(
+    item: DeviceAnnotationLogic | DeviceAnnotationSlot | DeviceAnnotationLogicSlot
+): CompletionItem;
+export function enumItem(
+    item: EnumAnnotationValue | DeviceAnnotationLogic | DeviceAnnotationSlot | DeviceAnnotationLogicSlot,
+    opType?: OperandType | string
+): CompletionItem {
+    let key =
+        typeof opType === "string"
+            ? opType
+            : EnumKeyMap[
+                  {
+                      value: opType!, // 据重载，value时，opType非空
+                      logic: OperandType.LOGIC_PROP,
+                      "logic-slot": OperandType.LOGIC_SLOT_PROP,
+                      slot: OperandType.SLOT_IDX
+                  }[item.tag]
+              ];
+
+    const detail = Object.values(EnumKeyMap).find(k => k === key)
+        ? t(`hover.operandType.${key.charAt(0).toLowerCase() + key.slice(1)}` as any)
+        : key;
+
+    return {
+        label: item.name,
+        kind: CompletionItemKind.Constant,
+        insertText: item.name,
+        detail: detail,
+        labelDetails: {
+            detail: `: ${item.value}`,
+            description: detail
+        },
+        data: {
+            description: item.desc
+        }
+    };
 }

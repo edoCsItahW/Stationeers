@@ -33,7 +33,8 @@ export default {
     hover: {
         common: {
             description: "description",
-            value: "value"
+            value: "value",
+            identifier: "Identifier"
         },
         labelDef: {
             type: "Label"
@@ -66,7 +67,8 @@ export default {
             logicSlotType: "LogicSlotType",
             logicType: "LogicType",
             reagentMode: "ReagentMode",
-            slotIdx: "SlotIdx"
+            slotIdx: "SlotIdx",
+            pin: "Pin"
         }
     },
     completion: {

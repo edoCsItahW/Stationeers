@@ -72,7 +72,7 @@ export const provideNumber: OperandProvider = (ctx, opType, prefix) => {
                 ...i,
                 detail: meta.value.signature,
                 data: {
-                    // TODO:
+                    description: meta.value.desc
                 }
             };
         });
