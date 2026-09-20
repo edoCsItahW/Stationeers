@@ -186,15 +186,16 @@ namespace stationeers::ic10 {
         if (failResult) return *failResult;
 
         // desc
-        call(p.matchVariant<Description>(), [&]<typename T, typename U = std::decay_t<T>>(T&& v) {
-            if constexpr (std::is_same_v<U, ErrorNode>) {
-                failResult = std::move(v);
-            } else {
-                result.endPos = v.end();
+        if (p.isVariantMatch<Description>())
+            call(p.matchVariant<Description>(), [&]<typename T, typename U = std::decay_t<T>>(T&& v) {
+                if constexpr (std::is_same_v<U, ErrorNode>) {
+                    failResult = std::move(v);
+                } else {
+                    result.endPos = v.end();
 
-                result.desc = std::move(v);
-            }
-        });
+                    result.desc = std::move(v);
+                }
+            });
 
         if (failResult) return *failResult;
 
@@ -314,113 +315,6 @@ namespace stationeers::ic10 {
         }
 
         return result;
-    }
-
-    // DeviceAnnotationLogic
-
-    DeviceAnnotationLogic NodeParser<DeviceAnnotationLogic>::parse(Parser& p) {
-        DeviceAnnotationLogic result{p.expect(TokenType::TAG)->pos};
-
-        if (p.current() && p.current()->type == TokenType::IDENTIFIER)
-            result.value = std::move(NodeParser<Identifier>::parse(p).value);
-        else [[unlikely]]
-            p.expect(TokenType::IDENTIFIER);  // 引发错误，交给DeviceAnnotation
-
-        return result;
-    }
-
-    bool NodeParser<DeviceAnnotationLogic>::is(const Parser& p) noexcept {
-        return p.current() && p.current()->type == TokenType::TAG
-            && p.current()->lexeme.substr(1) == "logic";
-    }
-
-    // DeviceAnnotationLogicSlot
-
-    DeviceAnnotationLogicSlot NodeParser<DeviceAnnotationLogicSlot>::parse(Parser& p) {
-        DeviceAnnotationLogicSlot result{p.expect(TokenType::TAG)->pos};
-
-        if (p.current() && p.current()->type == TokenType::IDENTIFIER)
-            result.value = std::move(NodeParser<Identifier>::parse(p).value);
-
-        else [[unlikely]]
-            p.expect(TokenType::IDENTIFIER);  // 引发错误，交给DeviceAnnotation
-
-        return result;
-    }
-
-    bool NodeParser<DeviceAnnotationLogicSlot>::is(const Parser& p) noexcept {
-        return p.current() && p.current()->type == TokenType::TAG
-            && p.current()->lexeme.substr(1) == "logic-slot";
-    }
-
-    // DeviceAnnotationDeviceHash
-
-    DeviceAnnotationDeviceHash NodeParser<DeviceAnnotationDeviceHash>::parse(Parser& p) {
-        DeviceAnnotationDeviceHash result{p.expect(TokenType::TAG)->pos};
-
-        if (p.isMatch<Integer>())
-            result.value = std::move(NodeParser<Integer>::parse(p).value);
-        else [[unlikely]]
-            p.expect(TokenType::INTEGER);  // 引发错误，交给DeviceAnnotation
-
-        return result;
-    }
-
-    bool NodeParser<DeviceAnnotationDeviceHash>::is(const Parser& p) noexcept {
-        return p.current() && p.current()->type == TokenType::TAG
-            && p.current()->lexeme.substr(1) == "device-hash";
-    }
-
-    // DeviceAnnotationNameHash
-
-    DeviceAnnotationNameHash NodeParser<DeviceAnnotationNameHash>::parse(Parser& p) {
-        DeviceAnnotationNameHash result{p.expect(TokenType::TAG)->pos};
-
-        if (p.isMatch<Integer>())
-            result.value = std::move(NodeParser<Integer>::parse(p).value);
-        else [[unlikely]]
-            p.expect(TokenType::INTEGER);  // 引发错误，交给DeviceAnnotation
-
-        return result;
-    }
-
-    bool NodeParser<DeviceAnnotationNameHash>::is(const Parser& p) noexcept {
-        return p.current() && p.current()->type == TokenType::TAG
-            && p.current()->lexeme.substr(1) == "name-hash";
-    }
-
-    // DeviceAnnotationReagentHash
-
-    DeviceAnnotationReagentHash NodeParser<DeviceAnnotationReagentHash>::parse(Parser& p) {
-        DeviceAnnotationReagentHash result{p.expect(TokenType::TAG)->pos};
-
-        if (p.isMatch<Integer>())
-            result.value = std::move(NodeParser<Integer>::parse(p).value);
-        else [[unlikely]]
-            p.expect(TokenType::INTEGER);  // 引发错误，交给DeviceAnnotation
-
-        return result;
-    }
-
-    bool NodeParser<DeviceAnnotationReagentHash>::is(const Parser& p) {
-        return p.current() && p.current()->type == TokenType::TAG
-            && p.current()->lexeme.substr(1) == "reagent-hash";
-    }
-
-    // DeviceAnnotationSlot
-
-    DeviceAnnotationSlot NodeParser<DeviceAnnotationSlot>::parse(Parser& p) {
-        DeviceAnnotationSlot result{p.expect(TokenType::TAG)->pos};
-
-        if (p.current() && p.current()->type == TokenType::INTEGER)
-            result.value = std::move(NodeParser<Integer>::parse(p).value);
-
-        return result;
-    }
-
-    bool NodeParser<DeviceAnnotationSlot>::is(const Parser& p) noexcept {
-        return p.current() && p.current()->type == TokenType::TAG
-            && p.current()->lexeme.substr(1) == "slot";
     }
 
     // DeviceAnnotation

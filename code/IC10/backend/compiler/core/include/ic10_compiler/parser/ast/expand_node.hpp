@@ -57,21 +57,46 @@ namespace stationeers::ic10 {
         AST_NODE_PRE_DEFINED_METHODS(TypeHint)
     };
 
-    // TypeAnnotationLineBase
+    // TypeAnnotationValueBase
 
     template<FString Name, FString Tag>
-    struct TypeAnnotationLineBase : LeafNode<TypeAnnotationLineBase<Name, Tag>> {
+    struct TypeAnnotationValueBase : LeafNode<TypeAnnotationValueBase<Name, Tag>> {
         static constexpr auto nodeName = Name;
 
         static constexpr auto tag = Tag;
 
         static constexpr auto FIRST = std::make_tuple(std::array{TokenType::TAG});
 
-        using LeafNode<TypeAnnotationLineBase>::LeafNode;
+        using LeafNode<TypeAnnotationValueBase>::LeafNode;
 
-        [[nodiscard]] std::string toString() const override {
-            return std::format("@{} {}", std::string(Tag), LeafNode<TypeAnnotationLineBase>::value);
-        }
+        [[nodiscard]] std::string toString() const override;
+    };
+
+    // TypeAnnotationLineBase
+
+    template<FString Name, FString Tag>
+    struct TypeAnnotationLineBase : AST<TypeAnnotationLineBase<Name, Tag>> {
+        static constexpr auto nodeName = Name;
+
+        static constexpr auto tag = Tag;
+
+        static constexpr auto FIRST = std::make_tuple(std::array{TokenType::TAG});
+
+        using AST<TypeAnnotationLineBase>::AST;
+
+        std::string name;
+
+        std::string value;
+
+        std::optional<Description> desc;
+
+        Pos endPos;
+
+        [[nodiscard]] Pos end() const override;
+
+        [[nodiscard]] std::string toString() const override;
+
+        [[nodiscard]] std::string toJSON() const override;
     };
 
     // EnumAnnotationValue
@@ -118,11 +143,11 @@ namespace stationeers::ic10 {
 
     using DeviceAnnotationLogicSlot = TypeAnnotationLineBase<"DeviceAnnotationLogicSlot", "logic-slot">;
 
-    using DeviceAnnotationDeviceHash = TypeAnnotationLineBase<"DeviceAnnotationDeviceHash", "device-hash">;
+    using DeviceAnnotationDeviceHash = TypeAnnotationValueBase<"DeviceAnnotationDeviceHash", "device-hash">;
 
-    using DeviceAnnotationNameHash = TypeAnnotationLineBase<"DeviceAnnotationNameHash", "name-hash">;
+    using DeviceAnnotationNameHash = TypeAnnotationValueBase<"DeviceAnnotationNameHash", "name-hash">;
 
-    using DeviceAnnotationReagentHash = TypeAnnotationLineBase<"DeviceAnnotationReagentHash", "reagent-hash">;
+    using DeviceAnnotationReagentHash = TypeAnnotationValueBase<"DeviceAnnotationReagentHash", "reagent-hash">;
 
     using DeviceAnnotationSlot = TypeAnnotationLineBase<"DeviceAnnotationSlot", "slot">;
 
@@ -159,5 +184,7 @@ namespace stationeers::ic10 {
     using TypeAnnotation = ShallowErrorable<EnumAnnotation, DeviceAnnotation>;
 
 }  // namespace stationeers::ic10
+
+#include "expand_node.inl"
 
 #endif  // IC10_COMPILER_CORE_EXPAND_NODE_HPP

@@ -935,7 +935,7 @@ export interface EnumAnnotation extends ASTNode {
     readonly values: EnumAnnotationValue[];
 }
 
-interface TypeAnnotationLineBase<N extends string, T extends string> extends ASTNode {
+interface TypeAnnotationValueBase<N extends string, T extends string> extends ASTNode {
     readonly nodeName: N;
 
     readonly tag: T;
@@ -943,17 +943,29 @@ interface TypeAnnotationLineBase<N extends string, T extends string> extends AST
     readonly value: string;
 }
 
+interface TypeAnnotationLineBase<N extends string, T extends string> extends ASTNode {
+    readonly nodeName: N;
+
+    readonly tag: T;
+
+    readonly name: string;
+
+    readonly value: string;
+
+    readonly desc: IC10Utils.Optional<Description>;
+}
+
 export type DeviceAnnotationLogic = TypeAnnotationLineBase<"DeviceAnnotationLogic", "logic">;
 
 export type DeviceAnnotationLogicSlot = TypeAnnotationLineBase<"DeviceAnnotationLogicSlot", "logic-slot">;
 
-export type DeviceAnnotationDeviceHash = TypeAnnotationLineBase<"DeviceAnnotationDeviceHash", "device-hash">;
-
-export type DeviceAnnotationNameHash = TypeAnnotationLineBase<"DeviceAnnotationNameHash", "name-hash">;
-
-export type DeviceAnnotationReagentHash = TypeAnnotationLineBase<"DeviceAnnotationReagentHash", "reagent-hash">;
-
 export type DeviceAnnotationSlot = TypeAnnotationLineBase<"DeviceAnnotationSlot", "slot">;
+
+export type DeviceAnnotationDeviceHash = TypeAnnotationValueBase<"DeviceAnnotationDeviceHash", "device-hash">;
+
+export type DeviceAnnotationNameHash = TypeAnnotationValueBase<"DeviceAnnotationNameHash", "name-hash">;
+
+export type DeviceAnnotationReagentHash = TypeAnnotationValueBase<"DeviceAnnotationReagentHash", "reagent-hash">;
 
 export interface DeviceAnnotation extends ASTNode {
     readonly nodeName: "DeviceAnnotation";
