@@ -50,9 +50,11 @@ deviceStartTag : AT 'device' ;
 
 deviceEndTag : AT 'end-device' ;
 
-deviceLogicTag : AT 'logic' Identifier ;
+deviceLogicTag : AT 'logic' Identifier Integer description? ;
 
-deviceLogicSlotTag : AT 'logic-slot' Identifier ;
+deviceLogicSlotTag : AT 'logic-slot' Identifier Integer description? ;
+
+deviceSlotTag : AT 'slot' Identifier Integer description? ;
 
 deviceHashTag : AT 'device-hash' Integer ;
 

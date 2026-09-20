@@ -219,10 +219,13 @@ namespace stationeers::ic10 {
                             arg.value
                         );
 
-                        if (!flag)
+                        if (!flag) {
                             self->reporter_->errorWith<ICMsgId::IWA15_1>(
                                 arg.start(), arg.end(), arg.value
                             );
+
+                            return true;  // 返回 true 以避免重复报告错误
+                        }
 
                         return flag;
                     }
@@ -266,7 +269,7 @@ namespace stationeers::ic10 {
                     if constexpr (std::is_same_v<U, DeviceAnnotation>) {
                         bool flag = std::ranges::contains(
                             type.logicSlots
-                                | std::views::transform(&DeviceAnnotationLogicSlot::value),
+                                | std::views::transform(&DeviceAnnotationLogicSlot::name),
                             arg.value
                         );
 
@@ -296,10 +299,13 @@ namespace stationeers::ic10 {
                             arg.value
                         );
 
-                        if (!flag)
+                        if (!flag) {
                             self->reporter_->errorWith<ICMsgId::IWA12_1>(
                                 arg.start(), arg.end(), arg.value
                             );
+
+                            return true;  // 返回 true 以避免重复报告错误
+                        }
 
                         return flag;
                     }
@@ -335,10 +341,13 @@ namespace stationeers::ic10 {
                             arg.value
                         );
 
-                        if (!flag)
+                        if (!flag) {
                             self->reporter_->errorWith<ICMsgId::IWA17_1>(
                                 arg.start(), arg.end(), arg.value
                             );
+
+                            return true;  // 返回 true 以避免重复报告错误
+                        }
 
                         return flag;
                     }

@@ -224,8 +224,8 @@ TEST_F(ParserTestFixture, DeviceDocWithSlots) {
     auto ast = parse(
         "#> @device\n"
         "#> @name Furnace\n"
-        "#> @slot 0\n"
-        "#> @slot 1\n"
+        "#> @slot Input 0\n"
+        "#> @slot Output 1\n"
         "#> @end-device\n"
     );
     EXPECT_EQ(ast.statements.size(), 1u);
@@ -233,7 +233,9 @@ TEST_F(ParserTestFixture, DeviceDocWithSlots) {
     ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
     auto& doc = std::get<DeviceAnnotation>(stmt);
     ASSERT_EQ(doc.slots.size(), 2u);
+    EXPECT_EQ(doc.slots[0].name, "Input");
     EXPECT_EQ(doc.slots[0].value, "0");
+    EXPECT_EQ(doc.slots[1].name, "Output");
     EXPECT_EQ(doc.slots[1].value, "1");
 }
 
@@ -241,8 +243,8 @@ TEST_F(ParserTestFixture, DeviceDocWithLogics) {
     auto ast = parse(
         "#> @device\n"
         "#> @name Sensor\n"
-        "#> @logic Pressure\n"
-        "#> @logic Temperature\n"
+        "#> @logic Pressure 5\n"
+        "#> @logic Temperature 6 \"Temperature\"\n"
         "#> @end-device\n"
     );
     EXPECT_EQ(ast.statements.size(), 1u);
@@ -250,16 +252,21 @@ TEST_F(ParserTestFixture, DeviceDocWithLogics) {
     ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
     auto& doc = std::get<DeviceAnnotation>(stmt);
     ASSERT_EQ(doc.logics.size(), 2u);
-    EXPECT_EQ(doc.logics[0].value, "Pressure");
-    EXPECT_EQ(doc.logics[1].value, "Temperature");
+    EXPECT_EQ(doc.logics[0].name, "Pressure");
+    EXPECT_EQ(doc.logics[0].value, "5");
+    EXPECT_FALSE(doc.logics[0].desc.has_value());
+    EXPECT_EQ(doc.logics[1].name, "Temperature");
+    EXPECT_EQ(doc.logics[1].value, "6");
+    // 描述为可选：带引号的描述应被解析
+    EXPECT_TRUE(doc.logics[1].desc.has_value());
 }
 
 TEST_F(ParserTestFixture, DeviceDocWithLogicSlots) {
     auto ast = parse(
         "#> @device\n"
         "#> @name IC10\n"
-        "#> @logic-slot Quantity\n"
-        "#> @logic-slot Charge\n"
+        "#> @logic-slot Quantity 3\n"
+        "#> @logic-slot Charge 10\n"
         "#> @end-device\n"
     );
     EXPECT_EQ(ast.statements.size(), 1u);
@@ -267,8 +274,10 @@ TEST_F(ParserTestFixture, DeviceDocWithLogicSlots) {
     ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
     auto& doc = std::get<DeviceAnnotation>(stmt);
     ASSERT_EQ(doc.logicSlots.size(), 2u);
-    EXPECT_EQ(doc.logicSlots[0].value, "Quantity");
-    EXPECT_EQ(doc.logicSlots[1].value, "Charge");
+    EXPECT_EQ(doc.logicSlots[0].name, "Quantity");
+    EXPECT_EQ(doc.logicSlots[0].value, "3");
+    EXPECT_EQ(doc.logicSlots[1].name, "Charge");
+    EXPECT_EQ(doc.logicSlots[1].value, "10");
 }
 
 TEST_F(ParserTestFixture, EnumValueWithLinkDesc) {
