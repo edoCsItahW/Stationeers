@@ -110,6 +110,19 @@
 #> @value Undefined 0 ./locals/enums.GasType.enums.Undefined.desc
 #> @value Volatiles 8 ./locals/enums.GasType.enums.Volatiles.desc
 #> @value Water 32 ./locals/enums.GasType.enums.Water.desc
+#> @value Helium 1048576 ./locals/enums.GasType.enums.Helium.desc
+#> @value Hydrazine 131072 ./locals/enums.GasType.enums.Hydrazine.desc
+#> @value HydrochloricAcid 16777216 ./locals/enums.GasType.enums.HydrochloricAcid.desc
+#> @value LiquidAlcohol 524288 ./locals/enums.GasType.enums.LiquidAlcohol.desc
+#> @value LiquidHydrazine 262144 ./locals/enums.GasType.enums.LiquidHydrazine.desc
+#> @value LiquidHydrochloricAcid 33554432 ./locals/enums.GasType.enums.LiquidHydrochloricAcid.desc
+#> @value LiquidMethane 512 ./locals/enums.GasType.enums.LiquidMethane.desc
+#> @value LiquidOzone 134217728 ./locals/enums.GasType.enums.LiquidOzone.desc
+#> @value LiquidSilanol 8388608 ./locals/enums.GasType.enums.LiquidSilanol.desc
+#> @value LiquidSodiumChloride 2097152 ./locals/enums.GasType.enums.LiquidSodiumChloride.desc
+#> @value Methane 8 ./locals/enums.GasType.enums.Methane.desc
+#> @value Ozone 67108864 ./locals/enums.GasType.enums.Ozone.desc
+#> @value Silanol 4194304 ./locals/enums.GasType.enums.Silanol.desc
 #> @end-enum
  
 #> @enum
@@ -127,7 +140,6 @@
 #> @value Class 12 ./locals/enums.LogicSlotType.enums.Class.desc
 #> @value Damage 4 ./locals/enums.LogicSlotType.enums.Damage.desc
 #> @value Efficiency 5 ./locals/enums.LogicSlotType.enums.Efficiency.desc
-#> @value FilterType 26 ./locals/enums.LogicSlotType.enums.FilterType.desc
 #> @value FreeSlots 31 ./locals/enums.LogicSlotType.enums.FreeSlots.desc
 #> @value Growth 7 ./locals/enums.LogicSlotType.enums.Growth.desc
 #> @value HarvestedHash 27 ./locals/enums.LogicSlotType.enums.HarvestedHash.desc
@@ -155,6 +167,10 @@
 #> @value Temperature 9 ./locals/enums.LogicSlotType.enums.Temperature.desc
 #> @value TotalSlots 32 ./locals/enums.LogicSlotType.enums.TotalSlots.desc
 #> @value Volume 20 ./locals/enums.LogicSlotType.enums.Volume.desc
+#> @value FilterType 25 ./locals/enums.LogicSlotType.enums.FilterType.desc
+#> @value Occupied 1 ./locals/enums.LogicSlotType.enums.Occupied.desc
+#> @value On 22 ./locals/enums.LogicSlotType.enums.On.desc
+#> @value ReferenceId 26 ./locals/enums.LogicSlotType.enums.ReferenceId.desc
 #> @end-enum
  
 #> @enum
@@ -417,6 +433,118 @@
 #> @value WattsReachingContact 164 ./locals/enums.LogicType.enums.WattsReachingContact.desc
 #> @value Weight 222 ./locals/enums.LogicType.enums.Weight.desc
 #> @value WorkingGasEfficiency 105 ./locals/enums.LogicType.enums.WorkingGasEfficiency.desc
+#> @value ContactSlotIndex 282 ./locals/enums.LogicType.enums.ContactSlotIndex.desc
+#> @value CurrentNodeType 352 ./locals/enums.LogicType.enums.CurrentNodeType.desc
+#> @value Dispense 356 ./locals/enums.LogicType.enums.Dispense.desc
+#> @value DispenseSlot 357 ./locals/enums.LogicType.enums.DispenseSlot.desc
+#> @value EnergyConvected 354 ./locals/enums.LogicType.enums.EnergyConvected.desc
+#> @value EnergyRadiated 355 ./locals/enums.LogicType.enums.EnergyRadiated.desc
+#> @value ExportQuantity 31 ./locals/enums.LogicType.enums.ExportQuantity.desc
+#> @value ExportSlotHash 42 ./locals/enums.LogicType.enums.ExportSlotHash.desc
+#> @value ExportSlotOccupant 32 ./locals/enums.LogicType.enums.ExportSlotOccupant.desc
+#> @value Gravity 358 ./locals/enums.LogicType.enums.Gravity.desc
+#> @value HealthDamage 350 ./locals/enums.LogicType.enums.HealthDamage.desc
+#> @value ImportQuantity 29 ./locals/enums.LogicType.enums.ImportQuantity.desc
+#> @value ImportSlotHash 43 ./locals/enums.LogicType.enums.ImportSlotHash.desc
+#> @value ImportSlotOccupant 30 ./locals/enums.LogicType.enums.ImportSlotOccupant.desc
+#> @value On 28 ./locals/enums.LogicType.enums.On.desc
+#> @value SemiMajorAxis 248 ./locals/enums.LogicType.enums.SemiMajorAxis.desc
+#> @value StackSize 280 ./locals/enums.LogicType.enums.StackSize.desc
+#> @value StunDamage 351 ./locals/enums.LogicType.enums.StunDamage.desc
+#> @value TargetNodeType 353 ./locals/enums.LogicType.enums.TargetNodeType.desc
+#> @value RatioHelium 286 ./locals/enums.LogicType.enums.RatioHelium.desc
+#> @value RatioHeliumInput 318 ./locals/enums.LogicType.enums.RatioHeliumInput.desc
+#> @value RatioHeliumInput2 319 ./locals/enums.LogicType.enums.RatioHeliumInput2.desc
+#> @value RatioHeliumOutput 320 ./locals/enums.LogicType.enums.RatioHeliumOutput.desc
+#> @value RatioHeliumOutput2 321 ./locals/enums.LogicType.enums.RatioHeliumOutput2.desc
+#> @value RatioHydrazine 283 ./locals/enums.LogicType.enums.RatioHydrazine.desc
+#> @value RatioHydrazineInput 306 ./locals/enums.LogicType.enums.RatioHydrazineInput.desc
+#> @value RatioHydrazineInput2 307 ./locals/enums.LogicType.enums.RatioHydrazineInput2.desc
+#> @value RatioHydrazineOutput 308 ./locals/enums.LogicType.enums.RatioHydrazineOutput.desc
+#> @value RatioHydrazineOutput2 309 ./locals/enums.LogicType.enums.RatioHydrazineOutput2.desc
+#> @value RatioHydrochloricAcid 290 ./locals/enums.LogicType.enums.RatioHydrochloricAcid.desc
+#> @value RatioHydrochloricAcidInput 334 ./locals/enums.LogicType.enums.RatioHydrochloricAcidInput.desc
+#> @value RatioHydrochloricAcidInput2 335 ./locals/enums.LogicType.enums.RatioHydrochloricAcidInput2.desc
+#> @value RatioHydrochloricAcidOutput 336 ./locals/enums.LogicType.enums.RatioHydrochloricAcidOutput.desc
+#> @value RatioHydrochloricAcidOutput2 337 ./locals/enums.LogicType.enums.RatioHydrochloricAcidOutput2.desc
+#> @value RatioHydrogenInput 294 ./locals/enums.LogicType.enums.RatioHydrogenInput.desc
+#> @value RatioHydrogenInput2 295 ./locals/enums.LogicType.enums.RatioHydrogenInput2.desc
+#> @value RatioHydrogenOutput 296 ./locals/enums.LogicType.enums.RatioHydrogenOutput.desc
+#> @value RatioHydrogenOutput2 297 ./locals/enums.LogicType.enums.RatioHydrogenOutput2.desc
+#> @value RatioLiquidAlcohol 285 ./locals/enums.LogicType.enums.RatioLiquidAlcohol.desc
+#> @value RatioLiquidAlcoholInput 314 ./locals/enums.LogicType.enums.RatioLiquidAlcoholInput.desc
+#> @value RatioLiquidAlcoholInput2 315 ./locals/enums.LogicType.enums.RatioLiquidAlcoholInput2.desc
+#> @value RatioLiquidAlcoholOutput 316 ./locals/enums.LogicType.enums.RatioLiquidAlcoholOutput.desc
+#> @value RatioLiquidAlcoholOutput2 317 ./locals/enums.LogicType.enums.RatioLiquidAlcoholOutput2.desc
+#> @value RatioLiquidCarbonDioxideInput 200 ./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput.desc
+#> @value RatioLiquidCarbonDioxideInput2 201 ./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput2.desc
+#> @value RatioLiquidCarbonDioxideOutput 202 ./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput.desc
+#> @value RatioLiquidCarbonDioxideOutput2 203 ./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput2.desc
+#> @value RatioLiquidHydrazine 284 ./locals/enums.LogicType.enums.RatioLiquidHydrazine.desc
+#> @value RatioLiquidHydrazineInput 310 ./locals/enums.LogicType.enums.RatioLiquidHydrazineInput.desc
+#> @value RatioLiquidHydrazineInput2 311 ./locals/enums.LogicType.enums.RatioLiquidHydrazineInput2.desc
+#> @value RatioLiquidHydrazineOutput 312 ./locals/enums.LogicType.enums.RatioLiquidHydrazineOutput.desc
+#> @value RatioLiquidHydrazineOutput2 313 ./locals/enums.LogicType.enums.RatioLiquidHydrazineOutput2.desc
+#> @value RatioLiquidHydrochloricAcid 291 ./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcid.desc
+#> @value RatioLiquidHydrochloricAcidInput 338 ./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidInput.desc
+#> @value RatioLiquidHydrochloricAcidInput2 339 ./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidInput2.desc
+#> @value RatioLiquidHydrochloricAcidOutput 340 ./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidOutput.desc
+#> @value RatioLiquidHydrochloricAcidOutput2 341 ./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidOutput2.desc
+#> @value RatioLiquidHydrogen 253 ./locals/enums.LogicType.enums.RatioLiquidHydrogen.desc
+#> @value RatioLiquidHydrogenInput 298 ./locals/enums.LogicType.enums.RatioLiquidHydrogenInput.desc
+#> @value RatioLiquidHydrogenInput2 299 ./locals/enums.LogicType.enums.RatioLiquidHydrogenInput2.desc
+#> @value RatioLiquidHydrogenOutput 300 ./locals/enums.LogicType.enums.RatioLiquidHydrogenOutput.desc
+#> @value RatioLiquidHydrogenOutput2 301 ./locals/enums.LogicType.enums.RatioLiquidHydrogenOutput2.desc
+#> @value RatioLiquidMethane 188 ./locals/enums.LogicType.enums.RatioLiquidMethane.desc
+#> @value RatioLiquidMethaneInput 189 ./locals/enums.LogicType.enums.RatioLiquidMethaneInput.desc
+#> @value RatioLiquidMethaneInput2 190 ./locals/enums.LogicType.enums.RatioLiquidMethaneInput2.desc
+#> @value RatioLiquidMethaneOutput 191 ./locals/enums.LogicType.enums.RatioLiquidMethaneOutput.desc
+#> @value RatioLiquidMethaneOutput2 192 ./locals/enums.LogicType.enums.RatioLiquidMethaneOutput2.desc
+#> @value RatioLiquidNitrogen 177 ./locals/enums.LogicType.enums.RatioLiquidNitrogen.desc
+#> @value RatioLiquidNitrogenInput 178 ./locals/enums.LogicType.enums.RatioLiquidNitrogenInput.desc
+#> @value RatioLiquidNitrogenInput2 179 ./locals/enums.LogicType.enums.RatioLiquidNitrogenInput2.desc
+#> @value RatioLiquidNitrogenOutput 180 ./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput.desc
+#> @value RatioLiquidNitrogenOutput2 181 ./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput2.desc
+#> @value RatioLiquidNitrousOxide 209 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxide.desc
+#> @value RatioLiquidNitrousOxideInput 210 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput.desc
+#> @value RatioLiquidNitrousOxideInput2 211 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput2.desc
+#> @value RatioLiquidNitrousOxideOutput 212 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput.desc
+#> @value RatioLiquidNitrousOxideOutput2 213 ./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput2.desc
+#> @value RatioLiquidOxygen 183 ./locals/enums.LogicType.enums.RatioLiquidOxygen.desc
+#> @value RatioLiquidOzone 293 ./locals/enums.LogicType.enums.RatioLiquidOzone.desc
+#> @value RatioLiquidOzoneInput 346 ./locals/enums.LogicType.enums.RatioLiquidOzoneInput.desc
+#> @value RatioLiquidOzoneInput2 347 ./locals/enums.LogicType.enums.RatioLiquidOzoneInput2.desc
+#> @value RatioLiquidOzoneOutput 348 ./locals/enums.LogicType.enums.RatioLiquidOzoneOutput.desc
+#> @value RatioLiquidOzoneOutput2 349 ./locals/enums.LogicType.enums.RatioLiquidOzoneOutput2.desc
+#> @value RatioLiquidSilanol 289 ./locals/enums.LogicType.enums.RatioLiquidSilanol.desc
+#> @value RatioLiquidSilanolInput 330 ./locals/enums.LogicType.enums.RatioLiquidSilanolInput.desc
+#> @value RatioLiquidSilanolInput2 331 ./locals/enums.LogicType.enums.RatioLiquidSilanolInput2.desc
+#> @value RatioLiquidSilanolOutput 332 ./locals/enums.LogicType.enums.RatioLiquidSilanolOutput.desc
+#> @value RatioLiquidSilanolOutput2 333 ./locals/enums.LogicType.enums.RatioLiquidSilanolOutput2.desc
+#> @value RatioLiquidSodiumChloride 287 ./locals/enums.LogicType.enums.RatioLiquidSodiumChloride.desc
+#> @value RatioLiquidSodiumChlorideInput 322 ./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideInput.desc
+#> @value RatioLiquidSodiumChlorideInput2 323 ./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideInput2.desc
+#> @value RatioLiquidSodiumChlorideOutput 324 ./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideOutput.desc
+#> @value RatioLiquidSodiumChlorideOutput2 325 ./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideOutput2.desc
+#> @value RatioMethane 18 ./locals/enums.LogicType.enums.RatioMethane.desc
+#> @value RatioMethaneInput 112 ./locals/enums.LogicType.enums.RatioMethaneInput.desc
+#> @value RatioMethaneInput2 122 ./locals/enums.LogicType.enums.RatioMethaneInput2.desc
+#> @value RatioMethaneOutput 132 ./locals/enums.LogicType.enums.RatioMethaneOutput.desc
+#> @value RatioMethaneOutput2 142 ./locals/enums.LogicType.enums.RatioMethaneOutput2.desc
+#> @value RatioOzone 292 ./locals/enums.LogicType.enums.RatioOzone.desc
+#> @value RatioOzoneInput 342 ./locals/enums.LogicType.enums.RatioOzoneInput.desc
+#> @value RatioOzoneInput2 343 ./locals/enums.LogicType.enums.RatioOzoneInput2.desc
+#> @value RatioOzoneOutput 344 ./locals/enums.LogicType.enums.RatioOzoneOutput.desc
+#> @value RatioOzoneOutput2 345 ./locals/enums.LogicType.enums.RatioOzoneOutput2.desc
+#> @value RatioPollutedWaterInput 302 ./locals/enums.LogicType.enums.RatioPollutedWaterInput.desc
+#> @value RatioPollutedWaterInput2 303 ./locals/enums.LogicType.enums.RatioPollutedWaterInput2.desc
+#> @value RatioPollutedWaterOutput 304 ./locals/enums.LogicType.enums.RatioPollutedWaterOutput.desc
+#> @value RatioPollutedWaterOutput2 305 ./locals/enums.LogicType.enums.RatioPollutedWaterOutput2.desc
+#> @value RatioSilanol 288 ./locals/enums.LogicType.enums.RatioSilanol.desc
+#> @value RatioSilanolInput 326 ./locals/enums.LogicType.enums.RatioSilanolInput.desc
+#> @value RatioSilanolInput2 327 ./locals/enums.LogicType.enums.RatioSilanolInput2.desc
+#> @value RatioSilanolOutput 328 ./locals/enums.LogicType.enums.RatioSilanolOutput.desc
+#> @value RatioSilanolOutput2 329 ./locals/enums.LogicType.enums.RatioSilanolOutput2.desc
 #> @end-enum
  
 #> @enum
@@ -476,6 +604,8 @@
 #> @value Mine 2 ./locals/enums.RocketMode.enums.Mine.desc
 #> @value None 1 ./locals/enums.RocketMode.enums.None.desc
 #> @value Survey 3 ./locals/enums.RocketMode.enums.Survey.desc
+#> @value SurfaceScan 7 ./locals/enums.RocketMode.enums.SurfaceScan.desc
+#> @value Transfer 8 ./locals/enums.RocketMode.enums.Transfer.desc
 #> @end-enum
  
 #> @enum
@@ -507,7 +637,6 @@
 #> @value Back 3 ./locals/enums.SlotClass.enums.Back.desc
 #> @value Battery 14 ./locals/enums.SlotClass.enums.Battery.desc
 #> @value Belt 16 ./locals/enums.SlotClass.enums.Belt.desc
-#> @value Blocked 39 ./locals/enums.SlotClass.enums.Blocked.desc
 #> @value Bottle 25 ./locals/enums.SlotClass.enums.Bottle.desc
 #> @value Cartridge 21 ./locals/enums.SlotClass.enums.Cartridge.desc
 #> @value Circuit 24 ./locals/enums.SlotClass.enums.Circuit.desc
@@ -545,6 +674,10 @@
 #> @value Torpedo 20 ./locals/enums.SlotClass.enums.Torpedo.desc
 #> @value Uniform 12 ./locals/enums.SlotClass.enums.Uniform.desc
 #> @value Wreckage 33 ./locals/enums.SlotClass.enums.Wreckage.desc
+#> @value AutoInjector 43 ./locals/enums.SlotClass.enums.AutoInjector.desc
+#> @value Blocked 38 ./locals/enums.SlotClass.enums.Blocked.desc
+#> @value Ingot 19 ./locals/enums.SlotClass.enums.Ingot.desc
+#> @value Ore 10 ./locals/enums.SlotClass.enums.Ore.desc
 #> @end-enum
  
 #> @enum
@@ -620,10 +753,11 @@
 #> @value TemperatureLow 42 ./locals/enums.Sound.enums.TemperatureLow.desc
 #> @value Three 31 ./locals/enums.Sound.enums.Three.desc
 #> @value TraderIncoming 37 ./locals/enums.Sound.enums.TraderIncoming.desc
-#> @value TraderLanded 30 ./locals/enums.Sound.enums.TraderLanded.desc
 #> @value Two 30 ./locals/enums.Sound.enums.Two.desc
 #> @value Warning 16 ./locals/enums.Sound.enums.Warning.desc
 #> @value Welcome 25 ./locals/enums.Sound.enums.Welcome.desc
+#> @value HaltWhoGoesThere 27 ./locals/enums.Sound.enums.HaltWhoGoesThere.desc
+#> @value TraderLanded 38 ./locals/enums.Sound.enums.TraderLanded.desc
 #> @end-enum
  
 #> @enum
@@ -680,13 +814,32 @@
 #> @value Minimum 2 
 #> @value Sum 1 
 #> @end-enum
+ 
+#> @enum
+#> @name FiltrationMode
+#> @desc ./locals/enums.FiltrationMode.desc
+#> @value Active 1 ./locals/enums.FiltrationMode.enums.Active.desc
+#> @value Idle 0 ./locals/enums.FiltrationMode.enums.Idle.desc
+#> @end-enum
+ 
+#> @enum
+#> @name NodeType
+#> @desc ./locals/enums.NodeType.desc
+#> @value Entry 1 ./locals/enums.NodeType.enums.Entry.desc
+#> @value Generated 3 ./locals/enums.NodeType.enums.Generated.desc
+#> @value LaunchPad 4 ./locals/enums.NodeType.enums.LaunchPad.desc
+#> @value LowOrbitHub 5 ./locals/enums.NodeType.enums.LowOrbitHub.desc
+#> @value LowOrbitLaunchPad 6 ./locals/enums.NodeType.enums.LowOrbitLaunchPad.desc
+#> @value None 0 ./locals/enums.NodeType.enums.None.desc
+#> @value Static 2 ./locals/enums.NodeType.enums.Static.desc
+#> @end-enum
 
-define rgas    "rags"     #: @builtin
-define deg2rad "deg2rad"  #: @builtin
-define tau     "tau"      #: @builtin
-define epsilon "epsilon"  #: @builtin
-define nan     "nan"      #: @builtin
-define pinf    "pinf"     #: @builtin
-define ninf    "ninf"     #: @builtin
-define pi      "pi"       #: @builtin
-define rad2deg "rad2deg"  #: @builtin
+define rgas    "rags"     #: @builtin @desc ./locals/instructions.rgas.desc
+define deg2rad "deg2rad"  #: @builtin @desc ./locals/instructions.deg2rad.desc
+define tau     "tau"      #: @builtin @desc ./locals/instructions.tau.desc
+define epsilon "epsilon"  #: @builtin @desc ./locals/instructions.epsilon.desc
+define nan     "nan"      #: @builtin @desc ./locals/instructions.nan.desc
+define pinf    "pinf"     #: @builtin @desc ./locals/instructions.pinf.desc
+define ninf    "ninf"     #: @builtin @desc ./locals/instructions.ninf.desc
+define pi      "pi"       #: @builtin @desc ./locals/instructions.pi.desc
+define rad2deg "rad2deg"  #: @builtin @desc ./locals/instructions.rad2deg.desc
