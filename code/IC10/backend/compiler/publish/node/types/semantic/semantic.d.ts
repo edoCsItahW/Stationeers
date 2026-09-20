@@ -78,5 +78,10 @@ export interface Symbol {
 
 
 export interface SymbolMap {
-    [key: string]: Symbol;
+    symbols: {
+        [key: string]: Symbol;
+    };
+    builtinSymbols: {
+        [key: string]: Symbol;
+    };
 }
