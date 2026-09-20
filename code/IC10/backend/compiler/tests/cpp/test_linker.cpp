@@ -182,7 +182,7 @@ TEST_F(LinkerTestFixture, SharedTypeTableDeviceType) {
     linker.addUnit(
         "#> @device\n"
         "#> @name Sensor\n"
-        "#> @logic Pressure\n"
+        "#> @logic Pressure 5\n"
         "#> @end-device\n"
     );
     linker.addUnit(
@@ -358,7 +358,7 @@ TEST_F(LinkerTestFixture, GetTypeTableWithDeviceType) {
     linker.addUnit(
         "#> @device\n"
         "#> @name Sensor\n"
-        "#> @logic Pressure\n"
+        "#> @logic Pressure 5\n"
         "#> @end-device\n"
     );
     linker.addUnit("alias s d0 #: @type Sensor\nhcf\n");

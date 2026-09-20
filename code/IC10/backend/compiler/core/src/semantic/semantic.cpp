@@ -77,7 +77,7 @@ namespace stationeers::ic10 {
     std::string SymbolTable::toJSON() const {
         std::stringstream ss;
 
-        ss << "{";
+        ss << "{\"symbols\": {";
 
         bool first = true;
 
@@ -93,7 +93,19 @@ namespace stationeers::ic10 {
                 }
 
 
-        ss << "}";
+        ss << "}, \"builtinSymbols\": {";
+
+        first = true;
+
+        for (const auto& [key, symbol] : builtinSymbols) {
+            if (!first) [[likely]]
+                ss << ", ";
+
+            ss << '\"' << key << "\": " << symbol.toJSON();
+
+            first = false;
+        }
+        ss << "}}";
 
         return ss.str();
     }

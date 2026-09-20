@@ -80,26 +80,15 @@ namespace stationeers::ic10 {
     ) const {
         auto result = co_await std::move(symbolTable_->resolve(name, pos));
 
-        // 解析失败：将异常重新抛出以捕获其消息，统一以 IE0_1 上报
+        // 解析失败：将异常重新抛出以捕获其消息
         if (!result.has_value()) {
-            rethrow(result.error(), name, pos);
+            // 已知解析失败只有未定义一种情况，且对符号的引用存在多个位置
+            reporter_->errorWith<ICMsgId::IEA3_1>(pos, endPos(pos, name), name);
 
             co_return nullptr;
         }
 
         co_return result.value();
-    }
-
-    void Analyser::rethrow(
-        const std::exception_ptr& exception, const std::string& name, const Pos& pos
-    ) const {
-        try {
-            std::rethrow_exception(exception);
-        } catch (const Error& e) {
-            reporter_->errorWith<ICMsgId::IE0_1>(*e.getStart(), *e.getEnd(), e.message());
-        } catch (const std::exception& e) {
-            reporter_->errorWith<ICMsgId::IE0_1>(pos, endPos(pos, name), std::string(e.what()));
-        }
     }
 
     // 定义符号：包装符号表 define，重定义时上报 IEA2_1

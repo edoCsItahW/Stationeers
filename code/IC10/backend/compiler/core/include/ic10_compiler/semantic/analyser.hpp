@@ -234,10 +234,6 @@ namespace stationeers::ic10 {
          */
         Task<std::shared_ptr<Symbol>> resolveSymbol(const std::string& name, const Pos& pos) const;
 
-        void rethrow(
-            const std::exception_ptr& exception, const std::string& name, const Pos& pos
-        ) const;
-
         /**
          * @if zh
          *

@@ -99,14 +99,13 @@ namespace stationeers::ic10 {
                     // 设备引用/别名：需 resolve 以获取设备符号（可能为前向引用）
                     // 注意：必须通过 resolveSymbol（Task<shared_ptr<Symbol>>）而非直接 resolve，
                     // 因为 process 是 Task<void>，其 coro_state_weak_ 未设置，无法注册为 Future
-                    // 等待者， 直接 co_await resolve 会导致协程永久挂起且 rethrow 永远不被调用。
+                    // 等待者，直接 co_await resolve 会导致协程永久挂起且失败诊断永远不会被上报。
                     // resolveSymbol 是非 void Task，可正确注册为等待者，被 failAllPending
-                    // 恢复后上报 IE0_1。
+                    // 恢复后上报 IEA3_1。
                     else if constexpr (Type == OperandType::DEVICE_REF) {
                         auto result = co_await resolveSymbol(arg.value, arg.position);
 
-                        // resolveSymbol 失败时已由内部 rethrow 上报 IE0_1，result.value() 为
-                        // nullptr
+                        // resolveSymbol 失败时已上报 IEA3_1，result.value() 为 nullptr
                         if (result.has_value() && result.value())
                             pendingDeviceSymbol_ = {
                                 std::move(result.value()), arg.start(), arg.end()
@@ -117,7 +116,7 @@ namespace stationeers::ic10 {
                     else {
                         auto result = co_await resolveSymbol(arg.value, arg.position);
 
-                        // resolveSymbol 失败时已上报 IE0_1，仅在对称解析成功时做类型检查
+                        // resolveSymbol 失败时已上报 IEA3_1，仅在解析成功时做类型检查
                         if (result.has_value() && result.value())
                             IdentifierChecker<Type>::check(this, result.value(), arg);
                     }
@@ -187,14 +186,14 @@ namespace stationeers::ic10 {
                 Type == OperandType::LOGIC_SLOT_PROP
             ) {
                 if (!std::ranges::contains(
-                        dt.logicSlots | std::views::transform(&DeviceAnnotationLogicSlot::value),
+                        dt.logicSlots | std::views::transform(&DeviceAnnotationLogicSlot::name),
                         currentSym.name
                     ))
                     reporter_->errorWith<ICMsgId::IWA11_2>(start, end, currentSym.name, *typeName);
 
             } else if constexpr (Type == OperandType::LOGIC_PROP) {
                 if (!std::ranges::contains(
-                        dt.logics | std::views::transform(&DeviceAnnotationLogic::value),
+                        dt.logics | std::views::transform(&DeviceAnnotationLogic::name),
                         currentSym.name
                     ))
                     reporter_->errorWith<ICMsgId::IWA14_2>(start, end, currentSym.name, *typeName);
