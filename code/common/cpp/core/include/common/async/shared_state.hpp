@@ -158,11 +158,15 @@ namespace stationeers {
         /**
          * @if zh
          * @brief 等待此状态完成的协程列表
+         * @details 状态类型无关:等待者的协程返回值类型可以与T不同
+         *
          * @elseif en
          * @brief List of coroutines waiting for this state to complete
+         * @details Type-erased: a waiter's coroutine return type may differ from T
+         *
          * @endif
          */
-        std::vector<std::shared_ptr<CoroutineState<T>>> waiters;
+        std::vector<std::shared_ptr<CoroutineState>> waiters;
 
         /**
          * @if zh
@@ -203,11 +207,15 @@ namespace stationeers {
         /**
          * @if zh
          * @brief 等待此状态完成的协程列表
+         * @details 状态类型无关:等待者的协程返回值类型可以与T不同
+         *
          * @elseif en
          * @brief List of coroutines waiting for this state to complete
+         * @details Type-erased: a waiter's coroutine return type may differ from T
+         *
          * @endif
          */
-        std::vector<std::shared_ptr<CoroutineState<void>>> waiters;
+        std::vector<std::shared_ptr<CoroutineState>> waiters;
 
         /**
          * @if zh
@@ -481,16 +489,23 @@ namespace stationeers {
          * @if zh
          *
          * @brief 添加等待者
+         * @details 仅在本状态仍为 PENDING 时登记等待者;若状态已定(如FAILED),
+         *          调用方不应挂起,直接读取结果即可。
          * @param waiter 指向等待协程状态的shared_ptr
+         * @return 已登记(调用方需挂起)返回true,状态已定返回false
          *
          * @elseif en
          *
          * @brief Add waiter
+         * @details The waiter is registered only while this state is still PENDING; when the
+         *          state is already settled (e.g. FAILED) the caller must not suspend and should
+         *          read the result right away.
          * @param waiter shared_ptr pointing to waiting coroutine state
+         * @return true if registered (caller must suspend), false if the state is already settled
          *
          * @endif
          */
-        void addWaiter(std::shared_ptr<CoroutineState<T>> waiter);
+        bool addWaiter(std::shared_ptr<CoroutineState> waiter);
 
         /**
          * @if zh

@@ -34,24 +34,6 @@
 
 namespace stationeers {
 
-    // 前向声明
-
-    /**
-     * @if zh
-     *
-     * @brief Task类型前向声明
-     * @tparam T 协程返回值类型
-     *
-     * @elseif en
-     *
-     * @brief Task type forward declaration
-     * @tparam T Coroutine return value type
-     *
-     * @endif
-     */
-    template<typename T>
-    struct Task;
-
     /**
      * @if zh
      *
@@ -60,9 +42,13 @@ namespace stationeers {
      * @details 管理协程句柄的生命周期,提供线程安全的销毁标志追踪。
      *        每个协程对应一个CoroutineState实例,用于Future/Promise模型中协程状态共享。
      *
-     * @tparam T 协程返回值类型
+     * @par 类型无关性:
+     * 该类不携带协程返回值类型,因此`Task<void>`与`Task<T>`的协程状态是同一类型。
+     * 等待者注册时无需按被等待的Future类型重新解释状态,任意协程都可注册为任意
+     * Future的等待者(参见 @ref Future::Awaiter::await_suspend)。
      *
-     * @note 该类不可复制,只能通过shared_ptr管理
+     * @note 该类不可复制,只能通过shared_ptr管理;当最后一个shared_ptr析构时,
+     *       若协程帧尚未销毁则销毁之
      *
      * @elseif en
      *
@@ -72,26 +58,32 @@ namespace stationeers {
      *        Each coroutine corresponds to one CoroutineState instance, used for coroutine state sharing
      *        in Future/Promise model.
      *
-     * @tparam T Coroutine return value type
+     * @par Type erasure:
+     * This class carries no coroutine return type, so `Task<void>` and `Task<T>` coroutines share
+     * the very same state type. Waiter registration needs no reinterpretation of the state against
+     * the awaited Future type: any coroutine can register as a waiter of any Future
+     * (see @ref Future::Awaiter::await_suspend).
      *
-     * @note This class is not copyable, can only be managed via shared_ptr
+     * @note This class is not copyable, can only be managed via shared_ptr; destroying the last
+     *       shared_ptr destroys the coroutine frame if it has not been destroyed yet
      *
      * @endif
      */
-    template<typename T>
     struct CoroutineState {
         /**
          * @if zh
          *
          * @brief 协程句柄类型别名
+         * @details 类型擦除的句柄,与协程的Promise类型无关
          *
          * @elseif en
          *
          * @brief Coroutine handle type alias
+         * @details Type-erased handle, independent of the coroutine's promise type
          *
          * @endif
          */
-        using Handle = std::coroutine_handle<typename Task<T>::promise_type>;
+        using Handle = std::coroutine_handle<>;
 
         /**
          * @if zh

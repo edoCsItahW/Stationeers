@@ -47,17 +47,19 @@ namespace stationeers::ic10 {
         requires IsInstruction<Ins<V, Vs...>>
     Task<> Analyser::operator()(const Ins<V, Vs...>& ins) {
         // 通用指令访问器：遍历指令的所有操作数（args 元组），按操作数类型分派处理
-        std::apply(
+        // 折叠协程必须被持有（detachedTasks_）而非丢弃：它可能在前向引用处挂起并稍后被恢复，
+        // 丢弃其Task会让编译器复用已"结束"的帧内存储，恢复时读到被破坏的帧（见 detachedTasks_）
+        detachedTasks_.push_back(std::apply(
             [&](const auto&... args) -> Task<> {
-                // 每条指令开始前重置设备上下文，避免上一条指令的残留影响当前指令
-                // 发后即忘模式下挂起的 lambda 不会恢复，重置不会影响已挂起的 lambda
+                // 每条指令开始前重置设备上下文，避免上一条指令的残留影响当前指令。
+                // 仅在恢复后继续处理后续操作数时才需要；本lambda自身不重复进入
                 pendingDeviceSymbol_.reset();
                 // 折叠表达式依次处理指令的所有操作数
                 (((void)co_await process<Vs>(args)), ...);
                 co_return;
             },
             ins.args
-        );
+        ));
 
         co_return;
     }
@@ -72,8 +74,9 @@ namespace stationeers::ic10 {
                 if constexpr (std::is_same_v<U, Identifier>) {
                     // 标准库优先类型：逻辑网络名/插槽名/试剂模式/批量模式
                     // 这些标识符不是 IC10 语言级别的符号（别名/常量/标签），
-                    // 不应走符号表 resolve（否则协程会永久挂起，依赖 failAllPending 恢复，
-                    // 在发后即忘模式下恢复链路不可靠），直接用标准库验证。
+                    // 不应走符号表 resolve：那会为它们建立待决条目，并在 failAllPending
+                    // 时误报"未定义标识符"（如 Pressure/Contents 这类标准库名）。
+                    // 因此直接用标准库枚举/设备上下文验证。
                     if constexpr (
                         Type == OperandType::LOGIC_PROP || Type == OperandType::LOGIC_SLOT_PROP
                         || Type == OperandType::REAGENT_MODE || Type == OperandType::AGG_MODE
@@ -97,11 +100,9 @@ namespace stationeers::ic10 {
                     }
 
                     // 设备引用/别名：需 resolve 以获取设备符号（可能为前向引用）
-                    // 注意：必须通过 resolveSymbol（Task<shared_ptr<Symbol>>）而非直接 resolve，
-                    // 因为 process 是 Task<void>，其 coro_state_weak_ 未设置，无法注册为 Future
-                    // 等待者，直接 co_await resolve 会导致协程永久挂起且失败诊断永远不会被上报。
-                    // resolveSymbol 是非 void Task，可正确注册为等待者，被 failAllPending
-                    // 恢复后上报 IEA3_1。
+                    // 通过 resolveSymbol 而非直接 resolve：解析失败时由其上报 IEA3_1
+                    // 并返回 nullptr，调用方据此跳过后续类型检查（前向引用未定义时，
+                    // 该协程会被 failAllPending 以 FAILED 状态恢复）。
                     else if constexpr (Type == OperandType::DEVICE_REF) {
                         auto result = co_await resolveSymbol(arg.value, arg.position);
 

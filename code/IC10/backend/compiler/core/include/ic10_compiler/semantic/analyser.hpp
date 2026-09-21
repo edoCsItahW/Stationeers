@@ -213,6 +213,33 @@ namespace stationeers::ic10 {
 
         std::optional<DeviceSymbol> pendingDeviceSymbol_;
 
+        /**
+         * @if zh
+         *
+         * @brief 发后即忘协程的持有者
+         * @details 语句协程与指令操作数折叠协程在挂起后需要被恢复（前向引用），
+         *          因此它们的Task必须一直存活到分析结束：若像早期实现那样直接丢弃
+         *          `std::apply`/`std::visit` 返回的Task，编译器会认为该协程生命周期已结束，
+         *          进而复用其帧内存储（GCC实测在恢复时读到被破坏的帧并段错误；MSVC不复用
+         *          故不显形）。持有Task即让"帧生命周期"对优化器可见。
+         * @note 在分析结束（failAllPending 之后）随Analyser析构释放
+         *
+         * @elseif en
+         *
+         * @brief Owner of fire-and-forget coroutines
+         * @details Statement coroutines and instruction operand-fold coroutines must be resumed
+         *          after suspension (forward references), so their Tasks must stay alive until the
+         *          end of the analysis. Discarding the Task returned by `std::apply`/`std::visit`
+         *          (as an earlier implementation did) lets the compiler treat the coroutine as
+         *          finished and reuse its frame storage; resumed later, it then reads a corrupted
+         *          frame (reproduced as a segfault with GCC; MSVC does not reuse and hides it).
+         *          Holding the Task makes the frame's lifetime visible to the optimizer.
+         * @note Released with the Analyser after the analysis ends (after failAllPending)
+         *
+         * @endif
+         */
+        std::vector<Task<>> detachedTasks_;
+
         mutable DiagnosticReporter<IC10CompilerMsgPack>* reporter_;
 
         /**
