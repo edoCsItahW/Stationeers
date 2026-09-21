@@ -85,11 +85,18 @@ namespace stationeers {
         /**
          * @if zh
          * @brief 协程状态弱引用
+         * @details 由协程返回对象写入，供 Future::Awaiter::await_suspend 取得等待者状态。
+         *          类型无关，因此 Task<void> 协程同样可被注册为等待者。
+         *
          * @elseif en
          * @brief Coroutine state weak reference
+         * @details Written by the coroutine return object and read by
+         *          Future::Awaiter::await_suspend to obtain the waiter state. It is type-erased,
+         *          so Task<void> coroutines can be registered as waiters as well.
+         *
          * @endif
          */
-        std::weak_ptr<CoroutineState<T>> coro_state_weak_;
+        std::weak_ptr<CoroutineState> coro_state_weak_;
 
         /**
          * @if zh
@@ -226,13 +233,48 @@ namespace stationeers {
     public:
         /**
          * @if zh
+         * @brief 协程状态
+         * @details 由协程返回对象持有：构造时创建并将弱引用写入协程promise，
+         *          使该协程可作为Future的等待者被注册；最后一个强引用释放时销毁协程帧。
+         *          置于基类，使 Task<void> 与 Task<T> 都具备等待者能力。
+         *
+         * @warning 若协程可能挂起后被恢复，其Task必须由调用方持有到恢复完成：
+         *          丢弃Task（例如直接舍弃返回的临时对象）会让优化器认为该协程已结束并复用
+         *          其帧内存储，恢复时读到被破坏的帧。实测GCC下丢弃后方恢复会段错误，
+         *          而MSVC不复用故不显形，因此该缺陷只在部分编译器上暴露。
+         *          仅在"协程不会挂起"或"挂起后永不恢复"时才可安全丢弃。
+         *
+         * @elseif en
+         * @brief Coroutine state
+         * @details Owned by the coroutine return object: created on construction and stored as a
+         *          weak reference in the coroutine promise so the coroutine can register itself
+         *          as a Future waiter; the coroutine frame is destroyed when the last strong
+         *          reference is released. Living in the base class gives both Task<void> and
+         *          Task<T> waiter capability.
+         *
+         * @warning When a coroutine may be resumed after suspension, its Task must be kept alive by
+         *          the caller until resumption completes. Discarding the Task (e.g. dropping the
+         *          returned temporary) lets the optimizer treat the coroutine as finished and reuse
+         *          its frame storage, so a later resumption reads a corrupted frame. Measured as a
+         *          segfault with GCC when a discarded coroutine is resumed afterwards; MSVC does not
+         *          reuse and therefore hides the defect, so it only shows on some compilers.
+         *          Discarding is safe only when the coroutine never suspends, or is never resumed.
+         *
+         * @endif
+         */
+        std::shared_ptr<CoroutineState> coro_state_;
+
+        /**
+         * @if zh
          *
          * @brief 构造函数
+         * @details 创建协程状态并写入promise的coro_state_weak_
          * @param handle 协程句柄
          *
          * @elseif en
          *
          * @brief Constructor
+         * @details Creates the coroutine state and writes it into the promise's coro_state_weak_
          * @param handle Coroutine handle
          *
          * @endif
@@ -334,32 +376,22 @@ namespace stationeers {
     struct Task : public TaskBase<T> {
         /**
          * @if zh
-         * @brief 协程状态类型别名
-         * @elseif en
-         * @brief Coroutine state type alias
-         * @endif
-         */
-        using CoroState = CoroutineState<T>;
-
-        /**
-         * @if zh
-         * @brief 协程状态指针
-         * @elseif en
-         * @brief Coroutine state pointer
-         * @endif
-         */
-        std::shared_ptr<CoroState> coro_state_;
-
-        /**
-         * @if zh
          *
          * @brief 构造函数
+         * @details 仅转发给基类：协程状态由 TaskBase 创建并写入promise
          * @param h 协程句柄
+         * @note 不能改为继承基类构造函数：该显式声明同时是 `Task{handle}` 形式
+         *       类模板实参推导(CTAD)所需的推导指引，继承的构造函数不产生推导指引
          *
          * @elseif en
          *
          * @brief Constructor
+         * @details Only forwards to the base class: the coroutine state is created by TaskBase and
+         *          written into the promise
          * @param h Coroutine handle
+         * @note Do not replace this with an inherited base constructor: this explicit declaration
+         *       also provides the deduction guide that `Task{handle}` (CTAD) relies on, and
+         *       inherited constructors do not generate deduction guides
          *
          * @endif
          */
@@ -367,35 +399,13 @@ namespace stationeers {
 
         /**
          * @if zh
-         *
-         * @brief 移动构造函数
-         * @param other 另一个Task
-         *
+         * @brief 默认移动语义（协程句柄与协程状态均由基类移动）
          * @elseif en
-         *
-         * @brief Move constructor
-         * @param other Another Task
-         *
+         * @brief Default move semantics (handle and coroutine state are moved by the base class)
          * @endif
          */
-        Task(Task&& other) noexcept;
-
-        /**
-         * @if zh
-         *
-         * @brief 移动赋值运算符
-         * @param other 另一个Task
-         * @return 赋值后的引用
-         *
-         * @elseif en
-         *
-         * @brief Move assignment operator
-         * @param other Another Task
-         * @return Reference after assignment
-         *
-         * @endif
-         */
-        Task& operator=(Task&& other) noexcept;
+        Task(Task&&)            = default;
+        Task& operator=(Task&&) = default;
 
         /**
          * @if zh
