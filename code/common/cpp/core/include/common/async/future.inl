@@ -27,13 +27,19 @@ namespace stationeers {
     }
 
     template<typename T>
-    void Future<T>::Awaiter::await_suspend(std::coroutine_handle<> handle) const noexcept {
+    bool Future<T>::Awaiter::await_suspend(std::coroutine_handle<> handle) const noexcept {
+        // PromiseType 取被等待Future的T：所有Task的promise都继承TaskPromiseBase，
+        // coro_state_weak_ 位于同一偏移且类型无关（weak_ptr<CoroutineState>），
+        // 因此等待协程的返回值类型与T不同（如Task<void>等待Task<T>）也能正确取得状态
         using PromiseType = Task<T>::promise_type;
 
         auto typedHandle = std::coroutine_handle<PromiseType>::from_address(handle.address());
         auto& promise    = const_cast<PromiseType&>(typedHandle.promise());
 
-        if (auto sp = promise.coro_state_weak_.lock()) state->addWaiter(std::move(sp));
+        // 无法取得协程状态（promise未写入）时不挂起，直接由 await_resume 取结果
+        if (auto sp = promise.coro_state_weak_.lock()) return state->addWaiter(std::move(sp));
+
+        return false;
     }
 
     template<typename T>

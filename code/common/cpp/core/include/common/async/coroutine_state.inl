@@ -19,12 +19,13 @@
 
 namespace stationeers {
 
-    template<typename T>
-    CoroutineState<T>::CoroutineState(Handle h) noexcept
+    // 非模板类定义在头文件中被多个TU包含，必须inline避免重复定义
+    // Non-template definitions live in a header included by several TUs, hence inline
+
+    inline CoroutineState::CoroutineState(Handle h) noexcept
         : handle(h) {}
 
-    template<typename T>
-    CoroutineState<T>::~CoroutineState() {
+    inline CoroutineState::~CoroutineState() {
         if (!destroyed.exchange(true) && handle) handle.destroy();
     }
 
