@@ -14,9 +14,6 @@ code/artifacts/
 **/pnpm-lock.yaml
 **/pnpm-workspace.yaml
 
-## from docker
-**/.pnpm-store/
-
 # python
 **/.pytest_cache/
 **/__pycache__/
