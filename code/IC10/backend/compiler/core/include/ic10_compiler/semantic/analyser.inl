@@ -56,7 +56,7 @@ namespace stationeers::ic10 {
                 (((void)co_await process<Vs>(args)), ...);
                 co_return;
             },
-            ins.args
+            ins.args()
         );
 
         co_return;

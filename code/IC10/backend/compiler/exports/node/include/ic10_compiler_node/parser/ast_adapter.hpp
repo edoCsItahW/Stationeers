@@ -32,6 +32,34 @@
 namespace stationeers::ic10 {
 
     /**
+     * @if zh
+     *
+     * @brief 将语句转换为Node.js值
+     * @details @ref Statement 是句柄类型而非变体，通用转换器无法自行展开，因此在此提供重载：
+     *          取出内部变体后交由通用的变体重载处理（依赖 ADL，供 @c std::vector<Statement>
+     *          的逐元素转换自动选中）。
+     *
+     * @param env Node.js 环境
+     * @param statement 待转换的语句
+     * @return 语句对应的Node.js值
+     *
+     * @elseif en
+     *
+     * @brief Convert a statement into a Node.js value
+     * @details @ref Statement is a handle type rather than a variant, so the generic converter
+     *          cannot unwrap it; this overload extracts the underlying variant and delegates to the
+     *          generic variant overload (found by ADL, which the element-wise conversion of
+     *          @c std::vector<Statement> picks up automatically).
+     *
+     * @param env Node.js environment
+     * @param statement Statement to convert
+     * @return Node.js value of the statement
+     *
+     * @endif
+     */
+    node::Value to(node::Env env, const Statement& statement);
+
+    /**
      * @class ProgramAdapter
      * @if zh
      *

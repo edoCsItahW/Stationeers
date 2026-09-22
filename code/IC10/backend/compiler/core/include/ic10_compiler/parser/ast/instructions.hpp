@@ -115,12 +115,19 @@ namespace stationeers::ic10 {
 
         /**
          * @if zh
-         * @brief 参数元组(空)
+         * @brief 操作数引用元组
+         * @details 零元指令没有操作数，返回空元组，以便与其他元数指令共用同一访问接口。
+         * @return 空元组
+         *
          * @elseif en
-         * @brief Argument tuple (empty)
+         * @brief Tuple of operand references
+         * @details A nullary instruction has no operands and returns an empty tuple, keeping the
+         *          access interface identical to every other arity.
+         * @return Empty tuple
+         *
          * @endif
          */
-        Args args;
+        [[nodiscard]] auto args() const noexcept { return std::tie(); }
 
         [[nodiscard]] Pos end() const override;
 
@@ -185,7 +192,23 @@ namespace stationeers::ic10 {
 
         using Args = operand_type_list<V1>;
 
-        Args args;
+        /**
+         * @if zh
+         * @brief 操作数引用元组
+         * @details 由操作数成员即时构成引用元组，不再另存一份副本：原先 @c args 与 @c operandN
+         *          重复存储，使每个指令节点的体积翻倍（六元指令等于多存 6 个操作数）。
+         * @return 各操作数的引用元组
+         *
+         * @elseif en
+         * @brief Tuple of operand references
+         * @details Built on the fly from the operand members instead of being stored a second time:
+         *          the former @c args member duplicated @c operandN and doubled the size of every
+         *          instruction node (six extra operands for a senary instruction).
+         * @return Tuple of references to the operands
+         *
+         * @endif
+         */
+        [[nodiscard]] auto args() const noexcept { return std::tie(operand1); }
 
         UnaryInstructionBase() = default;
 
@@ -241,7 +264,18 @@ namespace stationeers::ic10 {
 
         using Args = operand_type_list<V1, V2>;
 
-        Args args;
+        /**
+         * @if zh
+         * @brief 操作数引用元组（说明见 @ref UnaryInstructionBase::args）
+         * @return 各操作数的引用元组
+         *
+         * @elseif en
+         * @brief Tuple of operand references (see @ref UnaryInstructionBase::args)
+         * @return Tuple of references to the operands
+         *
+         * @endif
+         */
+        [[nodiscard]] auto args() const noexcept { return std::tie(this->operand1, operand2); }
 
         BinaryInstructionBase() = default;
 
@@ -301,7 +335,20 @@ namespace stationeers::ic10 {
 
         using Args = operand_type_list<V1, V2, V3>;
 
-        Args args;
+        /**
+         * @if zh
+         * @brief 操作数引用元组（说明见 @ref UnaryInstructionBase::args）
+         * @return 各操作数的引用元组
+         *
+         * @elseif en
+         * @brief Tuple of operand references (see @ref UnaryInstructionBase::args)
+         * @return Tuple of references to the operands
+         *
+         * @endif
+         */
+        [[nodiscard]] auto args() const noexcept {
+            return std::tie(this->operand1, this->operand2, operand3);
+        }
 
         TernaryInstructionBase() = default;
 
@@ -365,7 +412,20 @@ namespace stationeers::ic10 {
 
         using Args = operand_type_list<V1, V2, V3, V4>;
 
-        Args args;
+        /**
+         * @if zh
+         * @brief 操作数引用元组（说明见 @ref UnaryInstructionBase::args）
+         * @return 各操作数的引用元组
+         *
+         * @elseif en
+         * @brief Tuple of operand references (see @ref UnaryInstructionBase::args)
+         * @return Tuple of references to the operands
+         *
+         * @endif
+         */
+        [[nodiscard]] auto args() const noexcept {
+            return std::tie(this->operand1, this->operand2, this->operand3, operand4);
+        }
 
         QuaternaryInstructionBase() = default;
 
@@ -434,7 +494,22 @@ namespace stationeers::ic10 {
 
         using Args = operand_type_list<V1, V2, V3, V4, V5>;
 
-        Args args;
+        /**
+         * @if zh
+         * @brief 操作数引用元组（说明见 @ref UnaryInstructionBase::args）
+         * @return 各操作数的引用元组
+         *
+         * @elseif en
+         * @brief Tuple of operand references (see @ref UnaryInstructionBase::args)
+         * @return Tuple of references to the operands
+         *
+         * @endif
+         */
+        [[nodiscard]] auto args() const noexcept {
+            return std::tie(
+                this->operand1, this->operand2, this->operand3, this->operand4, operand5
+            );
+        }
 
         QuinaryInstructionBase() = default;
 
@@ -508,7 +583,23 @@ namespace stationeers::ic10 {
 
         using Args = operand_type_list<V1, V2, V3, V4, V5, V6>;
 
-        Args args;
+        /**
+         * @if zh
+         * @brief 操作数引用元组（说明见 @ref UnaryInstructionBase::args）
+         * @return 各操作数的引用元组
+         *
+         * @elseif en
+         * @brief Tuple of operand references (see @ref UnaryInstructionBase::args)
+         * @return Tuple of references to the operands
+         *
+         * @endif
+         */
+        [[nodiscard]] auto args() const noexcept {
+            return std::tie(
+                this->operand1, this->operand2, this->operand3, this->operand4, this->operand5,
+                operand6
+            );
+        }
 
         SenaryInstructionBase() = default;
 
