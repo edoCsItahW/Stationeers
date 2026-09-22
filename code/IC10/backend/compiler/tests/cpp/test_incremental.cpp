@@ -64,8 +64,8 @@ void expectProgramsMatch(const Program& actual, const Program& expected) {
     ASSERT_EQ(aSize, eSize);
     for (std::size_t i = 0; i < actual.statements.size(); ++i) {
         SCOPED_TRACE("statement index " + std::to_string(i));
-        std::size_t aIdx = actual.statements[i].index();
-        std::size_t eIdx = expected.statements[i].index();
+        std::size_t aIdx = actual.statements[i].raw().index();
+        std::size_t eIdx = expected.statements[i].raw().index();
         EXPECT_EQ(aIdx, eIdx);
         int aLine = 0, aCol = 0;
         std::size_t aOff = 0;
@@ -75,12 +75,12 @@ void expectProgramsMatch(const Program& actual, const Program& expected) {
             aLine = n.position.line();
             aCol = n.position.column();
             aOff = n.position.offset();
-        }, actual.statements[i]);
+        }, actual.statements[i].raw());
         std::visit([&](const auto& n) {
             eLine = n.position.line();
             eCol = n.position.column();
             eOff = n.position.offset();
-        }, expected.statements[i]);
+        }, expected.statements[i].raw());
         EXPECT_EQ(aLine, eLine);
         EXPECT_EQ(aCol, eCol);
         EXPECT_EQ(aOff, eOff);

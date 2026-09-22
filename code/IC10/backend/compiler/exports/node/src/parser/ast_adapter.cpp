@@ -20,6 +20,13 @@
 
 namespace stationeers::ic10 {
 
+    // 限定调用 stationeers::to：本命名空间内的同名重载会隐藏外层的通用重载，未限定查找不会继续向外层搜索
+    // Qualified call to stationeers::to: the same-named overload in this namespace hides the generic
+    // ones in the enclosing namespace, so unqualified lookup would never reach them.
+    node::Value to(node::Env env, const Statement& statement) {
+        return stationeers::to(env, statement.raw());
+    }
+
     node::FunctionReference ProgramAdapter::constructor;
 
     ProgramAdapter::ProgramAdapter(const node::CallbackInfo& info)

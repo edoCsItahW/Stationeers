@@ -26,12 +26,12 @@ namespace stationeers::ic10 {
 
     Pos Program::end() const {
         if (statements.empty()) return position;
-        return call(statements.back(), [](auto&& s) { return s.end(); });
+        return call(statements.back().raw(), [](auto&& s) { return s.end(); });
     }
 
     std::string Program::toString() const {
         return seqJSON(statements, [](auto&& s) {
-            return call(s, [](auto&& x) { return x.toString(); });
+            return call(s.raw(), [](auto&& x) { return x.toString(); });
         });
     }
 
@@ -40,7 +40,7 @@ namespace stationeers::ic10 {
         ss << "[";
 
         for (std::size_t i = 0; i < statements.size(); ++i)
-            ss << call(statements[i], [](auto&& s) { return s.toJSON(); })
+            ss << call(statements[i].raw(), [](auto&& s) { return s.toJSON(); })
                << (i == statements.size() - 1 ? "" : ",");
 
         ss << "]";

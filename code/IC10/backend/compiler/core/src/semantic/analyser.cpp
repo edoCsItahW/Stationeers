@@ -64,7 +64,7 @@ namespace stationeers::ic10 {
                 [this]<typename T>(const T& arg) -> Task<> {
                     (void)co_await this->operator()(arg);
                 },
-                stmt
+                stmt.raw()
             );
 
         // 分析结束，此时依然悬而未决的 Future 被确定为未定义，向所有等待者返回错误
