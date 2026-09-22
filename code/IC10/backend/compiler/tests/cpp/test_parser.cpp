@@ -95,8 +95,8 @@ TEST_F(ParserTestFixture, ParseDeviceDocComment) {
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
-    auto& doc = std::get<DeviceAnnotation>(stmt);
+    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt.raw()));
+    auto& doc = std::get<DeviceAnnotation>(stmt.raw());
     EXPECT_EQ(doc.name, "Furnace");
     ASSERT_TRUE(doc.desc.has_value());
     const auto* desc = std::get_if<String>(&*doc.desc);
@@ -115,8 +115,8 @@ TEST_F(ParserTestFixture, ParseEnumDocComment) {
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<EnumAnnotation>(stmt));
-    auto& doc = std::get<EnumAnnotation>(stmt);
+    ASSERT_TRUE(std::holds_alternative<EnumAnnotation>(stmt.raw()));
+    auto& doc = std::get<EnumAnnotation>(stmt.raw());
     EXPECT_EQ(doc.name, "GasType");
     EXPECT_EQ(doc.values.size(), 2u);
     EXPECT_EQ(doc.values[0].name, "Oxygen");
@@ -129,8 +129,8 @@ TEST_F(ParserTestFixture, ParseAliasWithTypeHint) {
     auto ast = parse("alias myFurnace d0 #: @type Furnace\n");
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt));
-    auto& alias = std::get<AliasDirective>(stmt);
+    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt.raw()));
+    auto& alias = std::get<AliasDirective>(stmt.raw());
     ASSERT_TRUE(alias.typeHint.has_value());
     ASSERT_TRUE(alias.typeHint->type.has_value());
     EXPECT_EQ(alias.typeHint->type, "Furnace");
@@ -140,8 +140,8 @@ TEST_F(ParserTestFixture, ParseAliasWithoutTypeHint) {
     auto ast = parse("alias myFurnace d0\n");
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt));
-    auto& alias = std::get<AliasDirective>(stmt);
+    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt.raw()));
+    auto& alias = std::get<AliasDirective>(stmt.raw());
     EXPECT_FALSE(alias.typeHint.has_value());
 }
 
@@ -149,8 +149,8 @@ TEST_F(ParserTestFixture, ParseAliasWithDescTypeHint) {
     auto ast = parse("alias myFurnace d0 #: @desc \"炉窑设备\"\n");
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt));
-    auto& alias = std::get<AliasDirective>(stmt);
+    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt.raw()));
+    auto& alias = std::get<AliasDirective>(stmt.raw());
     ASSERT_TRUE(alias.typeHint.has_value());
     EXPECT_FALSE(alias.typeHint->type.has_value());
     ASSERT_TRUE(alias.typeHint->desc.has_value());
@@ -163,8 +163,8 @@ TEST_F(ParserTestFixture, ParseAliasWithTypeAndDesc) {
     auto ast = parse("alias myFurnace d0 #: @type Furnace @desc \"炉窑\"\n");
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt));
-    auto& alias = std::get<AliasDirective>(stmt);
+    ASSERT_TRUE(std::holds_alternative<AliasDirective>(stmt.raw()));
+    auto& alias = std::get<AliasDirective>(stmt.raw());
     ASSERT_TRUE(alias.typeHint.has_value());
     ASSERT_TRUE(alias.typeHint->type.has_value());
     EXPECT_EQ(alias.typeHint->type, "Furnace");
@@ -178,8 +178,8 @@ TEST_F(ParserTestFixture, ParseDefineWithDescTypeHint) {
     auto ast = parse("define MAX 100 #: @desc \"最大值\"\n");
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<DefineDirective>(stmt));
-    auto& def = std::get<DefineDirective>(stmt);
+    ASSERT_TRUE(std::holds_alternative<DefineDirective>(stmt.raw()));
+    auto& def = std::get<DefineDirective>(stmt.raw());
     ASSERT_TRUE(def.typeHint.has_value());
     EXPECT_FALSE(def.typeHint->type.has_value());
     ASSERT_TRUE(def.typeHint->desc.has_value());
@@ -192,8 +192,8 @@ TEST_F(ParserTestFixture, ParseDefineWithTypeAndDesc) {
     auto ast = parse("define PRESSURE 101325 #: @type Pressure @desc \"标准大气压\"\n");
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<DefineDirective>(stmt));
-    auto& def = std::get<DefineDirective>(stmt);
+    ASSERT_TRUE(std::holds_alternative<DefineDirective>(stmt.raw()));
+    auto& def = std::get<DefineDirective>(stmt.raw());
     ASSERT_TRUE(def.typeHint.has_value());
     ASSERT_TRUE(def.typeHint->type.has_value());
     EXPECT_EQ(def.typeHint->type, "Pressure");
@@ -212,8 +212,8 @@ TEST_F(ParserTestFixture, DocCommentWithLinkDesc) {
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
-    auto& doc = std::get<DeviceAnnotation>(stmt);
+    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt.raw()));
+    auto& doc = std::get<DeviceAnnotation>(stmt.raw());
     ASSERT_TRUE(doc.desc.has_value());
     const auto* link = std::get_if<Link>(&*doc.desc);
     ASSERT_NE(link, nullptr);
@@ -230,8 +230,8 @@ TEST_F(ParserTestFixture, DeviceDocWithSlots) {
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
-    auto& doc = std::get<DeviceAnnotation>(stmt);
+    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt.raw()));
+    auto& doc = std::get<DeviceAnnotation>(stmt.raw());
     ASSERT_EQ(doc.slots.size(), 2u);
     EXPECT_EQ(doc.slots[0].name, "Input");
     EXPECT_EQ(doc.slots[0].value, "0");
@@ -249,8 +249,8 @@ TEST_F(ParserTestFixture, DeviceDocWithLogics) {
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
-    auto& doc = std::get<DeviceAnnotation>(stmt);
+    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt.raw()));
+    auto& doc = std::get<DeviceAnnotation>(stmt.raw());
     ASSERT_EQ(doc.logics.size(), 2u);
     EXPECT_EQ(doc.logics[0].name, "Pressure");
     EXPECT_EQ(doc.logics[0].value, "5");
@@ -271,8 +271,8 @@ TEST_F(ParserTestFixture, DeviceDocWithLogicSlots) {
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
-    auto& doc = std::get<DeviceAnnotation>(stmt);
+    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt.raw()));
+    auto& doc = std::get<DeviceAnnotation>(stmt.raw());
     ASSERT_EQ(doc.logicSlots.size(), 2u);
     EXPECT_EQ(doc.logicSlots[0].name, "Quantity");
     EXPECT_EQ(doc.logicSlots[0].value, "3");
@@ -289,8 +289,8 @@ TEST_F(ParserTestFixture, EnumValueWithLinkDesc) {
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<EnumAnnotation>(stmt));
-    auto& doc = std::get<EnumAnnotation>(stmt);
+    ASSERT_TRUE(std::holds_alternative<EnumAnnotation>(stmt.raw()));
+    auto& doc = std::get<EnumAnnotation>(stmt.raw());
     ASSERT_EQ(doc.values.size(), 1u);
     ASSERT_TRUE(doc.values[0].desc.has_value());
     const auto* link = std::get_if<Link>(&*doc.values[0].desc);
@@ -304,7 +304,7 @@ TEST_F(ParserTestFixture, TypeHintStandaloneError) {
     auto ast = parser.parse();
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<ErrorNode>(stmt));
+    ASSERT_TRUE(std::holds_alternative<ErrorNode>(stmt.raw()));
 }
 
 TEST_F(ParserTestFixture, MixedDocCommentAndCode) {
@@ -639,8 +639,8 @@ TEST_F(ParserTestFixture, EnumValueWithDescription) {
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<EnumAnnotation>(stmt));
-    auto& doc = std::get<EnumAnnotation>(stmt);
+    ASSERT_TRUE(std::holds_alternative<EnumAnnotation>(stmt.raw()));
+    auto& doc = std::get<EnumAnnotation>(stmt.raw());
     ASSERT_EQ(doc.values.size(), 2u);
     EXPECT_EQ(doc.values[0].name, "Active");
     EXPECT_EQ(doc.values[0].value, "1");
@@ -659,8 +659,8 @@ TEST_F(ParserTestFixture, DeviceDocWithDeviceHash) {
     );
     EXPECT_EQ(ast.statements.size(), 1u);
     auto& stmt = ast.statements[0];
-    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt));
-    auto& doc = std::get<DeviceAnnotation>(stmt);
+    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt.raw()));
+    auto& doc = std::get<DeviceAnnotation>(stmt.raw());
     ASSERT_TRUE(doc.deviceHash.has_value());
     EXPECT_EQ(doc.deviceHash->value, "12345");
 }

@@ -60,13 +60,12 @@ namespace stationeers::ic10 {
     // 访问 Program：逐条遍历语句，结束后清理未决 Future
     Task<> Analyser::visit(const Program& program) {
         for (const auto& stmt : program.statements)
-            // 语句协程同样可能挂起后恢复，其Task必须被持有而非丢弃（见 detachedTasks_）
-            detachedTasks_.push_back(std::visit(
+            std::visit(
                 [this]<typename T>(const T& arg) -> Task<> {
                     (void)co_await this->operator()(arg);
                 },
-                stmt
-            ));
+                stmt.raw()
+            );
 
         // 分析结束，此时依然悬而未决的 Future 被确定为未定义，向所有等待者返回错误
         // Linker 场景下推迟到所有单元处理完后统一调用
