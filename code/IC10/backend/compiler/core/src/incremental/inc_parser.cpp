@@ -118,7 +118,8 @@ namespace stationeers::ic10 {
     std::size_t IncParser::findLineStmtIndex(const Program& program, int lineNumber) {
         for (std::size_t i = 0; i < program.statements.size(); ++i) {
             const Pos* stmtPos = std::visit(
-                [](const auto& node) -> const Pos* { return &node.position; }, program.statements[i]
+                [](const auto& node) -> const Pos* { return &node.position; },
+                program.statements[i].raw()
             );
 
             if (stmtPos->line() >= lineNumber) return i;

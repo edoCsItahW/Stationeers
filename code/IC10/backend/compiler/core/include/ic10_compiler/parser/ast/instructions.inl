@@ -54,8 +54,7 @@ namespace stationeers::ic10 {
     template<FString K, OperandType V1>
     UnaryInstructionBase<K, V1>::UnaryInstructionBase(Pos pos, O1 o1)
         : NullaryInstructionBase<K>{pos}
-        , operand1(o1)
-        , args{o1} {}
+        , operand1(std::move(o1)) {}
 
     template<FString K, OperandType V1>
     Pos UnaryInstructionBase<K, V1>::end() const {
@@ -92,9 +91,8 @@ namespace stationeers::ic10 {
 
     template<FString K, OperandType V1, OperandType V2>
     BinaryInstructionBase<K, V1, V2>::BinaryInstructionBase(Pos pos, O1 o1, O2 o2)
-        : UnaryInstructionBase<K, V1>{pos, o1}
-        , operand2(o2)
-        , args(o1, o2) {}
+        : UnaryInstructionBase<K, V1>{pos, std::move(o1)}
+        , operand2(std::move(o2)) {}
 
     template<FString K, OperandType V1, OperandType V2>
     Pos BinaryInstructionBase<K, V1, V2>::end() const {
@@ -133,9 +131,8 @@ namespace stationeers::ic10 {
 
     template<FString K, OperandType V1, OperandType V2, OperandType V3>
     TernaryInstructionBase<K, V1, V2, V3>::TernaryInstructionBase(Pos pos, O1 o1, O2 o2, O3 o3)
-        : BinaryInstructionBase<K, V1, V2>{pos, o1, o2}
-        , operand3(o3)
-        , args(o1, o2, o3) {}
+        : BinaryInstructionBase<K, V1, V2>{pos, std::move(o1), std::move(o2)}
+        , operand3(std::move(o3)) {}
 
     template<FString K, OperandType V1, OperandType V2, OperandType V3>
     Pos TernaryInstructionBase<K, V1, V2, V3>::end() const {
@@ -177,9 +174,8 @@ namespace stationeers::ic10 {
     QuaternaryInstructionBase<K, V1, V2, V3, V4>::QuaternaryInstructionBase(
         Pos pos, O1 o1, O2 o2, O3 o3, O4 o4
     )
-        : TernaryInstructionBase<K, V1, V2, V3>{pos, o1, o2, o3}
-        , operand4(o4)
-        , args(o1, o2, o3, o4) {}
+        : TernaryInstructionBase<K, V1, V2, V3>{pos, std::move(o1), std::move(o2), std::move(o3)}
+        , operand4(std::move(o4)) {}
 
     template<FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4>
     Pos QuaternaryInstructionBase<K, V1, V2, V3, V4>::end() const {
@@ -223,9 +219,10 @@ namespace stationeers::ic10 {
     QuinaryInstructionBase<K, V1, V2, V3, V4, V5>::QuinaryInstructionBase(
         Pos pos, O1 o1, O2 o2, O3 o3, O4 o4, O5 o5
     )
-        : QuaternaryInstructionBase<K, V1, V2, V3, V4>{pos, o1, o2, o3, o4}
-        , operand5(o5)
-        , args(o1, o2, o3, o4, o5) {}
+        : QuaternaryInstructionBase<K, V1, V2, V3, V4>{
+              pos, std::move(o1), std::move(o2), std::move(o3), std::move(o4)
+          }
+        , operand5(std::move(o5)) {}
 
     template<
         FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5>
@@ -273,9 +270,10 @@ namespace stationeers::ic10 {
     SenaryInstructionBase<K, V1, V2, V3, V4, V5, V6>::SenaryInstructionBase(
         Pos pos, O1 o1, O2 o2, O3 o3, O4 o4, O5 o5, O6 o6
     )
-        : QuinaryInstructionBase<K, V1, V2, V3, V4, V5>{pos, o1, o2, o3, o4, o5}
-        , operand6(o6)
-        , args(o1, o2, o3, o4, o5, o6) {}
+        : QuinaryInstructionBase<K, V1, V2, V3, V4, V5>{
+              pos, std::move(o1), std::move(o2), std::move(o3), std::move(o4), std::move(o5)
+          }
+        , operand6(std::move(o6)) {}
 
     template<
         FString K, OperandType V1, OperandType V2, OperandType V3, OperandType V4, OperandType V5,

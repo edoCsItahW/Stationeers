@@ -179,8 +179,14 @@ namespace stationeers {
     template<IsTypeList List, typename T>
     struct type_list_contains;
 
+    // 使用折叠表达式而非std::disjunction：disjunction对N个实参会展开出N层继承链，
+    // 在type_list_unique的O(N²)次包含检测下将膨胀为O(N³)个类实例化，编译内存与时间都不可接受。
+    // Use a fold expression instead of std::disjunction: disjunction instantiates an N-deep
+    // inheritance chain for N arguments, which the O(N²) containment checks inside
+    // type_list_unique turn into O(N³) class instantiations, blowing up compile time and memory.
     template<typename... Ts, typename T>
-    struct type_list_contains<type_list<Ts...>, T> : std::disjunction<std::is_same<T, Ts>...> {};
+    struct type_list_contains<type_list<Ts...>, T>
+        : std::bool_constant<(std::is_same_v<T, Ts> || ...)> {};
 
     /**
      * @if zh
@@ -226,7 +232,7 @@ namespace stationeers {
 
     template<typename... Ts, typename... Us>
     struct type_list_contains_any<type_list<Ts...>, Us...>
-        : std::disjunction<type_list_contains<type_list<Ts...>, Us>...> {};
+        : std::bool_constant<(type_list_contains_v<type_list<Ts...>, Us> || ...)> {};
 
     /**
      * @if zh
@@ -663,7 +669,7 @@ namespace stationeers {
     struct type_list_is_nested;
 
     template<typename... Ts>
-    struct type_list_is_nested<type_list<Ts...>> : std::disjunction<is_flattenable<Ts>...> {};
+    struct type_list_is_nested<type_list<Ts...>> : std::bool_constant<(is_flattenable_v<Ts> || ...)> {};
 
     /**
      * @if zh
