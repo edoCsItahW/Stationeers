@@ -16,10 +16,10 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import type { StatementNode, SymbolMap } from "ic10c-node";
 import type { Hover } from "vscode-languageserver/node";
-import { t } from "../../../locals"
+import type { Statement, SymbolMap } from "ic10c-node";
 
+import { t } from "../../../locals"
 import { Nullable } from "common";
 
 /**
@@ -45,7 +45,7 @@ export interface HoverContext {
     symbols?: SymbolMap;
     /** 文档中的所有语句 */
     /** All statements in the document */
-    statements: StatementNode[];
+    statements: Statement[];
     /** 获取当前语言环境 */
     /** Get the current locale */
     getLocale(): "zh-hans" | "en-us";
@@ -78,7 +78,7 @@ export interface IHoverProvider {
      * @returns 如果能处理返回 true
      * @returns True if this provider can handle the node
      * */
-    canHandle(node: StatementNode): boolean;
+    canHandle(node: Statement): boolean;
     /**
      * @summary 生成悬停内容
      *
@@ -92,5 +92,5 @@ export interface IHoverProvider {
      * @returns 悬停内容，若光标不在相关位置则返回 null
      * @returns Hover content, or null if the cursor is not on a relevant position
      * */
-    provideHover(node: StatementNode, ctx: HoverContext): Nullable<Hover>;
+    provideHover(node: Statement, ctx: HoverContext): Nullable<Hover>;
 }

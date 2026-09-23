@@ -45,7 +45,10 @@ type OnHoverHandlerType = Parameters<Connection["onHover"]>[0];
 export class HoverHandler {
     private readonly providers: IHoverProvider[];
 
-    constructor(private docCache: DocumentCache, private settingMgr: SettingsManager) {
+    constructor(
+        private docCache: DocumentCache,
+        private settingMgr: SettingsManager
+    ) {
         this.providers = [
             new LabelDefHoverProvider(this.settingMgr),
             new AliasDirectiveHoverProvider(this.settingMgr),

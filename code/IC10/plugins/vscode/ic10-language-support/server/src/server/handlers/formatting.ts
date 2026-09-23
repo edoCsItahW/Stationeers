@@ -34,17 +34,13 @@ import { parse as parseYaml } from "yaml";
 import * as path from "path";
 import * as fs from "fs";
 import {
-    ExecutableInstructionNode,
-    PureExeInstructionNode,
-    DefineDirectiveNode,
-    AliasDirectiveNode,
-    StatementNode,
-    LabelDefNode,
-    OperandNode,
-    ErrorNode
+    ExecutableInstruction,
+    Statement,
+    ErrorNode,
+    Operand
 } from "ic10c-node";
 
-import { operandToString } from "../../utils";
+import { AST, operandToString } from "../../utils";
 import { DocumentCache } from "../cache";
 import { Console, debug } from "common";
 import { t } from "../../locals";
@@ -200,24 +196,19 @@ type FormatUnit =
 // 阶段 A — buildFormatUnits
 // =========================================================================
 
-/** 判断是否为可执行指令节点 */
-function isInstructionNode(stmt: StatementNode): stmt is PureExeInstructionNode {
-    return stmt.type.endsWith("Instruction");
-}
-
 /**
  * 从指令节点中提取操作数字符串列表（按 operand1..operandN 顺序）。
  * Error 类型操作数的 token.lexeme 为 NEWLINE，需改为从源码行提取实际文本。
  */
-function extractOperandStrings(instr: ExecutableInstructionNode, rawLines: string[]): string[] {
+function extractOperandStrings(instr: ExecutableInstruction, rawLines: string[]): string[] {
     const entries = Object.entries(instr)
         .filter(([k]) => /^operand\d+$/.test(k))
         .sort(([a], [b]) => parseInt(a.slice(7), 10) - parseInt(b.slice(7), 10));
 
     return entries.map(([, v], idx) => {
-        const op = v as OperandNode;
-        if (op.type === "Error")
-            return extractErrorOperandSource(op, entries as [string, OperandNode][], idx, rawLines);
+        const op = v as Operand;
+        if (AST.isError(instr))
+            return extractErrorOperandSource(op, entries as [string, Operand][], idx, rawLines);
 
         return operandToString(op);
     });
@@ -225,8 +216,8 @@ function extractOperandStrings(instr: ExecutableInstructionNode, rawLines: strin
 
 /** 从源码行中提取 Error 操作数的实际文本 */
 function extractErrorOperandSource(
-    errorOp: OperandNode,
-    allEntries: [string, OperandNode][],
+    errorOp: Operand,
+    allEntries: [string, Operand][],
     errorIdx: number,
     rawLines: string[]
 ): string {
@@ -255,7 +246,7 @@ function extractErrorOperandSource(
  */
 function buildFormatUnits(
     parsedLines: ParsedLine[],
-    stmtMap: Map<number, StatementNode[]>,
+    stmtMap: Map<number, Statement[]>,
     rawLines: string[]
 ): FormatUnit[] {
     const units: FormatUnit[] = [];
@@ -275,8 +266,8 @@ function buildFormatUnits(
         }
 
         // 同行多节点：找出主语句（非 Error）和 ErrorNode 词素
-        const primaryStmt = stmts?.find(s => s.type !== "Error");
-        const errorLexemes = (stmts ?? []).filter(s => s.type === "Error").map(s => (s as ErrorNode).token.lexeme);
+        const primaryStmt = stmts?.find(s => s.nodeName !== "Error");
+        const errorLexemes = (stmts ?? []).filter(s => AST.isError(s)).map(s => (s as ErrorNode).token.lexeme);
 
         // 纯 ErrorNode 或无法识别 — 保留原文
         if (!primaryStmt) {
@@ -287,38 +278,36 @@ function buildFormatUnits(
         }
 
         // LabelDef
-        if (primaryStmt.type === "LabelDef") {
+        if (AST.isLabelDef(primaryStmt)) {
             const suffix = errorLexemes.length > 0 ? errorLexemes.join(" ") : undefined;
-            units.push({ kind: "label", name: (primaryStmt as LabelDefNode).identifier.value, suffix });
+            units.push({ kind: "label", name: primaryStmt.identifier.value, suffix });
             continue;
         }
 
         // AliasDirective
-        if (primaryStmt.type === "AliasDirective") {
-            const alias = primaryStmt as AliasDirectiveNode;
+        if (AST.isAliasDirective(primaryStmt) && AST.isIdentifier(primaryStmt.identifier)) {
             units.push({
                 kind: "alias",
-                name: alias.identifier.value,
-                target: operandToString(alias.registerOrDevice),
+                name: primaryStmt.identifier.value,
+                target: operandToString(primaryStmt.registerOrDevice),
                 comment: pl.comment
             });
             continue;
         }
 
         // DefineDirective
-        if (primaryStmt.type === "DefineDirective") {
-            const define = primaryStmt as DefineDirectiveNode;
+        if (AST.isDefineDirective(primaryStmt) && AST.isIdentifier(primaryStmt.identifier)) {
             units.push({
                 kind: "define",
-                name: define.identifier.value,
-                value: operandToString(define.number),
+                name: primaryStmt.identifier.value,
+                value: operandToString(primaryStmt.operand),
                 comment: pl.comment
             });
             continue;
         }
 
         // 可执行指令
-        if (isInstructionNode(primaryStmt)) {
+        if (AST.belongInstruction(primaryStmt)) {
             // 行内存在错误语句（语法不完整，如非法符号/多余 token）：保留原文，
             // 避免把错误词素（可能含 NEWLINE）当作操作数格式化导致行错乱
             if (errorLexemes.length > 0) {
@@ -849,8 +838,8 @@ export class FormattingHandler {
 }
 
 /** 建立 1-based 行号 → StatementNode[] 的映射 */
-function buildStmtMap(statements: readonly StatementNode[]): Map<number, StatementNode[]> {
-    const map = new Map<number, StatementNode[]>();
+function buildStmtMap(statements: readonly Statement[]): Map<number, Statement[]> {
+    const map = new Map<number, Statement[]>();
     for (const stmt of statements) {
         const line = stmt.position.line;
         if (!map.has(line)) map.set(line, []);

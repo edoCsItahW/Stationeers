@@ -14,11 +14,12 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Languages, DiagnosticSeverity } from "vscode-languageserver";
-import { Diagnostic } from "ic10c-node";
+import type { Diagnostic } from "ic10c-node";
 
 import { DocumentCache } from "../cache";
 import { Console, debug } from "common";
 import { t } from "../../locals";
+
 
 type OnHandlerType = Parameters<Languages["diagnostics"]["on"]>[0];
 
@@ -76,7 +77,9 @@ export class DiagnosticHandler {
                 items: cache.diagnostics.map(d => ({
                     severity: this.levelTrans(d.level),
                     range: {
-                        start: d.start ? { line: d.start.line - 1, character: d.start.column - 1 } : { line: 0, character: 0 },
+                        start: d.start
+                            ? { line: d.start.line - 1, character: d.start.column - 1 }
+                            : { line: 0, character: 0 },
                         end: d.end ? { line: d.end.line - 1, character: d.end.column - 1 } : { line: 0, character: 0 }
                     },
                     message: d.message,

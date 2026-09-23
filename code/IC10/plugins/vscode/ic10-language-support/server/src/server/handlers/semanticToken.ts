@@ -18,23 +18,27 @@ import {
     PureExeInstructionNode,
     DefineDirectiveNode,
     AliasDirectiveNode,
+    DynamicDeviceNode,
+    StaticDeviceNode,
     IdentifierNode,
-    StatementNode,
-    ConstantNode,
-    HashCallNode,
-    LabelDefNode,
+    HashMacroNode,
     TypeCategory,
-    OperandNode,
-    StrCallNode,
+    LabelDefNode,
+    StrMacroNode,
     OperandType,
     TypeOfNode,
-    BasicType,
     ErrorNode,
+    BasicType,
+    Statement,
     SymbolMap,
+    RegOrDev,
+    EnumNode,
+    Operand,
     Program
 } from "ic10c-node";
 
-import { Console, debug, upperBound, Position } from "common";
+import { Console, Optional, Position, upperBound, debug } from "common";
+import { AST, groupHandlers, visit } from "../../utils";
 import { DocumentCache } from "../cache";
 import { t } from "../../locals";
 
@@ -81,6 +85,10 @@ export enum TokenLegend {
     /** 标识符（标签名、别名、define 常量名） */
     Label,
     LabelIdentifier,
+    /** 枚举类型名（`Foo.Bar` 的 `Foo`） */
+    Enum,
+    /** 枚举成员（`Foo.Bar` 的 `Bar`） */
+    EnumMember,
     Unknown
 }
 
@@ -268,74 +276,71 @@ export class SemanticTokenHandler {
                 })
             };
         } catch (error) {
-            Console.error((error as Error).message);
+            Console.error((error as Error).message, "Semantic Range");
         }
     }
 
-    private visitProgram(node: Program, context: HandlerContext): number[] {
-        return node.statements.flatMap(n => {
+    private visitProgram(program: Program, context: HandlerContext): number[] {
+        return program.statements.flatMap(n => {
             const tks = this.visitStatement(n, context);
 
             return tks.flatMap(t => [t.line, t.start, t.length, t.type, t.modifier]);
         });
     }
 
-    private visitStatement(node: StatementNode, context: HandlerContext): SemanticToken[] {
-        if (this.isInstructionType(node)) return this.visitInstruction(node, context);
+    private visitStatement(statement: Statement, context: HandlerContext): SemanticToken[] {
+        if (AST.belongInstruction(statement)) return this.visitInstruction(statement, context);
 
-        const mthName = `visit${node.type}` as const;
+        const mthName = `visit${statement.nodeName}` as const;
 
-        if (mthName in this) return (this as any)[mthName](node, context);
+        if (mthName in this) return (this as any)[mthName](statement, context);
 
-        Console.warning(`Unknown statement type: ${node.type}`, "SemanticToken");
+        Console.warning(`Unknown statement type: ${statement.nodeName}`, "SemanticToken");
         return [];
     }
 
-    private visitInstruction(
-        node: PureExeInstructionNode,
-        context: HandlerContext
-    ): SemanticToken[] {
+    private visitInstruction(instruction: PureExeInstructionNode, context: HandlerContext): SemanticToken[] {
         const result: SemanticToken[] = [];
 
-        const gap = this.getGap(context, node.position);
+        const gap = this.getGap(context, instruction.position);
 
         result.push({
             line: gap.line,
             start: gap.column,
-            length: node.keyword.length,
+            length: instruction.keyword.length,
             type: TokenLegend.Keyword,
             modifier: 0
         });
 
-        Object.entries(node).forEach(([key, value]) => {
+        Object.entries(instruction).forEach(([key, value]) => {
             if (key.startsWith("operand")) {
                 const typeKey = key.replace("operand", "type");
 
-                result.push(...this.handleOperand(value, context, (node as any)[typeKey]));
+                result.push(...this.handleOperand(value, context, (instruction as any)[typeKey]));
             }
         });
 
         return result;
     }
 
-    private visitLabelDef(node: LabelDefNode, context: HandlerContext): SemanticToken[] {
-        const gap = this.getGap(context, node.position);
+    private visitLabelDef(labelDef: LabelDefNode, context: HandlerContext): SemanticToken[] {
+        const gap = this.getGap(context, labelDef.position);
 
         return [
             {
                 line: gap.line,
                 start: gap.column,
-                length: node.identifier.value.length,
+                length: labelDef.identifier.value.length,
                 type: TokenLegend.Label,
                 modifier: 0
             }
         ];
     }
 
-    private visitAliasDirective(node: AliasDirectiveNode, context: HandlerContext): SemanticToken[] {
+    private visitAliasDirective(aliasDirective: AliasDirectiveNode, context: HandlerContext): SemanticToken[] {
         const result: SemanticToken[] = [];
 
-        let gap = this.getGap(context, node.position);
+        let gap = this.getGap(context, aliasDirective.position);
 
         result.push({
             line: gap.line,
@@ -345,32 +350,40 @@ export class SemanticTokenHandler {
             modifier: 0
         });
 
-        if (node.identifier.value) {
-            gap = this.getGap(context, node.identifier.position);
+        if (AST.isIdentifier(aliasDirective.identifier)) {
+            gap = this.getGap(context, aliasDirective.identifier.position);
 
             result.push({
                 line: gap.line,
                 start: gap.column,
-                length: node.identifier.value.length,
-                type:
-                    node.registerOrDevice.type === "Register"
-                        ? TokenLegend.RegisterIdentifier
-                        : node.registerOrDevice.type == "Device"
-                          ? TokenLegend.DeviceIdentifier
-                          : TokenLegend.Unknown,
+                length: aliasDirective.identifier.value.length,
+                type: visit<RegOrDev, TokenLegend>(
+                    {
+                        ...groupHandlers<RegOrDev["nodeName"]>(
+                            ["GeneralPurposeRegister", "AddressRegister", "StackPointerRegister", "DynamicRegister"],
+                            () => TokenLegend.RegisterIdentifier
+                        ),
+                        ...groupHandlers<RegOrDev["nodeName"]>(
+                            ["StaticDevice", "DynamicDevice"],
+                            () => TokenLegend.DeviceIdentifier
+                        ),
+                        Error: () => TokenLegend.Unknown
+                    },
+                    aliasDirective.registerOrDevice
+                ),
                 modifier: this.modifierBits(TokenModifier.Declaration)
             });
         }
 
-        result.push(...this.handleOperand(node.registerOrDevice, context));
+        result.push(...this.handleOperand(aliasDirective.registerOrDevice, context));
 
         return result;
     }
 
-    private visitDefineDirective(node: DefineDirectiveNode, context: HandlerContext): SemanticToken[] {
+    private visitDefineDirective(defineDirective: DefineDirectiveNode, context: HandlerContext): SemanticToken[] {
         const result: SemanticToken[] = [];
 
-        let gap = this.getGap(context, node.position);
+        let gap = this.getGap(context, defineDirective.position);
 
         result.push({
             line: gap.line,
@@ -380,48 +393,132 @@ export class SemanticTokenHandler {
             modifier: 0
         });
 
-        if (node.identifier.value) {
-            gap = this.getGap(context, node.identifier.position);
+        if (AST.isIdentifier(defineDirective.identifier)) {
+            gap = this.getGap(context, defineDirective.identifier.position);
 
             result.push({
                 line: gap.line,
                 start: gap.column,
-                length: node.identifier.value.length,
+                length: defineDirective.identifier.value.length,
                 type: TokenLegend.NumberIdentifier,
                 modifier: this.modifierBits(TokenModifier.Declaration)
             });
         }
 
-        result.push(...this.handleOperand(node.number, context));
+        result.push(...this.handleOperand(defineDirective.operand, context));
 
         return result;
     }
 
-    private visitError(node: ErrorNode, context: HandlerContext): SemanticToken[] {
-        return this.handleError(node, context);
+    private visitError(error: ErrorNode, context: HandlerContext): SemanticToken[] {
+        return this.handleError(error, context);
     }
 
-    private handleError(node: ErrorNode, context: HandlerContext): SemanticToken[] {
-        const gap = this.getGap(context, node.position);
+    private handleError(error: ErrorNode, context: HandlerContext): SemanticToken[] {
+        const gap = this.getGap(context, error.position);
 
         return [
             {
                 line: gap.line,
                 start: gap.column,
-                length: node.end.column - node.position.column,
+                length: error.end.column - error.position.column,
                 type: TokenLegend.Unknown,
                 modifier: 0
             }
         ];
     }
 
-    private handleOperand(node: OperandNode, context: HandlerContext, operandType?: OperandType): SemanticToken[] {
-        // Identifier 需要 operandType 参数，优先处理
-        if (node.type === "Identifier") return [this.handleIdentifier(node, context, operandType)];
+    private handleStaticDevice(
+        staticDevice: StaticDeviceNode,
+        context: HandlerContext,
+        operandType?: OperandType
+    ): SemanticToken[] {
+        const result: SemanticToken[] = [];
 
-        // 派发到专用 handler（HashCall / StrCall / Constant 等），
+        let gap = this.getGap(context, staticDevice.position);
+
+        const type = TypeOfNode[staticDevice.nodeName];
+
+        result.push({
+            line: gap.line,
+            start: gap.column,
+            length: staticDevice.device.end.column - staticDevice.device.position.column,
+            type: this.toLegend(type.kind, type.category),
+            modifier: 0
+        });
+
+        if (staticDevice.pin) result.push(...this.handleOperand(staticDevice.pin, context));
+
+        return result;
+    }
+
+    private handleDynamicDevice(dynamicDevice: DynamicDeviceNode, context: HandlerContext): SemanticToken[] {
+        const result: SemanticToken[] = [];
+
+        let gap = this.getGap(context, dynamicDevice.position);
+
+        const type = TypeOfNode[dynamicDevice.nodeName];
+
+        result.push({
+            line: gap.line,
+            start: gap.column,
+            length: dynamicDevice.end.column - dynamicDevice.position.column,
+            type: this.toLegend(type.kind, type.category),
+            modifier: 0
+        });
+
+        return result;
+    }
+
+    /**
+     * @summary 处理枚举操作数（多 token 操作数）
+     *
+     * @summary Handle an enum operand (a multi-token operand)
+     *
+     * @desc 枚举操作数 `Foo.Bar` 由两个 token 组成，需要分别发射：类型名 `Foo` 与成员 `Bar`，
+     * 两者之间以点号分隔（点号本身不着色）。值缺失（`Foo.` 未输入完）时只有类型名一个 token。
+     *
+     * @desc An enum operand `Foo.Bar` consists of two tokens that must be emitted separately:
+     * the type name `Foo` and the member `Bar`, separated by a dot (the dot itself is not
+     * colored). When the value is missing (an incomplete `Foo.` ), only the type name is emitted.
+     * */
+    private handleEnum(enumNode: EnumNode, context: HandlerContext): SemanticToken[] {
+        const result: SemanticToken[] = [];
+
+        const gap = this.getGap(context, enumNode.position);
+
+        if (!AST.isIdentifier(enumNode.name)) return result;
+
+        result.push({
+            line: gap.line,
+            start: gap.column,
+            length: enumNode.name.value.length,
+            type: TokenLegend.Enum,
+            modifier: 0
+        });
+
+        if (AST.isIdentifier(enumNode.value)) {
+            const valueGap = this.getGap(context, enumNode.value.position);
+
+            result.push({
+                line: valueGap.line,
+                start: valueGap.column,
+                length: enumNode.value.value.length,
+                type: TokenLegend.EnumMember,
+                modifier: 0
+            });
+        }
+
+        return result;
+    }
+
+    private handleOperand(node: Operand, context: HandlerContext, operandType?: OperandType): SemanticToken[] {
+        // Identifier 需要 operandType 参数，优先处理
+        if (AST.isIdentifier(node)) return [this.handleIdentifier(node, context, operandType)];
+
+        // 派发到专用 handler（HashCall / StrCall 等），
         // 避免被下面泛化的 "value" in node 检查误匹配
-        const mthName = `handle${node.type}` as const;
+        const mthName = `handle${node.nodeName}` as const;
 
         if (mthName in this) {
             const result = (this as any)[mthName](node, context);
@@ -432,7 +529,7 @@ export class SemanticTokenHandler {
         if ("value" in node) {
             const gap = this.getGap(context, node.position);
 
-            const type = TypeOfNode[node.type];
+            const type = TypeOfNode[node.nodeName];
 
             return [
                 {
@@ -445,46 +542,47 @@ export class SemanticTokenHandler {
             ];
         }
 
-        Console.warning(`Unknown operand type: ${node.type}`, "SemanticToken");
+        Console.warning(`Unknown operand type: ${node.nodeName}`, "SemanticToken");
         return [];
     }
 
-    private handleConstant(node: ConstantNode, context: HandlerContext): SemanticToken {
-        const gap = this.getGap(context, node.position);
+    private handleIdentifier(
+        identifier: IdentifierNode,
+        context: HandlerContext,
+        operandType?: OperandType
+    ): SemanticToken {
+        const gap = this.getGap(context, identifier.position);
+
+        const symbol = context.table.symbols[identifier.value];
+
+        let type: Optional<TokenLegend>;
+        operandType ??= OperandType.CONST_NUM; // 使operandType落在default
+        switch (operandType) {
+            case OperandType.LOGIC_PROP:
+            case OperandType.LOGIC_SLOT_PROP:
+            case OperandType.AGG_MODE:
+                type = TokenLegend.Constant;
+                break;
+            default:
+                type = symbol ? this.toLegend(symbol.type, symbol.category, true) : TokenLegend.Unknown;
+                break;
+        }
 
         return {
             line: gap.line,
             start: gap.column,
-            length: node.keyword.length,
-            type: TokenLegend.Constant,
-            modifier: 0
-        };
-    }
-
-    private handleIdentifier(node: IdentifierNode, context: HandlerContext, operandType?: OperandType): SemanticToken {
-        const gap = this.getGap(context, node.position);
-
-        const symbol = context.table[node.value];
-
-        const type = symbol
-            ? this.toLegend(symbol.type, symbol.category, true)
-            : this.operandTypeToLegend(operandType!);
-
-        return {
-            line: gap.line,
-            start: gap.column,
-            length: node.value.length,
+            length: identifier.value.length,
             type,
             modifier: 0
         };
     }
 
-    private handleStrCall(node: StrCallNode, context: HandlerContext): SemanticToken[] {
+    private handleStrMacro(strMacro: StrMacroNode, context: HandlerContext): SemanticToken[] {
         const result: SemanticToken[] = [];
 
-        let gap = this.getGap(context, node.position);
+        let gap = this.getGap(context, strMacro.position);
 
-        const type = TypeOfNode[node.type];
+        const type = TypeOfNode[strMacro.nodeName];
 
         result.push({
             line: gap.line,
@@ -494,30 +592,32 @@ export class SemanticTokenHandler {
             modifier: 0
         });
 
-        gap = this.getGap(context, node.value.position);
+        if (AST.isString(strMacro.value)) {
+            gap = this.getGap(context, strMacro.value.position);
 
-        result.push({
-            line: gap.line,
-            start: gap.column,
-            length: node.value.value.length,
-            type: TokenLegend.String,
-            modifier: 0
-        });
+            result.push({
+                line: gap.line,
+                start: gap.column,
+                length: strMacro.value.value.length,
+                type: TokenLegend.String,
+                modifier: 0
+            });
+        }
 
         return result;
     }
 
-    private handleHashCall(node: HashCallNode, context: HandlerContext): SemanticToken[] {
-        if (!node.value || !node.value.position || node.value.value == null) {
+    private handleHashMacro(hashMacro: HashMacroNode, context: HandlerContext): SemanticToken[] {
+        if (!hashMacro.value || hashMacro.value.nodeName === "Error") {
             Console.warning("handleHashCall: missing value data", "SemanticToken");
             return [];
         }
 
         const result: SemanticToken[] = [];
 
-        let gap = this.getGap(context, node.position);
+        let gap = this.getGap(context, hashMacro.position);
 
-        const type = TypeOfNode[node.type];
+        const type = TypeOfNode[hashMacro.nodeName];
 
         result.push({
             line: gap.line,
@@ -527,15 +627,17 @@ export class SemanticTokenHandler {
             modifier: 0
         });
 
-        gap = this.getGap(context, node.value.position);
+        if (AST.isString(hashMacro.value)) {
+            gap = this.getGap(context, hashMacro.value.position);
 
-        result.push({
-            line: gap.line,
-            start: gap.column,
-            length: node.value.value.length,
-            type: TokenLegend.String,
-            modifier: 0
-        });
+            result.push({
+                line: gap.line,
+                start: gap.column,
+                length: hashMacro.value.value.length,
+                type: TokenLegend.String,
+                modifier: 0
+            });
+        }
 
         return result;
     }
@@ -571,21 +673,6 @@ export class SemanticTokenHandler {
         return TokenLegend.Unknown;
     }
 
-    private operandTypeToLegend(operandType: OperandType): TokenLegend {
-        switch (operandType) {
-            case OperandType.LOGIC_TYPE:
-            case OperandType.LOGIC_SLOT:
-            case OperandType.REAGENT_MODE:
-            case OperandType.BATCH_MODE:
-            case OperandType.SLOT_IDX:
-                return TokenLegend.Constant;
-            case OperandType.JUMP_TARGET:
-                return TokenLegend.Label;
-            default:
-                return TokenLegend.Unknown;
-        }
-    }
-
     private getGap(context: HandlerContext, pos: Position): Position {
         const lineGap = pos.line - context.prev.line;
 
@@ -594,9 +681,5 @@ export class SemanticTokenHandler {
         context.prev = pos;
 
         return result;
-    }
-
-    private isInstructionType(node: StatementNode): node is PureExeInstructionNode {
-        return node.type.endsWith("Instruction");
     }
 }

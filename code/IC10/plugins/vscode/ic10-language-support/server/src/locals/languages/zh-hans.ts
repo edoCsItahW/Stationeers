@@ -33,7 +33,8 @@ export default {
     hover: {
         common: {
             description: "描述",
-            value: "值"
+            value: "值",
+            identifier: "标识符"
         },
         labelDef: {
             type: "标签"
@@ -51,7 +52,14 @@ export default {
         },
         operandType: {
             register: "寄存器",
+            general_purpose_register: "通用寄存器",
+            address_register: "地址寄存器",
+            stack_pointer_register: "栈指针寄存器",
+            dynamic_register: "动态寻址寄存器",
             device: "设备",
+            self_reference_device: "自引用设备",
+            ordinary_device: "平凡设备",
+            dynamic_device: "动态寻址设备",
             number: "数值",
             constant: "内置常量",
             error: "未知",
@@ -59,7 +67,9 @@ export default {
             logicSlotType: "逻辑槽类型",
             logicType: "逻辑类型",
             reagentMode: "试剂模式",
-            slotIdx: "槽索引"
+            slotIdx: "槽索引",
+            pin: "引脚",
+            enum: "枚举"
         }
     },
     completion: {

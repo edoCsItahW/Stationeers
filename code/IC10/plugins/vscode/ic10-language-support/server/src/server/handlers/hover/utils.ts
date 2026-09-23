@@ -16,20 +16,11 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import type { Hover } from "vscode-languageserver/node";
+import type { IdentifierNode, SymbolMap, Statement } from "ic10c-node";
 import { BasicType } from "ic10c-node";
-import type {
-    PureExeInstructionNode,
-    IdentifierNode,
-    StatementNode,
-    OperandNode,
-    SymbolMap,
-} from "ic10c-node";
 
 import { lowerBound, getEnumName, type Nullable, type Optional } from "common";
-import { groupHandlers, visit, operandValueLength } from "../../../utils";
-import svgBuilder from "../../../utils/svgBuilder";
-import type { HoverContext } from "./types";
+
 
 /**
  * @summary 通过二分查找定位指定行的语句
@@ -44,7 +35,7 @@ import type { HoverContext } from "./types";
  * @returns 匹配的语句节点，未找到返回 null
  * @returns The matching statement node, or null if not found
  */
-export function findStatementAtPosition(statements: StatementNode[], line: number): Nullable<StatementNode> {
+export function findStatementAtPosition(statements: Statement[], line: number): Nullable<Statement> {
     const idx = lowerBound(statements, item => item.position.line >= line);
     return idx >= 0 && idx < statements.length ? statements[idx] : null;
 }
@@ -66,71 +57,6 @@ export function findStatementAtPosition(statements: StatementNode[], line: numbe
  */
 export function isInsideNode(col: number, length: number, character: number): boolean {
     return character >= col && character <= col + length;
-}
-
-/**
- * @summary 在指令中根据光标位置查找对应的操作数或关键字
- *
- * @summary Find the operand or keyword at a given character position in an instruction
- *
- * @param node 可执行指令 AST 节点
- * @param node Pure executable instruction AST node
- * @param a 光标列号（1-based）
- * @param a Cursor column position (1-based)
- *
- * @returns 找到的操作数节点（或关键字字符串）及其索引
- * @returns The found operand node (or keyword string) and its index
- */
-export function findOperand(
-    node: PureExeInstructionNode,
-    a: number
-): { result: OperandNode | string; index: number } {
-    let maxCol = -Infinity;
-    let foundOperand: Nullable<OperandNode> = null;
-    let index = -1;
-
-    for (const key in node)
-        if (key.startsWith("operand")) {
-            const operand: Optional<OperandNode> = (node as any)[key];
-            if (operand && operand.position && typeof operand.position.column === "number") {
-                const col = operand.position.column;
-                if (col <= a && col > maxCol) {
-                    maxCol = col;
-                    foundOperand = operand;
-                    index = Number(key.replace("operand", ""));
-                }
-            }
-        }
-
-    return {
-        result: foundOperand !== null ? foundOperand : node.keyword,
-        index
-    };
-}
-
-/**
- * @summary 将操作数节点格式化为可读的字符串表示
- *
- * @summary Format an operand node into a readable string representation
- *
- * @param op 操作数 AST 节点
- * @param op Operand AST node
- *
- * @returns 格式化后的字符串（如 HASH("value")、寄存器名、数字等）
- * @returns Formatted string (e.g. HASH("value"), register name, number, etc.)
- */
-export function formatOperand(op: OperandNode): string {
-    return visit(
-        {
-            Error: node => node.message,
-            Constant: node => node.keyword,
-            HashCall: node => `HASH("${node.value.value}")`,
-            StrCall: node => `STR("${node.value.value}")`,
-            ...groupHandlers(["BinaryNumber", "HexNumber", "Identifier", "Register", "Device"], node => node.value),
-            ...groupHandlers(["Integer", "Float"], node => node.value.toString())
-        },
-        op
-    );
 }
 
 /**
@@ -162,24 +88,9 @@ export function formatBasicType(type: BasicType): string {
  * @returns Type name (prefers typeName, falls back to BasicType name), or undefined if not found
  */
 export function formatType(identifier: IdentifierNode, symbols: SymbolMap): Optional<string> {
-    const symbol = symbols[identifier.value];
+    const symbol = symbols.symbols[identifier.value];
     if (symbol) {
         if (symbol.typeName) return symbol.typeName;
         return formatBasicType(symbol.type);
     }
-}
-
-/**
- * @summary 类型守卫：判断语句节点是否为可执行指令（排除 ErrorNode）
- *
- * @summary Type guard: check if a statement node is an executable instruction (excluding ErrorNode)
- *
- * @param node 语句 AST 节点
- * @param node Statement AST node
- *
- * @returns 如果节点类型以 "Instruction" 结尾返回 true
- * @returns True if the node type ends with "Instruction"
- */
-export function isInstruction(node: StatementNode): node is PureExeInstructionNode {
-    return node.type.endsWith("Instruction");
 }

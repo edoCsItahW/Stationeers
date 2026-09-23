@@ -33,7 +33,8 @@ export default {
     hover: {
         common: {
             description: "description",
-            value: "value"
+            value: "value",
+            identifier: "Identifier"
         },
         labelDef: {
             type: "Label"
@@ -51,7 +52,14 @@ export default {
         },
         operandType: {
             register: "Register",
+            general_purpose_register: "General Purpose Register",
+            address_register: "Address register",
+            stack_pointer_register: "Stack pointer register",
+            dynamic_register: "Dynamic addressing register",
             device: "Device",
+            self_reference_device: "Self reference device",
+            ordinary_device: "Origin device",
+            dynamic_device: "Dynamic addressing device",
             number: "Number",
             constant: "Builtin Constant",
             error: "Unknown",
@@ -59,7 +67,9 @@ export default {
             logicSlotType: "LogicSlotType",
             logicType: "LogicType",
             reagentMode: "ReagentMode",
-            slotIdx: "SlotIdx"
+            slotIdx: "SlotIdx",
+            pin: "Pin",
+            enum: "Enum"
         }
     },
     completion: {
