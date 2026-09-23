@@ -21,7 +21,7 @@
         "vscode": "^1.125.0"
     },
     "activationEvents": [],
-    "main": "./client/out/extension",
+    "main": "./packages/client/out/extension.js",
     "icon": "icon.png",
     "screenshots": [
         "static/completion.mp4",

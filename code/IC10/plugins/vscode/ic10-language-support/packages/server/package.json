@@ -1,0 +1,45 @@
+{
+    "name": "@ic10/server",
+    "description": "",
+    "version": "1.0.0",
+    "author": "edocsitahw",
+    "license": "CC BY-NC-SA 4.0",
+    "engines": {
+        "node": "*"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/edoCsItahW/Stationeers.git"
+    },
+    "pkg": {
+        "asserts": [
+            "node_modules/vscode-languageserver/node.js",
+            "node_modules/vscode-languageserver/package.json"
+        ]
+    },
+    "exports": {
+        ".": {
+            "types": "./out/server/server.d.ts",
+            "import": "./out/server/server.js",
+            "require": "./out/server/server.js",
+            "default": "./out/server/server.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc -b",
+        "pkg": "set NODE_MIRROR=https://mirrors.huaweicloud.com/nodejs/ && pkg bundle.js --targets node26-win-x64 --output ic10-lsp.exe"
+    },
+    "dependencies": {
+        "@ic10/common": "workspace:*",
+        "type-fest": "^5.8.0",
+        "vscode-languageserver": "^10.0.1",
+        "vscode-languageserver-textdocument": "^1.0.12",
+        "yaml": "^2.9.0"
+    },
+    "devDependencies": {
+        "@types/node": "^26.0.1",
+        "@types/vscode": "^1.125.0",
+        "@yao-pkg/pkg": "^6.22.0",
+        "esbuild": "^0.28.1"
+    }
+}
