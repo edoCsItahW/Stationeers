@@ -32,7 +32,7 @@ import {
 
 import { resources } from "../locals";
 import { Position } from "common";
-import * as process from "node:process";
+
 
 type NodeType = Statement | Operand | StringNode;
 
@@ -199,7 +199,12 @@ export function operandToString(node: Operand): string {
                 ],
                 node => node.value
             ),
-            Enum: node => (AST.isError(node.name) || AST.isError(node.value) ? "" : `${node.name}.${node.value}`),
+            Enum: node => {
+                // 值缺失时（`Foo.` 未输入完）点号记在 value 的错误节点上，此时只还原已输入的部分
+                if (AST.isError(node.name)) return AST.isError(node.value) ? "" : node.value.value;
+
+                return AST.isError(node.value) ? node.name.value : `${node.name.value}.${node.value.value}`;
+            },
             DynamicRegister: dr => `r${operandToString(dr.register)}`,
             DynamicDevice: dd => `d${operandToString(dd.register)}`,
             StaticDevice(sd) {
@@ -235,6 +240,175 @@ export function end(item: Operand | Token): Position {
 
 export function getOperandType(ins: PureExeInstructionNode, idx: number): Optional<OperandType> {
     return (ins as any)[`type${idx}`];
+}
+
+/**
+ * @summary 操作数内部的子段（多 token 操作数特有）
+ *
+ * @summary Sub-segment inside an operand (specific to multi-token operands)
+ *
+ * @desc 一个操作数可能由多个 token 组成：静态设备的引脚 `d0:1`、枚举的枚举值 `Foo.Bar`。
+ * 光标落在这些子段内时，补全语义与其首段（`d0`、`Foo`）不同。
+ *
+ * @desc An operand may consist of several tokens: the pin of a static device (`d0:1`) and the
+ * value of an enum (`Foo.Bar`). A cursor inside such a sub-segment has different completion
+ * semantics from the leading segment (`d0`, `Foo`).
+ * */
+export type OperandSegment = "pin" | "enumValue";
+
+/**
+ * @summary 光标在语句中的定位结果
+ *
+ * @summary Cursor location within a statement
+ *
+ * @desc 由 locateOperand 依据 AST 中操作数的源码列区间计算，与行内 token 序号无关，
+ * 因此一个操作数无论由几个 token 组成都只占一个槽位。
+ *
+ * @desc Computed by locateOperand from the source column ranges of the AST operands, independent
+ * of the token ordinal within the line: an operand occupies exactly one slot no matter how many
+ * tokens it consists of.
+ * */
+export interface OperandLocation {
+    /**
+     * @summary 光标所在（或将要输入）的操作数槽位
+     *
+     * @desc 0 表示语句头部（关键字/标签名）；1..n 对应 operand1..operandN；
+     * alias/define 伪指令的槽位 1 为自定义标识符、槽位 2 为其操作数。
+     * */
+    slot: number;
+
+    /** @summary 光标命中的操作数节点（含多 token 操作数位于光标之后的子段） */
+    operand?: Operand;
+
+    /** @summary 命中操作数内部的子段 */
+    segment?: OperandSegment;
+
+    /** @summary 光标之前最近的操作数（供悬停等「就近」语义使用） */
+    previous?: {
+        slot: number;
+        operand: Operand;
+    };
+}
+
+/**
+ * @summary 语句头部（关键字或标签名）在源码中的结束列
+ *
+ * @summary End column of the statement head (keyword or label name) in the source
+ * */
+function statementHeadEnd(stmt: Statement): number {
+    if (AST.belongInstruction(stmt)) return stmt.position.column + stmt.keyword.length;
+
+    if (AST.isAliasDirective(stmt)) return stmt.position.column + 5; // "alias"
+    if (AST.isDefineDirective(stmt)) return stmt.position.column + 6; // "define"
+
+    // 标签定义：标签名即头部；其余（错误语句等）退化为语句起点
+    if (AST.isLabelDef(stmt) && AST.isIdentifier(stmt.identifier)) return stmt.identifier.end.column;
+
+    return stmt.position.column;
+}
+
+/**
+ * @summary 按槽位升序列出语句的操作数
+ *
+ * @summary List the statement operands in slot order
+ *
+ * @desc 可执行指令取 `operand1..operandN`；alias/define 伪指令取自定义标识符与目标/值，
+ * 与补全现有的槽位约定一致（槽位 1 为标识符、槽位 2 为操作数）。
+ *
+ * @desc Executable instructions yield `operand1..operandN`; alias/define directives yield the
+ * user identifier and the target/value, matching the slot convention already used by completion
+ * (slot 1 is the identifier, slot 2 is the operand).
+ * */
+function statementOperands(stmt: Statement): Operand[] {
+    if (AST.belongInstruction(stmt)) {
+        const result: Operand[] = [];
+
+        for (let i = 1; ; i++) {
+            const operand: Optional<Operand> = (stmt as any)[`operand${i}`];
+
+            if (!operand) break;
+
+            result.push(operand);
+        }
+
+        return result;
+    }
+
+    if (AST.isAliasDirective(stmt)) return [stmt.identifier, stmt.registerOrDevice];
+
+    if (AST.isDefineDirective(stmt)) return [stmt.identifier, stmt.operand];
+
+    return [];
+}
+
+/**
+ * @summary 判断光标落在操作数内部的哪个子段
+ *
+ * @summary Determine which sub-segment of an operand the cursor falls into
+ *
+ * @desc 依据子节点的列区间判断，不依赖 token：静态设备以引脚（或无引脚时被消费的冒号）为子段，
+ * 枚举以点号之后的值部分为子段。
+ *
+ * @desc Decided by the column ranges of the child nodes rather than tokens: a static device has
+ * the pin (or the consumed colon when the pin is missing) as its sub-segment, and an enum has the
+ * part after the dot as its sub-segment.
+ * */
+function operandSegmentAt(operand: Operand, column: number): Optional<OperandSegment> {
+    if (AST.isStaticDevice(operand) && !AST.isError(operand.device))
+        return column > operand.device.end.column ? "pin" : undefined;
+
+    if (AST.isEnum(operand) && AST.isIdentifier(operand.name))
+        return column > operand.name.end.column ? "enumValue" : undefined;
+
+    return undefined;
+}
+
+/**
+ * @summary 依据 AST 定位光标所在的语句槽位与操作数子段
+ *
+ * @summary Locate the statement slot and operand sub-segment at the cursor using the AST
+ *
+ * @desc 取代「行内 token 序号即操作数序号」的推导方式：后者在 `d0:1`、`Foo.Bar` 这类
+ * 多 token 操作数出现时会整体错位。判定规则：
+ * 1. 光标不越过语句头部（关键字/标签名）→ 槽位 0；
+ * 2. 光标落在某个非空操作数的列区间内（含终点）→ 该操作数的槽位；
+ * 3. 其余（操作数之后的空隙）→ 光标之前操作数个数 + 1，即下一个槽位。
+ *
+ * @desc Replaces the "token ordinal equals operand ordinal" derivation, which is shifted as soon as
+ * a multi-token operand such as `d0:1` or `Foo.Bar` appears. Rules:
+ * 1. cursor not past the statement head (keyword/label name) → slot 0;
+ * 2. cursor inside the column range (end inclusive) of a non-empty operand → that operand's slot;
+ * 3. otherwise (a gap after some operand) → operands before the cursor + 1, i.e. the next slot.
+ *
+ * @param stmt 光标所在行的语句节点
+ * @param column 光标列（1-based）
+ * */
+export function locateOperand(stmt: Statement, column: number): OperandLocation {
+    if (column <= statementHeadEnd(stmt)) return { slot: 0 };
+
+    const operands = statementOperands(stmt);
+
+    let slot = 0;
+    let previous: Optional<OperandLocation["previous"]> = undefined;
+
+    for (let i = 0; i < operands.length; i++) {
+        const operand = operands[i];
+        const start = operand.position.column;
+        const end = operand.end.column; // 多 token 操作数的 end 覆盖其全部源码文本
+
+        // 缺失操作数对应的空错误节点不参与命中
+        if (start === end) continue;
+
+        if (start <= column && column <= end)
+            return { slot: i + 1, operand, segment: operandSegmentAt(operand, column), previous };
+
+        if (end <= column) {
+            slot = i + 1;
+            previous = { slot: i + 1, operand };
+        }
+    }
+
+    return { slot: slot + 1, previous };
 }
 
 // `identifier`表示语法，因为有些不允许标识符，其余表示语义，通常`identifier`更具体的语义就是列举中非本身的那些

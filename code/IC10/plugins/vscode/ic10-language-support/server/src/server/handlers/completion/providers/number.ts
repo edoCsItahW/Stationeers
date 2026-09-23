@@ -13,11 +13,11 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { INS_META_MAP } from "../../../../mateData";
 import { CompletionItem, CompletionItemKind, InsertTextFormat } from "vscode-languageserver";
-import { OperandProvider } from "./types";
-import { BasicType } from "ic10c-node";
-import { t } from "../../../../locals";
+
+import { DescriptionSolver } from "../../../../utils";
+import { INS_META_MAP } from "../../../../mateData";
+import type { OperandProvider } from "./types";
 
 
 type SpecialNumberKey = "%" | "$" | "HASH" | "STR";
@@ -72,7 +72,7 @@ export const provideNumber: OperandProvider = (ctx, opType, prefix) => {
                 ...i,
                 detail: meta.value.signature,
                 data: {
-                    description: meta.value.desc
+                    description: DescriptionSolver.parse(meta.value.desc)
                 }
             };
         });

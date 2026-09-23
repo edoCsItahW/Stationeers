@@ -21,7 +21,7 @@ import { findStatementAtPosition } from "./utils";
 import { SettingsManager } from "../../services";
 import { t, locale } from "../../../locals";
 import { DocumentCache } from "../../cache";
-import { Console, debug, traceback } from "common";
+import { Console, debug } from "common";
 import {
     DefineDirectiveHoverProvider,
     AliasDirectiveHoverProvider,
@@ -68,12 +68,11 @@ export class HoverHandler {
      * @returns 悬停内容（Markdown 格式），若无相关内容返回空
      * @returns Hover content (Markdown format), or empty if nothing relevant
      * */
-//    @debug({
-//        message: err => t("server.handler.error", { name: "hover", err: (err as Error).message }),
-//        logger: msg => Console.error(msg, "hover"),
-//        rethrow: false
-//    })
-    @traceback()
+    @debug({
+        message: err => t("server.handler.error", { name: "hover", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "hover"),
+        rethrow: false
+    })
     public handle(...[{ position, textDocument }]: Parameters<OnHoverHandlerType>): ReturnType<OnHoverHandlerType> {
         // 统一为1-based
         const line = position.line + 1;

@@ -15,7 +15,7 @@
  * */
 import { CompletionItemKind, CompletionItem } from "vscode-languageserver";
 
-import { BuiltinSymbolInfo, OperandProvider } from "./types";
+import type { BuiltinSymbolInfo, OperandProvider } from "./types";
 import { t } from "../../../../locals";
 
 
@@ -55,7 +55,7 @@ const STACK_POINTER_REGISTER: BuiltinSymbolInfo = {
     }
 };
 
-const ADDRESSABLE_REGISTERS = [...GENERAL_PURPOSE_REGISTERS, ADDRESS_REGISTER];
+export const ADDRESSABLE_REGISTERS = [...GENERAL_PURPOSE_REGISTERS, ADDRESS_REGISTER];
 
 const REGISTERS = [...ADDRESSABLE_REGISTERS, STACK_POINTER_REGISTER];
 
@@ -64,8 +64,14 @@ export const provideRegister: OperandProvider = (ctx, opType, prefix) => {
     const items = REGISTERS.filter(r => r.value.startsWith(prefix)).map(registerItem);
 
     // 动态寻址寄存器
-    //    if (prefix.length) items.push(...ADDRESSABLE_REGISTERS.map(registerItem));
-    // TODO: 动态寻址应该动态的前缀添加到补全项中
+    if (prefix && /^rr+$/.test(prefix)) {
+        items.push(
+            ...ADDRESSABLE_REGISTERS.map(({ value, ...rest }) => ({
+                value: prefix + value.slice(1), // rr + 0 => rr0；rr + a => rra
+                ...rest
+            })).map(registerItem)
+        );
+    }
 
     return items;
 };

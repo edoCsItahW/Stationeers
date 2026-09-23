@@ -33,6 +33,7 @@ import type { OperandProvider } from "./types";
 import { t } from "../../../../locals";
 import { Optional } from "common";
 
+
 export const provideEnum: OperandProvider = (ctx, opType, prefix) => {
     const res = () => provideGlobalEnum(ctx, opType, prefix);
 
@@ -56,7 +57,7 @@ const provideGlobalEnum: OperandProvider = (ctx, opType, prefix) => {
     const key = EnumKeyMap[opType];
 
     const type = ctx.types[key];
-    if (!type || !AST.isEnumAnnotation(type)) return []; // TODO: warning: 没有找到类型
+    if (!type || !AST.isEnumAnnotation(type)) return [];
 
     return type.values.filter(v => v.name.startsWith(prefix)).map(v => enumItem(v, opType));
 };

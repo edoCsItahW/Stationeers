@@ -16,8 +16,8 @@
 import { CompletionItem } from "vscode-languageserver";
 import { OperandType, Token } from "ic10c-node";
 
+import type { CompletionProviderContext, OperandProvider } from "./types";
 import { GenericOperandType, SemanticMap } from "../../../../utils";
-import { CompletionProviderContext, OperandProvider } from "./types";
 import { provideIdentifier } from "./identifier";
 import { provideRegister } from "./register";
 import { provideKeyword } from "./keyword";

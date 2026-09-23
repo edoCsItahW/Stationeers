@@ -68,7 +68,8 @@ export default {
             logicType: "LogicType",
             reagentMode: "ReagentMode",
             slotIdx: "SlotIdx",
-            pin: "Pin"
+            pin: "Pin",
+            enum: "Enum"
         }
     },
     completion: {

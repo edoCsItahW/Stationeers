@@ -15,9 +15,9 @@
  * */
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 
-import { INS_META_MAP } from "../../../../mateData";
-import { CompletionProviderContext } from "./types";
 import { DescriptionSolver, RadixTree } from "../../../../utils";
+import type { CompletionProviderContext } from "./types";
+import { INS_META_MAP } from "../../../../mateData";
 
 
 const INSTRUCTIONS_META_TREE = RadixTree.fromMap(INS_META_MAP);

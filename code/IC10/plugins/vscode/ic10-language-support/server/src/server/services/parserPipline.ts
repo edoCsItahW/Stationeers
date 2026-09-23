@@ -16,12 +16,15 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic, Statement } from "ic10c-node";
-import stdLib from "ic10c-node/static/stdLib.ic.json";
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 
 import { DocCacheValue } from "../cache";
 import { Console, debug } from "common";
 import { t } from "../../locals";
+
+
+const STAND_LIB = readFileSync(require.resolve("ic10c-node/src/stdLib.ic"), "utf-8");
 
 /** 会改变符号表的声明式语句类型集合 */
 const DECLARATIVE_TYPES = new Set(["AliasDirective", "DefineDirective", "LabelDef"]);
@@ -157,7 +160,7 @@ export class ParserPipline {
 
         const linker = new Linker();
 
-        linker.addUnit(stdLib.content);
+        linker.addUnit(STAND_LIB);
         linker.addUnit(ast);
 
         const table = linker.link();
@@ -240,7 +243,7 @@ export class ParserPipline {
             const parseResult = this.incParser.parseFull(lexResult.tokens);
 
             const linker = new Linker();
-            linker.addUnit(stdLib.content);
+            linker.addUnit(STAND_LIB);
             linker.addUnit(parseResult.ast);
 
             const table = linker.link();
@@ -292,7 +295,7 @@ export class ParserPipline {
             // 链接器（全量执行，Linker 不支持增量）
             const linker = new Linker();
 
-            linker.addUnit(stdLib.content);
+            linker.addUnit(STAND_LIB);
             linker.addUnit(parseResult.ast);
 
             result.symbolTable = linker.link();
