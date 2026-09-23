@@ -259,12 +259,20 @@ namespace stationeers::ic10 {
         else if (NodeParser<OrdinaryDevice>::is(p))
             staticDevice.device = NodeParser<OrdinaryDevice>::parse(p);
 
+        // 本路径走默认构造（构造函数体中的初始化不适用），故在此以 device 终点初始化 endPos，
+        // 随后由冒号/pin 分支细化
+        staticDevice.endPos = std::visit([](const auto& d) { return d.end(); }, staticDevice.device);
+
         // 解析pin
         if (p.current()->type == TokenType::COLON) {
-            p.expect(TokenType::COLON);
+            // 冒号一旦消费即记入终点，即使pin缺失（`d0:` 未输入完），终点也覆盖该冒号
+            staticDevice.endPos = endPos(*p.expect(TokenType::COLON));
 
-            if (p.current()->type == TokenType::INTEGER)
+            if (p.current()->type == TokenType::INTEGER) {
                 staticDevice.pin = NodeParser<Integer>::parse(p);
+
+                staticDevice.endPos = staticDevice.pin->end();
+            }
         }
 
         return staticDevice;
@@ -330,13 +338,24 @@ namespace stationeers::ic10 {
     Enum NodeParser<Enum>::parse(Parser& parser) noexcept {
         Enum enumNode{parser.current()->pos};
 
-        // 已通过前瞻确定TokenType::IDENTIFIER + TokenType::DOT +
-        // TokenType::IDENTIFIER，无需try-catch
+        // 已通过前瞻确定TokenType::IDENTIFIER + TokenType::DOT
         enumNode.name = NodeParser<Identifier>::parse(parser);
 
-        parser.expect(TokenType::DOT);
+        auto dot = parser.expect(TokenType::DOT);
 
-        enumNode.value = NodeParser<Identifier>::parse(parser);
+        // 值缺失（如 `Foo.` 未输入完）时不消费后续token、不抛异常：把点号记入value的错误节点，
+        // 使节点end()覆盖 `Foo.` 以便语言服务定位枚举值子段，并在此上报语法错误
+        // （点号已被消费，语句层的“缺少换行”检查不会触发）
+        if (auto tokenPtr = parser.current(); tokenPtr && tokenPtr->type == TokenType::IDENTIFIER)
+            enumNode.value = NodeParser<Identifier>::parse(parser);
+
+        else {
+            const std::string types(Identifier::nodeName);
+
+            parser.reporter_.errorWith<ICMsgId::IEP34_1>(dot->pos, endPos(*dot), types);
+
+            enumNode.value = ErrorNode{dot->pos, *dot, ICLoc::msgFormat<ICMsgId::IEP34_1>(types)};
+        }
 
         return enumNode;
     }
@@ -359,7 +378,7 @@ namespace stationeers::ic10 {
                 parser.expect(TokenType::STRING);  // 引发错误
 
             tokenBeforeError = parser.expect(TokenType::RPAREN);
-            hashCall.endPos  = std::move(tokenBeforeError->pos);
+            hashCall.endPos  = endPos(*tokenBeforeError);
         } catch (const Error& e) { return ErrorNode{*tokenBeforeError, std::string(e.message())}; }
 
         return hashCall;
@@ -383,7 +402,7 @@ namespace stationeers::ic10 {
                 parser.expect(TokenType::STRING);  // 引发错误
 
             tokenBeforeError = parser.expect(TokenType::RPAREN);
-            strCall.endPos   = std::move(tokenBeforeError->pos);
+            strCall.endPos   = endPos(*tokenBeforeError);
         } catch (const Error& e) { return ErrorNode{*tokenBeforeError, std::string(e.message())}; }
 
         return strCall;
