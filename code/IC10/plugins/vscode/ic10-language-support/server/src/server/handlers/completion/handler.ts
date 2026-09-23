@@ -13,10 +13,10 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { OperandType, Token, TokenCategory, TokenType, TypeTableMap } from "ic10c-node";
+import { OperandType, TokenCategory, TokenType, TypeTableMap } from "ic10c-node";
 import { CompletionItem, CompletionItemKind, Connection } from "vscode-languageserver";
 
-import { AST, DescriptionSolver, end, findRangeTokens, getOperandType } from "../../../utils";
+import { AST, DescriptionSolver, end, findRangeTokens, getOperandType, locateOperand, OperandLocation } from "../../../utils";
 import { Console, debug, lowerBound, traceback } from "common";
 import { CompletionProviderContext } from "./providers/types";
 import { provideKeyword, provideOperand } from "./providers";
@@ -33,12 +33,11 @@ type OnCompletionResolveHandlerType = Parameters<Connection["onCompletionResolve
 export class CompletionHandler {
     constructor(private readonly docCache: DocumentCache) {}
 
-    //    @debug({
-    //        message: err => t("server.handler.error", { name: "completion", err: (err as Error).message }),
-    //        logger: msg => Console.error(msg, "completion"),
-    //        rethrow: false
-    //    })
-    @traceback()
+        @debug({
+            message: err => t("server.handler.error", { name: "completion", err: (err as Error).message }),
+            logger: msg => Console.error(msg, "completion"),
+            rethrow: false
+        })
     handle(
         ...[
             {
@@ -82,21 +81,17 @@ export class CompletionHandler {
         // 光标的前一个token
         const prevToken = tokens[prevIdx];
 
-        // 局部语法上下文解析
-        const syntaxCtx = this.detectSyntaxContext(tokens, prevIdx, column, context.triggerCharacter);
-        if (syntaxCtx)
-            return this.completeSyntax(syntaxCtx, ctx);
+        // 操作数槽位与子段：由AST定位，行内token序号不等于操作数序号（如 `d0:1`、`Foo.Bar`）
+        const location = ctx.stmt ? locateOperand(ctx.stmt, column) : undefined;
+
+        // 多token操作数的子段（引脚 `d0:1`、枚举值 `Foo.Bar`）：与触发字符无关，Ctrl+Space同样生效
+        if (location?.segment) return this.completeSegment(location, ctx);
+
+        // 操作数槽位，0表示位于语句头部（关键字/标签名）
+        const slot = location?.slot ?? 0;
 
         // 前一个token与当前光标间的空格数
         const prevBlocks = prevToken ? column - end(prevToken).column : 0;
-        // 操作数索引
-        let opIdx = prevIdx; // -1则补keyword(0)，其余补operand${opIdx}
-
-        if (
-            prevBlocks > 0 || // 存在空格则应判断为下一个操作数
-            opIdx === -1 // 没有前一个token表示位于行首，则加1成0
-        )
-            opIdx++;
 
         // 相对位置状态，该形式仅用于简化分支，其中1为特殊情况，使其命中正确的索引
         const rel: RelativeState = [
@@ -116,7 +111,7 @@ export class CompletionHandler {
             case State.INSIDE_GAP_TRIGGER_CHAR:
             // 仅补全下一个词
             case State.INSIDE_GAP_INVOKED: {
-                if (prevBlocks === 1 || state === State.INSIDE_GAP_INVOKED) return this.completeWord(ctx, opIdx);
+                if (prevBlocks === 1 || state === State.INSIDE_GAP_INVOKED) return this.completeWord(ctx, slot);
 
                 break;
             }
@@ -130,13 +125,13 @@ export class CompletionHandler {
                 const token = tokens[inside ? currIdx : prevIdx];
                 return this.completeWord(
                     ctx,
-                    opIdx,
+                    slot,
                     token.lexeme.substring(0, column - 1)
                 );
 
             // 没有明确意图，重新弹出该位置的补全
             case State.START_WORD_INVOKED:
-                return this.completeWord(ctx, opIdx);
+                return this.completeWord(ctx, slot);
 
             // 拆开一个词，不做任何事
             case State.START_WORD_TRIGGER_CHAR:
@@ -163,48 +158,38 @@ export class CompletionHandler {
         return params;
     }
 
-    private completeWord(ctx: CompletionProviderContext, opIdx: number, prefix: string = "") {
-        // 不是行首
-        if (opIdx && ctx.stmt) {
+    private completeWord(ctx: CompletionProviderContext, slot: number, prefix: string = "") {
+        // 不是语句头部
+        if (slot && ctx.stmt) {
             // 是可执行指令，则补全操作数
-            if (AST.belongInstruction(ctx.stmt) && getOperandType(ctx.stmt, opIdx) !== undefined)
-                return provideOperand(ctx, getOperandType(ctx.stmt, opIdx)!, prefix);
+            if (AST.belongInstruction(ctx.stmt) && getOperandType(ctx.stmt, slot) !== undefined)
+                return provideOperand(ctx, getOperandType(ctx.stmt, slot)!, prefix);
 
             // 是预处理指令，则不补全第一个操作数（用户自定义标识符），如果是第二个操作数则提供补全
-            else if (AST.isAliasDirective(ctx.stmt) && opIdx === 2)
+            else if (AST.isAliasDirective(ctx.stmt) && slot === 2)
                 return provideOperand(ctx, OperandType.REG_OR_DEV, prefix);
-            else if (AST.isDefineDirective(ctx.stmt) && opIdx === 2)
+            else if (AST.isDefineDirective(ctx.stmt) && slot === 2)
                 return provideOperand(ctx, OperandType.CONST_NUM, prefix);
         }
 
-        // 是行首，提供关键字补全
+        // 是语句头部，提供关键字补全
         else return provideKeyword(ctx, prefix);
     }
 
-    private detectSyntaxContext(tokens: Token[], prevIdx: number, column: number, char?: string) {
-        if (!char) return;
-
-        const prev = tokens[prevIdx];
-        if (!prev) return;
-
-        //光标与触发字符间存在空格
-        if (end(prev).column !== column) return;
-
-        if (char === ":") {
-            const device = tokens[prevIdx - 1];
-            if (device && device.type === TokenType.DEVICE)
-                return { kind: "pin", device } as const;
-        }
-
-        if (char === ".") {
-            const name = tokens[prevIdx - 1];
-            if (name && name.type === TokenType.IDENTIFIER)
-                return { kind: "value", name } as const;
-        }
-    }
-
-    private completeSyntax(synCtx: Exclude<ReturnType<typeof this.detectSyntaxContext>, undefined>, cmpCtx: CompletionProviderContext): CompletionItem[] {
-        switch (synCtx.kind) {
+    /**
+     * @summary 补全多 token 操作数内部的子段
+     *
+     * @summary Complete a sub-segment inside a multi-token operand
+     *
+     * @desc 静态设备的引脚 `d0:1` 提供 0-6 的引脚号；枚举 `Foo.Bar` 提供点号前枚举类型
+     * 所声明的成员。两类子段均与触发字符无关，因此 `Ctrl+Space` 与触发字符输入行为一致。
+     *
+     * @desc The pin of a static device (`d0:1`) offers pin numbers 0-6; an enum (`Foo.Bar`)
+     * offers the members declared by the enum type before the dot. Both sub-segments are
+     * trigger-character independent, so `Ctrl+Space` behaves like typing the trigger character.
+     * */
+    private completeSegment(location: OperandLocation, ctx: CompletionProviderContext): CompletionItem[] {
+        switch (location.segment) {
             case "pin":
                 return Array.from({ length: 7 }).map((_, i) => ({
                     label: i.toString(),
@@ -212,12 +197,25 @@ export class CompletionHandler {
                     insertText: i.toString(),
                     detail: t("hover.operandType.pin")
                 }));
-            case "value":
-                const type = cmpCtx.types?.[synCtx.name.lexeme];
+
+            case "enumValue": {
+                const operand = location.operand;
+
+                if (!operand || !AST.isEnum(operand)) return [];
+
+                // 枚举类型名（`Foo.Bar` 的 `Foo`）：其注解声明了可补全的成员
+                const name = operand.name;
+                if (!AST.isIdentifier(name)) return [];
+
+                const type = ctx.types?.[name.value];
 
                 if (!type || !AST.isEnumAnnotation(type)) return [];
 
-                return type.values.map(v => enumItem(v, synCtx.name.lexeme));
+                return type.values.map(v => enumItem(v, name.value));
+            }
+
+            default:
+                return [];
         }
     }
 }

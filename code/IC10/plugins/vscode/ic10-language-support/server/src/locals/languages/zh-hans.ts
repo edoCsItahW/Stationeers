@@ -68,7 +68,8 @@ export default {
             logicType: "逻辑类型",
             reagentMode: "试剂模式",
             slotIdx: "槽索引",
-            pin: "引脚"
+            pin: "引脚",
+            enum: "枚举"
         }
     },
     completion: {

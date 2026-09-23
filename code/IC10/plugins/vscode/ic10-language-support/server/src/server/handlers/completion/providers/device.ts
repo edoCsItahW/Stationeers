@@ -5,7 +5,6 @@
 // purposes is prohibited without the author's permission. If you have any questions or require
 // permission, please contact the author: edocsitahw@qq.com
 
-
 /**
  * @file device.ts
  * @author edocsitahw
@@ -16,10 +15,9 @@
  * */
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 
-import { BuiltinSymbolInfo, OperandProvider } from "./types";
+import type { BuiltinSymbolInfo, OperandProvider } from "./types";
+import { ADDRESSABLE_REGISTERS } from "./register";
 import { t } from "../../../../locals";
-import { TokenType } from "ic10c-node";
-
 
 const ORDINARY_DEVICES: BuiltinSymbolInfo[] = Array.from({ length: 6 }).map((_, i) => ({
     value: `d${i}`,
@@ -45,15 +43,26 @@ const SELF_REFERENCE_DEVICE: BuiltinSymbolInfo = {
     }
 };
 
-const DEIVCES = [...ORDINARY_DEVICES, SELF_REFERENCE_DEVICE];
+const DEVICES = [...ORDINARY_DEVICES, SELF_REFERENCE_DEVICE];
 
 export const provideDevice: OperandProvider = (ctx, opType, prefix) => {
     // 内置设备
-    const items = DEIVCES.filter(d => d.value.startsWith(prefix)).map(deviceItem);
+    const items = DEVICES.filter(d => d.value.startsWith(prefix)).map(deviceItem);
 
-    // 动态寻址设备
-//    if (prefix.length) items.push(...DEIVCES.map(deviceItem));
-    // TODO: 动态寻址应该动态的前缀添加到补全项中
+    if (prefix && /^dr+$/.test(prefix))
+        items.push(
+            ...ADDRESSABLE_REGISTERS.map(({ value, sort }): BuiltinSymbolInfo => ({
+                value: prefix + value.slice(1), // dr + 0 => dr0；drr + a => drra
+                sort,
+                data: {
+                    description: {
+                        nodeName: "Link",
+                        paths: ["locals", "builtin"],
+                        fields: ["ordinary_devices", "desc"]
+                    }
+                }
+            })).map(deviceItem)
+        );
 
     return items;
 };

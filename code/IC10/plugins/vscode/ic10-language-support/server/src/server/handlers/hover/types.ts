@@ -16,10 +16,10 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import type { Statement, SymbolMap } from "ic10c-node";
 import type { Hover } from "vscode-languageserver/node";
-import { t } from "../../../locals"
+import type { Statement, SymbolMap } from "ic10c-node";
 
+import { t } from "../../../locals"
 import { Nullable } from "common";
 
 /**
