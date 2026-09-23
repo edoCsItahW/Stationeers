@@ -323,6 +323,10 @@ namespace stationeers::ic10 {
 
     Task<> Analyser::operator()(const DynamicDevice&) { co_return; }
 
+    // Enum 叶节点访问器：`Foo.Bar` 这类枚举操作数暂不做语义校验，但必须显式处理，
+    // 否则会落入泛型 fallback 误报 IEA6（未知语法类型）
+    Task<> Analyser::operator()(const Enum&) { co_return; }
+
     Task<> Analyser::operator()(const GeneralPurposeRegister&) { co_return; }
 
     Task<> Analyser::operator()(const AddressRegister&) { co_return; }

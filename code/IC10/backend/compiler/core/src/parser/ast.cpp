@@ -175,11 +175,13 @@ namespace stationeers::ic10 {
     )
         : AST{pos}
         , device(std::move(device))
-        , pin(pin) {}
-
-    Pos StaticDevice::end() const {
-        return call(device, [](auto&& d) { return d.end(); });
+        , pin(pin) {
+        // 终点默认取 device 的终点；冒号与 pin 由 NodeParser<StaticDevice> 消费后更新，
+        // 因此这里只保证未经解析器细化的构造路径也有合法终点
+        endPos = this->pin ? this->pin->end() : call(this->device, [](auto&& d) { return d.end(); });
     }
+
+    Pos StaticDevice::end() const { return endPos; }
 
     std::string StaticDevice::toString() const {
         auto result = call(device, [](auto&& d) { return d.toString(); });
@@ -223,10 +225,13 @@ namespace stationeers::ic10 {
     std::string Enum::toJSON() const { return jsonBase<"name", "value">(name, value); }
 
     std::string Enum::toString() const {
-        return std::format(
-            "{}.{}", call(name, [](auto&& n) { return n.toString(); }),
-            call(value, [](auto&& v) { return v.toString(); })
-        );
+        auto result = call(name, [](auto&& n) { return n.toString(); });
+
+        // 值缺失时（`Foo.` 未输入完）点号已记入 value 的错误节点，此时只还原已输入的部分
+        if (const auto* valuePtr = std::get_if<Identifier>(&value))
+            result += std::format(".{}", valuePtr->toString());
+
+        return result;
     }
 
     // ErrorNode
