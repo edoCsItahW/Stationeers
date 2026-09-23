@@ -1,23 +1,11 @@
 {
-    "compilerOptions": {
-        "module": "nodenext",
-        "target": "ES2024",
-        "lib": ["es2024"],
-        "outDir": "out",
-        "rootDir": ".",
-        "sourceMap": true,
-        "types": ["node", "vscode"],
-        "allowArbitraryExtensions": true,
-        "moduleResolution": "NodeNext",
-        "esModuleInterop": true,
-        "skipLibCheck": true
-    },
-    "include": [],
+    "extends": "./tsconfig.base.json",
+    "files": [],
     "exclude": ["node_modules", ".vscode-test"],
     "references": [
-        { "path": "./common" },
-        { "path": "./debugger" },
-        { "path": "./client" },
-        { "path": "./server" }
+        { "path": "packages/common" },
+        { "path": "packages/server" },
+        { "path": "packages/client" },
+        { "path": "packages/debugger" }
     ]
 }

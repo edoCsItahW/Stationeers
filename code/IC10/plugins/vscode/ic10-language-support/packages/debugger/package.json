@@ -1,0 +1,23 @@
+{
+    "name": "@ic10/debugger",
+    "version": "1.0.0",
+    "exports": {
+        ".": {
+            "types": "./out/index.d.ts",
+            "import": "./out/index.js",
+            "require": "./out/index.js",
+            "default": "./out/index.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc -b"
+    },
+    "dependencies": {
+        "@vscode/debugadapter": "^1.68.0",
+        "@vscode/debugprotocol": "^1.68.0",
+        "@ic10/common": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.134.0"
+    }
+}

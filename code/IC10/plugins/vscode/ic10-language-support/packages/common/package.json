@@ -1,0 +1,25 @@
+{
+    "name": "@ic10/common",
+    "version": "1.0.0",
+    "exports": {
+        ".": {
+            "types": "./out/index.d.ts",
+            "import": "./out/index.js",
+            "require": "./out/index.js",
+            "default": "./out/index.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc -b"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/edoCsItahW/Stationeers.git"
+    },
+    "dependencies": {
+        "type-fest": "^5.8.0"
+    },
+    "devDependencies": {
+        "@types/node": "^26.1.2"
+    }
+}
