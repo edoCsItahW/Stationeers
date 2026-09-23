@@ -141,6 +141,8 @@
                     "Label": "#E8BF6A",
                     "Label.declaration": "#E8BF6A",
                     "LabelIdentifier": "#A3874C",
+                    "Enum": "#4EC9B0",
+                    "EnumMember": "#D9A0DC",
                     "Unknown": "#F75464"
                 }
             }
@@ -217,6 +219,16 @@
                 "description": "IC10 user-defined label identifiers | IC10用户定义的标签标识符"
             },
             {
+                "id": "Enum",
+                "superType": "enum",
+                "description": "IC10 enum type names (Foo in Foo.Bar) | IC10枚举类型名（Foo.Bar 中的 Foo）"
+            },
+            {
+                "id": "EnumMember",
+                "superType": "enumMember",
+                "description": "IC10 enum members (Bar in Foo.Bar) | IC10枚举成员（Foo.Bar 中的 Bar）"
+            },
+            {
                 "id": "Unknown",
                 "superType": "variable",
                 "description": "Unknown or unresolved tokens | 未知或未解析的令牌"
@@ -237,6 +249,8 @@
             "Decorator": "#C586C0",
             "Label": "#E8BF6A",
             "LabelIdentifier": "#A3874C",
+            "Enum": "#4EC9B0",
+            "EnumMember": "#D9A0DC",
             "Unknown": "#F75464"
         },
         "breakpoints": [

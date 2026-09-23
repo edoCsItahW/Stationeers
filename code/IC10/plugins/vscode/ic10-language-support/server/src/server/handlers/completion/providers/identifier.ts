@@ -16,8 +16,8 @@
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { BasicType, Symbol, TypeCategory } from "ic10c-node";
 
-import { CompletionProviderContext, OperandProvider } from "./types";
-import { DescriptionSolver, SemanticMap } from "../../../../utils";
+import type { CompletionProviderContext, OperandProvider } from "./types";
+import { SemanticMap } from "../../../../utils";
 import { t } from "../../../../locals";
 
 

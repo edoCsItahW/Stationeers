@@ -13,15 +13,14 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { TokenCategory, TokenType } from "ic10c-node";
 import { Connection } from "vscode-languageserver";
 
-import { findRangeTokens, getOperandType, AST } from "../../utils"
-import { debug, lowerBound, Optional, Console, traceback } from "common";
+import { getOperandType, AST, locateOperand } from "../../utils"
+import { debug, lowerBound, Optional, Console } from "common";
 import { INS_META_MAP, INS_LOCAL_MAP } from "../../mateData";
 import { locale, t } from "../../locals";
 import { DocumentCache } from "../cache";
-import { end } from "../../utils";
+
 
 type OnSignatureHelpHandlerType = Parameters<Connection["onSignatureHelp"]>[0];
 
@@ -44,12 +43,11 @@ type OnSignatureHelpHandlerType = Parameters<Connection["onSignatureHelp"]>[0];
 export class SignatureHandler {
     constructor(private readonly docCache: DocumentCache) {}
 
-//    @debug({
-//        message: err => t("server.handler.error", { name: "signature", err: (err as Error).message }),
-//        logger: msg => Console.error(msg, "signature"),
-//        rethrow: false
-//    })
-    @traceback()
+    @debug({
+        message: err => t("server.handler.error", { name: "signature", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "signature"),
+        rethrow: false
+    })
     handle(
         ...[{ textDocument, position }]: Parameters<OnSignatureHelpHandlerType>
     ): ReturnType<OnSignatureHelpHandlerType> {
@@ -75,27 +73,12 @@ export class SignatureHandler {
         const doc = INS_META_MAP.get(keyword)!.signature;
         const local = INS_LOCAL_MAP.get(keyword)!;
 
-        const tokens = cache.tokens.filter(
-            t =>
-                t.pos.line === line &&
-                t.category !== TokenCategory.WHITESPACE &&
-                t.category !== TokenCategory.COMMENT &&
-                t.type !== TokenType.END
-        );
-        const { prev: prevIdx } = findRangeTokens(tokens, column);
+        // 操作数槽位由AST定位：行内token序号不等于操作数序号（如 `d0:1`、`Foo.Bar` 各占一个槽位）
+        const { slot } = locateOperand(stmt, column);
 
-        const token = tokens[prevIdx];
+        if (AST.belongInstruction(stmt) && getOperandType(stmt, slot) === undefined) return;
 
-        const prevBlocks = token ? column - end(tokens[prevIdx]).column : 0;
-        let opIdx = prevIdx; // -1则补keyword(0)，其余补operand${opIdx}
-
-        if (prevBlocks > 0 || opIdx === -1) opIdx++;
-
-        if (prevBlocks > 0) {
-            if (AST.belongInstruction(stmt) && getOperandType(stmt, opIdx) === undefined) return;
-
-            if (AST.belongDirective(stmt) && opIdx > 2) return;
-        }
+        if (AST.belongDirective(stmt) && slot > 2) return;
 
         return {
             signatures: [
@@ -105,7 +88,7 @@ export class SignatureHandler {
                     parameters: this.getOperandPositions(doc).map(item => ({
                         label: item
                     })),
-                    activeParameter: opIdx - 1
+                    activeParameter: Math.max(slot - 1, 0)
                 }
             ]
         };

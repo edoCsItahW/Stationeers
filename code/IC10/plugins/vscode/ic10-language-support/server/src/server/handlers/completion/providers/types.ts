@@ -14,10 +14,11 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { OperandType, Statement, SymbolMap, TypeTableMap } from "ic10c-node";
+import { CompletionItem } from "vscode-languageserver";
 
 import { locale } from "../../../../locals";
-import { Optional } from "common";
-import { CompletionItem } from "vscode-languageserver";
+import type { Optional } from "common";
+
 
 export interface CompletionProviderContext {
     stmt: Optional<Statement>;

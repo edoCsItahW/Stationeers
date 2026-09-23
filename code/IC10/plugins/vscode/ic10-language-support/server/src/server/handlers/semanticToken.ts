@@ -15,30 +15,32 @@
  * */
 import { Languages } from "vscode-languageserver";
 import {
-    AliasDirectiveNode,
-    BasicType,
-    DefineDirectiveNode,
-    DynamicDeviceNode,
-    ErrorNode,
-    HashMacroNode,
-    IdentifierNode,
-    LabelDefNode,
-    Operand,
-    OperandType,
-    Program,
     PureExeInstructionNode,
-    RegOrDev,
-    Statement,
+    DefineDirectiveNode,
+    AliasDirectiveNode,
+    DynamicDeviceNode,
     StaticDeviceNode,
-    StrMacroNode,
-    SymbolMap,
+    IdentifierNode,
+    HashMacroNode,
     TypeCategory,
-    TypeOfNode
+    LabelDefNode,
+    StrMacroNode,
+    OperandType,
+    TypeOfNode,
+    ErrorNode,
+    BasicType,
+    Statement,
+    SymbolMap,
+    RegOrDev,
+    EnumNode,
+    Operand,
+    Program
 } from "ic10c-node";
 
-import { Console, Optional, Position, traceback, upperBound } from "common";
+import { Console, Optional, Position, upperBound, debug } from "common";
 import { AST, groupHandlers, visit } from "../../utils";
 import { DocumentCache } from "../cache";
+import { t } from "../../locals";
 
 type OnHandlerType = Parameters<Languages["semanticTokens"]["on"]>[0];
 type OnRangeHandlerType = Parameters<Languages["semanticTokens"]["onRange"]>[0];
@@ -83,6 +85,10 @@ export enum TokenLegend {
     /** 标识符（标签名、别名、define 常量名） */
     Label,
     LabelIdentifier,
+    /** 枚举类型名（`Foo.Bar` 的 `Foo`） */
+    Enum,
+    /** 枚举成员（`Foo.Bar` 的 `Bar`） */
+    EnumMember,
     Unknown
 }
 
@@ -193,12 +199,11 @@ export class SemanticTokenHandler {
 
     constructor(private readonly docCache: DocumentCache) {}
 
-    //    @debug({
-    //        message: err => t("server.handler.error", { name: "semantic token", err: (err as Error).message }),
-    //        logger: msg => Console.error(msg, "semantic token"),
-    //        rethrow: false
-    //    })
-    @traceback()
+    @debug({
+        message: err => t("server.handler.error", { name: "semantic token", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "semantic token"),
+        rethrow: false
+    })
     handle(...[params]: Parameters<OnHandlerType>): ReturnType<OnHandlerType> {
         try {
             const uri = params.textDocument.uri;
@@ -222,12 +227,11 @@ export class SemanticTokenHandler {
         } catch (error) {}
     }
 
-    //    @debug({
-    //        message: err => t("server.handler.error", { name: "semantic token range", err: (err as Error).message }),
-    //        logger: msg => Console.error(msg, "semantic token range"),
-    //        rethrow: false
-    //    })
-    @traceback()
+    @debug({
+        message: err => t("server.handler.error", { name: "semantic token range", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "semantic token range"),
+        rethrow: false
+    })
     handleRange(
         ...[
             {
@@ -462,6 +466,48 @@ export class SemanticTokenHandler {
             type: this.toLegend(type.kind, type.category),
             modifier: 0
         });
+
+        return result;
+    }
+
+    /**
+     * @summary 处理枚举操作数（多 token 操作数）
+     *
+     * @summary Handle an enum operand (a multi-token operand)
+     *
+     * @desc 枚举操作数 `Foo.Bar` 由两个 token 组成，需要分别发射：类型名 `Foo` 与成员 `Bar`，
+     * 两者之间以点号分隔（点号本身不着色）。值缺失（`Foo.` 未输入完）时只有类型名一个 token。
+     *
+     * @desc An enum operand `Foo.Bar` consists of two tokens that must be emitted separately:
+     * the type name `Foo` and the member `Bar`, separated by a dot (the dot itself is not
+     * colored). When the value is missing (an incomplete `Foo.` ), only the type name is emitted.
+     * */
+    private handleEnum(enumNode: EnumNode, context: HandlerContext): SemanticToken[] {
+        const result: SemanticToken[] = [];
+
+        const gap = this.getGap(context, enumNode.position);
+
+        if (!AST.isIdentifier(enumNode.name)) return result;
+
+        result.push({
+            line: gap.line,
+            start: gap.column,
+            length: enumNode.name.value.length,
+            type: TokenLegend.Enum,
+            modifier: 0
+        });
+
+        if (AST.isIdentifier(enumNode.value)) {
+            const valueGap = this.getGap(context, enumNode.value.position);
+
+            result.push({
+                line: valueGap.line,
+                start: valueGap.column,
+                length: enumNode.value.value.length,
+                type: TokenLegend.EnumMember,
+                modifier: 0
+            });
+        }
 
         return result;
     }

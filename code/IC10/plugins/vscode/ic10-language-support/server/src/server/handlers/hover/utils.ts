@@ -16,11 +16,11 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
+import type { IdentifierNode, SymbolMap, Statement } from "ic10c-node";
 import { BasicType } from "ic10c-node";
-import type { PureExeInstructionNode, IdentifierNode, SymbolMap, Statement, Operand } from "ic10c-node";
 
 import { lowerBound, getEnumName, type Nullable, type Optional } from "common";
-import { groupHandlers, visit, AST, visitOperand } from "../../../utils";
+
 
 /**
  * @summary 通过二分查找定位指定行的语句
@@ -58,44 +58,6 @@ export function findStatementAtPosition(statements: Statement[], line: number): 
 export function isInsideNode(col: number, length: number, character: number): boolean {
     return character >= col && character <= col + length;
 }
-
-/**
- * @summary 在指令中根据光标位置查找对应的操作数或关键字
- *
- * @summary Find the operand or keyword at a given character position in an instruction
- *
- * @param node 可执行指令 AST 节点
- * @param node Pure executable instruction AST node
- * @param a 光标列号（1-based）
- * @param a Cursor column position (1-based)
- *
- * @returns 找到的操作数节点（或关键字字符串）及其索引
- * @returns The found operand node (or keyword string) and its index
- */
-export function findOperand(node: PureExeInstructionNode, a: number): { result: Operand | string; index: number } {
-    let maxCol = -Infinity;
-    let foundOperand: Nullable<Operand> = null;
-    let index = -1;
-
-    for (const key in node)
-        if (key.startsWith("operand")) {
-            const operand: Optional<Operand> = (node as any)[key];
-            if (operand && operand.position && typeof operand.position.column === "number") {
-                const col = operand.position.column;
-                if (col <= a && col > maxCol) {
-                    maxCol = col;
-                    foundOperand = operand;
-                    index = Number(key.replace("operand", ""));
-                }
-            }
-        }
-
-    return {
-        result: foundOperand !== null ? foundOperand : node.keyword,
-        index
-    };
-}
-
 
 /**
  * @summary 将 BasicType 枚举值格式化为小写字符串名称

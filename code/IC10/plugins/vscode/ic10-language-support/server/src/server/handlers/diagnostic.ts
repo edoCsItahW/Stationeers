@@ -14,11 +14,12 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Languages, DiagnosticSeverity } from "vscode-languageserver";
-import { Diagnostic } from "ic10c-node";
+import type { Diagnostic } from "ic10c-node";
 
 import { DocumentCache } from "../cache";
-import { Console, debug, traceback } from "common";
+import { Console, debug } from "common";
 import { t } from "../../locals";
+
 
 type OnHandlerType = Parameters<Languages["diagnostics"]["on"]>[0];
 
@@ -62,12 +63,11 @@ export class DiagnosticHandler {
      * @returns 包含诊断项列表的 full diagnostic report
      * @returns Full diagnostic report containing the list of diagnostic items
      * */
-//    @debug({
-//        message: err => t("server.handler.error", { name: "diagnostic", err: (err as Error).message }),
-//        logger: msg => Console.error(msg, "diagnostic"),
-//        rethrow: false
-//    })
-    @traceback()
+    @debug({
+        message: err => t("server.handler.error", { name: "diagnostic", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "diagnostic"),
+        rethrow: false
+    })
     handle(...[params]: Parameters<OnHandlerType>): ReturnType<OnHandlerType> {
         const cache = this.docCache.getCache(params.textDocument.uri);
 

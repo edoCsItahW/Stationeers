@@ -34,51 +34,75 @@
 export const themeSchemas = {
     dark: {
         common: {
-            bg: '#1a1a1a',
-            text: '#ffffff',
+            bg: "#1a1a1a",
+            text: "#ffffff"
         },
         hover: {
             labelDef: {
-                identifier: '#E8BF6A',
-                type: '#ffffff'
+                identifier: "#E8BF6A",
+                type: "#ffffff"
             },
             aliasDirective: {
-                identifier: '#b0009a',
-                type: '#ffffff'
+                identifier: "#b0009a",
+                type: "#ffffff"
             },
             defineDirective: {
-                identifier: '#2AACB8',
-                type: '#ffffff'
+                identifier: "#2AACB8",
+                type: "#ffffff"
             },
-            contant: {
-                identifier: '#ffffff',
-                type: '#C77DBB'
-            }
-        },
-    },
-    light: {
-        common: {
-            bg: '#ffffff',
-            text: '#1a1a1a',
-        },
-        hover: {
-            labelDef: {
-                identifier: '#1a1a1a'
+            register: {
+                identifier: "#7E4633",
+                type: "#B4654A"
             },
-            aliasDirective: {
-                identifier: '#1a1a1a',
-                type: '#b0009a'
+            device: {
+                identifier: "#77458F",
+                type: "#B267D6"
             },
-            defineDirective: {
-                identifier: '#1a1a1a',
-                type: '#b0009a'
+            number: {
+                identifier: "#1F8088",
+                type: "#2AACB8"
             },
-            contant: {
-                identifier: '#1a1a1a',
-                type: '#C77DBB'
+            constant: {
+                identifier: "#ffffff",
+                type: "#C77DBB"
             }
         }
     },
+    light: {
+        common: {
+            bg: "#ffffff",
+            text: "#1a1a1a"
+        },
+        hover: {
+            labelDef: {
+                identifier: "#1a1a1a"
+            },
+            aliasDirective: {
+                identifier: "#1a1a1a",
+                type: "#b0009a"
+            },
+            defineDirective: {
+                identifier: "#1a1a1a",
+                type: "#b0009a"
+            },
+            register: {
+                identifier: "#7E4633",
+                type: "#B4654A"
+            },
+            device: {
+                identifier: "#77458F",
+                type: "#B267D6"
+            },
+            number: {
+                identifier: "#1F8088",
+                type: "#2AACB8"
+            },
+            constant: {
+                identifier: "#1a1a1a",
+                type: "#C77DBB"
+            }
+        }
+    }
 } as const;
 
 /**
