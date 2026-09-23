@@ -213,6 +213,33 @@ namespace stationeers::ic10 {
 
         std::optional<DeviceSymbol> pendingDeviceSymbol_;
 
+        /**
+         * @if zh
+         *
+         * @brief 发后即忘协程的持有者
+         * @details 语句协程与指令操作数折叠协程在挂起后需要被恢复（前向引用），
+         *          因此它们的Task必须一直存活到分析结束：若像早期实现那样直接丢弃
+         *          `std::apply`/`std::visit` 返回的Task，编译器会认为该协程生命周期已结束，
+         *          进而复用其帧内存储（GCC实测在恢复时读到被破坏的帧并段错误；MSVC不复用
+         *          故不显形）。持有Task即让"帧生命周期"对优化器可见。
+         * @note 在分析结束（failAllPending 之后）随Analyser析构释放
+         *
+         * @elseif en
+         *
+         * @brief Owner of fire-and-forget coroutines
+         * @details Statement coroutines and instruction operand-fold coroutines must be resumed
+         *          after suspension (forward references), so their Tasks must stay alive until the
+         *          end of the analysis. Discarding the Task returned by `std::apply`/`std::visit`
+         *          (as an earlier implementation did) lets the compiler treat the coroutine as
+         *          finished and reuse its frame storage; resumed later, it then reads a corrupted
+         *          frame (reproduced as a segfault with GCC; MSVC does not reuse and hides it).
+         *          Holding the Task makes the frame's lifetime visible to the optimizer.
+         * @note Released with the Analyser after the analysis ends (after failAllPending)
+         *
+         * @endif
+         */
+        std::vector<Task<>> detachedTasks_;
+
         mutable DiagnosticReporter<IC10CompilerMsgPack>* reporter_;
 
         /**
@@ -233,10 +260,6 @@ namespace stationeers::ic10 {
          * @endif
          */
         Task<std::shared_ptr<Symbol>> resolveSymbol(const std::string& name, const Pos& pos) const;
-
-        void rethrow(
-            const std::exception_ptr& exception, const std::string& name, const Pos& pos
-        ) const;
 
         /**
          * @if zh
@@ -526,6 +549,50 @@ namespace stationeers::ic10 {
 
         template<OperandType Type>
         Task<> process(const auto& variant);
+
+        /**
+         * @if zh
+         *
+         * @brief 单操作数处理体（具名协程）
+         * @details 由 process 转发调用。**不得改写回协程 lambda**：协程 lambda 的闭包存放在
+         *          创建者的帧里，创建者一旦返回（或其帧被编译器省略到栈上），闭包即失效；
+         *          而本协程会在前向引用处挂起、稍后被恢复，届时读取闭包会命中已返回的栈帧
+         *          （GCC 下实测为 stack-use-after-return 导致段错误；MSVC 对闭包的处理不同，
+         *          故该缺陷只在部分编译器上暴露）。具名协程的参数直接存放在自身帧中，
+         *          不依赖创建者帧的存活。
+         *
+         * @elseif en
+         *
+         * @brief Single-operand handling body (named coroutine)
+         * @details Called by process. **Must not be turned back into a coroutine lambda**: a
+         *          coroutine lambda's closure lives in the creating frame; once that creator
+         *          returns (or its frame is elided onto the stack) the closure is dead, while this
+         *          coroutine is suspended on a forward reference and resumed later, so reading the
+         *          closure hits a returned stack frame (measured as a stack-use-after-return
+         *          segfault with GCC; MSVC treats closures differently, so it only shows on some
+         *          compilers). A named coroutine keeps its parameters in its own frame.
+         *
+         * @endif
+         */
+        template<OperandType Type, typename T>
+        Task<> handleOperand(const T& arg);
+
+        /**
+         * @if zh
+         *
+         * @brief 单条语句访问（具名协程）
+         * @details 由 visit 转发调用，理由同 handleOperand：避免协程 lambda 的闭包随创建者帧失效。
+         *
+         * @elseif en
+         *
+         * @brief Single-statement visit (named coroutine)
+         * @details Called by visit, for the same reason as handleOperand: avoid a coroutine lambda
+         *          whose closure dies with the creating frame.
+         *
+         * @endif
+         */
+        template<typename T>
+        Task<> visitStatement(const T& arg);
 
         template<OperandType>
         struct IdentifierChecker {

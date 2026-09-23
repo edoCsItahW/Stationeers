@@ -76,17 +76,17 @@ namespace stationeers::ic10 {
 
         // 指令语句交由指令分发器解析
         if (current()->type == TokenType::KEYWORD)
-            return wide_cast<Statement>(parseExecutableInstruction());
+            return parseExecutableInstruction();
 
         // 其余交由前瞻解析器解析
-        return wide_cast<Statement>(matchVariant<FirstStatement>());
+        return matchVariant<FirstStatement>();
     }
 
     ExecutableInstruction Parser::parseExecutableInstruction() {
         if (auto c = current(); c->type == TokenType::KEYWORD && c->keyword) [[likely]] {
             consume();  // KEYWORD
 
-            auto result = dispatch(
+            auto result = dispatch<ExecutableInstruction::Variant>(
                 // 操作数类型萃取回调，自动获取操作数类型并解析
                 [&]<template<FString, OperandType...> class Ins, FString K, OperandType... Vs>(
                     Ins<K, Vs...>&&
@@ -108,7 +108,7 @@ namespace stationeers::ic10 {
                 *c->keyword
             );
 
-            if (result) return wide_cast<ExecutableInstruction>(*result);
+            if (result) return ExecutableInstruction{std::move(*result)};
         }
 
         reporter_.errorWith<ICMsgId::IEP3_1>(

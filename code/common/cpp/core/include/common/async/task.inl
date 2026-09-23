@@ -54,11 +54,18 @@ namespace stationeers {
 
     template<typename T>
     TaskBase<T>::TaskBase(std::coroutine_handle<promise_type> handle) noexcept
-        : coro_(handle) {}
+        : coro_(handle)
+        , coro_state_(std::make_shared<CoroutineState>(handle)) {
+        // 把状态弱引用写入promise：协程co_await未就绪的Future时，
+        // Future::Awaiter::await_suspend 借此把该协程注册为等待者。
+        // Task<void>与Task<T>共用同一状态类型，故两者都可被注册。
+        handle.promise().coro_state_weak_ = coro_state_;
+    }
 
     template<typename T>
     TaskBase<T>::TaskBase(TaskBase&& other) noexcept
-        : coro_(std::exchange(other.coro_, {})) {}
+        : coro_(std::exchange(other.coro_, {}))
+        , coro_state_(std::move(other.coro_state_)) {}
 
     template<typename T>
     Future<T> TaskBase<T>::getFuture() const {
@@ -68,8 +75,10 @@ namespace stationeers {
     template<typename T>
     TaskBase<T>& TaskBase<T>::operator=(TaskBase&& other) noexcept {
         if (this != &other) {
-            if (coro_) coro_.destroy();
-            coro_ = std::exchange(other.coro_, {});
+            // 协程帧的生命周期由coro_state_负责：覆盖旧状态即销毁旧协程，
+            // 不再单独 destroy coro_，避免与CoroutineState析构重复销毁
+            coro_       = std::exchange(other.coro_, {});
+            coro_state_ = std::move(other.coro_state_);
         }
         return *this;
     }
@@ -88,30 +97,12 @@ namespace stationeers {
 
     template<typename T>
     Task<T>::Task(std::coroutine_handle<typename TaskBase<T>::promise_type> h)
-        : TaskBase<T>(h)
-        , coro_state_(std::make_shared<CoroState>(h)) {
-        h.promise().coro_state_weak_ = coro_state_;
-    }
-
-    template<typename T>
-    Task<T>::Task(Task&& other) noexcept
-        : TaskBase<T>(std::move(other))
-        , coro_state_(std::move(other.coro_state_)) {}
-
-    template<typename T>
-    Task<T>& Task<T>::operator=(Task&& other) noexcept {
-        if (this != &other) {
-            TaskBase<T>::operator=(std::move(other));
-            coro_state_ = std::move(other.coro_state_);
-        }
-
-        return *this;
-    }
+        : TaskBase<T>(h) {}
 
     template<typename T>
     void Task<T>::detach() noexcept {
         this->coro_ = {};
-        coro_state_.reset();
+        this->coro_state_.reset();
     }
 
 }  // namespace stationeers

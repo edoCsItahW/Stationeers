@@ -75,7 +75,7 @@ namespace stationeers::ic10 {
                     // Use std::visit to call toJSON on each AST node
                     std::string jsonStr = std::visit([](const auto& node) {
                         return node.toJSON();
-                    }, stmt);
+                    }, stmt.raw());
                     list.append(jsonLoads(jsonStr));
                 }
                 return list;

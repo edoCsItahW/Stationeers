@@ -41,7 +41,6 @@
 #pragma once
 
 #include "common/exception/debug.hpp"
-#include "expand_node_parser.hpp"
 
 namespace stationeers::ic10 {
 
@@ -110,7 +109,7 @@ namespace stationeers::ic10 {
             ((types += (first ? "" : "|") + std::string(Ts::nodeName), first = false), ...);
 
             reporter_.errorWith<ICMsgId::IEP34_1>(tokenPtr->pos, endPos(*tokenPtr), types);
-            result = ErrorNode{*tokenPtr, std::move(types)};
+            result = ErrorNode{*tokenPtr, ICLoc::msgFormat<ICMsgId::IEP34_1>(types)};
         }
 
         return result;
@@ -192,6 +191,15 @@ namespace stationeers::ic10 {
         }(std::make_index_sequence<N>{});
     }
 
+    template<IsVariant Variant>
+    bool Parser::isVariantMatch() noexcept {
+        return [this]<HasFirst... Ts>(std::variant<Ts...>*) {  // 萃取
+            return isAnyMatch<Ts...>();
+        }(static_cast<Variant*>(nullptr));
+    }
+
 }  // namespace stationeers::ic10
+
+#include "expand_node_parser.hpp"
 
 #endif  // IC10_COMPILER_CORE_PARSER_INL

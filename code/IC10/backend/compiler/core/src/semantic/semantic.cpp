@@ -19,6 +19,8 @@
 #include "ic10_compiler/locals/local.hpp"
 #include <ranges>
 #include <sstream>
+#include <utility>
+#include <vector>
 
 namespace stationeers::ic10 {
 
@@ -77,7 +79,7 @@ namespace stationeers::ic10 {
     std::string SymbolTable::toJSON() const {
         std::stringstream ss;
 
-        ss << "{";
+        ss << "{\"symbols\": {";
 
         bool first = true;
 
@@ -93,14 +95,39 @@ namespace stationeers::ic10 {
                 }
 
 
-        ss << "}";
+        ss << "}, \"builtinSymbols\": {";
+
+        first = true;
+
+        for (const auto& [key, symbol] : builtinSymbols) {
+            if (!first) [[likely]]
+                ss << ", ";
+
+            ss << '\"' << key << "\": " << symbol.toJSON();
+
+            first = false;
+        }
+        ss << "}}";
 
         return ss.str();
     }
 
     void SymbolTable::failAllPending() {
-        for (auto& [name, entry] : symbols_)
-            if (!entry.ready())
+        // 失败一个条目会恢复其等待者，被恢复的协程会继续分析后续操作数并可能 resolve
+        // 新的符号：既会向 symbols_ 插入（使遍历迭代器失效），也会产生新的待决条目。
+        // 因此每轮先对待决条目做快照再统一失败，并循环扫尾直到不再产生新的待决条目。
+        // 注意只挑选 PENDING：已失败条目即使再次扫描也不能重复 set（会抛异常）。
+        for (bool progress = true; progress;) {
+            progress = false;
+
+            std::vector<std::pair<std::string, Entry>> pending;
+
+            for (const auto& [name, entry] : symbols_)
+                if (entry.future.is<Status::PENDING>()) pending.emplace_back(name, entry);
+
+            for (auto& [name, entry] : pending) {
+                progress = true;
+
                 entry.promise.setException(
                     std::make_exception_ptr(Error(
                         UndefinedSymbolError{
@@ -109,6 +136,8 @@ namespace stationeers::ic10 {
                         }
                     ))
                 );
+            }
+        }
     }
 
 }  // namespace stationeers::ic10

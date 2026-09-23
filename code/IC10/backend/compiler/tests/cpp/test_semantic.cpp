@@ -168,13 +168,13 @@ namespace {
         static constexpr std::string_view kTestDevice =
             "#> @device\n"
             "#> @name TestDevice\n"
-            "#> @logic Pressure\n"
-            "#> @logic Setting\n"
-            "#> @logic On\n"
-            "#> @logic-slot Quantity\n"
-            "#> @logic-slot Charge\n"
-            "#> @slot 0\n"
-            "#> @slot 1\n"
+            "#> @logic Pressure 5\n"
+            "#> @logic Setting 12\n"
+            "#> @logic On 28\n"
+            "#> @logic-slot Quantity 3\n"
+            "#> @logic-slot Charge 10\n"
+            "#> @slot Slot0 0\n"
+            "#> @slot Slot1 1\n"
             "#> @end-device\n";
 
         /// @brief 拼接所有标准库定义 + 用户源码 / Concatenate all stdlib defs + user source
@@ -290,12 +290,9 @@ TEST_F(SemanticTestFixture, ValidReagentModeNoDiagnostic) {
     // lr 指令: REG_IDENT, DEV_REF, REAGENT_MODE, JUMP_TARGET
     // Contents 在 ReagentMode 枚举中
     // 注意: 使用 d0 (Device 节点) 而非 db (未定义 Identifier) 作为 DEV_REF，
-    //       因为 process 是 Task<void>，await resolveSymbol 的 Future 时无法注册为等待者，
-    //       未定义的 DEV_REF 会导致 process 永久挂起，后续 REAGENT_MODE 检查不会执行。
-    //       Note: use d0 (Device node) instead of db (undefined Identifier) as DEV_REF,
-    //       because process is Task<void> and cannot register as a waiter when awaiting
-    //       resolveSymbol's Future. An undefined DEV_REF would cause process to suspend
-    //       forever, preventing subsequent REAGENT_MODE checks from running.
+    //       使本用例只关注 REAGENT_MODE 检查，不引入无关的 IEA3_1 诊断。
+    //       Note: use d0 (Device node) instead of db (undefined Identifier) as DEV_REF so that
+    //       this case focuses on the REAGENT_MODE check without unrelated IEA3_1 noise.
     auto source = withStdLib(
         "main:\n"
         "lr r0 d0 Contents main\n"
@@ -520,12 +517,12 @@ TEST_F(SemanticTestFixture, DeviceContextResetAcrossInstructions) {
 }
 
 // ============================================================
-// 未定义符号检查（IE0_1）
-// Undefined symbol check (IE0_1)
+// 未定义符号检查（IEA3_1）
+// Undefined symbol check (IEA3_1)
 // ============================================================
 
-/// @brief 未定义的设备别名引用应上报 IE0_1 / Undefined device alias reference reports IE0_1
-TEST_F(SemanticTestFixture, UndefinedDeviceAliasReportsIE0_1) {
+/// @brief 未定义的设备别名引用应上报 IEA3_1 / Undefined device alias reference reports IEA3_1
+TEST_F(SemanticTestFixture, UndefinedDeviceAliasReportsIEA3_1) {
     auto source = withStdLib(
         "l r0 undefinedDev Pressure\n"
         "hcf\n"
@@ -534,8 +531,8 @@ TEST_F(SemanticTestFixture, UndefinedDeviceAliasReportsIE0_1) {
 
     SCOPED_TRACE(formatDiags(result.analyserDiags));
     assertNoLexerParserDiags(result);
-    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IE0_1"))
-        << "undefinedDev 未定义，应上报 IE0_1";
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IEA3_1"))
+        << "undefinedDev 未定义，应上报 IEA3_1";
 }
 
 // ============================================================
@@ -677,11 +674,12 @@ TEST_F(SymbolTableTestFixture, FailAllPendingDoesNotAffectDefined) {
     EXPECT_FALSE(st.contains("pending"));
 }
 
-/// @brief 空符号表 toJSON 为空数组 / Empty symbol table toJSON is empty array
+/// @brief 空符号表 toJSON 的 symbols 为空 / Empty symbol table toJSON has empty symbols
 TEST_F(SymbolTableTestFixture, EmptyTableToJSONEmptyArray) {
     SymbolTable st;
     auto json = st.toJSON();
-    EXPECT_EQ(json, "{}");
+    EXPECT_NE(json.find("\"symbols\": {}"), std::string::npos);
+    EXPECT_NE(json.find("\"builtinSymbols\""), std::string::npos);
 }
 
 /// @brief 符号表 toJSON 包含已定义符号 / Symbol table toJSON includes defined symbols
@@ -875,11 +873,13 @@ TEST_F(TypeTableTestFixture, DeviceTypeHasSlotsAndLogics) {
     devType.name = "Sensor";
 
     DeviceAnnotationSlot slot;
+    slot.name  = "Input";
     slot.value = "0";
     devType.slots.push_back(slot);
 
     DeviceAnnotationLogic logic;
-    logic.value = "Pressure";
+    logic.name  = "Pressure";
+    logic.value = "5";
     devType.logics.push_back(logic);
 
     tt.registerType(CustomType{devType});
@@ -889,8 +889,10 @@ TEST_F(TypeTableTestFixture, DeviceTypeHasSlotsAndLogics) {
     auto& dev = std::get<DeviceAnnotation>(*found);
     EXPECT_EQ(dev.slots.size(), 1u);
     EXPECT_EQ(dev.logics.size(), 1u);
+    EXPECT_EQ(dev.slots[0].name, "Input");
     EXPECT_EQ(dev.slots[0].value, "0");
-    EXPECT_EQ(dev.logics[0].value, "Pressure");
+    EXPECT_EQ(dev.logics[0].name, "Pressure");
+    EXPECT_EQ(dev.logics[0].value, "5");
 }
 
 /// @brief 枚举类型包含值列表 / Enum type contains value list
@@ -969,8 +971,8 @@ TEST_F(SemanticTestFixture, LabelRedefinitionReportsIEA2_1) {
         << "标签 loop 重复定义，应上报 IEA2_1";
 }
 
-/// @brief 未定义跳转目标应上报 IE0_1 / Undefined jump target reports IE0_1
-TEST_F(SemanticTestFixture, UndefinedJumpTargetReportsIE0_1) {
+/// @brief 未定义跳转目标应上报 IEA3_1 / Undefined jump target reports IEA3_1
+TEST_F(SemanticTestFixture, UndefinedJumpTargetReportsIEA3_1) {
     auto source = withStdLib(
         "j nonexistent\n"
         "hcf\n"
@@ -979,8 +981,8 @@ TEST_F(SemanticTestFixture, UndefinedJumpTargetReportsIE0_1) {
 
     SCOPED_TRACE(formatDiags(result.analyserDiags));
     assertNoLexerParserDiags(result);
-    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IE0_1"))
-        << "nonexistent 标签未定义，应上报 IE0_1";
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IEA3_1"))
+        << "nonexistent 标签未定义，应上报 IEA3_1";
 }
 
 /// @brief 前向引用标签合法，不上报错误 / Forward label reference is legal
@@ -995,8 +997,8 @@ TEST_F(SemanticTestFixture, ForwardLabelReferenceNoError) {
     SCOPED_TRACE(formatDiags(result.analyserDiags));
     assertNoLexerParserDiags(result);
     EXPECT_TRUE(result.analyser->getSymbolTable().contains("end"));
-    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IE0_1"))
-        << "前向引用标签是合法的，不应上报 IE0_1";
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IEA3_1"))
+        << "前向引用标签是合法的，不应上报 IEA3_1";
 }
 
 /// @brief LOGIC_SLOT 缺失枚举应上报 IEA8_1 / Missing LogicSlotType enum reports IEA8_1
@@ -1101,6 +1103,28 @@ TEST_F(SemanticTestFixture, MultipleUndefinedSymbolsAllReported) {
     EXPECT_GE(result.analyserDiags.size(), 3u);
 }
 
+/// @brief 同一指令内的每个未定义引用都应上报
+///        Every undefined reference inside one instruction is reported
+TEST_F(SemanticTestFixture, AllUndefinedOperandsInSameInstructionReported) {
+    // 回归用例：指令操作数由折叠表达式串行 co_await 处理，第一个未定义引用若不能被
+    // 恢复（历史缺陷：Task<void> 未持有协程状态，无法注册为等待者），
+    // 后续操作数就永远不会被语义分析，add X X 1 只会报出第一个 X。
+    // Regression test: instruction operands are processed by a sequential fold of co_awaits.
+    // When the first undefined reference could not be resumed (historical defect: Task<void>
+    // held no coroutine state and could not register as a waiter), the remaining operands were
+    // never analysed, so `add X X 1` reported only the first X.
+    auto source = withStdLib(
+        "add SorterCounter SorterCounter 1\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_EQ(countDiagnostic(result.analyserDiags, "IEA3_1"), 2u)
+        << "两个 SorterCounter 都是未定义引用，都应上报 IEA3_1";
+}
+
 /// @brief 符号表包含 alias 定义的符号 / Symbol table contains alias-defined symbols
 TEST_F(SemanticTestFixture, SymbolTableContainsAliasSymbols) {
     auto source = withStdLib(
@@ -1185,7 +1209,7 @@ TEST_F(SemanticTestFixture, ConstantsReferenceNoUndefinedError) {
     SCOPED_TRACE(formatDiags(result.analyserDiags));
     assertNoLexerParserDiags(result);
     // 常量已由标准库定义，不应产生未定义错误
-    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IE0_1"));
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IEA3_1"));
 }
 
 /// @brief 空程序语义分析无错误 / Empty program semantic analysis has no errors

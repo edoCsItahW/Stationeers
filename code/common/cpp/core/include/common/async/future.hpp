@@ -54,6 +54,26 @@ namespace stationeers {
     /**
      * @if zh
      *
+     * @brief Task类型前向声明
+     * @details Future::Awaiter::await_suspend 需要按被等待类型取得等待协程的promise，
+     *          故此处前向声明Task（定义在task.hpp）
+     * @tparam T 协程返回值类型
+     *
+     * @elseif en
+     *
+     * @brief Task type forward declaration
+     * @details Future::Awaiter::await_suspend needs the awaiting coroutine's promise, keyed by the
+     *          awaited type, hence this forward declaration (the definition lives in task.hpp)
+     * @tparam T Coroutine return value type
+     *
+     * @endif
+     */
+    template<typename T>
+    struct Task;
+
+    /**
+     * @if zh
+     *
      * @class Future
      * @brief 异步结果封装类
      * @details 表示异步操作的最终结果,提供值获取、协程等待和回调链式调用功能。
@@ -139,16 +159,26 @@ namespace stationeers {
              * @if zh
              *
              * @brief await_suspend实现
+             * @details 把等待协程登记到本Future的共享状态。等待者状态与协程返回值
+             *          类型无关，故`Task<void>`协程也能等待`Task<T>`协程。
              * @param handle 当前协程句柄
+             * @return 已登记(需要挂起)返回true；状态已定或无法取得协程状态时返回false，
+             *         此时协程不挂起，由await_resume直接取结果
              *
              * @elseif en
              *
              * @brief await_suspend implementation
+             * @details Registers the awaiting coroutine on this Future's shared state. The waiter
+             *          state is independent of the coroutine return type, so a `Task<void>`
+             *          coroutine may await a `Task<T>` coroutine.
              * @param handle Current coroutine handle
+             * @return true when registered (the coroutine must suspend); false when the state is
+             *         already settled or no coroutine state is available, in which case the
+             *         coroutine does not suspend and await_resume reads the result directly
              *
              * @endif
              */
-            void await_suspend(std::coroutine_handle<> handle) const noexcept;
+            bool await_suspend(std::coroutine_handle<> handle) const noexcept;
 
             /**
              * @if zh

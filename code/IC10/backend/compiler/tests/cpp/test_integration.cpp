@@ -87,8 +87,8 @@ TEST_F(IntegrationTestFixture, TokenPositionsPropagatedToAST) {
     auto ast = Parser::parsing(tokens);
 
     ASSERT_GE(ast.statements.size(), 1u);
-    // 通过std::visit访问variant的position
-    auto pos = std::visit([](const auto& node) { return node.start(); }, ast.statements[0]);
+    // 通过std::visit访问variant的position（Statement为句柄类型，需经raw()取内部变体）
+    auto pos = std::visit([](const auto& node) { return node.start(); }, ast.statements[0].raw());
     EXPECT_EQ(pos.line(), 1);
 }
 
@@ -99,9 +99,12 @@ TEST_F(IntegrationTestFixture, MultiLineProgramTokenPositions) {
     auto ast = Parser::parsing(tokens);
 
     ASSERT_GE(ast.statements.size(), 3u);
-    auto pos0 = std::visit([](const auto& node) { return node.start(); }, ast.statements[0]);
-    auto pos1 = std::visit([](const auto& node) { return node.start(); }, ast.statements[1]);
-    auto pos2 = std::visit([](const auto& node) { return node.start(); }, ast.statements[2]);
+    auto pos0 =
+        std::visit([](const auto& node) { return node.start(); }, ast.statements[0].raw());
+    auto pos1 =
+        std::visit([](const auto& node) { return node.start(); }, ast.statements[1].raw());
+    auto pos2 =
+        std::visit([](const auto& node) { return node.start(); }, ast.statements[2].raw());
     EXPECT_EQ(pos0.line(), 1);
     EXPECT_EQ(pos1.line(), 2);
     EXPECT_EQ(pos2.line(), 3);

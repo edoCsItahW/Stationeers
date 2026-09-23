@@ -1,0 +1,134 @@
+{
+    "name": "Stationeers IC10 CI | Linux 开发容器",
+
+    // 使用前面编写/构建的 Dockerfile
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "..",
+        "args": {
+            "CMAKE_VERSION": "4.2.1",
+            "NODE_VERSION": "26.7.0",
+            "PNPM_VERSION": "11.20.0",
+            "PYTHON_VERSION": "3.13",
+            "JAVA_VERSION": "21"
+        }
+    },
+
+    // 工作目录：与 Dockerfile 中的 WORKDIR 保持一致
+    "workspaceFolder": "/workspace",
+
+    // 挂载源码；其它需要缓存/持久化的路径按需追加
+    "mounts": [
+        // 持久化 ccache，跨容器重建保留编译缓存
+        "source=stationeers-ccache,target=/root/.ccache,type=volume",
+        // 持久化 pnpm / npm store
+        "source=stationeers-pnpm-store,target=/root/.local/share/pnpm/store,type=volume",
+        "source=stationeers-npm-cache,target=/root/.npm,type=volume"
+    ],
+
+    // 让容器内的用户与宿主一致，避免 bind mount 文件权限问题
+    "containerEnv": {
+        "HOME": "/root",
+        "STATIONEERS_CODE_DIR": "code",
+        "STATIONEERS_ARTIFACTS_DIR": "artifacts",
+        "STATIONEERS_DEP_CACHE_DIR": ".deps",
+        "CCACHE_DIR": "/root/.ccache",
+        "CCACHE_MAXSIZE": "2G",
+        "CCACHE_COMPRESS": "true",
+        "PYTHONUNBUFFERED": "1"
+    },
+
+    // 远程用户
+    "remoteUser": "root",
+
+    // 把 CI 里用到的主要工具都装上 VS Code 插件
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // C++
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "ms-vscode.cpptools-themes",
+
+                // Node.js / TypeScript / VSCode 扩展
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "ms-vscode.vscode-typescript-next",
+
+                // Python
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy",
+
+                // Java
+                "vscjava.vscode-java-pack",
+                "redhat.java",
+                "vscjava.vscode-java-debug",
+                "vscjava.vscode-java-test",
+                "vscjava.vscode-maven",
+                "vscjava.vscode-gradle",
+
+                // 通用
+                "editorconfig.editorconfig",
+                "streetsidesoftware.code-spell-checker",
+                "eamodio.gitlens",
+                "github.vscode-github-actions",
+                "github.vscode-pull-request-github",
+                "redhat.vscode-yaml",
+                "tamasfe.even-better-toml",
+                "yzhang.markdown-all-in-one",
+                "timonwong.shellcheck"
+            ],
+            "settings": {
+                // C++
+                "C_Cpp.default.cppStandard": "c++23",
+                "C_Cpp.default.cStandard": "c23",
+                "C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+                "cmake.generator": "Ninja",
+                "cmake.configureOnOpen": false,
+                "cmake.buildDirectory": "${workspaceFolder}/build",
+
+                // ccache 与 CMake 集成
+                "cmake.configureArgs": [
+                    "-DCMAKE_C_COMPILER_LAUNCHER=ccache",
+                    "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+                ],
+
+                // Python
+                "python.defaultInterpreterPath": "/usr/bin/python3",
+                "python.terminal.activateEnvironment": false,
+
+                // Java
+                "java.configuration.runtimes": [
+                    {
+                        "name": "JavaSE-21",
+                        "path": "/usr/lib/jvm/java-21-openjdk-amd64",
+                        "default": true
+                    }
+                ],
+                "java.jdt.ls.java.home": "/usr/lib/jvm/java-21-openjdk-amd64",
+
+                // 通用
+                "files.eol": "\n",
+                "files.trimTrailingWhitespace": true,
+                "files.insertFinalNewline": true,
+                "editor.formatOnSave": false,
+                "git.autofetch": true
+            }
+        }
+    },
+
+    // 容器创建后执行的初始化命令
+    // - 保证 ccache 目录存在
+    // - 预拉取 pnpm store 目录结构
+    "postCreateCommand": "bash -lc 'mkdir -p /root/.ccache \"${STATIONEERS_CODE_DIR}/artifacts\" \"${STATIONEERS_CODE_DIR}/.deps\" && ccache --show-stats && echo \"Dev container ready. | 开发容器已就绪。\"'",
+
+    // 容器启动时执行
+    "postStartCommand": "bash -lc 'ccache --set-config=max_size=2G && ccache --set-config=compression=true || true'",
+
+    // 让 devcontainer 在 VS Code 中按预期运行
+    "overrideCommand": true,
+    "init": true
+}

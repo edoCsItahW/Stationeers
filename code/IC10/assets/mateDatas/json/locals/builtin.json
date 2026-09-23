@@ -1,0 +1,32 @@
+{
+    "general_purpose_registers": {
+        "desc": {
+            "en-us": "General-purpose registers r0-r15, written as rx (x=0..15). They store temporary values, operands, and results for math, logic, device, and control instructions. They can be given readable aliases with alias.",
+            "zh-hans": "通用寄存器 r0-r15，写作 rx（x=0..15）。用于存储临时数据、运算操作数与结果，可参与数学、逻辑、设备和流程控制等指令；可用 alias 定义易读别名。"
+        }
+    },
+    "address_register": {
+        "desc": {
+            "en-us": "Return-address register ra. jal and *al conditional jumps store the return address (next line / current line + 1) in ra; subroutines return with j ra.",
+            "zh-hans": "返回地址寄存器 ra。jal 及带 al 后缀的条件跳转会把返回地址（下一行 / 当前行号+1）存入 ra；子程序可用 j ra 返回。"
+        }
+    },
+    "stack_pointer_register": {
+        "desc": {
+            "en-us": "Stack pointer register sp. Points to the current stack position and is used by stack/memory instructions such as push, pop, peek, poke, get, and put. Some docs differ on whether push increments or decrements sp; verify in-game.",
+            "zh-hans": "栈指针寄存器 sp。指向栈内存当前位置，供 push、pop、peek、poke、get、put 等栈/内存指令使用。部分资料对 push 时 sp 是加还是减存在差异，请以游戏实际版本为准。"
+        }
+    },
+    "ordinary_devices": {
+        "desc": {
+            "en-us": "Ordinary device ports d0-d5, written as dx (x=0..5). These are the six external device connections configured on the IC socket with a screwdriver. Use l/s/ls/ss/lr etc. to read/write their logic properties. Aliases can be defined with alias.",
+            "zh-hans": "普通设备端口 d0-d5，写作 dx（x=0..5）。它们是 IC 插座上可用螺丝刀配置的 6 个外部设备连接；可用 l/s/ls/ss/lr 等指令读写其逻辑属性，也可用 alias 定义别名。"
+        }
+    },
+    "self_reference_device": {
+        "desc": {
+            "en-us": "Self-reference device db. Refers to the device the IC10 chip is installed in, allowing direct read/write of that device's logic data, e.g. s db Setting r0.",
+            "zh-hans": "特殊自引用设备 db。表示 IC10 芯片自身所安装/所在的设备，可直接读写该设备的逻辑数据，例如 s db Setting r0。"
+        }
+    }
+}

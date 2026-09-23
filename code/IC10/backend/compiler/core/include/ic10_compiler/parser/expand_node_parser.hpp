@@ -54,56 +54,20 @@ namespace stationeers::ic10 {
         [[nodiscard]] static bool is(const Parser& p) noexcept;
     };
 
-    // DeviceAnnotationLogic
+    // TypeAnnotationLineBase<Name, Tag>
 
-    template<>
-    struct NodeParser<DeviceAnnotationLogic> {
-        static DeviceAnnotationLogic parse(Parser& p);
-
-        [[nodiscard]] static bool is(const Parser& p) noexcept;
-    };
-
-    // DeviceAnnotationLogicSlot
-
-    template<>
-    struct NodeParser<DeviceAnnotationLogicSlot> {
-        static DeviceAnnotationLogicSlot parse(Parser& p);
+    template<FString Name, FString Tag>
+    struct NodeParser<TypeAnnotationLineBase<Name, Tag>> {
+        static TypeAnnotationLineBase<Name, Tag> parse(Parser& p);
 
         [[nodiscard]] static bool is(const Parser& p) noexcept;
     };
 
-    // DeviceAnnotationDeviceHash
+    // TypeAnnotationValueBase<Name, Tag>
 
-    template<>
-    struct NodeParser<DeviceAnnotationDeviceHash> {
-        static DeviceAnnotationDeviceHash parse(Parser& p);
-
-        [[nodiscard]] static bool is(const Parser& p) noexcept;
-    };
-
-    // DeviceAnnotationNameHash
-
-    template<>
-    struct NodeParser<DeviceAnnotationNameHash> {
-        static DeviceAnnotationNameHash parse(Parser& p);
-
-        [[nodiscard]] static bool is(const Parser& p) noexcept;
-    };
-
-    // DeviceAnnotationReagentHash
-
-    template<>
-    struct NodeParser<DeviceAnnotationReagentHash> {
-        static DeviceAnnotationReagentHash parse(Parser& p);
-
-        [[nodiscard]] static bool is(const Parser& p);
-    };
-
-    // DeviceAnnotationSlot
-
-    template<>
-    struct NodeParser<DeviceAnnotationSlot> {
-        static DeviceAnnotationSlot parse(Parser& p);
+    template<FString Name, FString Tag>
+    struct NodeParser<TypeAnnotationValueBase<Name, Tag>> {
+        static TypeAnnotationValueBase<Name, Tag> parse(Parser& p);
 
         [[nodiscard]] static bool is(const Parser& p) noexcept;
     };
@@ -118,5 +82,7 @@ namespace stationeers::ic10 {
     };
 
 }  // namespace stationeers::ic10
+
+#include "expand_node_parser.inl"
 
 #endif  // IC10_COMPILER_CORE_EXPAND_NODE_PARSER_HPP

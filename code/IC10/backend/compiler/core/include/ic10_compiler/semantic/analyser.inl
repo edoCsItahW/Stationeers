@@ -46,34 +46,38 @@ namespace stationeers::ic10 {
     template<template<auto, auto...> class Ins, FString V, OperandType... Vs>
         requires IsInstruction<Ins<V, Vs...>>
     Task<> Analyser::operator()(const Ins<V, Vs...>& ins) {
-        // 通用指令访问器：遍历指令的所有操作数（args 元组），按操作数类型分派处理
-        std::apply(
-            [&](const auto&... args) -> Task<> {
+        // 通用指令访问器：遍历指令的所有操作数（args 元组），按操作数类型分派处理。
+        // 折叠协程用**无捕获 lambda**：协程 lambda 的闭包存放在创建者的帧里，而本函数在
+        // std::apply 之后立即 co_return，帧随即失效；折叠协程却会在前向引用处挂起、稍后恢复，
+        // 届时读取闭包会命中已返回的栈帧（GCC 下实测 stack-use-after-return → 段错误）。
+        // 无捕获闭包不含数据，所需状态（*this）改为按参数传入，参数直接存放在折叠协程自己的帧中。
+        // 折叠协程仍必须被持有（detachedTasks_）：丢弃 Task 会让其帧存储被复用。
+        detachedTasks_.push_back(std::apply(
+            [](Analyser& self, const auto&... args) -> Task<> {
                 // 每条指令开始前重置设备上下文，避免上一条指令的残留影响当前指令
-                // 发后即忘模式下挂起的 lambda 不会恢复，重置不会影响已挂起的 lambda
-                pendingDeviceSymbol_.reset();
+                self.pendingDeviceSymbol_.reset();
                 // 折叠表达式依次处理指令的所有操作数
-                (((void)co_await process<Vs>(args)), ...);
+                (((void)co_await self.process<Vs>(args)), ...);
                 co_return;
             },
-            ins.args
-        );
+            std::tuple_cat(std::tie(*this), ins.args())
+        ));
 
         co_return;
     }
 
-    template<OperandType Type>
-    Task<> Analyser::process(const auto& variant) {
-        // 单个操作数处理：对 variant 分派
-        // - ErrorNode : Parser 已上报，跳过避免重复诊断
-        (void)co_await std::visit(
-            [&]<typename T, typename U = std::decay_t<T>>(const T& arg) -> Task<> {
+    // 单个操作数处理体：具名协程成员函数（不用协程 lambda，原因见 handleOperand 声明处注释）
+    template<OperandType Type, typename T>
+    Task<> Analyser::handleOperand(const T& arg) {
+        {
+            using U = std::decay_t<T>;
                 // Identifier: 解析符号（可能为前向引用，需等待 Future）
                 if constexpr (std::is_same_v<U, Identifier>) {
                     // 标准库优先类型：逻辑网络名/插槽名/试剂模式/批量模式
                     // 这些标识符不是 IC10 语言级别的符号（别名/常量/标签），
-                    // 不应走符号表 resolve（否则协程会永久挂起，依赖 failAllPending 恢复，
-                    // 在发后即忘模式下恢复链路不可靠），直接用标准库验证。
+                    // 不应走符号表 resolve：那会为它们建立待决条目，并在 failAllPending
+                    // 时误报"未定义标识符"（如 Pressure/Contents 这类标准库名）。
+                    // 因此直接用标准库枚举/设备上下文验证。
                     if constexpr (
                         Type == OperandType::LOGIC_PROP || Type == OperandType::LOGIC_SLOT_PROP
                         || Type == OperandType::REAGENT_MODE || Type == OperandType::AGG_MODE
@@ -97,16 +101,13 @@ namespace stationeers::ic10 {
                     }
 
                     // 设备引用/别名：需 resolve 以获取设备符号（可能为前向引用）
-                    // 注意：必须通过 resolveSymbol（Task<shared_ptr<Symbol>>）而非直接 resolve，
-                    // 因为 process 是 Task<void>，其 coro_state_weak_ 未设置，无法注册为 Future
-                    // 等待者， 直接 co_await resolve 会导致协程永久挂起且 rethrow 永远不被调用。
-                    // resolveSymbol 是非 void Task，可正确注册为等待者，被 failAllPending
-                    // 恢复后上报 IE0_1。
+                    // 通过 resolveSymbol 而非直接 resolve：解析失败时由其上报 IEA3_1
+                    // 并返回 nullptr，调用方据此跳过后续类型检查（前向引用未定义时，
+                    // 该协程会被 failAllPending 以 FAILED 状态恢复）。
                     else if constexpr (Type == OperandType::DEVICE_REF) {
                         auto result = co_await resolveSymbol(arg.value, arg.position);
 
-                        // resolveSymbol 失败时已由内部 rethrow 上报 IE0_1，result.value() 为
-                        // nullptr
+                        // resolveSymbol 失败时已上报 IEA3_1，result.value() 为 nullptr
                         if (result.has_value() && result.value())
                             pendingDeviceSymbol_ = {
                                 std::move(result.value()), arg.start(), arg.end()
@@ -117,7 +118,7 @@ namespace stationeers::ic10 {
                     else {
                         auto result = co_await resolveSymbol(arg.value, arg.position);
 
-                        // resolveSymbol 失败时已上报 IE0_1，仅在对称解析成功时做类型检查
+                        // resolveSymbol 失败时已上报 IEA3_1，仅在解析成功时做类型检查
                         if (result.has_value() && result.value())
                             IdentifierChecker<Type>::check(this, result.value(), arg);
                     }
@@ -166,6 +167,18 @@ namespace stationeers::ic10 {
                     (void)co_await this->operator()(arg);
 
                 co_return;
+        }
+
+        co_return;
+    }
+
+    template<OperandType Type>
+    Task<> Analyser::process(const auto& variant) {
+        // 分派：这里用**非协程** lambda 仅仅转发（其闭包在本次调用结束即销毁，不会跨挂起点被引用），
+        // 真正的处理体是具名协程 handleOperand
+        (void)co_await std::visit(
+            [this]<typename T>(const T& arg) -> Task<> {
+                return this->handleOperand<Type, T>(arg);
             },
             variant
         );
@@ -187,14 +200,14 @@ namespace stationeers::ic10 {
                 Type == OperandType::LOGIC_SLOT_PROP
             ) {
                 if (!std::ranges::contains(
-                        dt.logicSlots | std::views::transform(&DeviceAnnotationLogicSlot::value),
+                        dt.logicSlots | std::views::transform(&DeviceAnnotationLogicSlot::name),
                         currentSym.name
                     ))
                     reporter_->errorWith<ICMsgId::IWA11_2>(start, end, currentSym.name, *typeName);
 
             } else if constexpr (Type == OperandType::LOGIC_PROP) {
                 if (!std::ranges::contains(
-                        dt.logics | std::views::transform(&DeviceAnnotationLogic::value),
+                        dt.logics | std::views::transform(&DeviceAnnotationLogic::name),
                         currentSym.name
                     ))
                     reporter_->errorWith<ICMsgId::IWA14_2>(start, end, currentSym.name, *typeName);

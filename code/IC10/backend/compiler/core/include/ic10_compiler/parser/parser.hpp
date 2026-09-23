@@ -516,6 +516,9 @@ namespace stationeers::ic10 {
         template<HasFirst... Ts>
         [[nodiscard]] bool isAnyMatch() noexcept;
 
+        template<IsVariant Variant>
+        [[nodiscard]] bool isVariantMatch() noexcept;
+
         template<typename T>
         friend struct NodeParser;
 
@@ -525,6 +528,7 @@ namespace stationeers::ic10 {
 
 }  // namespace stationeers::ic10
 
+#include "node_parser.inl"
 #include "parser.inl"
 
 #endif  // IC10_COMPILER_CORE_PARSER_HPP
