@@ -550,6 +550,50 @@ namespace stationeers::ic10 {
         template<OperandType Type>
         Task<> process(const auto& variant);
 
+        /**
+         * @if zh
+         *
+         * @brief 单操作数处理体（具名协程）
+         * @details 由 process 转发调用。**不得改写回协程 lambda**：协程 lambda 的闭包存放在
+         *          创建者的帧里，创建者一旦返回（或其帧被编译器省略到栈上），闭包即失效；
+         *          而本协程会在前向引用处挂起、稍后被恢复，届时读取闭包会命中已返回的栈帧
+         *          （GCC 下实测为 stack-use-after-return 导致段错误；MSVC 对闭包的处理不同，
+         *          故该缺陷只在部分编译器上暴露）。具名协程的参数直接存放在自身帧中，
+         *          不依赖创建者帧的存活。
+         *
+         * @elseif en
+         *
+         * @brief Single-operand handling body (named coroutine)
+         * @details Called by process. **Must not be turned back into a coroutine lambda**: a
+         *          coroutine lambda's closure lives in the creating frame; once that creator
+         *          returns (or its frame is elided onto the stack) the closure is dead, while this
+         *          coroutine is suspended on a forward reference and resumed later, so reading the
+         *          closure hits a returned stack frame (measured as a stack-use-after-return
+         *          segfault with GCC; MSVC treats closures differently, so it only shows on some
+         *          compilers). A named coroutine keeps its parameters in its own frame.
+         *
+         * @endif
+         */
+        template<OperandType Type, typename T>
+        Task<> handleOperand(const T& arg);
+
+        /**
+         * @if zh
+         *
+         * @brief 单条语句访问（具名协程）
+         * @details 由 visit 转发调用，理由同 handleOperand：避免协程 lambda 的闭包随创建者帧失效。
+         *
+         * @elseif en
+         *
+         * @brief Single-statement visit (named coroutine)
+         * @details Called by visit, for the same reason as handleOperand: avoid a coroutine lambda
+         *          whose closure dies with the creating frame.
+         *
+         * @endif
+         */
+        template<typename T>
+        Task<> visitStatement(const T& arg);
+
         template<OperandType>
         struct IdentifierChecker {
             static bool check(

@@ -46,30 +46,31 @@ namespace stationeers::ic10 {
     template<template<auto, auto...> class Ins, FString V, OperandType... Vs>
         requires IsInstruction<Ins<V, Vs...>>
     Task<> Analyser::operator()(const Ins<V, Vs...>& ins) {
-        // 通用指令访问器：遍历指令的所有操作数（args 元组），按操作数类型分派处理
-        // 折叠协程必须被持有（detachedTasks_）而非丢弃：它可能在前向引用处挂起并稍后被恢复，
-        // 丢弃其Task会让编译器复用已"结束"的帧内存储，恢复时读到被破坏的帧（见 detachedTasks_）
+        // 通用指令访问器：遍历指令的所有操作数（args 元组），按操作数类型分派处理。
+        // 折叠协程用**无捕获 lambda**：协程 lambda 的闭包存放在创建者的帧里，而本函数在
+        // std::apply 之后立即 co_return，帧随即失效；折叠协程却会在前向引用处挂起、稍后恢复，
+        // 届时读取闭包会命中已返回的栈帧（GCC 下实测 stack-use-after-return → 段错误）。
+        // 无捕获闭包不含数据，所需状态（*this）改为按参数传入，参数直接存放在折叠协程自己的帧中。
+        // 折叠协程仍必须被持有（detachedTasks_）：丢弃 Task 会让其帧存储被复用。
         detachedTasks_.push_back(std::apply(
-            [&](const auto&... args) -> Task<> {
-                // 每条指令开始前重置设备上下文，避免上一条指令的残留影响当前指令。
-                // 仅在恢复后继续处理后续操作数时才需要；本lambda自身不重复进入
-                pendingDeviceSymbol_.reset();
+            [](Analyser& self, const auto&... args) -> Task<> {
+                // 每条指令开始前重置设备上下文，避免上一条指令的残留影响当前指令
+                self.pendingDeviceSymbol_.reset();
                 // 折叠表达式依次处理指令的所有操作数
-                (((void)co_await process<Vs>(args)), ...);
+                (((void)co_await self.process<Vs>(args)), ...);
                 co_return;
             },
-            ins.args()
+            std::tuple_cat(std::tie(*this), ins.args())
         ));
 
         co_return;
     }
 
-    template<OperandType Type>
-    Task<> Analyser::process(const auto& variant) {
-        // 单个操作数处理：对 variant 分派
-        // - ErrorNode : Parser 已上报，跳过避免重复诊断
-        (void)co_await std::visit(
-            [&]<typename T, typename U = std::decay_t<T>>(const T& arg) -> Task<> {
+    // 单个操作数处理体：具名协程成员函数（不用协程 lambda，原因见 handleOperand 声明处注释）
+    template<OperandType Type, typename T>
+    Task<> Analyser::handleOperand(const T& arg) {
+        {
+            using U = std::decay_t<T>;
                 // Identifier: 解析符号（可能为前向引用，需等待 Future）
                 if constexpr (std::is_same_v<U, Identifier>) {
                     // 标准库优先类型：逻辑网络名/插槽名/试剂模式/批量模式
@@ -166,6 +167,18 @@ namespace stationeers::ic10 {
                     (void)co_await this->operator()(arg);
 
                 co_return;
+        }
+
+        co_return;
+    }
+
+    template<OperandType Type>
+    Task<> Analyser::process(const auto& variant) {
+        // 分派：这里用**非协程** lambda 仅仅转发（其闭包在本次调用结束即销毁，不会跨挂起点被引用），
+        // 真正的处理体是具名协程 handleOperand
+        (void)co_await std::visit(
+            [this]<typename T>(const T& arg) -> Task<> {
+                return this->handleOperand<Type, T>(arg);
             },
             variant
         );
