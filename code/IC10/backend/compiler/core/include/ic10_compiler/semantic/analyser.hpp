@@ -400,6 +400,26 @@ namespace stationeers::ic10 {
 
         Task<> operator()(const DynamicDevice& device);
 
+        /**
+         * @if zh
+         *
+         * @brief 访问枚举操作数节点（如 @c Foo.Bar ）
+         * @details 目前不做语义校验，仅用于避免落入泛型 fallback 误报 IEA6。
+         * @param enumNode 枚举节点
+         * @return 协程任务
+         *
+         * @elseif en
+         *
+         * @brief Visit an enum operand node (e.g. @c Foo.Bar )
+         * @details No semantic validation is performed yet; this visitor only keeps enum operands
+         *          from falling into the generic fallback that reports a spurious IEA6.
+         * @param enumNode Enum node
+         * @return Coroutine task
+         *
+         * @endif
+         */
+        Task<> operator()(const Enum& enumNode);
+
         Task<> operator()(const GeneralPurposeRegister& register_);
 
         Task<> operator()(const AddressRegister& register_);

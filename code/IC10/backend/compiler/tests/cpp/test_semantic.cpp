@@ -251,11 +251,22 @@ TEST_F(SemanticTestFixture, MissingLogicTypeEnumReportsIEA8_1) {
         << "LogicType 枚举未定义，应上报 IEA8_1";
 }
 
+/// @brief 枚举操作数不应被当作未知语法类型 / Enum operands are not unknown grammar types
+TEST_F(SemanticTestFixture, EnumOperandReportsNoIEA6) {
+    // `Foo.Bar` 是单个枚举操作数（两个 token），必须走 Enum 访问器而不是泛型 fallback，
+    // 否则会误报 IEA6（未知语法类型）
+    auto result = compile("move r0 Foo.Bar\nhcf\n");
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IEA6"))
+        << "枚举操作数不应上报 IEA6";
+}
+
 // ============================================================
 // LOGIC_SLOT 标识符检查（无设备上下文）
 // LOGIC_SLOT identifier check (no device context)
 // ============================================================
-
 /// @brief 合法 LOGIC_SLOT 标识符不应产生诊断 / Valid LOGIC_SLOT identifier produces no diagnostic
 TEST_F(SemanticTestFixture, ValidLogicSlotNoDiagnostic) {
     // lbs 指令: REG_IDENT, REG_NUM, SLOT_IDX, LOGIC_SLOT, BATCH_MODE

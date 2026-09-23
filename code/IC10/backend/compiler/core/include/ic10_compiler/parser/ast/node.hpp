@@ -589,6 +589,27 @@ namespace stationeers::ic10 {
 
         std::optional<Integer> pin;
 
+        /**
+         * @if zh
+         * @brief 节点的文本终点（半开区间右端）
+         * @details 由构造函数初值化为 device 的终点，解析器在消费 @c COLON 与 pin 后更新，
+         *          因此该终点覆盖 @c d0:1 这类多 token 操作数的全部源码文本，
+         *          即使冒号已被消费而 pin 尚未输入（如 @c d0: 未输入完）也包含该冒号。
+         * @note 供语言服务按列定位操作数与子段使用，语义上等价于其它节点的 @c end()。
+         *
+         * @elseif en
+         *
+         * @brief Text end of the node (exclusive upper bound)
+         * @details Initialized by the constructor to the device's end and updated by the parser
+         *          after consuming @c COLON and the pin, so it covers the whole source text of a
+         *          multi-token operand such as @c d0:1 — including a consumed colon whose pin has
+         *          not been typed yet (e.g. an incomplete @c d0: ).
+         * @note Used by the language service to locate operands and their sub-segments by column;
+         *       semantically equivalent to @c end() of the other nodes.
+         * @endif
+         */
+        Pos endPos;
+
         StaticDevice(
             Pos pos, ShallowErrorable<SelfReferenceDevice, OrdinaryDevice> device,
             std::optional<Integer> pin = std::nullopt
@@ -617,8 +638,22 @@ namespace stationeers::ic10 {
     struct Enum : AST<Enum> {
         static constexpr auto nodeName = "Enum"_fs;
 
+        /**
+         * @if zh
+         * @details 仅要求 @c Identifier @c DOT 两个 token：点号后的值缺失（如 @c Foo. 尚未输入完）时
+         *          仍构造节点并把点号记进 @c value，使节点 @c end() 覆盖 @c Foo. ，
+         *          语言服务据此把光标定位到枚举值子段；此时由解析器上报语法错误。
+         *
+         * @elseif en
+         *
+         * @details Only @c Identifier @c DOT are required: when the value after the dot is missing
+         *          (e.g. an incomplete @c Foo. ), the node is still built with the dot recorded in
+         *          @c value so that the node's @c end() covers @c Foo. and the language service can
+         *          locate the cursor in the enum-value sub-segment; a syntax error is reported then.
+         * @endif
+         */
         static constexpr auto FIRST = std::make_tuple(
-            std::array{TokenType::IDENTIFIER, TokenType::DOT, TokenType::IDENTIFIER}
+            std::array{TokenType::IDENTIFIER, TokenType::DOT}
         );
 
         ShallowErrorable<Identifier> name;
