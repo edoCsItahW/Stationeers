@@ -24,7 +24,7 @@ namespace stationeers {
     template<typename T>
     template<Status S>
     void SharedState<T>::set(state_traits<S, T> state) {
-        std::vector<std::shared_ptr<CoroutineState<T>>> waiters;
+        std::vector<std::shared_ptr<CoroutineState>> waiters;
         std::vector<std::move_only_function<void()>> callbacks;
 
         {
@@ -77,18 +77,20 @@ namespace stationeers {
     }
 
     template<typename T>
-    void SharedState<T>::addWaiter(std::shared_ptr<CoroutineState<T>> waiter) {
-        bool resume = false;
+    bool SharedState<T>::addWaiter(std::shared_ptr<CoroutineState> waiter) {
+        std::unique_lock lock(mutex_);
 
-        {
-            std::unique_lock lock(mutex_);
-            if (auto* pending = std::get_if<Pending>(&state_))
-                pending->waiters.push_back(waiter);
-            else
-                resume = true;
+        // 仍待决：登记等待者，调用方需要挂起，由 set() 恢复
+        if (auto* pending = std::get_if<Pending>(&state_)) {
+            pending->waiters.push_back(std::move(waiter));
+
+            return true;
         }
 
-        if (resume && waiter && !waiter->destroyed.load()) waiter->handle.resume();
+        // 状态已定（FAILED）：不登记也不就地恢复。
+        // 就地 resume 会重入调用者自身（await_suspend 正在该协程内执行），
+        // 因此改为返回 false，让调用方不挂起并直接读取结果。
+        return false;
     }
 
     template<typename T>

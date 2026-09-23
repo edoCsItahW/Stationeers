@@ -290,12 +290,9 @@ TEST_F(SemanticTestFixture, ValidReagentModeNoDiagnostic) {
     // lr 指令: REG_IDENT, DEV_REF, REAGENT_MODE, JUMP_TARGET
     // Contents 在 ReagentMode 枚举中
     // 注意: 使用 d0 (Device 节点) 而非 db (未定义 Identifier) 作为 DEV_REF，
-    //       因为 process 是 Task<void>，await resolveSymbol 的 Future 时无法注册为等待者，
-    //       未定义的 DEV_REF 会导致 process 永久挂起，后续 REAGENT_MODE 检查不会执行。
-    //       Note: use d0 (Device node) instead of db (undefined Identifier) as DEV_REF,
-    //       because process is Task<void> and cannot register as a waiter when awaiting
-    //       resolveSymbol's Future. An undefined DEV_REF would cause process to suspend
-    //       forever, preventing subsequent REAGENT_MODE checks from running.
+    //       使本用例只关注 REAGENT_MODE 检查，不引入无关的 IEA3_1 诊断。
+    //       Note: use d0 (Device node) instead of db (undefined Identifier) as DEV_REF so that
+    //       this case focuses on the REAGENT_MODE check without unrelated IEA3_1 noise.
     auto source = withStdLib(
         "main:\n"
         "lr r0 d0 Contents main\n"
@@ -1104,6 +1101,28 @@ TEST_F(SemanticTestFixture, MultipleUndefinedSymbolsAllReported) {
     assertNoLexerParserDiags(result);
     // 至少应有3个未定义符号相关错误
     EXPECT_GE(result.analyserDiags.size(), 3u);
+}
+
+/// @brief 同一指令内的每个未定义引用都应上报
+///        Every undefined reference inside one instruction is reported
+TEST_F(SemanticTestFixture, AllUndefinedOperandsInSameInstructionReported) {
+    // 回归用例：指令操作数由折叠表达式串行 co_await 处理，第一个未定义引用若不能被
+    // 恢复（历史缺陷：Task<void> 未持有协程状态，无法注册为等待者），
+    // 后续操作数就永远不会被语义分析，add X X 1 只会报出第一个 X。
+    // Regression test: instruction operands are processed by a sequential fold of co_awaits.
+    // When the first undefined reference could not be resumed (historical defect: Task<void>
+    // held no coroutine state and could not register as a waiter), the remaining operands were
+    // never analysed, so `add X X 1` reported only the first X.
+    auto source = withStdLib(
+        "add SorterCounter SorterCounter 1\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_EQ(countDiagnostic(result.analyserDiags, "IEA3_1"), 2u)
+        << "两个 SorterCounter 都是未定义引用，都应上报 IEA3_1";
 }
 
 /// @brief 符号表包含 alias 定义的符号 / Symbol table contains alias-defined symbols

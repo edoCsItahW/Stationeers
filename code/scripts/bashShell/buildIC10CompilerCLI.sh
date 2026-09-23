@@ -23,6 +23,7 @@ CONFIG_JSON=$(jq -r ".\"$TARGET_KEY\"" <<<"$PROJECT")
 EXTRA_ARGS=(
     "-DSTATIONEERS_LANG=zh-hans"
     "-DBUILD_IC10_COMPILER_CORE=ON"
+    "-DCMAKE_CXX_FLAGS=\"-fsanitize=address,undefined -fno-omit-frame-pointer\""
 )
 
 BUILD_DIR=$(jq -r '.BuildDir' <<<"$CONFIG_JSON")

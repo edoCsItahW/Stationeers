@@ -165,7 +165,7 @@ namespace stationeers {
     inline thread_local sigjmp_buf g_jmpBuf;
     inline thread_local bool g_jmpBufValid = false;
 
-    static void SafeExecuteSignalHandler(int sig) {
+    inline void SafeExecuteSignalHandler(int sig) {
         if (g_jmpBufValid) siglongjmp(g_jmpBuf, sig);
 
         std::signal(sig, SIG_DFL);
