@@ -1030,3 +1030,141 @@ TEST_F(ParserTestFixture, RobustnessStringBoundaries) {
         });
     }
 }
+
+// ============================================================
+// 多 token 操作数 — 源码文本终点（语言服务按列定位操作数与子段的依据）
+// Multi-token operands — source text end (what the language service uses
+// to locate operands and their sub-segments by column)
+// ============================================================
+
+/// @brief 取语句中的指定指令节点 / Extract the given instruction node from a statement
+template<typename Instruction>
+static const Instruction* asInstruction(const Statement& stmt) {
+    return std::get_if<Instruction>(&stmt.raw());
+}
+
+TEST_F(ParserTestFixture, StaticDeviceEndCoversPin) {
+    // `d0:1` 的终点必须覆盖引脚，否则按列定位会把光标后的引脚算进下一个操作数
+    auto ast = parse("l r0 d0:1 Pressure\n");
+    ASSERT_GE(ast.statements.size(), 1u);
+
+    const auto* ins = asInstruction<LInstruction>(ast.statements[0]);
+    ASSERT_NE(ins, nullptr);
+
+    const auto* device = std::get_if<StaticDevice>(&ins->operand2);
+    ASSERT_NE(device, nullptr);
+    ASSERT_TRUE(device->pin.has_value());
+    EXPECT_EQ(std::visit([](const auto& d) { return d.end().column(); }, device->device), 8);  // `d0`
+    EXPECT_EQ(device->pin->end().column(), 10);                                                // `:1`
+    EXPECT_EQ(device->end().column(), 10);                                                     // `d0:1` 整体
+}
+
+TEST_F(ParserTestFixture, StaticDeviceEndCoversConsumedColon) {
+    // `d0:` 未输入完时冒号已被消费，终点需覆盖该冒号，语言服务才能把光标判进引脚下标
+    auto ast = parse("l r0 d0:\n");
+    ASSERT_GE(ast.statements.size(), 1u);
+
+    const auto* ins = asInstruction<LInstruction>(ast.statements[0]);
+    ASSERT_NE(ins, nullptr);
+
+    const auto* device = std::get_if<StaticDevice>(&ins->operand2);
+    ASSERT_NE(device, nullptr);
+    EXPECT_FALSE(device->pin.has_value());
+    EXPECT_EQ(device->end().column(), 9);  // `d0:`（冒号在 8 列）
+}
+
+TEST_F(ParserTestFixture, StaticDeviceEndWithoutColon) {
+    // 无冒号时终点仍为设备本身（边界值：不得因携带 endPos 而延长）
+    auto ast = parse("l r0 d0 Pressure\n");
+    ASSERT_GE(ast.statements.size(), 1u);
+
+    const auto* ins = asInstruction<LInstruction>(ast.statements[0]);
+    ASSERT_NE(ins, nullptr);
+
+    const auto* device = std::get_if<StaticDevice>(&ins->operand2);
+    ASSERT_NE(device, nullptr);
+    EXPECT_FALSE(device->pin.has_value());
+    EXPECT_EQ(device->end().column(), 8);
+}
+
+TEST_F(ParserTestFixture, HashMacroEndCoversRightParen) {
+    // HASH/STR 宏的终点应在右括号之后，与其它节点保持一致（原为右括号所在列）
+    auto ast = parse("lb r0 HASH(\"XX\") Pressure Sum\n");
+    ASSERT_GE(ast.statements.size(), 1u);
+
+    const auto* ins = asInstruction<LbInstruction>(ast.statements[0]);
+    ASSERT_NE(ins, nullptr);
+
+    const auto* macro = std::get_if<HashMacro>(&ins->operand2);
+    ASSERT_NE(macro, nullptr);
+    EXPECT_EQ(macro->end().column(), 17);  // `)` 在 16 列
+}
+
+TEST_F(ParserTestFixture, EnumEndCoversDotWhenValueMissing) {
+    // `Foo.` 未输入完：仍构造 Enum，点号记入 value 的错误节点，终点覆盖 `Foo.`
+    auto tokens = Lexer::tokenize("move r0 Foo.\n");
+    Parser parser(tokens);
+    auto ast = parser.parse();
+
+    ASSERT_GE(ast.statements.size(), 1u);
+
+    const auto* ins = asInstruction<MoveInstruction>(ast.statements[0]);
+    ASSERT_NE(ins, nullptr);
+
+    const auto* enumNode = std::get_if<Enum>(&ins->operand2);
+    ASSERT_NE(enumNode, nullptr);
+
+    const auto* name = std::get_if<Identifier>(&enumNode->name);
+    ASSERT_NE(name, nullptr);
+    EXPECT_EQ(name->value, "Foo");
+
+    // 值缺失时记入错误节点（点号在 12 列），终点覆盖 `Foo.`
+    EXPECT_TRUE(std::holds_alternative<ErrorNode>(enumNode->value));
+    EXPECT_EQ(enumNode->end().column(), 13);
+
+    // 点号已被消费，语句层的“缺少换行”检查不会触发，需在此上报
+    const auto& diags = parser.getDiagnostics();
+    bool reported = false;
+
+    for (const stationeers::Diagnostic& d : diags) reported = reported || d.id == "IEP34_1";
+
+    EXPECT_TRUE(reported) << "缺失枚举值时应上报 IEP34_1";
+}
+
+TEST_F(ParserTestFixture, EnumEndCoversDotBeforeUnexpectedToken) {
+    // `Foo.r0`：值 token 类型不符时同样保留部分节点，且不消费该 token
+    auto tokens = Lexer::tokenize("move r0 Foo.r0\n");
+    Parser parser(tokens);
+    auto ast = parser.parse();
+
+    ASSERT_GE(ast.statements.size(), 1u);
+
+    const auto* ins = asInstruction<MoveInstruction>(ast.statements[0]);
+    ASSERT_NE(ins, nullptr);
+
+    const auto* enumNode = std::get_if<Enum>(&ins->operand2);
+    ASSERT_NE(enumNode, nullptr);
+    EXPECT_TRUE(std::holds_alternative<ErrorNode>(enumNode->value));
+    EXPECT_EQ(enumNode->end().column(), 13);
+}
+
+TEST_F(ParserTestFixture, EnumKeepsBothPartsWhenComplete) {
+    // `Foo.Bar`：完整枚举由 name 与 value 两个 token 组成
+    auto ast = parse("move r0 Foo.Bar\n");
+    ASSERT_GE(ast.statements.size(), 1u);
+
+    const auto* ins = asInstruction<MoveInstruction>(ast.statements[0]);
+    ASSERT_NE(ins, nullptr);
+
+    const auto* enumNode = std::get_if<Enum>(&ins->operand2);
+    ASSERT_NE(enumNode, nullptr);
+
+    const auto* name = std::get_if<Identifier>(&enumNode->name);
+    const auto* value = std::get_if<Identifier>(&enumNode->value);
+    ASSERT_NE(name, nullptr);
+    ASSERT_NE(value, nullptr);
+    EXPECT_EQ(name->value, "Foo");
+    EXPECT_EQ(value->value, "Bar");
+    EXPECT_EQ(enumNode->position.column(), 9);
+    EXPECT_EQ(enumNode->end().column(), 16);
+}
