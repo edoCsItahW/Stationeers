@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ic10c-python"
+version = "3.0.0"
+description = "IC10 compiler Python bindings | IC10 编译器 Python 绑定"
+requires-python = ">=3.13"
+license = "CC-BY-NC-SA-4.0"
+authors = [{ name = "edocsitahw", email = "edocsitahw@qq.com" }]
+keywords = ["Stationeers", "IC10", "compiler"]
+classifiers = [
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: C++",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+]
+
+[project.urls]
+Repository = "https://github.com/edoCsItahW/Stationeers"
+Changelog = "https://github.com/edoCsItahW/Stationeers/blob/main/CHANGELOG.md"
+
+# The extension module is compiled by CMake (see code/scripts/buildIC10CompilerPython.*)
+# and lands in this directory as ic10c_python.pyd (Windows) or ic10c_python.so (Linux).
+# setup.py extends build_py so those prebuilt files and the .pyi stub end up in the wheel.
+[tool.setuptools]
+py-modules = ["ic10c_python"]

@@ -2,7 +2,9 @@
 
 [中文](CONTRIBUTING.zh.md)
 
-Thank you for your interest in contributing! This document outlines the process and guidelines for contributing to the IC10 Compiler project.
+Thank you for your interest in contributing! This document covers **how we collaborate** — issues, pull requests, commit messages and versioning.
+
+> Setting up a build environment, running tests, or understanding the architecture? That all lives in the [Developer Guide](DEVELOPER_GUIDE.md).
 
 ## Code of Conduct
 
@@ -22,34 +24,15 @@ By participating, you agree to uphold a respectful and inclusive environment. Pl
    git checkout -b feature/your-feature-name
    ```
 3. **Make changes** – Keep commits logical, write clear messages following [Conventional Commits](#commit-message-convention).
-4. **Set up build environment** (for Node.js and Python bindings):
+4. **Build and test your change** – toolchain versions, build scripts and per-language test commands are in the [Developer Guide](DEVELOPER_GUIDE.md#building). One script builds the C++ core and runs its tests:
    ```bash
-   # Node.js bindings: install node-gyp and download Node.js headers
-   pnpm add -g node-gyp          # or: npm install -g node-gyp
-   pnpm exec node-gyp install    # or: npm exec node-gyp install
-
-   # Python bindings: ensure Python 3.13 is in PATH
-   python3 --version             # should show 3.13.x
+   code/scripts/bashShell/buildIC10CompilerCore.sh   # Windows: pwsh code/scripts/powerShell/BuildIC10CompilerCore.ps1
    ```
-
-5. **Run tests** locally:
-   ```bash
-   # C++ tests
-   cmake -B build -S code/IC10/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Debug
-   cmake --build build --parallel
-   cd build && ctest --output-on-failure
-
-   # Node.js tests
-   cd code/IC10/backend/compiler && pnpm test
-
-   # Python tests
-   cd code/IC10/backend/compiler/tests/python && pytest -v
-   ```
-6. **Ensure code style** – The project uses `clang-format` (4-space indentation). Run:
+5. **Format your change** – the project uses `clang-format` (4-space indentation, 100 columns):
    ```bash
    clang-format -i <file>
    ```
-7. **Push** and open a Pull Request to `develop`.
+6. **Push** and open a Pull Request to `develop`.
 
 ## Commit Message Convention
 
@@ -92,7 +75,7 @@ BREAKING-CHANGE: syntax has changed and language usage methods have been disrupt
 ```
 feat: implement linker for multi-unit symbol merging
 fix(lexer): fix unclosed string swallowing subsequent input
-docs: update README for v2.0.0
+docs: update the developer guide
 test(ic10): add linker unit tests
 ci: add Python workflow
 ```
@@ -100,7 +83,7 @@ ci: add Python workflow
 ## Coding Standards
 
 - **Language**: C++23 (use coroutines, concepts, ranges where appropriate).
-- **Style**: Follow `.clang-format` (4-space indentation, braces on same line, 100-column limit). See [`.clang-format`](code/IC10/backend/compiler/.clang-format) for full configuration.
+- **Style**: Follow the `.clang-format` of the component you are in — [compiler](code/IC10/backend/compiler/.clang-format), [runtime](code/IC10/backend/runtime/.clang-format), [common](code/common/cpp/.clang-format) (4-space indentation, braces on same line, 100-column limit). TypeScript in the VS Code extension uses prettier (120 columns, double quotes).
 - **Naming**:
     - Types: `PascalCase` (e.g., `Lexer`, `SymbolTable`, `IncCompiler`)
     - Functions/variables: `camelCase` (e.g., `extractHexNumber`, `pos_`)
@@ -117,64 +100,57 @@ ci: add Python workflow
     ILoc::msgFormat<IMsgId::IWL1>(charValue)
     ```
 - **Testing**: Add unit tests for new features:
-    - C++ tests: `code/IC10/backend/compiler/tests/cpp/`
+    - C++ tests: `code/IC10/backend/compiler/tests/cpp/` (runtime: `code/IC10/backend/runtime/tests/`)
     - Node.js tests: `code/IC10/backend/compiler/tests/node/`
     - Python tests: `code/IC10/backend/compiler/tests/python/`
-- **Documentation**: Use Doxygen-style comments with bilingual (`@if zh / @elseif en`) tags for public API.
+    - Java tests: `code/IC10/backend/compiler/tests/java/`
+
+    Test behaviour in the C++ core; binding tests should only verify that the binding marshals correctly, not repeat core assertions.
+- **Documentation**: Public API carries bilingual Doxygen comments using `@if zh` / `@else` / `@endif`.
 
 ## Module Overview
 
 | Module | Location | Description |
 |:-------|:---------|:------------|
-| Lexer | `ic10/lexer/` | State-machine based tokenizer |
-| Parser | `ic10/parser/` | Recursive-descent parser, AST construction |
-| Semantic | `ic10/semantic/` | Symbol table, type inference, type checking |
-| Linker | `ic10/link/` | Multi-unit symbol merging, cross-unit resolution |
-| Incremental | `ic10/incremental/` | Line/statement-level caching for fast recompilation |
-| Locals | `ic10/locals/` | Diagnostic message localization (en-us, zh-hans) |
-| Common | `common/` | Shared utilities (async, exception, utils) |
+| Lexer | `compiler/core/include/ic10_compiler/lexer/` | State-machine based tokenizer |
+| Parser | `compiler/core/include/ic10_compiler/parser/` | Recursive-descent parser, AST construction |
+| Semantic | `compiler/core/include/ic10_compiler/semantic/` | Symbol table, type inference, type checking |
+| Linker | `compiler/core/include/ic10_compiler/link/` | Multi-unit symbol merging, cross-unit resolution |
+| Incremental | `compiler/core/include/ic10_compiler/incremental/` | Line/statement-level caching for fast recompilation |
+| Locals | `compiler/core/include/ic10_compiler/locals/` | Diagnostic message localization (en-us, zh-hans) |
+| Runtime | `runtime/core/` | IC10 execution engine: memory/stack, devices, instruction executors |
+| Metadata | `assets/ic10-matedata/` | `@ic10/metadata` — instruction, device and Stationpedia data |
+| Common | `code/common/cpp/core/` | Shared utilities (async coroutines, diagnostics, i18n, utils) |
+
+Compiler, runtime and metadata paths are relative to `code/IC10/backend/`.
 
 ## Pull Request Guidelines
 
 - Target branch: `develop`.
 - Include a clear description, linked issue if applicable.
-- Ensure CI passes (build, test, static analysis).
+- Ensure CI passes — it builds and tests every target. Formatting and clang-tidy are **not** run in CI, so check those yourself (see [Code style & static analysis](DEVELOPER_GUIDE.md#code-style--static-analysis)).
 - Keep changes focused – one PR per feature/bugfix.
 - Update documentation (README, inline Doxygen comments) if needed.
 - Follow the [commit message convention](#commit-message-convention).
 
-## Building with Extra Checks
-
-- **Static analysis** (clang-tidy):
-  ```bash
-  cmake -B build -S code/IC10/backend/compiler -G Ninja \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_CXX_CLANG_TIDY="clang-tidy;--config-file=code/IC10/backend/compiler/.clang-tidy"
-  cmake --build build
-  ```
-
-- **cppcheck**:
-  ```bash
-  cppcheck --enable=all --suppress=missingIncludeSystem --std=c++23 \
-    -I code/common/cpp/core/include \
-    -I code/IC10/backend/compiler/core/include \
-    code/IC10/backend/compiler/core/src/
-  ```
-
-- **Address sanitizer** (Linux):
-  ```bash
-  cmake -B build-san -S code/IC10/backend/compiler -G Ninja \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer"
-  ```
-
 ## Versioning
 
-This project follows [Semantic Versioning 2.0.0](https://semver.org/). The version is tracked in [VERSION](VERSION).
+This project follows [Semantic Versioning 2.0.0](https://semver.org/). Versions live in [VERSION](VERSION), one entry per component:
+
+```yaml
+core:
+    IC10: 3.0.0
+
+plugins:
+    vscode:
+        IC10 Language Support: 1.0.2
+```
 
 - **MAJOR**: Breaking syntax changes or API incompatibilities
-- **MINOR**: New features (linker, incremental compiler, Python bindings, etc.)
+- **MINOR**: New features
 - **PATCH**: Bug fixes and minor improvements
+
+Tags map to components: `v<version>` releases the core, `vscode-ic10-language-support-v<version>` releases the VS Code extension. Every release updates [CHANGELOG.md](CHANGELOG.md), and the per-component checklist is [docs/releaseList.md](docs/releaseList.md).
 
 ## Questions?
 

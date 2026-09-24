@@ -1,5 +1,109 @@
 # 变更日志
 
+## 2026/09/24
+
+- refactor: 重构 IC10 元数据（独立为 `@ic10/metadata` 包）
+
+## 2026/09/23
+
+- refactor: 重构 IC10 VS Code 插件包结构（client / common / debugger / server 分包）
+- feat: 适配 IC10 v3 调整 VS Code 插件
+- fix: 修复部分 AST 位置错误
+- fix: 修复协程链断裂问题
+
+## 2026/09/22
+
+- perf: 优化 IC10 核心的编译时间与内存占用
+
+## 2026/09/21
+
+- feat: 支持 Docker 容器
+- fix: 修复协程链断裂问题
+
+## 2026/09/20
+
+- feat: 调整 IC10 语法注解（annotation）规则（@logic / @logic-slot 需带引脚序号，新增 @slot 标签）
+- fix: 修补元数据与标准库
+
+## 2026/09/19
+
+- feat: 适配 IC10 v3 调整 VS Code 插件
+
+## 2026/09/18
+
+- feat: 调整 IC10 语法链接（link）规则
+- feat: 适配 IC10 v3 调整 VS Code 插件
+
+## 2026/09/12
+
+- feat: 更新 IC10 标准库
+- feat: 适配 IC10 v3 调整 VS Code 插件
+- fix: 解决预定义常量问题
+- fix: 修复 DefineDirectiveNode 字段缺失错误
+
+## 2026/09/05
+
+- feat: 实现 IC10 v3（扁平化指令变体，删除各语言绑定中重复的 AST 定义）
+- build: 更新 CMake 缓存系统
+
+## 2026/08/28
+
+- feat: 实现 IC10 v3（重写词法分析与语法分析，统一按元数生成的 AST 节点）
+
+## 2026/08/26
+
+- docs: 重构 IC10 v3 语法文件（拆分 lexer / parser 模块并新增语法生成工具）
+
+## 2026/08/22
+
+- feat: 实现 VS Code 插件运行时（适配调试会话）
+
+## 2026/08/21
+
+- feat: 实现 VS Code 插件运行时（调试器，两轮）
+- feat: 发布 IC10 运行时 Node.js 包（ic10r-node）
+- feat: 实现 VS Code 插件悬停渲染（svg / markdown 可切换）
+- fix: 修复 ic10r-node 栈错误
+- fix: 修复 ic10r-node 类型定义
+- fix: 修复 VS Code 崩溃问题
+
+## 2026/08/20
+
+- refactor: 重构项目 CI/CD 框架
+- chore: 删除 code/package.json
+
+## 2026/08/19
+
+- refactor: 重构项目 CMake 框架
+
+## 2026/08/14
+
+- refactor: 重构项目 CMake 框架
+
+## 2026/08/07
+
+- refactor: 重构项目目录结构（统一到 code/IC10/** 分层）
+- feat: 实现 IC10 运行时（C++ 执行引擎：内存栈、设备管理与 I/O）
+
+## 2026/08/06
+
+- feat: 支持将 VS Code LSP 打包为可执行文件（ic10-lsp.exe）
+- feat: 更新 IC10 Java 包装文件
+
+## 2026/08/04
+
+- feat: 实现 IC10 Java JSON 帧（基于 Jackson 反序列化 AST）
+- chore: 补充 AST 字段并简化 Java AST
+
+## 2026/08/03
+
+- chore: 重命名 Java 包（com.stationeers.ic10 → io.github.stationeers.ic10）
+
+## 2026/08/02
+
+- feat: 实现 IC10 Java 支持（基于 fbjni 的 JNI 绑定）
+- fix: 修复标签推送 CI（三轮）
+
 ## 2026/08/01
 
 - chore: main 与 develop 分支已同步，并重新变基到 main
