@@ -1,0 +1,10 @@
+general_purpose_registers:
+    desc: ./locals/builtin.general_purpose_registers.desc
+address_register:
+    desc: ./locals/builtin.address_registers.desc
+stack_pointer_register:
+    desc: ./locals/builtin.stack_pointer_register.desc
+ordinary_devices:
+    desc: ./locals/builtin.ordinary_devices.desc
+self_reference_device:
+    desc: ./locals/builtin.self_reference_device.desc

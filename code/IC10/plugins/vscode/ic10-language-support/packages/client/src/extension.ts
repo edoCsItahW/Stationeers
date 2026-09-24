@@ -24,7 +24,6 @@ import {
 } from "vscode";
 
 
-
 class Extension implements Transfer {
     private readonly serverModule: string;
     private readonly serverOpt: ServerOptions;

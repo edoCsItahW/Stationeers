@@ -14,9 +14,9 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { CompletionItem, CompletionItemKind, InsertTextFormat } from "vscode-languageserver";
+import { instructions } from "@ic10/metadata/std";
 
 import { DescriptionSolver } from "../../../../utils";
-import { INS_META_MAP } from "../../../../mateData";
 import type { OperandProvider } from "./types";
 
 
@@ -24,19 +24,19 @@ type SpecialNumberKey = "%" | "$" | "HASH" | "STR";
 
 const NUMBER_META = {
     "%": {
-        value: INS_META_MAP.get("binary_number")!,
+        value: instructions["binary_number"],
         name: "binary_number"
     },
     $: {
-        value: INS_META_MAP.get("hash_number")!,
+        value: instructions["hash_number"],
         name: "hash_number"
     },
     HASH: {
-        value: INS_META_MAP.get("hash")!,
+        value: instructions["hash"],
         name: "hash"
     },
     STR: {
-        value: INS_META_MAP.get("str")!,
+        value: instructions["str"],
         name: "str"
     }
 } satisfies Record<SpecialNumberKey, any>;

@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "target": "ES2024",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "lib": ["ES2024"],
+        "declaration": true,
+        "declarationMap": false,
+        "sourceMap": false,
+        "outDir": "dist",
+        "rootDir": ".generated",
+        "strict": true,
+        "skipLibCheck": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true
+    },
+    "include": [".generated/**/*.ts"]
+}
