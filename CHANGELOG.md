@@ -2,6 +2,110 @@
 
 [中文](CHANGELOG.zh.md)
 
+## 2026/09/24
+
+- refactor: Refactor IC10 metadata (split into the `@ic10/metadata` package)
+
+## 2026/09/23
+
+- refactor: Refactor IC10 VS Code plugin package frame (client / common / debugger / server packages)
+- feat: Adjust IC10 VS Code plugin for IC10 v3
+- fix: Fix some AST position errors
+- fix: Fix coroutine chain breaking issue
+
+## 2026/09/22
+
+- perf: Optimize the compilation time and memory consumption of IC10 Core
+
+## 2026/09/21
+
+- feat: Enable Docker container
+- fix: Fix coroutine chain breaking issue
+
+## 2026/09/20
+
+- feat: Adjust IC10 grammar 'annotation' rule (@logic / @logic-slot now take a pin index, new @slot tag)
+- fix: Patch metadata and standard library
+
+## 2026/09/19
+
+- feat: Adjust IC10 VS Code plugin for IC10 v3
+
+## 2026/09/18
+
+- feat: Adjust IC10 grammar 'link' rule
+- feat: Adjust IC10 VS Code plugin for IC10 v3
+
+## 2026/09/12
+
+- feat: Update IC10 standard library
+- feat: Adjust IC10 VS Code plugin for IC10 v3
+- fix: Resolve predefined constants problem
+- fix: Fix DefineDirectiveNode field miss error
+
+## 2026/09/05
+
+- feat: Implement IC10 v3 (flatten instruction variants, drop duplicated AST definitions in language bindings)
+- build: Update CMake cache system
+
+## 2026/08/28
+
+- feat: Implement IC10 v3 (rewrite lexer and parser, unified per-arity AST nodes)
+
+## 2026/08/26
+
+- docs: Restructure IC10 v3 grammar files (split into lexer / parser modules, add grammar generator tool)
+
+## 2026/08/22
+
+- feat: Implement VS Code plugin runtime (adapters for the debug session)
+
+## 2026/08/21
+
+- feat: Implement VS Code plugin runtime (debugger, 2 rounds)
+- feat: Publish IC10 runtime Node.js package (ic10r-node)
+- feat: Implement VS Code plugin hover renderer (svg / markdown selectable)
+- fix: Fix ic10r-node stack error
+- fix: Fix ic10r-node types
+- fix: Fix VS Code crash error
+
+## 2026/08/20
+
+- refactor: Refactor project CI/CD frame
+- chore: Delete code/package.json
+
+## 2026/08/19
+
+- refactor: Refactor project CMake frame
+
+## 2026/08/14
+
+- refactor: Refactor project CMake frame
+
+## 2026/08/07
+
+- refactor: Refactor project frame (consolidate into the code/IC10/** layout)
+- feat: Implement IC10 runtime (C++ execution engine: memory/stack, device manager and I/O)
+
+## 2026/08/06
+
+- feat: Support packaging VS Code LSP as an executable (ic10-lsp.exe)
+- feat: Update IC10 Java wrapper files
+
+## 2026/08/04
+
+- feat: IC10 Java JSON frame (Jackson-based AST deserialization)
+- chore: Add AST fields and simplify Java AST
+
+## 2026/08/03
+
+- chore: Rename Java package (com.stationeers.ic10 → io.github.stationeers.ic10)
+
+## 2026/08/02
+
+- feat: Implement IC10 Java support (JNI binding built on fbjni)
+- fix: Fix tag push CI (3 rounds)
+
 ## 2026/08/01
 
 - chore: The main and develop branches have been synchronized and are now rebased to main

@@ -8,10 +8,50 @@
 /**
  * @file analyser.cpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/05 17:50
- * @brief
- * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @version 1.2
+ * @date 2026/09/24
+ * @if zh
+ * @brief @ref Analyser 的非模板实现：生命周期、遍历入口与各语句/叶节点访问器
+ * @details 设计说明见 `analyser.hpp`。本文件三块内容：
+ *          - **生命周期**：自持构造（新建符号表/类型表/报告器，`ownsResources_ = true`）与借用构造
+ *            （@ref Linker 专用），析构仅在自持时释放。
+ *          - **入口**：`analyse`（构造临时实例并 `visit`，**结果随实例一起丢弃**）、`visit`（逐条语句
+ *            `std::visit` 到具名协程，Task 存入 `detachedTasks_`，最后按 `deferFailAllPending_`
+ *            决定是否立即 `failAllPending`）、`resolveSymbol`（未决 Future → 前向引用；失败报 IEA3_1
+ *            并返回 `nullptr` 让调用方跳过类型检查）、`defineSymbol`（重定义报 IEA2_1）。
+ *          - **访问器**：语句类（`LabelDef` / `AliasDirective` / `DefineDirective` / 宏调用 /
+ *            注解）做符号定义与类型注册；**叶节点访问器为空实现**，作用是不落入泛型兜底（否则误报
+ *            IEA6），`ErrorNode` 更是刻意跳过以免重复上报语法阶段已报的错误。
+ *          @note 语句转发用的是**非协程** lambda（转发到具名协程 `visitStatement`），原因见
+ *                `analyser.hpp` 的协程帧生命周期说明 —— 这是本文件里最容易改坏的一处。
+ *          @see analyser.hpp 设计说明与声明
+ *          @see analyser.inl 模板与具名协程实现
+ *          @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @elseif en
+ * @brief Non-template implementation of @ref Analyser: lifetime, traversal entry and the
+ *        statement/leaf visitors
+ * @details Design notes live in `analyser.hpp`. This file has three parts:
+ *          - **Lifetime**: owning construction (new symbol table/type table/reporter,
+ *            `ownsResources_ = true`) and borrowed construction (@ref Linker only); the destructor frees
+ *            only when owning.
+ *          - **Entry points**: `analyse` (builds a temporary and `visit`s it, **discarding the results
+ *            with the instance**), `visit` (`std::visit`s each statement to a named coroutine, stores the
+ *            Tasks in `detachedTasks_`, then decides from `deferFailAllPending_` whether to call
+ *            `failAllPending` right away), `resolveSymbol` (a pending Future is a forward reference;
+ *            failure reports IEA3_1 and returns `nullptr` so callers skip type checks) and `defineSymbol`
+ *            (redefinition reports IEA2_1).
+ *          - **Visitors**: statement-level ones (`LabelDef` / `AliasDirective` / `DefineDirective` / macro
+ *            calls / annotations) define symbols and register types; **leaf visitors are intentionally
+ *            empty**, their job being to keep calls off the generic fallback (which would report a
+ *            spurious IEA6), and `ErrorNode` is skipped on purpose so errors already reported by the
+ *            parser are not duplicated.
+ *          @note Statement forwarding uses a **non-coroutine** lambda (forwarding to the named coroutine
+ *                `visitStatement`); the reason is in the coroutine frame lifetime notes in
+ *                `analyser.hpp` — the easiest thing in this file to break.
+ *          @see analyser.hpp design notes and declarations
+ *          @see analyser.inl template and named-coroutine implementations
+ *          @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
  * */
 #include "ic10_compiler/semantic/analyser.hpp"
 #include "ic10_compiler/locals/local.hpp"

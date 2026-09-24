@@ -1,390 +1,197 @@
-# IC10 编译器
+# IC10
 
 [English](README.md)
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
-![C++](https://img.shields.io/badge/C%2B%2B-23-blue)
+![Version](https://img.shields.io/badge/version-3.0.0-blue)
+![C%2B%2B](https://img.shields.io/badge/C%2B%2B-23-blue)
 ![License](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey)
+![VS Code](https://img.shields.io/badge/VS%20Code-edocsitahw.ic10-007ACC)
 
-一个现代 C++23 编写的 **IC10** 和 **Aero** 编译器套件。IC10 是游戏《Stationeers》中使用的汇编级脚本语言，Aero 是编译到 IC10 字节码的上层高级语言。
-本项目提供词法分析、语法分析、语义分析、链接、增量编译，内置基于协程的异步基础设施，并提供 Node.js / Python / Java 绑定。
+<!--
+  ===== 图片位 =====
+  在此插入横幅图与功能截图（HTML 注释不会渲染，替换成下面这种写法即可）：
+
+  <p align="center">
+    <img src="code/IC10/plugins/vscode/ic10-language-support/static/你的图.png" alt="IC10" width="720">
+  </p>
+  ==================
+-->
+
+**IC10** 是你在 [Stationeers](https://store.steampowered.com/app/544550/Stationeers/) 里给基地编程用的汇编级语言 —— 寄存器、设备、没有类型、没有补全，游戏内的报错基本只有一个红叉。
+
+这个项目就是让写 IC10 变得舒服的那套工具链：一个真正读懂这门语言的 C++23 编译器、一个能单步调试的运行时，以及一个把诊断、补全、悬停和格式化直接摆在你代码旁边的编辑器扩展。
+
+```ic10
+alias sensor d0
+define TARGET 300
+
+main:
+    l r0 sensor Temperature
+    blt r0 TARGET heating_off
+    s sensor On 1
+    j main
+
+heating_off:
+    s sensor On 0
+    j main
+```
+
+---
+
+## 你能得到什么
+
+- **一个懂 IC10 的编辑器** —— 装上 [IC10 扩展](https://marketplace.visualstudio.com/items?itemName=edocsitahw.ic10)，打开 `.ic` 文件就行。高亮、实时诊断、悬停、补全、签名帮助、格式化，还能调试，完全不需要本地工具链。
+- **一个会告诉你哪里错了的编译器** —— 词法 → 语法 → 语义 → 链接，带真实源码位置、分级诊断和双语消息，另有增量模式让你边打字边得到反馈。
+- **能接进你自己工具的绑定** —— 用 **Node.js**、**Python** 或 **Java** 调用同一套编译器，或者用 `ic10c` 命令行把 token、AST、符号表导成 JSON。
+- **一个可以对着调试的运行时** —— `ic10r-node` 能带着模拟设备执行 IC10，这也是扩展能单步运行你程序、而不只是静态检查的原因。
 
 ---
 
 ## 特性
 
-- **词法分析器** – 基于状态机的词法分析，支持寄存器 `r0`–`r15`、设备 `d0`–`d5`、多进制数字 `$hex`/`%bin`/十进制/浮点、字符串、`#` 和 `//` 注释、全部指令关键字。
-- **语法分析器** – 递归下降解析器，为所有 IC10 指令（0 元到 6 元）构建抽象语法树（AST），支持预处理指令（`alias`、`define`）和文档注释解析。
-- **语义分析器** – 使用 `Promise`/`Future` 异步符号表进行符号解析、类型推断和类型检查，通过协程实现前向引用解析。
-- **链接器** – 两阶段符号合并，支持多编译单元、跨单元前向引用解析、符号可见性控制（public/private）和循环依赖检测。
-- **增量编译器** – 行级词法缓存和语句级语法缓存，编辑场景下仅重新处理变化部分，显著提升重新编译速度。
-- **错误报告** – 带源码位置（行:列）和严重级别的详细诊断信息，支持多语言（英文/简体中文）。
-- **异步协程基础设施** – 自定义 `Task<T>`、`Promise<T>`、`Future<T>` 及协程状态管理，实现非阻塞符号解析。
-- **命令行编译器** – `ic10c` 命令行工具，支持 `--emit-tokens`、`--emit-ast`、`--emit-symbols`、`--link`、`--locale`、`--pretty` 和 `-o` 输出重定向。
-- **Node.js 绑定** – 通过 `node-addon-api` 实现原生 Node.js 扩展，导出 11 个适配器（Lexer、Token、Parser、Program/AST、Analyser、SymbolTable、Linker、IC10Local、IncLexer、IncParser、IncCompiler）。
-- **Python 绑定** – 通过 `pybind11` 实现原生 Python 扩展，提供与 Node.js 绑定相同的编译器功能。
-- **跨平台** – Linux（GCC 13+ / Clang 16+）和 Windows（MSVC 2022）。
-- **测试** – C++ 核心使用 GoogleTest 单元测试（词法、语法、语义、链接器、增量、集成、系统测试），Node.js 绑定使用 Jest 测试，Python 绑定使用 pytest 测试。
-- **VS Code 插件** – 已发布的 [IC10](https://marketplace.visualstudio.com/items?itemName=edocsitahw.ic10) 扩展为 `.ic`/`.ic10` 文件提供完整 IDE 体验：语法与语义高亮、实时诊断、悬停提示、智能补全（设备上下文感知）、签名帮助、代码格式化、双语界面（中/英）— 全部基于 C++ 核心通过 Node.js 绑定驱动，内置增量编译实现近零延迟编辑。
-- **CI/CD** – GitHub Actions 工作流：构建、测试、静态分析（cppcheck、clang-tidy、clang-format），以及标签推送时自动发布构建产物。
+**编译器**
+
+- 覆盖全部 IC10 指令元数（0 元到 6 元）、寄存器 `r0`–`r15`、设备 `d0`–`d5`、多进制数字（`$hex`、`%bin`、十进制、浮点）、字符串、`#`/`//` 注释、`alias`/`define` 预处理指令以及文档注释注解（`#:`、`#>`）。
+- 语义分析包含符号解析、类型推导与类型检查，符号表基于异步协程，前向引用无需额外处理。
+- 完整的链接器：多编译单元合并、跨单元前向引用、符号可见性、循环依赖检测。
+- 增量编译：行级词法缓存 + 语句级语法缓存，只重新处理改动的部分。
+- 诊断支持英文与简体中文，所有面向用户的消息都走本地化层。
+
+**编辑器扩展**
+
+| | |
+|---|---|
+| 语法与语义高亮 | 着色直接来自编译器符号表，因此别名与裸寄存器一眼可辨 |
+| 实时诊断 | 每次编辑增量重分析，在问题面板中分类展示 |
+| 悬停与补全 | 悬停显示类型、值与描述；指令与操作数补全按设备上下文过滤 |
+| 签名帮助与格式化 | 高亮当前参数；格式化可通过 `.ic.yaml` / `.ic.yml` / `.ic.json` 配置 |
+| 调试器 | 以 `program` 启动、`stopOnEntry` 停住，可下断点、查看模拟机器状态 |
+| 类型注解 | `#:` 类型提示与 `#>` 文档注释，用于声明设备与枚举类型 |
+
+**运行时、绑定与元数据**
+
+- `ic10r-node` —— 执行引擎，自带 N-API 绑定。
+- `ic10c-node`（Node.js）、`ic10c_python`（Python）、`io.github.stationeers:ic10`（Java）暴露同一套编译阶段。
+- [`@ic10/metadata`](https://www.npmjs.com/package/@ic10/metadata) —— 指令、枚举、设备与 Stationpedia 文本做成的带类型包，让工具链始终跟得上游戏。
 
 ---
 
-## 项目结构
+## 快速开始
 
-```
-Stationeers/
-├── code/
-│   ├── IC10/                              # IC10 语言（低层级字节码 / 汇编）
-│   │   ├── assets/                        # 游戏元数据与资源文件
-│   │   │   ├── ic/                        # .ic 资源文件（stdLib.ic、grammarTest.ic）
-│   │   │   └── mateDatas/                 # 游戏元数据（指令、枚举、类型）
-│   │   ├── backend/
-│   │   │   └── compiler/                  # IC10 编译器主源码
-│   │   │       ├── CMakeLists.txt         # 顶层 CMake
-│   │   │       ├── core/                  # IC10 编译器核心（原 compiler/IC10/ 重命名）
-│   │   │       │   ├── include/ic10/      # 头文件 — 词法、语法、AST、语义、链接、增量、本地化
-│   │   │       │   ├── src/               # 实现文件
-│   │   │       │   ├── main.cpp           # 命令行入口（ic10c）
-│   │   │       │   └── main.hpp           # Doxygen 主页与专题文档
-│   │   │       ├── exports/              # IC10 专属语言绑定（Node.js / Python / Java）
-│   │   │       ├── publish/              # 各语言可发布包
-│   │   │       │   ├── node/              # npm 包（ic10c-node）
-│   │   │       │   ├── python/            # pip 包（ic10-python）
-│   │   │       │   └── java/              # Maven 包（ic10-java）
-│   │   │       ├── tests/                # 单元与集成测试
-│   │   │       │   ├── cpp/               # C++ 测试（GoogleTest — 词法、语法、语义、链接、增量）
-│   │   │       │   ├── node/              # Node.js 绑定测试（Jest + TypeScript）
-│   │   │       │   ├── python/            # Python 绑定测试（pytest）
-│   │   │       │   └── java/              # Java 绑定测试（JUnit + Gradle）
-│   │   │       ├── scripts/               # 构建脚本（PowerShell）
-│   │   │       ├── cmake/                 # CMake 模块（core_artifact.cmake）
-│   │   │       ├── .clang-format          # 代码风格（4 空格缩进）
-│   │   │       └── .clang-tidy            # 静态分析配置
-│   │   └── plugins/
-│   │       └── vscode/                    # VS Code 语言支持扩展
-│   │           └── ic10-language-support/  # 扩展源码（LSP 服务端 + 客户端）
-│   ├── Aero/                              # Aero 语言（IC10 上层高级语言，取火箭自动化之意）
-│   └── common/                            # 共享基础设施
-│       ├── cmake/                         # CMake 公共模块（node.cmake、pybind11.cmake、fbjni.cmake）
-│       └── cpp/                           # C++ 公共代码
-│           ├── core/                      # 公共工具库（异步协程、异常诊断、国际化、工具函数）
-│           ├── export/                    # 公共语言绑定适配封装
-│           └── tests/                     # 公共代码测试
-├── docs/                                  # 文档与 Doxygen 资源
-├── .github/workflows/                     # CI/CD 工作流
-├── CHANGELOG.md                           # 更新日志（英文）
-├── CHANGELOG.zh.md                        # 更新日志（中文）
-├── CONTRIBUTING.md                        # 贡献指南（英文）
-├── CONTRIBUTING.zh.md                     # 贡献指南（中文）
-├── VERSION                                # 当前版本
-└── LICENSE                                # 许可证
-```
-
----
-
-## 构建要求
-
-### C++ 核心
-
-- **CMake** 3.28.1 或更高
-- **C++23** 编译器：
-  - Linux：GCC 13+ 或 Clang 16+
-  - Windows：MSVC 2022（含 Visual Studio 2022 生成工具）
-- **Ninja**（推荐）或 Make
-- **Git**（用于获取 GoogleTest）
-
-### Node.js 绑定
-
-- **Node.js** 24.x 或 26.x（经测试验证）
-- **pnpm** 9.x（包管理器）— 也支持 npm
-- **node-gyp** — 构建原生扩展必需
-- **node-addon-api** ^8.8.0
-
-> **注意：** 安装 Node.js 后，必须先安装 `node-gyp` 并下载 Node.js 头文件，然后才能构建：
-> ```bash
-> # 全局安装 node-gyp 或作为开发依赖安装
-> pnpm add -g node-gyp   # 或: npm install -g node-gyp
->
-> # 为当前 Node 版本下载 Node.js 头文件
-> pnpm exec node-gyp install   # 或: npm exec node-gyp install
-> ```
-
-### Python 绑定
-
-- **Python** 3.13（经测试验证）
-- **pybind11** 2.12+
-
-> **注意：** Python 必须在系统 PATH 中可被找到，以便 CMake 的 `FindPython3` 能够定位它。
-
----
-
-## 构建步骤
-
-### 1. 克隆仓库
-
-```bash
-git clone https://github.com/edoCsItahW/Stationeers.git
-cd Stationeers
-```
-
-### 2. 配置 Node.js 构建环境
-
-如果您计划构建 Node.js 绑定：
-
-```bash
-# 安装 node-gyp（构建原生扩展必需）
-pnpm add -g node-gyp   # 或: npm install -g node-gyp
-
-# 为当前 Node 版本下载 Node.js 头文件
-pnpm exec node-gyp install   # 或: npm exec node-gyp install
-```
-
-### 3. 安装 Node.js 依赖
-
-```bash
-cd code/IC10/backend/compiler
-pnpm i --ignore-workspace
-```
-
-### 4. 使用 CMake 配置
-
-```bash
-cmake -B build -S code/IC10/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Release
-```
-
-在 Windows 上（MSVC）可能需要指定生成器：
-
-```powershell
-cmake -B build -S code/IC10/backend/compiler -G "Visual Studio 17 2022" -A x64
-```
-
-### 5. 编译
-
-```bash
-cmake --build build --parallel
-```
-
-可执行文件 `ic10c` 将生成在 `build/bin/` 目录下。
-Node.js 原生模块 `ic10c-node.node` 将生成在 `build/exports/node/` 目录下。
-Python 原生模块将生成在 `build/exports/python/` 目录下。
-
-### 6. 运行测试
-
-#### C++ 测试
-
-```bash
-cd build
-ctest --output-on-failure
-```
-
-#### Node.js 测试
-
-```bash
-cd code/IC10/backend/compiler
-pnpm test
-```
-
-#### Python 测试
-
-```bash
-cd code/IC10/backend/compiler/tests/python
-pytest -v
-```
-
----
-
-## 使用方法
-
-### 命令行（`ic10c`）
-
-命令行编译器支持各编译阶段的独立输出，以及完整的编译流程和多单元链接：
-
-```bash
-ic10c input.ic                    # 编译并输出符号表 JSON
-ic10c --emit-tokens input.ic      # 输出词法 Token 流
-ic10c --emit-ast input.ic         # 输出语法树 AST
-ic10c --emit-symbols input.ic     # 输出符号表（默认）
-ic10c -o out.json input.ic        # 输出到文件
-ic10c --pretty input.ic           # 美化 JSON 输出
-ic10c --locale zh-hans input.ic   # 使用简体中文输出消息
-ic10c --link a.ic b.ic c.ic       # 链接多个单元并输出合并后的符号表
-ic10c -v                          # 显示版本
-ic10c -h                          # 显示帮助
-```
-
-IC10 程序示例：
-
-```
-alias counter r0
-define PI 3.14159
-
-start:
-    move r0 10
-    add r1 r0 PI
-    hcf
-```
-
-### Node.js
-
-`ic10c-node` 包提供 JavaScript/TypeScript 绑定：
-
-```typescript
-import { Lexer, Parser, Analyser, IC10Local } from 'ic10c-node';
-
-// 设置语言（可选，默认英文）
-IC10Local.setLanguage('zh-hans');
-
-const source = `
-alias counter r0
-start:
-    move r0 10
-    add r1 r0 5
-    hcf
-`;
-
-// 1. 词法分析
-const tokens = Lexer.tokenize(source);
-
-// 2. 语法分析
-const parser = new Parser(tokens, false);  // debug = false
-const program = parser.parse();
-
-// 3. 语义分析（异步 — 使用协程处理前向引用）
-const analyser = new Analyser();
-await analyser.visit(program);
-
-// 4. 获取结果
-console.log(analyser.symbolTable.toJSON());
-console.log(analyser.diagnostics);
-```
-
-**链接器用法：**
-
-```typescript
-import { Linker } from 'ic10c-node';
-
-const linker = new Linker();
-linker.addUnit(source1, 'file1.ic');
-linker.addUnit(source2, 'file2.ic');
-const symbolTable = linker.link();
-console.log(linker.diagnostics);
-```
-
-**增量编译器用法：**
-
-```typescript
-import { IncCompiler } from 'ic10c-node';
-
-const compiler = new IncCompiler();
-const result1 = compiler.compileFull(source);
-const result2 = compiler.compileInc(modifiedSource);
-console.log(`增量: ${result2.incremental}, 重新词法分析行数: ${result2.relexedLines}`);
-```
-
-### Python
-
-```python
-import ic10_python as ic10
-
-# 词法分析
-tokens = ic10.Lexer.tokenize(source)
-
-# 语法分析
-parser = ic10.Parser(tokens, False)
-program = parser.parse()
-
-# 语义分析
-analyser = ic10.Analyser()
-analyser.visit(program)
-print(analyser.symbolTable.toJSON())
-```
-
-### VS Code 插件
-
-最简单的方式是从 VS Code 应用市场安装已发布的 **IC10** 扩展 — 无需任何构建工具链。
-
-**安装：**
-
-在 VS Code 扩展面板中搜索 "IC10"，或通过命令行安装：
+### 在 VS Code 里（推荐）
 
 ```bash
 code --install-extension edocsitahw.ic10
 ```
 
-> 扩展已内置预编译的 C++ 编译器核心（Node.js 原生模块 `ic10c-node`），无需额外安装 C++ 工具链、CMake 或编译器。
+然后打开任意 `.ic` 或 `.ic10` 文件即可。扩展已内置预编译的编译器与运行时原生模块 —— 不需要安装 C++ 工具链、CMake 或编译器。
 
-**功能概览：**
+### 在终端里
 
-| 功能 | 说明 |
-|---|---|
-| 语法高亮 | TextMate 语法规则，覆盖关键字、寄存器、设备、字符串、数字、注释 |
-| 语义高亮 | 基于符号表着色：别名与原生寄存器区分、`define` 常量与原始数字区分、标签、宏调用等独立着色 |
-| 实时诊断 | 每次编辑后增量分析，在问题面板中分类展示词法、语法、语义错误 |
-| 悬停提示 | 悬停符号显示类型、值、描述等信息 |
-| 智能补全 | 指令关键字补全 + 操作数补全（设备上下文感知过滤） |
-| 签名帮助 | 输入时高亮当前正在输入的参数 |
-| 代码格式化 | 通过 `.ic.yaml`/`.ic.yml`/`.ic.json` 配置（列对齐、缩进、注释对齐） |
-| 增量编译 | 行级增量词法 + 语句级增量语法分析；缓存跨编辑会话保持 |
-| 双语界面 | 英语（`en-us`）和简体中文（`zh-hans`）；设置中切换 |
-| 类型注解 | `#:` 类型提示语法和 `#>` 文档注释语法，用于声明设备/枚举类型 |
+从 [Releases](https://github.com/edoCsItahW/Stationeers/releases) 下载 `ic10c`，然后：
 
-详见扩展 [README](code/IC10/plugins/vscode/ic10-language-support/README.md) 了解完整配置选项。
+```bash
+ic10c main.ic                # 编译，输出符号表 JSON
+ic10c --emit-ast main.ic     # 查看语法树
+ic10c --link a.ic b.ic       # 链接多个单元
+```
+
+退出码在脚本里很好用：`0` 成功，`1` 命令行或文件错误，`2` 编译器产生了警告或错误。
+
+### 在你自己的代码里
+
+```typescript
+import { Lexer, Parser, Analyser, IC10Local } from 'ic10c-node';
+
+IC10Local.setLanguage('zh-hans');            // 可选，默认英文
+
+const tokens = Lexer.tokenize(source);
+const program = new Parser(tokens, false).parse();
+
+const analyser = new Analyser();
+await analyser.visit(program);               // 异步：前向引用由协程解析
+
+console.log(analyser.symbolTable.toJSON(), analyser.diagnostics);
+```
+
+```python
+from ic10c_python import Lexer, Parser, Analyser
+
+tokens = Lexer.tokenize(source)
+program = Parser(tokens, False).parse()
+
+analyser = Analyser()
+analyser.visit(program)
+print(analyser.symbolTable.toJSON())
+```
+
+链接与增量编译也是同样的暴露方式 —— 参见 [Node.js 包](code/IC10/backend/compiler/publish/node)里的 `Linker`、`IncCompiler`，或
+[Python 存根](code/IC10/backend/compiler/publish/python/ic10c_python.pyi)。
 
 ---
 
-## 国际化（i18n）
+## 文档
 
-编译器支持多语言。目前支持的语言：
-- 英语（`en-us`）– 默认
-- 简体中文（`zh-hans`）
+| 位置 | 内容 |
+|---|---|
+| [IC10 扩展 README](code/IC10/plugins/vscode/ic10-language-support/README.md) | 编辑器扩展的每一项设置与功能 |
+| [DEVELOPER_GUIDE.zh.md](DEVELOPER_GUIDE.zh.md) | 架构、构建、测试、发布 —— 给改这个仓库的人看 |
+| [CONTRIBUTING.zh.md](CONTRIBUTING.zh.md) | Issue、PR 与提交约定 |
+| [CHANGELOG.zh.md](CHANGELOG.zh.md) | 逐个版本记录改了什么 |
+| [docs/annotationExample.md](docs/annotationExample.md) | `#:` / `#>` 注解语法示例 |
+| [docs/grammar/](docs/grammar/) | IC10 语法，按词法/语法与指令元数拆分 |
 
-**C++:**
-```cpp
-IC10Local::setLanguage("zh-hans");
+---
+
+## 从源码构建
+
+你需要 CMake ≥ 3.28.1 和一个 C++23 编译器；如果用 bash 脚本还需要 `jq`。其余交给脚本：
+
+```bash
+git clone https://github.com/edoCsItahW/Stationeers.git && cd Stationeers
+code/scripts/bashShell/buildIC10CompilerCore.sh      # Windows: pwsh code/scripts/powerShell/BuildIC10CompilerCore.ps1
 ```
 
-**Node.js:**
+这一条命令会完成配置、构建并跑完 C++ 测试。Node.js、Python、Java、运行时与命令行目标，以及工具链版本、CMake 选项和发布流程，都在
+**[开发者指引](DEVELOPER_GUIDE.zh.md)** 里。
+
+---
+
+## 国际化
+
+编译器消息提供英文（`en-us`，默认）与简体中文（`zh-hans`）：
+
+```cpp
+IC10Local::setLanguage("zh-hans");     // C++
+```
 ```typescript
-IC10Local.setLanguage('zh-hans');
+IC10Local.setLanguage('zh-hans');      // Node.js
 ```
 
 ---
 
 ## 版本管理
 
-本项目遵循[语义化版本 2.0.0](https://semver.org/lang/zh-CN/)。当前版本为 **2.0.0**（见 [VERSION](VERSION)）。
+本项目遵循[语义化版本](https://semver.org/lang/zh-CN/)。`VERSION` 当前为 IC10 核心 **3.0.0**、VS Code 扩展 **1.0.2**；最近的标签是 `v2.6.6`。
 
-- **v2.0.0** — 伴随游戏更新的破坏性语法变更，新增链接器、增量编译器、Python 绑定、类型推断和注释语法。
-- **v1.0.x** — 首次发布，包含词法分析器、语法分析器、语义分析器和 Node.js 绑定。
+- **v3.0.0** —— IC10 v3 重构：重写词法与语法分析、AST 节点按元数统一，调整 `annotation` 与 `link` 语法规则，新增可调试的执行运行时、Java 绑定，元数据独立为 `@ic10/metadata`。
+- **v2.x** —— 链接器、增量编译器、类型推导、注解语法、Python 绑定，以及随游戏更新而来的语法变更。
+- **v1.0.x** —— 首次发布：词法分析器、语法分析器、语义分析与 Node.js 绑定。
 
-完整发布历史请见 [CHANGELOG.zh.md](CHANGELOG.zh.md)。
-
----
-
-## 贡献指南
-
-请阅读 [CONTRIBUTING.zh.md](CONTRIBUTING.zh.md) 了解如何报告问题、提交拉取请求以及代码规范。
+完整历史见 [CHANGELOG.zh.md](CHANGELOG.zh.md)。
 
 ---
 
 ## 许可证
 
-本项目采用 **CC BY-NC-SA 4.0** 许可证。
-详见 [LICENSE](LICENSE) 文件。
-未经作者许可，不得将本软件用于商业目的。
+**CC BY-NC-SA 4.0** —— 详见 [LICENSE](LICENSE)。如需商用请先联系作者。
 
 ---
 
-## 作者
+## 作者与致谢
 
-**edocsitahw** – [edocsitahw@qq.com](mailto:edocsitahw@qq.com)
+**edocsitahw** —— [edocsitahw@qq.com](mailto:edocsitahw@qq.com)
 
----
-
-## 致谢
-
-- 灵感来自游戏 [Stationeers](https://stationeers.com/) 中的 IC10 脚本语言。
-- 基于 C++23 协程和现代 CMake 构建。
-- Node.js 绑定由 [node-addon-api](https://github.com/nodejs/node-addon-api) 提供支持。
-- Python 绑定由 [pybind11](https://github.com/pybind/pybind11) 提供支持。
+感谢 [Stationeers](https://stationeers.com/) 提供了值得为它写编译器的这门语言；也感谢
+[node-addon-api](https://github.com/nodejs/node-addon-api)、[pybind11](https://github.com/pybind/pybind11) 与
+[fbjni](https://github.com/facebookincubator/fbjni)，让这些语言绑定成为可能。

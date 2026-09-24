@@ -8,10 +8,42 @@
 /**
  * @file operand_check.inl
  * @author edocsitahw
- * @version 1.1
- * @date 2026/09/04 11:32
- * @brief
+ * @version 1.2
+ * @date 2026/09/24
+ * @if zh
+ * @brief @ref Analyser::IdentifierChecker 各特化的实现：操作数标识符的语义合法性判定
+ * @details 设计意图、调用链、返回值约定与各操作数的接受范围/消息编号见 `operand_check.hpp`；本文件
+ *          是它们的落地实现。实现层面有三点值得先知道：
+ *          - **主模板是「不检查」**（见文件上方定义）：只有真正需要判定的 15 个 `OperandType` 才有
+ *            特化，其余默认放行 —— 新增 `OperandType` 时**必须**确认是有意放行还是漏写特化。
+ *          - **三级判定的重复结构**：`LOGIC_PROP` / `LOGIC_SLOT_PROP` / `AGG_MODE` / `REAGENT_MODE`
+ *            都遵循「设备注解命中 → 全局枚举命中 → 退化为 `NUMBER` 类别」，四者只是查的表与消息编号
+ *            不同，改动一处时请对照另三处。
+ *          - **「上报后返回 `true`」是刻意的**：让调用方跳过后续检查，避免同一位置重复报错。
+ * @see operand_check.hpp 设计说明、调用链与消息编号表
+ * @see analyser.inl `handleOperand` 如何选择调用或不调用本文件
  * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @elseif en
+ * @brief Implementations of the @ref Analyser::IdentifierChecker specializations: semantic legality of
+ *        operand identifiers
+ * @details The intent, call chain, return-value convention and the accepted-range/message-id table live
+ *          in `operand_check.hpp`; this file is where they land. Three implementation notes up front:
+ *          - **The primary template means "no check"** (defined at the top of this file): only the 15
+ *            `OperandType`s that genuinely need judging have a specialization, everything else passes by
+ *            default — so when adding an `OperandType`, be sure whether the pass-through is intended or
+ *            a missing specialization.
+ *          - **The three-level decision repeats**: `LOGIC_PROP` / `LOGIC_SLOT_PROP` / `AGG_MODE` /
+ *            `REAGENT_MODE` all follow "device annotation hit → global enum hit → fall back to category
+ *            `NUMBER`", differing only in the table consulted and the message id; change one and check
+ *            the other three.
+ *          - **"Report, then return `true`" is deliberate**: it makes the caller skip further checks and
+ *            avoids duplicate diagnostics at one position.
+ * @warning `SLOT_IDX`'s negative check uses `std::stoi`, which throws `std::out_of_range` beyond `int`
+ *          range and is not caught here — a potential crash site (marked in place with a `// TODO:`).
+ * @see operand_check.hpp design notes, call chain and message-id table
+ * @see analyser.inl how `handleOperand` decides whether to call this file at all
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
  * */
 #ifndef IC10_COMPILER_CORE_OPERAND_CHECK_INL
 #define IC10_COMPILER_CORE_OPERAND_CHECK_INL
@@ -19,6 +51,27 @@
 
 namespace stationeers::ic10 {
 
+    /**
+     * @if zh
+     *
+     * @brief 主模板：**不做任何检查**，一律判为合法
+     * @details 没有特化的 `OperandType` 走这里。因为参数未命名，本函数不看符号也不看操作数。
+     * @warning 这是「默认放行」而非「默认拒绝」：新增 `OperandType` 却忘记补特化时，既不会编译失败
+     *          （与 `semantic_operand.hpp` 的 fail-fast 相反），也不会有任何诊断 —— 请有意识地确认。
+     * @return 恒为 `true`
+     *
+     * @elseif en
+     *
+     * @brief Primary template: **no check at all**, always valid
+     * @details Any `OperandType` without a specialization lands here. The parameters are unnamed, so this
+     *          looks at neither the symbol nor the operand.
+     * @warning This is "pass by default", not "reject by default": adding an `OperandType` and forgetting
+     *          its specialization produces neither a compile error (unlike the fail-fast in
+     *          `semantic_operand.hpp`) nor any diagnostic — confirm such pass-throughs deliberately.
+     * @return Always `true`
+     *
+     * @endif
+     */
     template<OperandType Type>
     bool Analyser::IdentifierChecker<Type>::check(
         const Analyser*, const std::shared_ptr<Symbol>&, auto&&

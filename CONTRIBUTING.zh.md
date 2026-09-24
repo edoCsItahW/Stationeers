@@ -2,7 +2,9 @@
 
 [English](CONTRIBUTING.md)
 
-感谢您对本项目的兴趣！本文档概述了贡献的流程和指南。
+感谢您对本项目的兴趣！本文档讲的是**协作方式** —— Issue、拉取请求、提交信息与版本管理。
+
+> 想了解环境搭建、构建与测试、或整体架构？那些都在[开发者指引](DEVELOPER_GUIDE.zh.md)里。
 
 ## 行为准则
 
@@ -22,34 +24,15 @@
    git checkout -b feature/你的功能名
    ```
 3. **进行修改** – 保持提交逻辑清晰，撰写符合[约定式提交](#提交信息规范)的提交信息。
-4. **配置构建环境**（用于 Node.js 和 Python 绑定）：
+4. **构建并测试你的改动** – 工具链版本、构建脚本与各语言的测试命令见[开发者指引](DEVELOPER_GUIDE.zh.md#构建)。下面这一条脚本会构建 C++ 核心并运行其测试：
    ```bash
-   # Node.js 绑定：安装 node-gyp 并下载 Node.js 头文件
-   pnpm add -g node-gyp          # 或: npm install -g node-gyp
-   pnpm exec node-gyp install    # 或: npm exec node-gyp install
-
-   # Python 绑定：确保 Python 3.13 在 PATH 中
-   python3 --version             # 应显示 3.13.x
+   code/scripts/bashShell/buildIC10CompilerCore.sh   # Windows: pwsh code/scripts/powerShell/BuildIC10CompilerCore.ps1
    ```
-
-5. **本地运行测试**：
-   ```bash
-   # C++ 测试
-   cmake -B build -S code/IC10/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Debug
-   cmake --build build --parallel
-   cd build && ctest --output-on-failure
-
-   # Node.js 测试
-   cd code/IC10/backend/compiler && pnpm test
-
-   # Python 测试
-   cd code/IC10/backend/compiler/tests/python && pytest -v
-   ```
-6. **确保代码风格** – 项目使用 `clang-format`（4 空格缩进）。运行：
+5. **格式化你的改动** – 项目使用 `clang-format`（4 空格缩进、100 列）：
    ```bash
    clang-format -i <文件>
    ```
-7. **推送**并创建指向 `develop` 的 Pull Request。
+6. **推送**并创建指向 `develop` 的 Pull Request。
 
 ## 提交信息规范
 
@@ -92,7 +75,7 @@ BREAKING-CHANGE: 语法已变更，语言使用方式受到影响
 ```
 feat: 实现链接器以支持多单元符号合并
 fix(lexer): 修复未闭合字符串吞没后续输入的问题
-docs: 更新 README 至 v2.0.0
+docs: 更新开发者指引
 test(ic10): 添加链接器单元测试
 ci: 添加 Python 工作流
 ```
@@ -100,7 +83,7 @@ ci: 添加 Python 工作流
 ## 代码规范
 
 - **语言**：C++23（合理使用协程、概念、范围库）。
-- **风格**：遵循 `.clang-format`（4 空格缩进，花括号不换行，100 列限制）。完整配置见 [`.clang-format`](code/IC10/backend/compiler/.clang-format)。
+- **风格**：遵循所在组件的 `.clang-format` —— [compiler](code/IC10/backend/compiler/.clang-format)、[runtime](code/IC10/backend/runtime/.clang-format)、[common](code/common/cpp/.clang-format)（4 空格缩进，花括号不换行，100 列限制）。VS Code 插件的 TypeScript 使用 prettier（120 列、双引号）。
 - **命名**：
     - 类型：`PascalCase`（如 `Lexer`、`SymbolTable`、`IncCompiler`）
     - 函数/变量：`camelCase`（如 `extractHexNumber`、`pos_`）
@@ -117,64 +100,57 @@ ci: 添加 Python 工作流
     ILoc::msgFormat<IMsgId::IWL1>(charValue)
     ```
 - **测试**：为新功能添加单元测试：
-    - C++ 测试：`code/IC10/backend/compiler/tests/cpp/`
+    - C++ 测试：`code/IC10/backend/compiler/tests/cpp/`（运行时：`code/IC10/backend/runtime/tests/`）
     - Node.js 测试：`code/IC10/backend/compiler/tests/node/`
     - Python 测试：`code/IC10/backend/compiler/tests/python/`
-- **文档**：公共 API 使用 Doxygen 风格注释，支持双语（`@if zh / @elseif en`）标签。
+    - Java 测试：`code/IC10/backend/compiler/tests/java/`
+
+    行为请在 C++ 核心中测试；绑定测试只验证绑定是否正确搬运数据，不要把核心断言再抄一遍。
+- **文档**：公共 API 使用 Doxygen 风格的双语注释，标签为 `@if zh` / `@else` / `@endif`。
 
 ## 模块概览
 
 | 模块 | 位置 | 说明 |
 |:-----|:-----|:-----|
-| 词法分析器 | `ic10/lexer/` | 基于状态机的词法分析 |
-| 语法分析器 | `ic10/parser/` | 递归下降解析器，AST 构建 |
-| 语义分析 | `ic10/semantic/` | 符号表、类型推断、类型检查 |
-| 链接器 | `ic10/link/` | 多单元符号合并、跨单元解析 |
-| 增量编译 | `ic10/incremental/` | 行/语句级缓存，快速重新编译 |
-| 本地化 | `ic10/locals/` | 诊断消息本地化（en-us、zh-hans） |
-| 公共库 | `common/` | 共享工具（异步、异常、工具） |
+| 词法分析器 | `compiler/core/include/ic10_compiler/lexer/` | 基于状态机的词法分析 |
+| 语法分析器 | `compiler/core/include/ic10_compiler/parser/` | 递归下降解析器，AST 构建 |
+| 语义分析 | `compiler/core/include/ic10_compiler/semantic/` | 符号表、类型推断、类型检查 |
+| 链接器 | `compiler/core/include/ic10_compiler/link/` | 多单元符号合并、跨单元解析 |
+| 增量编译 | `compiler/core/include/ic10_compiler/incremental/` | 行/语句级缓存，快速重新编译 |
+| 本地化 | `compiler/core/include/ic10_compiler/locals/` | 诊断消息本地化（en-us、zh-hans） |
+| 运行时 | `runtime/core/` | IC10 执行引擎：内存/栈、设备、指令执行器 |
+| 元数据 | `assets/ic10-matedata/` | `@ic10/metadata` —— 指令、设备与 Stationpedia 数据 |
+| 公共库 | `code/common/cpp/core/` | 共享工具（异步协程、异常诊断、国际化、工具函数） |
+
+编译器、运行时与元数据路径相对于 `code/IC10/backend/`。
 
 ## 拉取请求指南
 
 - 目标分支：`develop`。
 - 包含清晰的描述，如果有关联的 Issue 请注明。
-- 确保 CI 通过（构建、测试、静态分析）。
+- 确保 CI 通过 —— CI 会构建并测试所有目标。格式与 clang-tidy **不在** CI 中运行，请自行检查（见[代码风格与静态分析](DEVELOPER_GUIDE.zh.md#代码风格与静态分析)）。
 - 保持更改聚焦 – 每个 PR 只解决一个功能或 Bug。
 - 必要时更新文档（README、行内 Doxygen 注释）。
 - 遵循[提交信息规范](#提交信息规范)。
 
-## 使用额外检查构建
-
-- **静态分析**（clang-tidy）：
-  ```bash
-  cmake -B build -S code/IC10/backend/compiler -G Ninja \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_CXX_CLANG_TIDY="clang-tidy;--config-file=code/IC10/backend/compiler/.clang-tidy"
-  cmake --build build
-  ```
-
-- **cppcheck**：
-  ```bash
-  cppcheck --enable=all --suppress=missingIncludeSystem --std=c++23 \
-    -I code/common/cpp/core/include \
-    -I code/IC10/backend/compiler/core/include \
-    code/IC10/backend/compiler/core/src/
-  ```
-
-- **地址消毒器**（Linux）：
-  ```bash
-  cmake -B build-san -S code/IC10/backend/compiler -G Ninja \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer"
-  ```
-
 ## 版本管理
 
-本项目遵循[语义化版本 2.0.0](https://semver.org/lang/zh-CN/)。版本号记录在 [VERSION](VERSION) 中。
+本项目遵循[语义化版本 2.0.0](https://semver.org/lang/zh-CN/)。版本号记录在 [VERSION](VERSION) 中，每个组件各有一条：
+
+```yaml
+core:
+    IC10: 3.0.0
+
+plugins:
+    vscode:
+        IC10 Language Support: 1.0.2
+```
 
 - **主版本号**：破坏性语法变更或 API 不兼容
-- **次版本号**：新功能（链接器、增量编译器、Python 绑定等）
+- **次版本号**：新功能
 - **修订号**：Bug 修复和小改进
+
+标签与组件对应：`v<版本号>` 发布核心，`vscode-ic10-language-support-v<版本号>` 发布 VS Code 插件。每次发布都要更新 [CHANGELOG.zh.md](CHANGELOG.zh.md)，各组件的检查清单见 [docs/releaseList.md](docs/releaseList.md)。
 
 ## 有问题？
 

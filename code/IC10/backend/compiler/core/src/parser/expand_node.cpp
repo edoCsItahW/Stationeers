@@ -143,7 +143,7 @@ namespace stationeers::ic10 {
     std::string DeviceAnnotation::toJSON() const {
         return jsonBase<
             "name", "desc", "deviceHash", "nameHash", "logics", "logicSlots", "reagentHashes",
-            "slots">(  // TODO: 需重新编译验证 — 补充序列化 slots 字段
+            "slots">(
             name,
             desc ? std::optional(call(*desc, [](const auto& desc) { return desc.toJSON(); }))
                  : std::nullopt,
