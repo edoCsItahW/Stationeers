@@ -14,13 +14,13 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
+import { instructions } from "@ic10/metadata/std";
 
 import { DescriptionSolver, RadixTree } from "../../../../utils";
 import type { CompletionProviderContext } from "./types";
-import { INS_META_MAP } from "../../../../mateData";
 
 
-const INSTRUCTIONS_META_TREE = RadixTree.fromMap(INS_META_MAP);
+const INSTRUCTIONS_META_TREE = RadixTree.fromObject(instructions);
 
 export function provideKeyword(ctx: CompletionProviderContext, prefix: string): CompletionItem[] {
     return (

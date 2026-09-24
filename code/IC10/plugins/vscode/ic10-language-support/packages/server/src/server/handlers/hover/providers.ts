@@ -16,6 +16,8 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
+import { instructions as localsInstructions } from "@ic10/metadata/locals";
+import { instructions as stdInstructions } from "@ic10/metadata/std";
 import { Nullable, Optional, pascalToSnake } from "@ic10/common";
 import type { Hover } from "vscode-languageserver/node";
 import { hashValue, strValue } from "ic10r-node";
@@ -37,7 +39,6 @@ import {
 
 import { AST, EnumKeyMap, locateOperand, operandToString, operandValueLength } from "../../../utils";
 import { formatBasicType, formatType, isInsideNode } from "./utils";
-import { INS_LOCAL_MAP, INS_META_MAP } from "../../../mateData";
 import type { HoverContext, IHoverProvider } from "./types";
 import svgBuilder from "../../../utils/svgBuilder";
 import { SettingsManager } from "../../services";
@@ -259,10 +260,10 @@ export class AliasDirectiveHoverProvider extends HoverOperand {
 
         // 第一个关键字
         if (ctx.character < stmt.position.column + 5) {
-            const ins = INS_META_MAP.get("alias");
+            const ins = stdInstructions["alias"];
             if (!ins) return null;
 
-            const desc = INS_LOCAL_MAP.get("alias")?.desc?.[ctx.getLocale()];
+            const desc = localsInstructions["alias"].desc?.[ctx.getLocale()];
 
             return {
                 contents: {
@@ -354,10 +355,10 @@ export class DefineDirectiveHoverProvider extends HoverOperand {
 
         // 悬停keyword
         if (ctx.character < stmt.position.column + 6) {
-            const ins = INS_META_MAP.get("define");
+            const ins = stdInstructions["define"];
             if (!ins) return null;
 
-            const desc = INS_LOCAL_MAP.get("define")?.desc?.[ctx.getLocale()];
+            const desc =localsInstructions["define"].desc?.[ctx.getLocale()];
 
             return {
                 contents: {
@@ -473,10 +474,11 @@ export class InstructionHoverProvider extends HoverOperand {
     private provideKeywordHover(keyword: string, stmt: PureExeInstructionNode, ctx: HoverContext): Nullable<Hover> {
         if (!isInsideNode(stmt.position.column, stmt.keyword.length, ctx.character)) return null;
 
-        const ins = INS_META_MAP.get(keyword);
-        if (!ins) return null;
+        if (!(keyword in stdInstructions)) return null;
+        const key = keyword as keyof typeof stdInstructions;
+        const ins = stdInstructions[key];
 
-        const desc = INS_LOCAL_MAP.get(keyword)?.desc?.[ctx.getLocale()];
+        const desc = localsInstructions[key].desc?.[ctx.getLocale()];
 
         return {
             contents: {
@@ -502,7 +504,12 @@ export class InstructionHoverProvider extends HoverOperand {
                 const color = s("hover.constant.type");
 
                 this.supplement({
-                    svg: [[{ text: prefix }, { text: " " }, { text: identifier.value, color }]],
+                    svg: [[
+                        { text: prefix },
+                        { text: " " },
+                        { text: identifier.value, color },
+                        { text: `: ${EnumKeyMap[type]}` }
+                    ]],
                     markdown: [`${prefix} ${identifier.value}`]
                 });
 

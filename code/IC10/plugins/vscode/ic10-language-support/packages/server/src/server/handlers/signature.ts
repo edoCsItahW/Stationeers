@@ -13,11 +13,12 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+import { instructions as localInstructions } from "@ic10/metadata/locals";
+import { instructions as metaInstructions } from "@ic10/metadata/std";
 import { debug, lowerBound, Optional, Console } from "@ic10/common";
 import type { Connection } from "vscode-languageserver";
 
 import { getOperandType, AST, locateOperand } from "../../utils"
-import { INS_META_MAP, INS_LOCAL_MAP } from "../../mateData";
 import { locale, t } from "../../locals";
 import { DocumentCache } from "../cache";
 
@@ -68,10 +69,11 @@ export class SignatureHandler {
         else if (AST.isAliasDirective(stmt)) keyword = "alias";
         else if (AST.isDefineDirective(stmt)) keyword = "define";
 
-        if (!keyword) return;
+        if (!keyword || !(keyword in metaInstructions)) return;
+        const key = keyword as keyof typeof metaInstructions;
 
-        const doc = INS_META_MAP.get(keyword)!.signature;
-        const local = INS_LOCAL_MAP.get(keyword)!;
+        const doc = metaInstructions[key].signature;
+        const local = localInstructions[key];
 
         // 操作数槽位由AST定位：行内token序号不等于操作数序号（如 `d0:1`、`Foo.Bar` 各占一个槽位）
         const { slot } = locateOperand(stmt, column);
@@ -84,7 +86,7 @@ export class SignatureHandler {
             signatures: [
                 {
                     label: doc,
-                    documentation: local["desc"][locale.getLocale()],
+                    documentation: local.desc[locale.getLocale()],
                     parameters: this.getOperandPositions(doc).map(item => ({
                         label: item
                     })),
