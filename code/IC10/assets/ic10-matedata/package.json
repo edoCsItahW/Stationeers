@@ -1,0 +1,62 @@
+{
+    "name": "@ic10/metadata",
+    "version": "0.2.0",
+    "description": "IC10 language related metadata | IC10语言相关元数据",
+    "type": "module",
+    "files": [
+        "dist",
+        "CHANGELOG.md",
+        "tsconfig.json"
+    ],
+    "sideEffects": false,
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "node script/build.mjs && tsc -p tsconfig.json",
+        "prepublishOnly": "npm run build"
+    },
+    "exports": {
+        "./locals": {
+            "types": "./dist/locals/index.d.ts",
+            "import": "./dist/locals/index.js",
+            "default": "./dist/locals/index.js",
+            "require": "./dist/locals/index.js"
+        },
+        "./locals/*": {
+            "types": "./dist/locals/*.d.ts",
+            "import": "./dist/locals/*.js"
+        },
+        "./std": {
+            "types": "./dist/std/index.d.ts",
+            "import": "./dist/std/index.js",
+            "default": "./dist/std/index.js",
+            "require": "./dist/std/index.js"
+        },
+        "./std/*": {
+            "types": "./dist/std/*.d.ts",
+            "import": "./dist/std/*.js"
+        },
+        "./stationpedia/CN": {
+            "types": "./dist/stationpedia/CN/index.d.ts",
+            "import": "./dist/stationpedia/CN/index.js",
+            "default": "./dist/stationpedia/CN/index.js",
+            "require": "./dist/stationpedia/CN/index.js"
+        },
+        "./stationpedia/CN/*": {
+            "types": "./dist/stationpedia/CN/*.d.ts",
+            "import": "./dist/stationpedia/CN/*.js"
+        },
+        "./stationpedia/EN": {
+            "types": "./dist/stationpedia/EN/index.d.ts",
+            "import": "./dist/stationpedia/EN/index.js",
+            "default": "./dist/stationpedia/EN/index.js",
+            "require": "./dist/stationpedia/EN/index.js"
+        },
+        "./stationpedia/EN/*": {
+            "types": "./dist/stationpedia/EN/*.d.ts",
+            "import": "./dist/stationpedia/EN/*.js"
+        },
+        "./package.json": "./package.json"
+    }
+}
