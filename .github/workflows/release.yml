@@ -20,19 +20,19 @@ jobs:
             matrix:
                 include:
                     -   os: ubuntu-latest
-                        script-dir: /bashShell
+                        script-dir: code/scripts/bashShell
                         script-name: buildIC10CompilerCLI.sh
                         artifact-name: ic10c
                     -   os: windows-latest
-                        script-dir: /powerShell
+                        script-dir: code/scripts/powerShell
                         script-name: BuildIC10CompilerCLI.ps1
                         artifact-name: ic10c.exe
         uses: ./.github/workflows/cpp-workflow.yml
         with:
-            os: ${{ strategy.os }}
-            script-dir: ${{ strategy.script-dir }}
-            script-name: ${{ strategy.script-name }}
-            artifact-name: ${{ strategy.artifact-name }}
+            os: ${{ matrix.os }}
+            script-dir: ${{ matrix.script-dir }}
+            script-name: ${{ matrix.script-name }}
+            artifact-name: ${{ matrix.artifact-name }}
 
     build-ic10-compiler-node:
         name: "[Auto] Build IC10 Compiler Node.js Bindings | 构建IC10编译器Node.js绑定"
@@ -40,16 +40,16 @@ jobs:
             matrix:
                 include:
                     -   os: ubuntu-latest
-                        script-dir: /bashShell
+                        script-dir: code/scripts/bashShell
                         script-name: buildIC10CompilerNode.sh
                     -   os: windows-latest
-                        script-dir: /powerShell
+                        script-dir: code/scripts/powerShell
                         script-name: BuildIC10CompilerNode.ps1
         uses: ./.github/workflows/node-workflow.yml
         with:
-            os: ${{ strategy.os }}
-            script-dir: ${{ strategy.script-dir }}
-            script-name: ${{ strategy.script-name }}
+            os: ${{ matrix.os }}
+            script-dir: ${{ matrix.script-dir }}
+            script-name: ${{ matrix.script-name }}
             artifact-name: ic10c-node.node
 
     build-ic10-compiler-python:
@@ -58,19 +58,19 @@ jobs:
             matrix:
                 include:
                     -   os: ubuntu-latest
-                        script-dir: /bashShell
+                        script-dir: code/scripts/bashShell
                         script-name: buildIC10CompilerPython.sh
                         artifact-name: ic10c-python.os
                     -   os: windows-latest
-                        script-dir: /powerShell
+                        script-dir: code/scripts/powerShell
                         script-name: BuildIC10CompilerPython.ps1
                         artifact-name: ic10c-python.pyd
         uses: ./.github/workflows/python-workflow.yml
         with:
-            os: ${{ strategy.os }}
-            script-dir: ${{ strategy.script-dir }}
-            script-name: ${{ strategy.script-name }}
-            artifact-name: ${{ strategy.artifact-name }}
+            os: ${{ matrix.os }}
+            script-dir: ${{ matrix.script-dir }}
+            script-name: ${{ matrix.script-name }}
+            artifact-name: ${{ matrix.artifact-name }}
 
     build-ic10-compiler-java:
         name: "[Auto] Build IC10 Compiler Java Bindings | 构建IC10编译器Java绑定"
@@ -78,19 +78,19 @@ jobs:
             matrix:
                 include:
                     -   os: ubuntu-latest
-                        script-dir: /bashShell
+                        script-dir: code/scripts/bashShell
                         script-name: buildIC10CompilerJava.sh
                         artifact-name: ic10c-java.os
                     -   os: windows-latest
-                        script-dir: /powerShell
+                        script-dir: code/scripts/powerShell
                         script-name: BuildIC10CompilerJava.ps1
                         artifact-name: ic10c-java.dll
         uses: ./.github/workflows/java-workflow.yml
         with:
-            os: ${{ strategy.os }}
-            script-dir: ${{ strategy.script-dir }}
-            script-name: ${{ strategy.script-name }}
-            artifact-name: ${{ strategy.artifact-name }}
+            os: ${{ matrix.os }}
+            script-dir: ${{ matrix.script-dir }}
+            script-name: ${{ matrix.script-name }}
+            artifact-name: ${{ matrix.artifact-name }}
 
     # 4. 汇总所有产物并发布到 GitHub Release
     upload-release:

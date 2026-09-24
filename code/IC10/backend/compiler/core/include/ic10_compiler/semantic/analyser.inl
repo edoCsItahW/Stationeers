@@ -8,10 +8,61 @@
 /**
  * @file analyser.inl
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/05 17:49
- * @brief
- * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @version 1.2
+ * @date 2026/09/24
+ * @if zh
+ * @brief @ref Analyser 的模板与具名协程实现
+ * @details 设计说明、前向引用机制与集成关系见 `analyser.hpp`。本文件按出现顺序实现八件事：
+ *          | 定义 | 作用 |
+ *          |:-----|:-----|
+ *          | `checkOperandType` | 把 `BasicType` / `TypeCategory` 逐个与 `symbol->type` 比对，不符则按给定消息编号报错 |
+ *          | `operator()(Ins<V, Vs...>)` | 指令访问：重置设备上下文，对 `ins.args()` 折叠调用 `process<Vs>` |
+ *          | `handleOperand` | 单操作数处理体（具名协程）：解析符号、登记设备上下文、调用 `IdentifierChecker` |
+ *          | `process` | 从操作数变体萃取真实节点类型后转交 `handleOperand` |
+ *          | `checkWithDeviceContext` | 有设备上下文时按设备的 `logics` / `logicSlots` / `slots` 判定 |
+ *          | `checkGlobalEnum` | 无设备上下文时按 @ref operand_type_name_v 指向的全局枚举判定 |
+ *          | `checkSlotIndexWithDevice` | 槽位索引是否落在设备 `slots` 内 |
+ *          | `operator()(T&&)` | **泛型兜底**：任何没有专属重载的节点都会落到这里并报 IEA6（这正是不该删除叶节点访问器的原因） |
+ *
+ *          @warning 三处**协程帧生命周期**约束，改错会造成只在部分编译器上出现的段错误：
+ *                   ① 指令操作数折叠与语句遍历的 `Task` 必须存入 `Analyser::detachedTasks_`；
+ *                   ② 折叠协程用**无捕获** lambda，所需状态由参数传入；
+ *                   ③ `handleOperand` / `visitStatement` 必须是具名协程，不要改回协程 lambda。
+ *                   详细原因见 `analyser.hpp` 中 `detachedTasks_` 与 `handleOperand` 的说明。
+ *          @note `operator()(T&&)` 的存在意味着「新增节点类型必须补访问器」，否则会得到一条 IEA6
+ *                诊断而非编译错误 —— 这是本项目刻意选择的 fail-visible 策略。
+ *          @see analyser.hpp 设计说明与声明
+ *          @see operand_check.inl 被本文件调用的操作数合法性判定
+ *          @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @elseif en
+ * @brief Template and named-coroutine implementations of @ref Analyser
+ * @details The design notes, forward-reference machinery and integration map live in `analyser.hpp`. In
+ *          order of appearance this file implements eight things:
+ *          | Definition | Purpose |
+ *          |:-----|:-----|
+ *          | `checkOperandType` | Compare each `BasicType` / `TypeCategory` against `symbol->type`, reporting the given message id on mismatch |
+ *          | `operator()(Ins<V, Vs...>)` | Instruction visit: reset the device context, then fold `ins.args()` into `process<Vs>` |
+ *          | `handleOperand` | Per-operand body (named coroutine): resolve symbols, record device context, call `IdentifierChecker` |
+ *          | `process` | Extract the real node type from the operand variant and hand it to `handleOperand` |
+ *          | `checkWithDeviceContext` | With a device context, judge against that device's `logics` / `logicSlots` / `slots` |
+ *          | `checkGlobalEnum` | Without one, judge against the global enum named by @ref operand_type_name_v |
+ *          | `checkSlotIndexWithDevice` | Whether a slot index falls inside the device's `slots` |
+ *          | `operator()(T&&)` | **Generic fallback**: any node without a dedicated overload lands here and reports IEA6 (exactly why the leaf visitors must not be deleted) |
+ *
+ *          @warning Three **coroutine frame lifetime** constraints; getting them wrong causes segfaults on
+ *                   only some compilers: ① the `Task`s of instruction-operand folding and statement
+ *                   traversal must go into `Analyser::detachedTasks_`; ② the fold coroutine uses a
+ *                   **captureless** lambda with its state passed as parameters; ③ `handleOperand` /
+ *                   `visitStatement` must stay named coroutines — never turn them back into coroutine
+ *                   lambdas. The detailed reasons are on `detachedTasks_` and `handleOperand` in
+ *                   `analyser.hpp`.
+ *          @note The existence of `operator()(T&&)` means "a new node type must come with a visitor", or
+ *                you get an IEA6 diagnostic instead of a compile error — a deliberately fail-visible
+ *                choice in this project.
+ *          @see analyser.hpp design notes and declarations
+ *          @see operand_check.inl the operand legality checks this file calls
+ *          @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
  * */
 #ifndef IC10_COMPILER_CORE_ANALYSER_INL
 #define IC10_COMPILER_CORE_ANALYSER_INL

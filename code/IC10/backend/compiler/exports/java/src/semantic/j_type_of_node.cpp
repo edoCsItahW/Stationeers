@@ -47,7 +47,7 @@ namespace stationeers::ic10 {
             ErrorNode,
             BinaryNumber,
             HexNumber
-        >;  // TODO: 需重新编译验证 — 对齐当前 core 的节点类型列表
+        >;
 
         /**
          * @if zh

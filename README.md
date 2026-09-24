@@ -1,390 +1,220 @@
-# IC10 Compiler
+# IC10
 
 [中文](README.zh.md)
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
-![C++](https://img.shields.io/badge/C%2B%2B-23-blue)
+![Version](https://img.shields.io/badge/version-3.0.0-blue)
+![C%2B%2B](https://img.shields.io/badge/C%2B%2B-23-blue)
 ![License](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey)
+![VS Code](https://img.shields.io/badge/VS%20Code-edocsitahw.ic10-007ACC)
 
-A modern C++23 compiler suite for **IC10** — the assembly-level scripting language used in [Stationeers](https://store.steampowered.com/app/544550/Stationeers/) — and **Aero**, its companion high-level language that compiles to IC10 bytecode. 
-This project provides lexical analysis, syntax analysis, semantic analysis, linking, incremental compilation, an extensible infrastructure with async coroutine support, and Node.js / Python / Java bindings.
+<!--
+  ===== 图片位 =====
+  在此插入横幅图与功能截图（HTML 注释不会渲染，替换成下面这种写法即可）：
+
+  <p align="center">
+    <img src="code/IC10/plugins/vscode/ic10-language-support/static/你的图.png" alt="IC10" width="720">
+  </p>
+  ==================
+-->
+
+**IC10** is the assembly-level language you program your base with in
+[Stationeers](https://store.steampowered.com/app/544550/Stationeers/) — registers, devices, no types, no
+autocomplete, and in-game error reporting that mostly amounts to a red X.
+
+This project is the toolchain that makes writing it pleasant: a C++23 compiler that actually understands the
+language, a runtime you can step through, and an editor extension that puts diagnostics, completion, hover and
+formatting right next to your code.
+
+```ic10
+alias sensor d0
+define TARGET 300
+
+main:
+    l r0 sensor Temperature
+    blt r0 TARGET heating_off
+    s sensor On 1
+    j main
+
+heating_off:
+    s sensor On 0
+    j main
+```
+
+---
+
+## What you get
+
+- **An editor that gets IC10** — install the [IC10 extension](https://marketplace.visualstudio.com/items?itemName=edocsitahw.ic10),
+  open a `.ic` file, done. Highlighting, live diagnostics, hover, completion, signature help, formatting and a
+  debugger, no toolchain required.
+- **A compiler that tells you what's wrong** — lexer → parser → semantic analysis → linker, with real source
+  locations, severities and bilingual messages, plus an incremental mode that keeps up with you as you type.
+- **Bindings for your own tools** — drive the same compiler from **Node.js**, **Python** or **Java**, or use the
+  `ic10c` command line to dump tokens, AST or the symbol table as JSON.
+- **A runtime you can debug against** — `ic10r-node` executes IC10 with simulated devices, which is what lets the
+  extension single-step your program instead of merely checking it.
 
 ---
 
 ## Features
 
-- **Lexer** – state-machine based tokenizer for IC10 source code (supports registers `r0`–`r15`, devices `d0`–`d5`, multi-base numbers `$hex`/`%bin`/decimal/float, strings, `#` and `//` comments, all instruction keywords).
-- **Parser** – recursive-descent parser building an Abstract Syntax Tree (AST) for all IC10 instructions (nullary to senary), with preprocessor directives (`alias`, `define`) and doc-comment annotation parsing.
-- **Semantic Analyser** – performs symbol resolution, type inference, and type checking using a `Promise`/`Future` based asynchronous symbol table with coroutine-driven forward reference resolution.
-- **Linker** – two-phase symbol merging across multiple compilation units, cross-unit forward reference resolution, symbol visibility control (public/private), and cycle detection.
-- **Incremental Compiler** – line-level lexer caching and statement-level parser caching for fast re-compilation in editor scenarios; only changed portions are reprocessed.
-- **Error Reporting** – rich diagnostics with source location (line:column), severity levels, and internationalization support (English / Simplified Chinese).
-- **Async Coroutine Infrastructure** – custom `Task<T>`, `Promise<T>`, `Future<T>` and coroutine state management for non-blocking symbol resolution.
-- **CLI Compiler** – `ic10c` command-line tool supporting `--emit-tokens`, `--emit-ast`, `--emit-symbols`, `--link`, `--locale`, `--pretty`, and `-o` output redirection.
-- **Node.js Bindings** – native Node.js addon via `node-addon-api`, exposing 11 adapters (Lexer, Token, Parser, Program/AST, Analyser, SymbolTable, Linker, IC10Local, IncLexer, IncParser, IncCompiler) to JavaScript/TypeScript.
-- **Python Bindings** – native Python extension via `pybind11`, exposing the same compiler capabilities to Python.
-- **Cross-Platform** – builds on Linux (GCC 13+ / Clang 16+) and Windows (MSVC 2022).
-- **Testing** – GoogleTest unit tests for C++ core (lexer, parser, semantic, linker, incremental, integration, system), Jest tests for Node.js bindings, pytest tests for Python bindings.
-- **VS Code Extension** – the published [IC10](https://marketplace.visualstudio.com/items?itemName=edocsitahw.ic10) extension provides a full IDE experience for `.ic`/`.ic10` files: syntax & semantic highlighting, real-time diagnostics, hover tooltips, intelligent completion (device-context aware), signature help, code formatting, and bilingual UI (en/zh) — all powered by the C++ core via Node.js bindings with incremental compilation for near-zero editing latency.
-- **CI/CD** – GitHub Actions workflows for build, test, static analysis (cppcheck, clang-tidy, clang-format), and automatic artifact publishing on tag push.
+**Compiler**
+
+- Handles all IC10 instruction arities (nullary → senary), registers `r0`–`r15`, devices `d0`–`d5`, multi-base
+  numbers (`$hex`, `%bin`, decimal, float), strings, `#`/`//` comments, `alias`/`define` directives and
+  doc-comment annotations (`#:`, `#>`).
+- Semantic analysis with symbol resolution, type inference and type checking over an async symbol table, so
+  forward references just work.
+- First-class linker: multi-unit merging, cross-unit forward references, symbol visibility, cycle detection.
+- Incremental compilation with line-level lexing caches and statement-level parse caches — only what changed
+  gets reprocessed.
+- Diagnostics in English and Simplified Chinese, and every message goes through the localization layer.
+
+**Editor extension**
+
+| | |
+|---|---|
+| Syntax & semantic highlighting | Symbols are coloured from the compiler's own symbol table, so an alias looks different from a raw register |
+| Real-time diagnostics | Incremental re-analysis on every keystroke, categorized in the Problems panel |
+| Hover & completion | Types, values and descriptions on hover; instruction and operand completion filtered by device context |
+| Signature help & formatting | Active-parameter highlighting; formatting configurable via `.ic.yaml` / `.ic.yml` / `.ic.json` |
+| Debugger | Launch `program` with `stopOnEntry`, set breakpoints, inspect the simulated machine |
+| Type annotations | `#:` hints and `#>` doc comments for declaring device and enum types |
+
+**Runtime, bindings and metadata**
+
+- `ic10r-node` — the execution engine, N-API bindings included.
+- `ic10c-node` (Node.js), `ic10c_python` (Python) and `io.github.stationeers:ic10` (Java) all expose the same
+  compiler phases.
+- [`@ic10/metadata`](https://www.npmjs.com/package/@ic10/metadata) — instructions, enums, devices and
+  Stationpedia text as a typed package, so tooling can stay in sync with the game.
 
 ---
 
-## Project Structure
+## Quick start
 
-```
-Stationeers/
-├── code/
-│   ├── IC10/                              # IC10 language (low-level bytecode / assembly)
-│   │   ├── assets/                        # Game metadata & resource files
-│   │   │   ├── ic/                        # .ic fixtures (stdLib.ic, grammarTest.ic)
-│   │   │   └── mateDatas/                 # Game metadata (instructions, enums, types)
-│   │   ├── backend/
-│   │   │   └── compiler/                  # IC10 compiler source tree
-│   │   │       ├── CMakeLists.txt         # Top-level CMake
-│   │   │       ├── core/                  # IC10 compiler core (was compiler/IC10/)
-│   │   │       │   ├── include/ic10/      # Headers — lexer, parser, ast, semantic, link, incremental, locals
-│   │   │       │   ├── src/               # Implementation files
-│   │   │       │   ├── main.cpp           # CLI entry point (ic10c)
-│   │   │       │   └── main.hpp           # Doxygen mainpage & specialized docs
-│   │   │       ├── exports/              # IC10-specific language bindings (Node.js / Python / Java)
-│   │   │       ├── publish/              # Per-language publishable packages
-│   │   │       │   ├── node/              # npm package (ic10c-node)
-│   │   │       │   ├── python/            # pip package (ic10-python)
-│   │   │       │   └── java/              # Maven package (ic10-java)
-│   │   │       ├── tests/                # Unit & integration tests
-│   │   │       │   ├── cpp/               # C++ tests (GoogleTest — lexer, parser, semantic, linker, incremental)
-│   │   │       │   ├── node/              # Node.js binding tests (Jest + TypeScript)
-│   │   │       │   ├── python/            # Python binding tests (pytest)
-│   │   │       │   └── java/              # Java binding tests (JUnit + Gradle)
-│   │   │       ├── scripts/               # Build scripts (PowerShell)
-│   │   │       ├── cmake/                 # CMake modules (core_artifact.cmake)
-│   │   │       ├── .clang-format          # Code style (4-space indent)
-│   │   │       └── .clang-tidy            # Static analysis configuration
-│   │   └── plugins/
-│   │       └── vscode/                    # VS Code language support extension
-│   │           └── ic10-language-support/  # Extension source (LSP server + client)
-│   ├── Aero/                              # Aero language (high-level language targeting IC10)
-│   └── common/                            # Shared infrastructure
-│       ├── cmake/                         # Shared CMake modules (node.cmake, pybind11.cmake, fbjni.cmake)
-│       └── cpp/                           # Shared C++ libraries & adapters
-│           ├── core/                      # Common utility library (async coroutines, diagnostics, i18n, utils)
-│           ├── export/                    # Shared language-binding adapter wrappers
-│           └── tests/                     # Shared code tests
-├── docs/                                  # Documentation & Doxygen resources
-├── .github/workflows/                     # CI/CD workflows
-├── CHANGELOG.md                           # Changelog (English)
-├── CHANGELOG.zh.md                        # Changelog (Chinese)
-├── CONTRIBUTING.md                        # Contributing guidelines (English)
-├── CONTRIBUTING.zh.md                     # Contributing guidelines (Chinese)
-├── VERSION                                # Current version
-└── LICENSE                                # License
-```
-
----
-
-## Requirements
-
-### C++ Core
-
-- **CMake** 3.28.1 or higher
-- **C++23** compiler:
-  - Linux: GCC 13+ or Clang 16+
-  - Windows: MSVC 2022 (with Visual Studio 2022 build tools)
-- **Ninja** (recommended) or Make
-- **Git** (for fetching GoogleTest)
-
-### Node.js Bindings
-
-- **Node.js** 24.x or 26.x (tested and verified)
-- **pnpm** 9.x (package manager) — npm is also supported
-- **node-gyp** — required for building native addons
-- **node-addon-api** ^8.8.0
-
-> **Note:** After installing Node.js, you must install `node-gyp` and download the Node.js header files before building:
-> ```bash
-> # Install node-gyp globally or as a dev dependency
-> pnpm add -g node-gyp   # or: npm install -g node-gyp
->
-> # Download Node.js header files for the current Node version
-> pnpm exec node-gyp install   # or: npm exec node-gyp install
-> ```
-
-### Python Bindings
-
-- **Python** 3.13 (tested and verified)
-- **pybind11** 2.12+
-
-> **Note:** Python must be discoverable in your system PATH so that CMake's `FindPython3` can locate it.
-
----
-
-## Build Instructions
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/edoCsItahW/Stationeers.git
-cd Stationeers
-```
-
-### 2. Set up Node.js build environment
-
-If you plan to build the Node.js bindings:
-
-```bash
-# Install node-gyp (required for native addon builds)
-pnpm add -g node-gyp   # or: npm install -g node-gyp
-
-# Download Node.js header files for the current Node version
-pnpm exec node-gyp install   # or: npm exec node-gyp install
-```
-
-### 3. Install Node.js dependencies
-
-```bash
-cd code/IC10/backend/compiler
-pnpm i --ignore-workspace
-```
-
-### 4. Configure with CMake
-
-```bash
-cmake -B build -S code/IC10/backend/compiler -G Ninja -DCMAKE_BUILD_TYPE=Release
-```
-
-On Windows (MSVC) you may need to specify the generator:
-
-```powershell
-cmake -B build -S code/IC10/backend/compiler -G "Visual Studio 17 2022" -A x64
-```
-
-### 5. Build
-
-```bash
-cmake --build build --parallel
-```
-
-The executable `ic10c` will be placed in `build/bin/`.
-The Node.js native module `ic10c-node.node` will be placed in `build/exports/node/`.
-The Python native module will be placed in `build/exports/python/`.
-
-### 6. Run tests
-
-#### C++ tests
-
-```bash
-cd build
-ctest --output-on-failure
-```
-
-#### Node.js tests
-
-```bash
-cd code/IC10/backend/compiler
-pnpm test
-```
-
-#### Python tests
-
-```bash
-cd code/IC10/backend/compiler/tests/python
-pytest -v
-```
-
----
-
-## Usage
-
-### CLI (`ic10c`)
-
-The CLI compiler supports independent output of each compilation phase, as well as the complete pipeline and multi-unit linking:
-
-```bash
-ic10c input.ic                    # Compile and output symbol table JSON
-ic10c --emit-tokens input.ic      # Output lexical token stream
-ic10c --emit-ast input.ic         # Output syntax tree AST
-ic10c --emit-symbols input.ic     # Output symbol table (default)
-ic10c -o out.json input.ic        # Output to file
-ic10c --pretty input.ic           # Pretty-print JSON output
-ic10c --locale zh-hans input.ic   # Use Simplified Chinese for messages
-ic10c --link a.ic b.ic c.ic       # Link multiple units and output merged symbol table
-ic10c -v                          # Show version
-ic10c -h                          # Show help
-```
-
-Example IC10 program:
-
-```
-alias counter r0
-define PI 3.14159
-
-start:
-    move r0 10
-    add r1 r0 PI
-    hcf
-```
-
-### Node.js
-
-The `ic10c-node` package provides JavaScript/TypeScript bindings:
-
-```typescript
-import { Lexer, Parser, Analyser, IC10Local } from 'ic10c-node';
-
-// Set language (optional, default English)
-IC10Local.setLanguage('zh-hans');
-
-const source = `
-alias counter r0
-start:
-    move r0 10
-    add r1 r0 5
-    hcf
-`;
-
-// 1. Lexical analysis
-const tokens = Lexer.tokenize(source);
-
-// 2. Syntax analysis
-const parser = new Parser(tokens, false);  // debug = false
-const program = parser.parse();
-
-// 3. Semantic analysis (async — uses coroutines for forward references)
-const analyser = new Analyser();
-await analyser.visit(program);
-
-// 4. Get results
-console.log(analyser.symbolTable.toJSON());
-console.log(analyser.diagnostics);
-```
-
-**Linker usage:**
-
-```typescript
-import { Linker } from 'ic10c-node';
-
-const linker = new Linker();
-linker.addUnit(source1, 'file1.ic');
-linker.addUnit(source2, 'file2.ic');
-const symbolTable = linker.link();
-console.log(linker.diagnostics);
-```
-
-**Incremental compiler usage:**
-
-```typescript
-import { IncCompiler } from 'ic10c-node';
-
-const compiler = new IncCompiler();
-const result1 = compiler.compileFull(source);
-const result2 = compiler.compileInc(modifiedSource);
-console.log(`Incremental: ${result2.incremental}, re-lexed lines: ${result2.relexedLines}`);
-```
-
-### Python
-
-```python
-import ic10_python as ic10
-
-# Lexical analysis
-tokens = ic10.Lexer.tokenize(source)
-
-# Syntax analysis
-parser = ic10.Parser(tokens, False)
-program = parser.parse()
-
-# Semantic analysis
-analyser = ic10.Analyser()
-analyser.visit(program)
-print(analyser.symbolTable.toJSON())
-```
-
-### VS Code Extension
-
-The easiest way to get started is to install the published **IC10** extension from the VS Code Marketplace — no build toolchain required.
-
-**Install:**
-
-Search for "IC10" in the VS Code Extensions panel, or install from the command line:
+### In VS Code (recommended)
 
 ```bash
 code --install-extension edocsitahw.ic10
 ```
 
-> The extension bundles the pre-built C++ compiler core as a Node.js native addon (`ic10c-node`). No external C++ toolchain, CMake, or compiler installation is needed.
+Then open any `.ic` or `.ic10` file. The extension bundles the prebuilt compiler and runtime as native addons —
+there is no C++ toolchain, CMake or compiler to install.
 
-**Features at a glance:**
+### From a terminal
 
-| Feature | Description |
-|---|---|
-| Syntax highlighting | TextMate grammar for keywords, registers, devices, strings, numbers, comments |
-| Semantic highlighting | Symbol-table-driven coloring: alias vs. native register, `define` vs. literal, labels, macros |
-| Real-time diagnostics | Incremental re-analysis on every edit; errors categorized in the Problems panel |
-| Hover tooltips | Symbol type, value, and description on hover |
-| Intelligent completion | Instruction keywords + operand completion with device-context filtering |
-| Signature help | Active parameter highlighting as you type |
-| Code formatting | Configurable via `.ic.yaml`/`.ic.yml`/`.ic.json` (column alignment, indentation, comment alignment) |
-| Incremental compilation | Line-level incremental lexing + statement-level incremental parsing; caches persist across sessions |
-| Bilingual UI | English (`en-us`) and Simplified Chinese (`zh-hans`); switch in settings |
-| Type annotations | `#:` type hint syntax and `#>` doc comment syntax for device/enum type declarations |
+Grab `ic10c` from the [releases page](https://github.com/edoCsItahW/Stationeers/releases), then:
 
-See the extension's [README](code/IC10/plugins/vscode/ic10-language-support/README.md) for full details and configuration options.
+```bash
+ic10c main.ic                # compile; prints the symbol table as JSON
+ic10c --emit-ast main.ic     # inspect the syntax tree
+ic10c --link a.ic b.ic       # link multiple units
+```
+
+Exit codes are useful in scripts: `0` success, `1` bad usage or unreadable file, `2` the compiler reported
+warnings or errors.
+
+### From your own code
+
+```typescript
+import { Lexer, Parser, Analyser, IC10Local } from 'ic10c-node';
+
+IC10Local.setLanguage('zh-hans');            // optional, defaults to English
+
+const tokens = Lexer.tokenize(source);
+const program = new Parser(tokens, false).parse();
+
+const analyser = new Analyser();
+await analyser.visit(program);               // async: forward references are resolved by coroutines
+
+console.log(analyser.symbolTable.toJSON(), analyser.diagnostics);
+```
+
+```python
+from ic10c_python import Lexer, Parser, Analyser
+
+tokens = Lexer.tokenize(source)
+program = Parser(tokens, False).parse()
+
+analyser = Analyser()
+analyser.visit(program)
+print(analyser.symbolTable.toJSON())
+```
+
+Linking and incremental compilation are exposed the same way — see `Linker` and `IncCompiler` in the
+[Node.js package](code/IC10/backend/compiler/publish/node) or the
+[Python stubs](code/IC10/backend/compiler/publish/python/ic10c_python.pyi).
 
 ---
 
-## Internationalization (i18n)
+## Documentation
 
-The compiler supports multiple languages. Available languages:
-- English (`en-us`) — default
-- Simplified Chinese (`zh-hans`)
+| Where | What |
+|---|---|
+| [IC10 extension README](code/IC10/plugins/vscode/ic10-language-support/README.md) | every setting and feature of the editor extension |
+| [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | architecture, build, test, release — for people working on this repo |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | issues, pull requests, commit conventions |
+| [CHANGELOG.md](CHANGELOG.md) | what changed, release by release |
+| [docs/annotationExample.md](docs/annotationExample.md) | the `#:` / `#>` annotation syntax, by example |
+| [docs/grammar/](docs/grammar/) | the IC10 grammar, split by lexer/parser and instruction arity |
 
-**C++:**
-```cpp
-IC10Local::setLanguage("zh-hans");
+---
+
+## Build from source
+
+You need CMake ≥ 3.28.1 and a C++23 compiler — plus `jq` if you use the bash scripts. They do the rest:
+
+```bash
+git clone https://github.com/edoCsItahW/Stationeers.git && cd Stationeers
+code/scripts/bashShell/buildIC10CompilerCore.sh      # Windows: pwsh code/scripts/powerShell/BuildIC10CompilerCore.ps1
 ```
 
-**Node.js:**
+That configures, builds and runs the C++ test suite. For the Node.js, Python, Java, runtime and CLI targets, the
+toolchain versions, the CMake options and how to cut a release, see the
+**[Developer Guide](DEVELOPER_GUIDE.md)**.
+
+---
+
+## Internationalization
+
+Compiler messages ship in English (`en-us`, default) and Simplified Chinese (`zh-hans`):
+
+```cpp
+IC10Local::setLanguage("zh-hans");     // C++
+```
 ```typescript
-IC10Local.setLanguage('zh-hans');
+IC10Local.setLanguage('zh-hans');      // Node.js
 ```
 
 ---
 
 ## Versioning
 
-This project follows [Semantic Versioning 2.0.0](https://semver.org/). The current version is **2.0.0** (see [VERSION](VERSION)).
+This project follows [Semantic Versioning](https://semver.org/). `VERSION` currently reads **3.0.0** for the
+IC10 core and **1.0.2** for the VS Code extension; the most recent tag is `v2.6.6`.
 
-- **v2.0.0** — Breaking syntax changes accompanying game updates, plus linker, incremental compiler, Python bindings, type inference, and annotation syntax.
-- **v1.0.x** — Initial release with lexer, parser, semantic analyser, and Node.js bindings.
+- **v3.0.0** — the IC10 v3 rework: rewritten lexer and parser with unified per-arity AST nodes, adjusted
+  `annotation` and `link` grammar rules, a new execution runtime with debugging support, Java bindings, and
+  metadata split out into `@ic10/metadata`.
+- **v2.x** — linker, incremental compiler, type inference, annotation syntax, Python bindings, and the syntax
+  changes that came with a game update.
+- **v1.0.x** — first release: lexer, parser, semantic analysis and Node.js bindings.
 
-See [CHANGELOG.md](CHANGELOG.md) for full release history.
-
----
-
-## Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to report issues, submit pull requests, and our coding standards.
+Full history in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
 ## License
 
-This project is licensed under the **CC BY-NC-SA 4.0** license.
-See the [LICENSE](LICENSE) file for details.
-You may not use this software for commercial purposes without the author's permission.
+**CC BY-NC-SA 4.0** — see [LICENSE](LICENSE). Please don't use this commercially without asking first.
 
 ---
 
-## Author
+## Author & thanks
 
-**edocsitahw** – [edocsitahw@qq.com](mailto:edocsitahw@qq.com)
+**edocsitahw** — [edocsitahw@qq.com](mailto:edocsitahw@qq.com)
 
----
-
-## Acknowledgements
-
-- Inspired by the IC10 scripting language in [Stationeers](https://stationeers.com/).
-- Built with C++23 coroutines and modern CMake.
-- Node.js bindings powered by [node-addon-api](https://github.com/nodejs/node-addon-api).
-- Python bindings powered by [pybind11](https://github.com/pybind/pybind11).
+Thanks to [Stationeers](https://stationeers.com/) for the language worth writing a compiler for, and to
+[node-addon-api](https://github.com/nodejs/node-addon-api), [pybind11](https://github.com/pybind/pybind11) and
+[fbjni](https://github.com/facebookincubator/fbjni), which make the bindings possible.
