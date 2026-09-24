@@ -20,7 +20,6 @@
 namespace stationeers::ic10 {
 
     void initToken(py::module_& m) {
-        // TODO: 需重新编译验证 — 改用编译期反射导出枚举，与 C++ 定义自动同步
         stationeers::exportEnum<TokenType>(m, "TokenType");
         stationeers::exportEnum<TokenCategory>(m, "TokenCategory");
         stationeers::exportEnum<InstructionKeyword>(m, "InstructionKeyword");

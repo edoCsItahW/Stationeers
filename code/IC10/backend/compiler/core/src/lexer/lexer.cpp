@@ -8,10 +8,37 @@
 /**
  * @file lexer.cpp
  * @author edocsitahw
- * @version 1.1
- * @date 2026/06/02 22:25
- * @brief
+ * @version 1.2
+ * @date 2026/09/24
+ * @if zh
+ * @brief @ref Lexer 的实现：按首字符分派，各 `extractXxx` 自行吃字符
+ * @details 设计说明、Token 对照表与集成关系都在 `lexer.hpp`，这里只记实现层面的三个要点：
+ *          - @ref Lexer::next 是**唯一的按字符分派点**，分派顺序即优先级；它在末尾还做一次
+ *            **词元边界校验**（IEL3_1），用来抓住 `r0x`、`12abc` 这类粘连输入。
+ *          - **换行是 Token，不是空白**：@ref Lexer::skip 遇 `\n` 即停，@ref Lexer::next 把 `\n`
+ *            单独产出为 `NEWLINE` 并调 `pos_.newline()` 记账行号。
+ *          - 两处「**不消费、把同步点留给下一行**」的恢复：未闭合字符串（IEL2_1，见
+ *            @ref Lexer::extractString）与未登记符号（IEL1_1，见 @ref Lexer::extractSymbol）。
+ * @note 诊断一律写入 @ref Lexer::reporter_，本文件中的函数**不抛异常**；`debug_` 目前无读取点。
+ * @see lexer.hpp 词法器契约与设计说明
  * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @elseif en
+ * @brief Implementation of @ref Lexer: dispatch on the first character, each `extractXxx` eats its own
+ * @details The design notes, token tables and integration map live in `lexer.hpp`; this file only
+ *          records three implementation-level points:
+ *          - @ref Lexer::next is the **single character dispatch point** and its order is priority; at
+ *            the end it also performs a **token boundary check** (IEL3_1) that catches glued input like
+ *            `r0x` or `12abc`.
+ *          - **A newline is a token, not whitespace**: @ref Lexer::skip stops at `\n` and
+ *            @ref Lexer::next emits it as `NEWLINE`, calling `pos_.newline()` to keep line numbers.
+ *          - Two recoveries that **consume nothing and leave the sync point to the next line**: an
+ *            unterminated string (IEL2_1, see @ref Lexer::extractString) and an unregistered symbol
+ *            (IEL1_1, see @ref Lexer::extractSymbol).
+ * @note Diagnostics always go to @ref Lexer::reporter_ and nothing in this file throws; `debug_` is
+ *       currently never read.
+ * @see lexer.hpp the lexer contract and design notes
+ * @copyright CC BY-NC-SA 2026. All rights reserved.
+ * @endif
  * */
 #include "ic10_compiler/lexer/lexer.hpp"
 #include "common/exception/debug.hpp"
