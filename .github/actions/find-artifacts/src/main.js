@@ -20,7 +20,7 @@ function normalizePattern(pattern) {
 async function main() {
     try {
         const inputs = {
-            searchDir: path.relative(core.getInput('search-dir', {required: true})),
+            searchDir: path.resolve(core.getInput('search-dir', {required: true})),
             patterns: parseList(core.getInput('patterns', { required: true })),
             excludeDirs: parseList(core.getInput('exclude-dirs') || "node_modules"),
             ifNoFiles: core.getInput('if-no-files-found') || "warn",
