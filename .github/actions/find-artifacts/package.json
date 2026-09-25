@@ -4,7 +4,7 @@
     "private": true,
     "main": "dist/main.js",
     "scripts": {
-        "build": "ncc build src/main.js -o dist/main.js && ncc build src/post.js -o dist/post.js"
+        "build": "node src/build.js"
     },
     "dependencies": {
         "@actions/artifact": "2.1.9",

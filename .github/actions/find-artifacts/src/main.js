@@ -20,7 +20,7 @@ function normalizePattern(pattern) {
 async function main() {
     try {
         const inputs = {
-            searchDir: path.relative(core.getInput('search-dir', {required: true}), to),
+            searchDir: path.resolve(core.getInput('search-dir', {required: true})),
             patterns: parseList(core.getInput('patterns', { required: true })),
             excludeDirs: parseList(core.getInput('exclude-dirs') || "node_modules"),
             ifNoFiles: core.getInput('if-no-files-found') || "warn",
@@ -56,9 +56,18 @@ async function main() {
             });
 
             if (files.length > 0) {
-                results = files;
+                // 同一产物会同时存在于构建输出、publish 目录与测试目录（内容相同），
+                // 而 artifact 内部按 basename 扁平存放，故须按 basename 去重，只保留一份
+                const byBase = new Map();
+                for (const file of [...files].sort()) {
+                    const base = path.basename(file);
+                    if (!byBase.has(base)) byBase.set(base, file);
+                }
+                results = [...byBase.values()];
                 matchedPattern = rawPattern;
-                core.info(`Pattern '${rawPattern}' matched ${files.length} file(s).`);
+                core.info(
+                    `Pattern '${rawPattern}' matched ${files.length} file(s), ${results.length} after dedupe.`
+                );
                 break;
             }
         }
@@ -73,6 +82,15 @@ async function main() {
         } else {
             core.info(`Found ${results.length} file(s):`);
             results.forEach((file) => core.info(`  ${file}`));
+
+            // post 阶段靠这些 state 上传 artifact；少一个都会静默跳过上传
+            core.setOutput('files', results.join('\n'));
+            core.setOutput('count', String(results.length));
+
+            core.saveState('files', JSON.stringify(results));
+            core.saveState('searchDir', inputs.searchDir);
+            core.saveState('artifactName', inputs.artifactName);
+            core.saveState('retentionDays', core.getInput('retention-days') || '0');
         }
 
 
