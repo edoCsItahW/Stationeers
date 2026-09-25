@@ -115,17 +115,17 @@ jobs:
                 run: |
                     mkdir -p release-assets/linux release-assets/windows
                     
-                    cp -r artifacts/ic10c release-assets/linux
-                    cp -r artifacts/ic10c.exe release-assets/windows
-
-                    cp -r artifacts/ic10c-node.node release-assets/linux
-                    cp -r artifacts/ic10c-node.node release-assets/windows
-
-                    cp -r artifacts/ic10c-python.os release-assets/linux
-                    cp -r artifacts/ic10c-python.pyd release-assets/windows
-
-                    cp -r artifacts/ic10c-java.os release-assets/linux
-                    cp -r artifacts/ic10c-java.dll release-assets/windows
+                    cp -r artifacts/ic10c-ubuntu-latest/.            release-assets/linux/
+                    cp -r artifacts/ic10c.exe-windows-latest/.       release-assets/windows/
+                    
+                    cp -r artifacts/ic10c-node.node-ubuntu-latest/.   release-assets/linux/
+                    cp -r artifacts/ic10c-node.node-windows-latest/.  release-assets/windows/
+                    
+                    cp -r artifacts/ic10c_python.so-ubuntu-latest/.   release-assets/linux/
+                    cp -r artifacts/ic10c_python.pyd-windows-latest/. release-assets/windows/
+                    
+                    cp -r artifacts/libic10c_java.so-ubuntu-latest/.  release-assets/linux/
+                    cp -r artifacts/ic10c_java.dll-windows-latest/.   release-assets/windows/
                     
             -   name: "[Auto] Determine prerelease status | 确定预发布状态"
                 id: prerelease
@@ -144,6 +144,7 @@ jobs:
                     draft: true
                     prerelease: ${{ steps.prerelease.outputs.is_prerelease }}
                     name: ${{ github.ref_name }}
+                    files: release-assets/**/*
                     body: |
                         # ${{ github.ref_name }}
                         
@@ -151,7 +152,7 @@ jobs:
                             <summary>中文</summary>
                         
                         # 发布版本 vx.x.x
-                        **发布日期**: ${{ github.event.pushed_at }}
+                        **发布日期**: ${{ github.event.run_started_at }}
                         **完整更新日志**: 
                         
                         ---
@@ -170,7 +171,7 @@ jobs:
                         - **edocsitahw** — 
                         </details>
                         
-                        **Release Date**: ${{ github.event.pushed_at }}
+                        **Release Date**: ${{ github.event.run_started_at }}
                         **Full Changelog**: 
   
                         ---
