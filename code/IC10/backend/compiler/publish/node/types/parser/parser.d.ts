@@ -8,9 +8,9 @@
 /**
  * @file parser.d.ts
  * @author edocsitahw
- * @version 1.1
- * @date 2026/07/22 15:38
- * @desc
+ * @version 1.2
+ * @date 2026/09/24
+ * @desc 语法分析器 {@link Parser} 的类型声明：把 Token 序列解析为 AST。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Diagnostic } from "../common";
@@ -22,13 +22,9 @@ import { Program } from "./program";
  * @summary 语法分析器类
  *
  * @desc 将 Token 序列解析为 AST（抽象语法树）。
- * 支持调试模式，可以在解析过程中输出调试信息。
  *
- * @elseif en
- * @summary Parser class
- *
- * @desc Parses a sequence of Tokens into an AST (Abstract Syntax Tree).
- * Supports debug mode to output debug information during parsing.
+ * @remarks
+ * **English:** parses a token sequence into an AST (abstract syntax tree).
  *
  * @example
  * ```typescript
@@ -47,10 +43,13 @@ export class Parser {
      * @summary 构造函数
      *
      * @param tokens - Token 数组
-     * @param debug - 是否启用调试模式（可选，默认为 false）
+     * @param debug - 预留参数，**当前不改变任何行为**
      *
      * @desc 创建语法分析器实例。
      * 调用 {@link parse} 方法执行实际的解析操作。
+     *
+     * @remarks `debug` 会传入 C++ 侧同名标志，而该标志目前在编译器核心中没有任何读取点，
+     *          因此打开它不会产生任何调试输出。
      */
     constructor(tokens: Token[], debug?: boolean);
 
@@ -67,10 +66,13 @@ export class Parser {
      * @summary 静态方法：解析 Token 序列
      *
      * @param tokens - Token 数组
-     * @param debug - 是否启用调试模式（可选，默认为 false）
+     * @param debug - 预留参数，**当前不改变任何行为**
      * @returns 程序节点
      *
      * @desc 便捷方法，无需创建 Parser 实例即可解析。
+     *
+     * @note 它内部创建的 Parser 实例会连同其诊断一起丢弃；需要 `diagnostics` 时请自行
+     *       `new Parser(tokens)` 再调用 {@link parse}。
      */
     static parsing(tokens: Token[], debug?: boolean): Program;
 

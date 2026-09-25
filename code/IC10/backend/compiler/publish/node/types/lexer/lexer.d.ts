@@ -8,9 +8,9 @@
 /**
  * @file lexer.d.ts
  * @author edocsitahw
- * @version 1.1
- * @date 2026/07/22 15:35
- * @desc
+ * @version 1.2
+ * @date 2026/09/24
+ * @desc 词法分析器 {@link Lexer} 的类型声明：把 IC10 源码切分为 Token 序列。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import {Token} from "./token";
@@ -30,14 +30,19 @@ export class Lexer {
      * @summary 构造函数
      *
      * @param source - 待分析的 IC10 源代码字符串
-     * @param debug - 是否保留注释（可选，默认为 false）
+     * @param debug - 预留参数，**当前不改变任何行为**
      *
      * @desc 创建词法分析器实例，但不立即执行分析。
      * 调用 {@link scan} 方法执行实际的词法分析。
      *
+     * @remarks
+     * `debug` 会被传给 C++ 侧的同名标志，而该标志目前在编译器核心中没有任何读取点，因此打开它
+     * 既不会保留也不会过滤注释 —— 注释本来就**始终**出现在 {@link scan} 的结果里（类别为
+     * `TokenCategory.COMMENT`），由语法分析器负责跳过。
+     *
      * @example
      * ```typescript
-     * const lexer = new ic10.Lexer('move r0 r1', true);
+     * const lexer = new ic10.Lexer('move r0 r1');
      * ```
      */
     constructor(source: string, debug?: boolean);
@@ -63,7 +68,8 @@ export class Lexer {
      * @returns Token 数组
      *
      * @desc 执行实际的词法分析，将源代码分解为 Token 序列。
-     * 如果构造时设置了 debug=true，注释也会作为 Token 保留。
+     * 结果包含换行（`TokenCategory.WHITESPACE`）、注释（`TokenCategory.COMMENT`）与结尾的
+     * `END`，即**未经筛选的完整 token 流**。
      *
      * @example
      * ```typescript

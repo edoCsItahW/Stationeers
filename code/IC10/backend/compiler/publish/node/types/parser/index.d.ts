@@ -8,12 +8,11 @@
 /**
  * @file index.d.ts
  * @author edocsitahw
- * @version 1.1
- * @date 2026/07/22 15:59
- * @desc
+ * @version 1.2
+ * @date 2026/09/24
+ * @desc 语法分析相关声明的汇总出口：再导出 ast、parser 与 program 三个模块。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 export * from "./ast";
-export * from "./instructions";
 export * from "./parser";
 export * from "./program";
