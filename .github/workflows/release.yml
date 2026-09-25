@@ -60,7 +60,7 @@ jobs:
                     -   os: ubuntu-latest
                         script-dir: code/scripts/bashShell
                         script-name: buildIC10CompilerPython.sh
-                        artifact-name: ic10c_python.os
+                        artifact-name: ic10c_python.so
                     -   os: windows-latest
                         script-dir: code/scripts/powerShell
                         script-name: BuildIC10CompilerPython.ps1
@@ -80,7 +80,7 @@ jobs:
                     -   os: ubuntu-latest
                         script-dir: code/scripts/bashShell
                         script-name: buildIC10CompilerJava.sh
-                        artifact-name: ic10c_java.os
+                        artifact-name: libic10c_java.so
                     -   os: windows-latest
                         script-dir: code/scripts/powerShell
                         script-name: BuildIC10CompilerJava.ps1
@@ -101,6 +101,9 @@ jobs:
             - build-ic10-compiler-python
             - build-ic10-compiler-java
         runs-on: ubuntu-latest
+        # 创建 GitHub Release 需要内容写权限；仓库默认 token 权限为 read
+        permissions:
+            contents: write
         steps:
             -   name: "[Auto] Checkout source code | 检出源码"
                 uses: actions/checkout@v7
@@ -115,17 +118,17 @@ jobs:
                 run: |
                     mkdir -p release-assets/linux release-assets/windows
                     
-                    cp -r artifacts/ic10c-ubuntu-latest/.            release-assets/linux/
-                    cp -r artifacts/ic10c.exe-windows-latest/.       release-assets/windows/
+                    cp -r artifacts/ubuntu-latest-ic10c/.            release-assets/linux/
+                    cp -r artifacts/windows-latest-ic10c.exe/.       release-assets/windows/
                     
-                    cp -r artifacts/ic10c-node.node-ubuntu-latest/.   release-assets/linux/
-                    cp -r artifacts/ic10c-node.node-windows-latest/.  release-assets/windows/
+                    cp -r artifacts/ubuntu-latest-ic10c-node.node/.   release-assets/linux/
+                    cp -r artifacts/windows-latest-ic10c-node.node/.  release-assets/windows/
                     
-                    cp -r artifacts/ic10c_python.so-ubuntu-latest/.   release-assets/linux/
-                    cp -r artifacts/ic10c_python.pyd-windows-latest/. release-assets/windows/
+                    cp -r artifacts/ubuntu-latest-ic10c_python.so/.   release-assets/linux/
+                    cp -r artifacts/windows-latest-ic10c_python.pyd/. release-assets/windows/
                     
-                    cp -r artifacts/libic10c_java.so-ubuntu-latest/.  release-assets/linux/
-                    cp -r artifacts/ic10c_java.dll-windows-latest/.   release-assets/windows/
+                    cp -r artifacts/ubuntu-latest-libic10c_java.so/.  release-assets/linux/
+                    cp -r artifacts/windows-latest-ic10c_java.dll/.   release-assets/windows/
                     
             -   name: "[Auto] Determine prerelease status | 确定预发布状态"
                 id: prerelease
