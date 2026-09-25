@@ -1,3 +1,0 @@
-{
-    "content": "define rgas    \"rags\"     #: @builtin @desc ./locals/instructions.rgas.desc\ndefine deg2rad \"deg2rad\"  #: @builtin @desc ./locals/instructions.deg2rad.desc\ndefine tau     \"tau\"      #: @builtin @desc ./locals/instructions.tau.desc\ndefine epsilon \"epsilon\"  #: @builtin @desc ./locals/instructions.epsilon.desc\ndefine nan     \"nan\"      #: @builtin @desc ./locals/instructions.nan.desc\ndefine pinf    \"pinf\"     #: @builtin @desc ./locals/instructions.pinf.desc\ndefine ninf    \"ninf\"     #: @builtin @desc ./locals/instructions.ninf.desc\ndefine pi      \"pi\"       #: @builtin @desc ./locals/instructions.pi.desc\ndefine rad2deg \"rad2deg\"  #: @builtin @desc ./locals/instructions.rad2deg.desc"
-}

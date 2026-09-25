@@ -8,9 +8,10 @@
 /**
  * @file token.d.ts
  * @author edocsitahw
- * @version 1.1
- * @date 2026/07/22 15:36
- * @desc
+ * @version 1.2
+ * @date 2026/09/24
+ * @desc 词法单元 {@link Token} 及其枚举 {@link TokenType}、{@link TokenCategory}、
+ *       {@link InstructionKeyword} 的类型声明。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import {Pos} from "../common";
@@ -291,14 +292,12 @@ export class Token {
      * @param pos - 位置对象，记录该 Token 在源代码中的位置
      * @param lexeme - 词素，即源代码中的原始字符串
      * @param category - Token 类别（对应 ic10::TokenCategory 枚举，可选）
+     * @param keyword - 指令关键字（对应 ic10::InstructionKeyword 枚举，可选）
      *
-     * @example
-     * ```typescript
-     * const pos = new ic10.Pos();
-     * pos.line = 0;
-     * pos.column = 0;
-     * const token = new ic10.Token(TokenType.KEYWORD, pos, 'move', TokenCategory.LITERAL, InstructionKeyword.MOVE);
-     * ```
+     * @warning **不要自行构造 Token**。原生侧这个构造函数缺少参数校验：不带参数调用会直接
+     *          让进程以 NAPI fatal error 崩溃，传完整 5 个参数同样会崩溃，只传 3 个参数虽然能拿到
+     *          对象，但进程在退出/回收时仍会以访问违例（0xC0000005）终止。
+     *          Token 实例请一律从 {@link Lexer.tokenize} / {@link Lexer.scan} 获取。
      */
     constructor(
         type: TokenType,
@@ -342,7 +341,8 @@ export class Token {
     /**
      * @summary 返回可读字符串表示
      *
-     * @returns 格式化的字符串，如 `Token{type=1, lexeme="move"}`
+     * @returns 形如 `Token<1,1>[KEYWORD_ALIAS]('alias')` 的字符串，即
+     *          `Token<行,列>[类别](词素)`
      *
      * @desc 用于调试目的，返回人类可读的 Token 描述。
      */
