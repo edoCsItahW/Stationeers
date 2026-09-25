@@ -60,11 +60,11 @@ jobs:
                     -   os: ubuntu-latest
                         script-dir: code/scripts/bashShell
                         script-name: buildIC10CompilerPython.sh
-                        artifact-name: ic10c-python.os
+                        artifact-name: ic10c_python.os
                     -   os: windows-latest
                         script-dir: code/scripts/powerShell
                         script-name: BuildIC10CompilerPython.ps1
-                        artifact-name: ic10c-python.pyd
+                        artifact-name: ic10c_python.pyd
         uses: ./.github/workflows/python-workflow.yml
         with:
             os: ${{ matrix.os }}
@@ -80,11 +80,11 @@ jobs:
                     -   os: ubuntu-latest
                         script-dir: code/scripts/bashShell
                         script-name: buildIC10CompilerJava.sh
-                        artifact-name: ic10c-java.os
+                        artifact-name: ic10c_java.os
                     -   os: windows-latest
                         script-dir: code/scripts/powerShell
                         script-name: BuildIC10CompilerJava.ps1
-                        artifact-name: ic10c-java.dll
+                        artifact-name: ic10c_java.dll
         uses: ./.github/workflows/java-workflow.yml
         with:
             os: ${{ matrix.os }}
