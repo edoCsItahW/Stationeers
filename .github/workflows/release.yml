@@ -121,8 +121,13 @@ jobs:
                     cp -r artifacts/ubuntu-latest-ic10c/.            release-assets/linux/
                     cp -r artifacts/windows-latest-ic10c.exe/.       release-assets/windows/
                     
+                    # node 绑定在两个平台同名（都是 ic10c-node.node），而 release 资源是扁平的，
+                    # 同名会导致 already_exists，故按平台改名
                     cp -r artifacts/ubuntu-latest-ic10c-node.node/.   release-assets/linux/
+                    mv release-assets/linux/ic10c-node.node release-assets/linux/ic10c-node-linux.node
+
                     cp -r artifacts/windows-latest-ic10c-node.node/.  release-assets/windows/
+                    mv release-assets/windows/ic10c-node.node release-assets/windows/ic10c-node-windows.node
                     
                     cp -r artifacts/ubuntu-latest-ic10c_python.so/.   release-assets/linux/
                     cp -r artifacts/windows-latest-ic10c_python.pyd/. release-assets/windows/
