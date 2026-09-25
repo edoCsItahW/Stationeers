@@ -74,10 +74,10 @@ async function main() {
             core.info(`Found ${results.length} file(s):`);
             results.forEach((file) => core.info(`  ${file}`));
 
+            // post 阶段靠这些 state 上传 artifact；少一个都会静默跳过上传
             core.setOutput('files', results.join('\n'));
             core.setOutput('count', String(results.length));
 
-            // post 阶段靠这些 state 上传 artifact；少一个就会静默跳过上传
             core.saveState('files', JSON.stringify(results));
             core.saveState('searchDir', inputs.searchDir);
             core.saveState('artifactName', inputs.artifactName);
