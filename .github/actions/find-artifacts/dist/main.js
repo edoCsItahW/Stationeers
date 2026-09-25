@@ -34492,9 +34492,18 @@ async function main() {
             });
 
             if (files.length > 0) {
-                results = files;
+                // 同一产物会同时存在于构建输出、publish 目录与测试目录（内容相同），
+                // 而 artifact 内部按 basename 扁平存放，故须按 basename 去重，只保留一份
+                const byBase = new Map();
+                for (const file of [...files].sort()) {
+                    const base = path.basename(file);
+                    if (!byBase.has(base)) byBase.set(base, file);
+                }
+                results = [...byBase.values()];
                 matchedPattern = rawPattern;
-                core.info(`Pattern '${rawPattern}' matched ${files.length} file(s).`);
+                core.info(
+                    `Pattern '${rawPattern}' matched ${files.length} file(s), ${results.length} after dedupe.`
+                );
                 break;
             }
         }
