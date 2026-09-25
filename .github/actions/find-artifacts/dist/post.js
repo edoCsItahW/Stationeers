@@ -136476,21 +136476,21 @@ async function run() {
                 rel = path.basename(abs);
             }
 
-            // 处理可能的文件名冲突
-            let destRel = rel;
+            let destRel = path.basename(abs);
             if (usedDests.has(destRel)) {
                 const ext = path.extname(destRel);
                 const base = path.basename(destRel, ext);
                 const dir = path.dirname(destRel);
                 destRel = path.join(dir, `${base}-${Math.random().toString(36).slice(2, 8)}${ext}`);
             }
+
             usedDests.add(destRel);
 
             const dest = path.join(staging, destRel);
             await fs.mkdir(path.dirname(dest), { recursive: true });
             await fs.copyFile(abs, dest);
 
-            uploadFiles.push(destRel);
+            uploadFiles.push(dest);
         }
 
         core.info(`Uploading ${uploadFiles.length} file(s) as artifact '${artifactName}'...`);

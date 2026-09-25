@@ -110,6 +110,7 @@ jobs:
                 if: inputs.artifact-name != ''
                 uses: ./.github/actions/find-artifacts
                 with:
-                    artifact-name: ${{ inputs.artifact-name }}
+                    artifact-name: ${{ inputs.artifact-name }}-${{ inputs.os }}
                     patterns: ${{ inputs.artifact-name }}
                     search-dir: ${{ vars.STATIONEERS_CODE_DIR }}
+                    exclude-dirs: 'node_modules,artifacts'
