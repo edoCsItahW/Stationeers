@@ -18,7 +18,7 @@
 import { DidChangeConfigurationNotification } from "vscode-languageserver/node";
 import type { Connection, InitializeResult } from "vscode-languageserver";
 import { CONFIGURATION_SECTION_NAME, Optional } from "@ic10/common";
-import { IC10CompilerLocal } from "ic10c-node";
+import { IC10CompilerLocal } from "@ic10/compiler";
 
 import { TOKEN_TYPES, TOKEN_MODIFIERS } from "../handlers";
 import { DocumentCache, GlobalCache } from "../cache";

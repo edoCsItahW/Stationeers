@@ -13,14 +13,17 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { EventEmitter } from "node:events";
-
 import type { AstResponseEventData, Optional } from "@ic10/common";
-import { Lexer, Parser, Linker, SymbolMap } from "ic10c-node";
-import stdLibJson from "ic10c-node/static/stdLib.ic.json";
-import type { IC10RuntimeEvents } from "./types";
+import { Lexer, Parser, Linker, SymbolMap } from "@ic10/compiler";
 import { Engine, MemoryInfo } from "ic10r-node";
+import { EventEmitter } from "node:events";
+import { readFileSync } from "node:fs";
 import { t } from "./locals";
+
+import type { IC10RuntimeEvents } from "./types";
+
+
+const STAND_LIB = readFileSync(require.resolve("@ic10/compiler/src/stdLib.ic"), "utf-8");
 
 
 export interface IRuntimeBreakpoint {
@@ -63,7 +66,7 @@ export class IC10Runtime extends EventEmitter<IC10RuntimeEvents> {
     }
 
     private parse(code: string) {
-        const stdlib = stdLibJson.content;
+        const stdlib = STAND_LIB;
 
         const tokens = Lexer.tokenize(code);
 

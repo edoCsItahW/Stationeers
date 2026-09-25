@@ -35,15 +35,14 @@ import {
     Statement,
     BasicType,
     Operand
-} from "ic10c-node";
+} from "@ic10/compiler";
 
-import { AST, EnumKeyMap, locateOperand, operandToString, operandValueLength } from "../../../utils";
+import { AST, DescriptionSolver, EnumKeyMap, locateOperand, operandToString, operandValueLength } from "../../../utils";
 import { formatBasicType, formatType, isInsideNode } from "./utils";
 import type { HoverContext, IHoverProvider } from "./types";
 import svgBuilder from "../../../utils/svgBuilder";
 import { SettingsManager } from "../../services";
 import { s } from "../../../style";
-
 
 type HoverRendererKey = SettingsManager["hoverRenderer"];
 
@@ -173,7 +172,12 @@ abstract class HoverOperand extends HoverProvider<HoverRendererKey> {
 
         this.supplement({
             svg: [
-                [{ text: `(${type}) ` }, { text: operandToString(operand), color }, { text: ": " }, { text: operand.nodeName }]
+                [
+                    { text: `(${type}) ` },
+                    { text: operandToString(operand), color },
+                    { text: ": " },
+                    { text: operand.nodeName }
+                ]
             ],
             markdown: [`(${type}) ${operandToString(operand)}: ${operand.nodeName}`]
         });
@@ -358,7 +362,7 @@ export class DefineDirectiveHoverProvider extends HoverOperand {
             const ins = stdInstructions["define"];
             if (!ins) return null;
 
-            const desc =localsInstructions["define"].desc?.[ctx.getLocale()];
+            const desc = localsInstructions["define"].desc?.[ctx.getLocale()];
 
             return {
                 contents: {
@@ -455,9 +459,7 @@ export class InstructionHoverProvider extends HoverOperand {
         const location = locateOperand(stmt, ctx.character);
 
         // 命中操作数的槽位与节点；光标位于操作数之后的空隙时沿用最近的前一个操作数
-        const hit = location.operand
-            ? { slot: location.slot, operand: location.operand }
-            : location.previous;
+        const hit = location.operand ? { slot: location.slot, operand: location.operand } : location.previous;
 
         if (!hit) return this.provideKeywordHover(stmt.keyword, stmt, ctx);
 
@@ -491,32 +493,51 @@ export class InstructionHoverProvider extends HoverOperand {
         };
     }
 
-    private provideIdentifierHover(identifier: IdentifierNode, ctx: HoverContext, type?: OperandType): Nullable<Hover> {
+    private provideIdentifierHover(
+        identifier: IdentifierNode,
+        ctx: HoverContext,
+        opType?: OperandType
+    ): Nullable<Hover> {
         if (!isInsideNode(identifier.position.column, identifier.value.length, ctx.character)) return { contents: [] };
 
         const symbol = ctx.symbols?.symbols[identifier.value];
         if (!symbol) {
-            if (type && Object.prototype.hasOwnProperty.call(EnumKeyMap, type)) {
-                let key = EnumKeyMap[type];
+            // 是内置枚举
+            if (opType && Object.prototype.hasOwnProperty.call(EnumKeyMap, opType)) {
+                let key = EnumKeyMap[opType];
+
+                const type = ctx.types?.[key];
+
                 key = key.charAt(0).toLowerCase() + key.slice(1);
 
                 const prefix = `(${ctx.t(`hover.operandType.${key}` as any)})`;
                 const color = s("hover.constant.type");
 
                 this.supplement({
-                    svg: [[
-                        { text: prefix },
-                        { text: " " },
-                        { text: identifier.value, color },
-                        { text: `: ${EnumKeyMap[type]}` }
-                    ]],
+                    svg: [
+                        [
+                            { text: prefix },
+                            { text: " " },
+                            { text: identifier.value, color },
+                            { text: `: ${EnumKeyMap[opType]}` }
+                        ]
+                    ],
                     markdown: [`${prefix} ${identifier.value}`]
                 });
+
+                let descPart: Optional<string>;
+                if (type && AST.isEnumAnnotation(type)) {
+                    const desc = type.values.find(v => v.name === identifier.value)?.desc;
+
+                    if (desc) descPart = DescriptionSolver.solve(desc, ctx.getLocale());
+                }
 
                 return {
                     contents: {
                         kind: "markdown",
-                        value: this.renderer()
+                        value:
+                            this.renderer() +
+                            (descPart ? `  \n**${ctx.t("hover.common.description")}**: ${descPart}` : "")
                     }
                 };
             }
@@ -537,7 +558,8 @@ export class InstructionHoverProvider extends HoverOperand {
             case BasicType.DEVICE:
             case BasicType.REGISTER:
                 prefix = `(${ctx.t("hover.aliasDirective.type")}) `;
-                color = symbol.type === BasicType.DEVICE ? s("hover.device.identifier") : s("hover.register.identifier") ;
+                color =
+                    symbol.type === BasicType.DEVICE ? s("hover.device.identifier") : s("hover.register.identifier");
                 break;
             case BasicType.INTEGER:
             case BasicType.FLOAT:
@@ -586,7 +608,10 @@ export class InstructionHoverProvider extends HoverOperand {
                 markdown: [` = ${symbol.value}`]
             });
 
-        const descPart = symbol.desc ? `  \n**${ctx.t("hover.common.description")}**: ${symbol.desc}` : "";
+        const descPart =
+            symbol.desc && !AST.isError(symbol.desc)
+                ? `  \n**${ctx.t("hover.common.description")}**: ${DescriptionSolver.solve(symbol.desc, ctx.getLocale())}`
+                : "";
         const valuePart = value ? `  \n**${ctx.t("hover.common.value")}**: ${value}` : "";
 
         return {

@@ -23,7 +23,8 @@ export default {
         parser: {
             info: {
                 LIE1: "增量解析失败，回退至全量解析 {err}",
-                LIE2: "全量解析失败 {err}"
+                LIE2: "全量解析失败 {err}",
+                LIE3: "增量结果缺少 diagnostics，通常说明 node_modules 里的 @ic10/compiler 原生模块比类型声明旧（请更新该依赖）"
             }
         },
         handler: {

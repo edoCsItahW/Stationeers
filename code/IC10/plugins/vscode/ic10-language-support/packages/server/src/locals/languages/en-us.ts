@@ -23,7 +23,8 @@ export default {
         parser: {
             info: {
                 LIE1: "parseInc failed, falling back to full parse {err}",
-                LIE2: "full parse failed {err}"
+                LIE2: "full parse failed {err}",
+                LIE3: "incremental results lack diagnostics, which usually means the @ic10/compiler native module in node_modules is older than its type declarations (update the dependency)"
             }
         },
         handler: {

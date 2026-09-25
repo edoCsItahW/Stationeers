@@ -91,6 +91,7 @@ export class HoverHandler {
             line,
             character,
             symbols: cache.symbols,
+            types: cache.types,
             statements: cache.ast.statements,
             getLocale: () => locale.getLocale(),
             t: (key, ...args) => t(key, ...args)

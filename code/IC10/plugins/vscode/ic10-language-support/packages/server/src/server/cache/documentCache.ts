@@ -15,7 +15,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Token, Program, type Diagnostic, type SymbolMap, type TypeTableMap, SymbolTable } from "ic10c-node";
+import { Token, Program, type Diagnostic, type SymbolMap, type TypeTableMap, SymbolTable } from "@ic10/compiler";
 import type { Optional } from "@ic10/common";
 
 

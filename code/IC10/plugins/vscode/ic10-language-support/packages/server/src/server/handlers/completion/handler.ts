@@ -14,7 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { CompletionItem, CompletionItemKind, Connection } from "vscode-languageserver";
-import { OperandType, TokenCategory, TokenType, TypeTableMap } from "ic10c-node";
+import { OperandType, TokenCategory, TokenType, TypeTableMap } from "@ic10/compiler";
 import { Console, debug, lowerBound } from "@ic10/common";
 
 import { AST, DescriptionSolver, end, findRangeTokens, getOperandType, locateOperand, OperandLocation } from "../../../utils";
@@ -24,6 +24,7 @@ import { combine, RelativeState, State } from "./state";
 import { DocumentCache } from "../../cache";
 import { locale, t } from "../../../locals";
 import { enumItem } from "./providers/enum";
+import * as console from "node:console";
 
 
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];

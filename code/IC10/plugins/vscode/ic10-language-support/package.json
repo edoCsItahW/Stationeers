@@ -325,7 +325,7 @@
         "verdaccio": "^6.9.2"
     },
     "dependencies": {
-        "ic10c-node": "2.7.2",
+        "@ic10/compiler": "^3.0.0",
         "ic10r-node": "1.0.5"
     }
 }

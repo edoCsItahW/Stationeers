@@ -3,4 +3,4 @@ packages:
 allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
-  - '@ic10/metadata@0.2.0'
+  - '@ic10/compiler@3.0.0'

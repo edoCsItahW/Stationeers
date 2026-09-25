@@ -16,23 +16,22 @@
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import type { Optional } from "@ic10/common";
 import {
-    DeviceAnnotationLogicSlot,
+    Device,
+    DeviceAnnotation,
     DeviceAnnotationLogic,
+    DeviceAnnotationLogicSlot,
     DeviceAnnotationSlot,
     EnumAnnotationValue,
-    DeviceAnnotation,
+    ErrorNode,
     IdentifierNode,
     OperandType,
-    ErrorNode,
-    Statement,
     Register,
-    Device
-} from "ic10c-node";
+    Statement
+} from "@ic10/compiler";
 
 import { AST, EnumKeyMap, operandToString } from "../../../../utils";
 import type { OperandProvider } from "./types";
 import { t } from "../../../../locals";
-
 
 export const provideEnum: OperandProvider = (ctx, opType, prefix) => {
     const res = () => provideGlobalEnum(ctx, opType, prefix);
@@ -46,7 +45,12 @@ export const provideEnum: OperandProvider = (ctx, opType, prefix) => {
     if (!symbol || !symbol.typeName) return res();
 
     const type = ctx.types[symbol.typeName];
-    if (type && AST.isDeviceAnnotation(type)) return provideDeviceCompletion(type, opType, prefix);
+    if (
+        type &&
+        AST.isDeviceAnnotation(type) &&
+        (opType === OperandType.LOGIC_PROP || opType === OperandType.LOGIC_SLOT_PROP || opType === OperandType.SLOT_IDX)
+    )
+        return provideDeviceCompletion(type, opType, prefix);
 
     return res();
 };
@@ -62,7 +66,11 @@ const provideGlobalEnum: OperandProvider = (ctx, opType, prefix) => {
     return type.values.filter(v => v.name.startsWith(prefix)).map(v => enumItem(v, opType));
 };
 
-function provideDeviceCompletion(type: DeviceAnnotation, opType: OperandType, prefix: string): CompletionItem[] {
+function provideDeviceCompletion(
+    type: DeviceAnnotation,
+    opType: OperandType.LOGIC_PROP | OperandType.LOGIC_SLOT_PROP | OperandType.SLOT_IDX,
+    prefix: string
+): CompletionItem[] {
     const key = (
         {
             [OperandType.LOGIC_PROP]: "logics",

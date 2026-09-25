@@ -36,7 +36,7 @@ import {
     EnumNode,
     Operand,
     Program
-} from "ic10c-node";
+} from "@ic10/compiler";
 
 import { AST, groupHandlers, visit } from "../../utils";
 import { DocumentCache } from "../cache";
