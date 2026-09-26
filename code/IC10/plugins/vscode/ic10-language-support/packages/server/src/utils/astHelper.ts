@@ -485,11 +485,11 @@ function isMissingOperand(operand: Operand): boolean {
  * `Foo.Bar` form is a **syntax** fact handled by the completion handler from the AST
  * (`AST.isEnum` plus sub-segment location). This table neither expresses nor drives `Foo.Bar`.
  * */
-export type GenericOperandType = "register" | "device" | "identifier" | "number";
+export type GenericOperandType = "register" | "device" | "identifier" | "number" | "enum";
 export const SemanticMap = {
     [OperandType.REG_TARGET]: ["identifier", "register"] as const,
     [OperandType.REG_OR_DEV]: ["device", "register"] as const,
-    [OperandType.NUM_VALUE]: ["identifier", "number", "register"] as const,
+    [OperandType.NUM_VALUE]: ["identifier", "number", "register", "enum"] as const,
     [OperandType.JUMP_LINE]: ["identifier", "number", "register"] as const,
     [OperandType.ADDRESS]: ["number", "register"] as const,
     [OperandType.SLOT_IDX]: ["number"] as const,
@@ -499,11 +499,11 @@ export const SemanticMap = {
     [OperandType.DEVICE_REF_STRICT]: ["device"] as const,
     [OperandType.LOGIC_PROP]: ["identifier", "number"] as const,
     [OperandType.LOGIC_SLOT_PROP]: ["identifier", "number"] as const,
-    [OperandType.AGG_MODE]: ["identifier", "number"] as const,
-    [OperandType.REAGENT_MODE]: ["identifier", "number"] as const,
+    [OperandType.AGG_MODE]: ["identifier", "number", "enum"] as const,
+    [OperandType.REAGENT_MODE]: ["identifier", "number", "enum"] as const,
     [OperandType.DEVICE_HASH]: ["identifier", "number", "register"] as const,
     [OperandType.NAME_HASH]: ["identifier", "number", "register"] as const,
-    [OperandType.CONST_NUM]: ["number"] as const,
+    [OperandType.CONST_NUM]: ["number"] as const
 } satisfies Record<OperandType, GenericOperandType[]>;
 
 /**

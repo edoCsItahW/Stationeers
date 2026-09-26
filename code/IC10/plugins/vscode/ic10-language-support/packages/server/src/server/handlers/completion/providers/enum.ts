@@ -33,7 +33,7 @@ import { AST, EnumKeyMap, operandToString } from "../../../../utils";
 import type { OperandProvider } from "./types";
 import { t } from "../../../../locals";
 
-export const provideEnum: OperandProvider = (ctx, opType, prefix) => {
+export const provideSemanticEnum: OperandProvider = (ctx, opType, prefix) => {
     const res = () => provideGlobalEnum(ctx, opType, prefix);
 
     if (!ctx.stmt || !ctx.symbols || !ctx.types) return res();
@@ -54,6 +54,21 @@ export const provideEnum: OperandProvider = (ctx, opType, prefix) => {
 
     return res();
 };
+
+export const provideGrammaticalEnum: OperandProvider = (ctx, opType, prefix) => {
+    if (!ctx.types) return [];
+
+    return Object.values(ctx.types).filter(t => AST.isEnumAnnotation(t)).map(type => ({
+        label: type.name,
+        kind: CompletionItemKind.Enum,
+        insertText: type.name,
+        detail: t(`hover.operandType.enum`),
+        data: {
+            description: type.desc
+        }
+    }));
+};
+
 
 const provideGlobalEnum: OperandProvider = (ctx, opType, prefix) => {
     if (!ctx.types) return [];
@@ -134,7 +149,7 @@ export function enumItem(
 
     return {
         label: item.name,
-        kind: CompletionItemKind.Constant,
+        kind: CompletionItemKind.EnumMember,
         insertText: item.name,
         detail: detail,
         labelDetails: {

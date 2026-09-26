@@ -18,18 +18,19 @@ import { OperandType, Token } from "@ic10/compiler";
 
 import { EnumKeyMap, GenericOperandType, SemanticMap } from "../../../../utils";
 import type { CompletionProviderContext, OperandProvider } from "./types";
+import { provideSemanticEnum, provideGrammaticalEnum } from "./enum";
 import { provideIdentifier } from "./identifier";
 import { provideRegister } from "./register";
 import { provideKeyword } from "./keyword";
 import { provideDevice } from "./device";
 import { provideNumber } from "./number";
-import { provideEnum } from "./enum";
 
 
 const COMPLETE_PROVIDERS: Record<GenericOperandType, OperandProvider> = {
+    identifier: provideIdentifier,
+    enum: provideGrammaticalEnum,
     register: provideRegister,
     device: provideDevice,
-    identifier: provideIdentifier,
     number: provideNumber
 };
 
@@ -42,7 +43,7 @@ export function provideOperand(ctx: CompletionProviderContext, opType: OperandTy
     // 因此它由 EnumKeyMap 声明而非 SemanticMap 的书写形式（见 EnumKeyMap 注释）
     const providers: OperandProvider[] = generics.map(g => COMPLETE_PROVIDERS[g]);
 
-    if (Object.prototype.hasOwnProperty.call(EnumKeyMap, opType)) providers.push(provideEnum);
+    if (Object.prototype.hasOwnProperty.call(EnumKeyMap, opType)) providers.push(provideSemanticEnum);
 
     type KeyType = `${string}:${string}`;
     const seen = new Set<KeyType>();
@@ -68,5 +69,5 @@ export {
     provideKeyword,
     provideDevice,
     provideNumber,
-    provideEnum
+    provideSemanticEnum
 }
