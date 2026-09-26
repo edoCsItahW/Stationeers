@@ -4,7 +4,7 @@
     "description": "IC10 language support | IC10语言支持",
     "author": "edocsitahw",
     "license": "CC BY-NC-SA 4.0",
-    "version": "1.0.2",
+    "version": "2.0.0",
     "publisher": "edocsitahw",
     "repository": {
         "type": "git",
@@ -21,7 +21,7 @@
         "vscode": "^1.125.0"
     },
     "activationEvents": [],
-    "main": "./packages/client/out/extension.js",
+    "main": "./packages/client/dist/extension.js",
     "icon": "icon.png",
     "screenshots": [
         "static/completion.mp4",
@@ -137,7 +137,7 @@
                     "String": "#6AAB73",
                     "Constant": "#C77DBB",
                     "Comment": "#7A7E85",
-                    "Decorator": "#C586C0",
+                    "Decorator": "#5F826B",
                     "Label": "#E8BF6A",
                     "Label.declaration": "#E8BF6A",
                     "LabelIdentifier": "#A3874C",
@@ -246,7 +246,7 @@
             "String": "#6AAB73",
             "Constant": "#C77DBB",
             "Comment": "#7A7E85",
-            "Decorator": "#C586C0",
+            "Decorator": "#5F826B",
             "Label": "#E8BF6A",
             "LabelIdentifier": "#A3874C",
             "Enum": "#4EC9B0",
@@ -311,21 +311,23 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile && cd client && npm install --production --ignore-scripts --no-package-lock && cd ../server && npm install --production --ignore-scripts --no-package-lock && cd .. && node -e \"const{rmSync,cpSync}=require('fs');for(const d of['client','server']){const m=d+'/node_modules/common';rmSync(m,{recursive:true,force:true});cpSync('common',m,{recursive:true,filter:s=>!s.includes('node_modules')})}\"",
+        "vscode:prepublish": "npm run compile && npm run bundle",
         "compile": "tsc -b",
-        "watch": "tsc -b -w",
+        "bundle": "node scripts/bundle.mjs",
+        "watch": "node scripts/watch.mjs",
         "lint": "eslint",
-        "test": "sh ./scripts/e2e.sh",
-        "install:all": "pnpm i && cd common && pnpm i && cd ../client && pnpm i && cd ../server && pnpm i",
-        "install:npm": "npm i && cd ./common && npm i && cd ../client && npm i && cd ../server && npm i"
+        "test": "sh ./scripts/e2e.sh"
     },
     "devDependencies": {
         "@types/node": "^26.0.1",
+        "esbuild": "^0.28.2",
         "prettier": "^3.9.6",
+        "typescript": "^6.0.3",
         "verdaccio": "^6.9.2"
     },
     "dependencies": {
-        "@ic10/compiler": "^3.0.0",
+        "@ic10/compiler": "^3.1.1",
+        "@ic10/metadata": "^1.0.0",
         "ic10r-node": "1.0.5"
     }
 }

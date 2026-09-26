@@ -318,9 +318,13 @@ export class AliasDirectiveHoverProvider extends HoverOperand {
             markdown: [` = ${operandToString(stmt.registerOrDevice)}`]
         });
 
-        const descPart = stmt.typeHint?.desc
-            ? `  \n**${ctx.t("hover.common.description")}**: ${stmt.typeHint.desc}`
-            : "";
+        let descPart = "";
+        if (stmt.typeHint?.desc) {
+            const desc = DescriptionSolver.solve(stmt.typeHint.desc, ctx.getLocale());
+
+            if (desc)
+                descPart = `  \n**${ctx.t("hover.common.description")}**: ${desc}`;
+        }
 
         return {
             contents: {

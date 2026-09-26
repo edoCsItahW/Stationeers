@@ -219,8 +219,8 @@ export function operandToString(node: Operand): string {
 
                 return result;
             },
-            HashMacro: hm => `HASH("${AST.isError(hm.value) ? operandToString(hm.value) : hm.value.value}")`,
-            StrMacro: sm => `STR("${AST.isError(sm.value) ? operandToString(sm.value) : sm.value.value}")`,
+            HashMacro: hm => `HASH(${AST.isError(hm.value) ? operandToString(hm.value) : hm.value.value})`,
+            StrMacro: sm => `STR(${AST.isError(sm.value) ? operandToString(sm.value) : sm.value.value})`,
             ...groupHandlers(["Integer", "Float"], n => n.value.toString())
         },
         node

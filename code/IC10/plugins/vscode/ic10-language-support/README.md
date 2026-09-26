@@ -7,107 +7,107 @@
 <details>
    <summary>中文版</summary>
 
-IC10 是游戏 [Stationeers](https://store.steampowered.com/app/544550/Stationeers/) 中可编程逻辑芯片（IC10）所使用的汇编风格脚本语言。本扩展为其提供完整的 VS Code 语言支持。
+写 IC10，最花时间的往往不是想逻辑，而是在游戏里改一遍、试一遍、再改一遍。这个扩展就是为了把这部分省下来——让你能在 VS Code 里像写普通代码那样写 IC10。
 
-该扩展基于 **C++ 原生编译器核心**，通过 Node.js 绑定与 VS Code 集成，在保证解析精度的同时兼顾编辑性能。编译器核心实现了完整的词法分析、语法分析、语义分析与增量编译流水线，为大文件的实时编辑提供近零延迟的响应体验。
+它提供完整的 IC10 语言支持：语法与语义高亮、实时诊断、悬停提示、智能补全、签名帮助、代码格式化，以及中英双语界面。背后是一套原生编译器核心，几千行的脚本写起来也依然跟手。
+
+装好就能用，不需要额外准备任何东西。
 
 ## 特性
 
-### 1. 语法高亮
-基于 TextMate 语法的高亮规则，覆盖关键字、寄存器、设备引用、字符串、数字、注释等。
+### 1. 语义高亮
+这里的颜色不只是"看起来像代码"，而是由编译器的符号表决定的：
 
-<img alt="语法分析" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYZqbIXmFdhtFLJrZ2DptdYpoy65AgAC-SQAAhvBaVfF89F5jqMjwj0E.png" style="padding: 20px;">
-
-### 2. 语义高亮
-基于编译器符号表的语义级着色：
 - 寄存器别名与原生寄存器区分着色
 - 设备别名与原生设备引用区分着色
 - `define` 常量与原始数字字面量区分着色
-- 标签、宏调用（`HASH`/`STR`）、类型注解等独立着色
-- 词素按声明/引用状态赋予不同修饰符
+- 标签、宏调用（`HASH`/`STR`）、类型注解各有独立颜色
+- 同一个名字，在声明处和引用处也会有不同的呈现
 
-<img alt="语义高亮" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYlqbIXx46tAV7jh3lDvEXEwezCqWQAC_CQAAhvBaVeVd9uY_lk3MD0E.png" style="padding: 20px;">
+<img alt="语义高亮" src="https://img.remit.ee/i/xjf8G4KTmBPk" style="padding: 20px;">
 
 > [!TIP]
-> 语义高亮颜色由 VS Code 的语义令牌主题控制，您可以通过在设置中配置 `editor.semanticTokenColorCustomizations` 来覆盖默认颜色，例如为寄存器别名、设备别名等指定自定义前景色或样式。具体配置方式请参考 VS Code 官方文档。
+> 语义高亮的颜色跟随 VS Code 的语义令牌主题。想换成自己喜欢的配色，可以在设置里配置 `editor.semanticTokenColorCustomizations`，比如单独为寄存器别名、设备别名指定前景色或样式。具体写法参考 VS Code 官方文档。
 
-### 3. 实时诊断
-编译器在每次编辑后增量分析代码，即时报告词法、语法与语义错误，并在问题面板中分类展示。
+### 2. 实时诊断
+每次编辑后立即增量分析，把词法、语法与语义问题分类报在问题面板里——不用等保存，也不用切回游戏。
 
-<img alt="实时诊断" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYRqbIXg07nZ7QnZMfvbbf9OnUgzlAAC9yQAAhvBaVfa2hh2dBm4fD0E.png" style="padding: 20px;">
+<img alt="实时诊断" src="https://img.remit.ee/i/WxEIz5IP26cG" style="padding: 20px;">
 
 > [!NOTE]
-> 由于 IC10 没有公开的官方语言规范，编译器行为基于 Stationeers 游戏实际运行验证。对于未覆盖的边缘情况，欢迎在 [Issues](https://github.com/edoCsItahW/Stationeers/issues) 中反馈。
+> IC10 没有公开的官方语言规范，所以编译器的行为是拿 Stationeers 游戏里的实际运行结果一条条比对出来的。如果你遇到了我们还没覆盖到的情况，欢迎到 [Issues](https://github.com/edoCsItahW/Stationeers/issues) 说一声。
 
-### 4. 悬停提示
-悬停在任意符号（别名、标签、常量、指令关键字）上时，显示其类型、值、描述等详细信息。
+### 3. 悬停提示
+把鼠标停在任意符号上（别名、标签、常量、指令关键字），就能看到它的类型、值、描述等信息。
 
-<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRYdqbIXrD_Q8ZzxBf45gJJ7vfLMbhgAC-iQAAhvBaVcmb9otxvqKST0E.mp4"  style="padding: 20px;"></video>
+<video src="https://img.remit.ee/i/zgXZzeNCjl65"  style="padding: 20px;"></video>
 
 
-### 5. 智能补全
+### 4. 智能补全
 - 指令关键字补全（支持前缀匹配）
-- 操作数补全：根据当前指令的操作数类型约束（`typeN`），自动筛选寄存器、设备引用、枚举值、跳转标签
+- 操作数补全：按当前指令的操作数类型约束（`typeN`），自动筛选寄存器、设备引用、枚举值、跳转标签
 - 设备上下文感知：根据前置设备节点过滤对应的 `LogicType`/`LogicSlot`/`BatchMode`/`SlotIndex`
 - `alias` / `define` 专用补全
 
-<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRXBqbIUOZlor00XzLejyotnFMgE2nQAC4CQAAhvBaVfLuegPvCpe7T0E.mp4" style="padding: 20px;"></video>
+<video src="https://img.remit.ee/i/3FWX8xvn5i0d" style="padding: 20px;"></video>
 
-### 6. 函数签名帮助
-输入空格或逗号后，显示当前指令的参数签名与各操作数位置，标记当前正在输入的参数。
+### 5. 函数签名帮助
+输入空格或逗号后，显示当前指令的参数签名与各操作数位置，并标出你正在输入的那一个。
 
 <video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRZtqbIbBxWIdlw-xCLLbN2zHE87lbQACDiUAAhvBaVe996a-GINPfj0E.mp4"  style="padding: 20px;"> </video>
 
-### 7. 代码格式化
-支持从项目根 `.ic.yaml`、`.ic.yml` 或 `.ic.json` 读取格式化配置。支持的规则：
+### 6. 代码格式化
+格式化配置可以从项目根目录的 `.ic.yaml`、`.ic.yml` 或 `.ic.json` 读取。支持的规则：
+
 - 连续 `alias` / `define` 按列对齐
-- 行尾注释同组内对齐，与代码间隔可配置
+- 行尾注释同组内对齐，与代码之间的间隔可配置
 - 标签下指令统一缩进（默认 4 空格或 Tab）
-- 连续空行压缩到可配置的最大值
-- 标签前可配置最小空行数
-- 激进模式：同标签作用域内指令操作数按列对齐
+- 连续空行压缩到设定的上限
+- 标签前保留的最小空行数可配置
+- 激进模式：同一标签作用域内，指令操作数按列对齐
 
 <img alt="格式化" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYVqbIXjgdYWiFEGaKZ6r1DcqEZPHwAC-CQAAhvBaVe71pql3gViLj0E.png" style="padding: 20px;">
 
 > [!TIP]
-> 若代码中包含 Unicode 字符（如中文注释、特殊符号），请确保编辑器使用等宽字体，否则格式化后的对齐效果可能发生偏移。
+> 如果代码里有 Unicode 字符（中文注释、特殊符号等），建议用等宽字体打开，否则格式化后的对齐位置看起来可能会偏。
 
-### 8. 增量编译
-编译流水线实现了行级增量词法分析与语句级增量语法分析。仅重新分析受编辑影响的行，大幅降低大文件的编辑延迟。增量缓存跨编辑会话保持，避免每次打开文件时的全量解析。
+### 7. 大文件也跟手
+每次编辑只重新分析受影响的部分，几千行的脚本也不会一敲就卡。缓存还会跨会话保留，重新打开同一个文件时不必从头再来一遍。
 
-### 9. 双语支持
-支持英语（en-us）和简体中文（zh-hans），覆盖编译诊断、悬停提示、补全文档等所有界面文本。切换语言即时生效。
+### 8. 双语界面
+支持英语（en-us）和简体中文（zh-hans），诊断信息、悬停提示、补全文档等界面文本都在覆盖范围内，切换后即时生效。
 
 <img alt="本地化" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYhqbIXub5wcp_zox88AAQUFM65H80wAAvskAAIbwWlX2n0Lf7hzuKw9BA.png" style="padding: 20px;">
 
-### 10. 类型注解语法
-支持通过特殊尾随注释语法为别名标注类型信息：
+### 9. 类型注解语法
+用法是给别名加一条特殊的尾随注释：
+
 ```
 alias myDevice d0  #: @type DeviceType
 ```
-编译器根据注解推断操作数类型，提供更精确的补全和诊断。类型提示使用 `#:` 前缀，后续可跟 `@type`、`@desc` 等标签。
+
+编译器据此推断操作数的类型，补全和诊断都会更准确。类型提示以 `#:` 开头，后面可以跟 `@type`、`@desc` 等标签。
 
 > [!NOTE]
-> 编译器内置了标准库（[stdLib.ic](https://github.com/edoCsItahW/Stationeers/blob/develop/code/IC10/assets/ic/stdLib.ic)），定义了常见设备的类型、逻辑槽位、批处理模式等枚举。但由于游戏中设备种类繁多，标准库目前仅覆盖了部分设备。若您的项目使用了尚未纳入标准库的设备类型，欢迎向标准库仓库贡献。标准库使用特殊的文档注释语法（`#>`）定义枚举和设备类型，例如：
-> ```
-> #> @device
-> #> @name MyDevice
-> #> @desc ./locals/enums.MyDevice.desc
-> #> @value ModeA 0 ./locals/enums.MyDevice.enums.ModeA.desc
-> #> @value ModeB 1 ./locals/enums.MyDevice.enums.ModeB.desc
-> #> @end-device
-> ```
+> 编辑器内置了一份标准库，覆盖常见设备的类型、逻辑槽位与批处理模式。不过游戏里的设备实在太多，目前只收录了一部分。如果你的项目用到了尚未收录的设备，欢迎到 [Issues](https://github.com/edoCsItahW/Stationeers/issues) 提出来，或者直接向[标准库](https://github.com/edoCsItahW/Stationeers/blob/develop/code/IC10/assets/ic/stdLib.ic)提交改动。
+
+## 调试器：下一个版本才有
+
+> [!IMPORTANT]
+> 断点、单步执行、查看变量这些调试能力**还没有包含在这个版本里**，它们计划随下一个版本一起提供。
 
 ## 依赖
 
-- **VS Code** `^1.125.0`
-- **Node.js** 运行时（VS Code 内建，无需单独安装）
+- **VS Code** `1.125.0` 或更高版本
+- 不需要再装别的
 
 ## 扩展设置
 
 设置位置：`文件 > 首选项 > 设置 > 扩展 > IC10 Language Support`
 
 - `ic10.language`：界面语言，默认 `"en-us"`，可选 `"zh-hans"`。切换后即时生效。
+
+- `ic10.hoverRenderer`：悬停信息的渲染方式，默认 `"svg"`，可选 `"markdown"`。两种风格各有特点，按自己的喜好挑就行。
 
 - `ic10.format.useTab`：使用 Tab 缩进，默认 `false`。为 `true` 时忽略 `indentWidth`。
 
@@ -124,11 +124,11 @@ alias myDevice d0  #: @type DeviceType
 - `ic10.format.alignTrailingComments`：同组内行尾注释对齐，默认 `true`。
 
 > [!TIP]
-> 格式化配置也可通过项目根目录下的 `.ic.json`、`.ic.yaml` 或 `.ic.yml` 文件指定，格式参考 [语法参考](https://github.com/edoCsItahW/Stationeers/blob/main/docs/IC10.g4)。
+> 格式化配置也可以直接写在项目根目录的 `.ic.json`、`.ic.yaml` 或 `.ic.yml` 里，不必去改全局设置。
 
 ## 已知问题
 
-1. **大文件性能**：虽然增量编译大幅降低了编辑延迟，但在首次打开超大文件时（数千行），全量解析仍需一定时间。
+1. **超大文件的首次打开**：增量分析让日常编辑很流畅，但第一次打开几千行的文件时，仍然需要一点时间做完整解析。
 
 ## 待办事项
 
@@ -137,145 +137,143 @@ alias myDevice d0  #: @type DeviceType
     - [ ] 链接器增量支持，进一步降低声明式编辑的延迟
 
 - IDE
-    - [ ] 添加跳转定义 / 查找引用
-    - [ ] 添加重命名符号
+    - [ ] 调试器：断点、单步执行与变量查看（下个版本）
+    - [ ] 跳转定义 / 查找引用
+    - [ ] 重命名符号
 
 ## 发布说明
 
-这是 1.0.0 版本的发布说明。
+### 2.0.0
 
-首个正式版本，完成了 IC10 编译器的全量开发：词法分析器、语法分析器、语义分析器与链接器均已通过语料测试。IDE 支持涵盖语法高亮、语义高亮、实时诊断、悬停提示、智能补全、签名帮助、代码格式化等完整的编辑体验。增量编译流水线为日常编辑提供近零延迟的性能表现。
+跟随 IC10 v3 一起发布。编译器核心升级到 v3，指令与设备元数据也重新整理过，补全、悬停和诊断因此覆盖到更多设备与指令；扩展自身的打包方式同样重做了一遍，装好即用。
 
-由于 IC10 没有公开的官方语言规范，编译器行为基于 Stationeers 游戏实际运行验证。对于未覆盖的边缘情况，欢迎在 [Issues](https://github.com/edoCsItahW/Stationeers/issues) 中反馈。
+完整的版本历史见 [CHANGELOG.md](./CHANGELOG.md)。
 
 </details>
 
 ---
 
-IC10 is the assembly-style scripting language used by programmable logic chips (IC10) in the game [Stationeers](https://store.steampowered.com/app/544550/Stationeers/). This extension provides full VS Code language support for `.ic` and `.ic10` files.
+IC10 is the assembly-style language behind the programmable logic chips in [Stationeers](https://store.steampowered.com/app/544550/Stationeers/). Writing it usually means a lot of trial and error inside the game — this extension exists to shorten that loop, so you can write IC10 in VS Code the way you'd write any other code.
 
-The extension is powered by a **C++ native compiler core**, integrated with VS Code via Node.js bindings, delivering both parsing precision and editing performance. The compiler core implements a complete pipeline of lexical analysis, syntax analysis, semantic analysis, and incremental compilation, providing near-zero latency for real-time editing of large files.
+It brings a complete IC10 language service to VS Code: syntax and semantic highlighting, real-time diagnostics, hover tooltips, intelligent completion, signature help, code formatting, and a bilingual interface. A native compiler core does the heavy lifting, so even scripts thousands of lines long stay responsive.
+
+Everything works out of the box — there's nothing extra to install.
 
 ## Features
 
-### 1. Syntax Highlighting
-TextMate-based grammar covering keywords, registers, device references, strings, numbers, and comments.
+### 1. Semantic Highlighting
+The colors here aren't just code-shaped — they come from the compiler's symbol table:
 
-<img alt="syntax" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYZqbIXmFdhtFLJrZ2DptdYpoy65AgAC-SQAAhvBaVfF89F5jqMjwj0E.png" style="padding: 20px;">
+- Register aliases are colored apart from native registers
+- Device aliases are colored apart from native device references
+- `define` constants are colored apart from raw numeric literals
+- Labels, macro calls (`HASH`/`STR`), and type annotations each get their own color
+- The same name renders differently where it's declared and where it's used
 
-### 2. Semantic Highlighting
-Compiler symbol-table-driven semantic coloring:
-- Register aliases visually distinguished from native registers
-- Device aliases distinguished from native device references
-- `define` constants distinguished from raw numeric literals
-- Labels, macro calls (`HASH`/`STR`), and type annotations each have independent colors
-- Tokens carry declaration/reference modifiers for fine-grained theming
-
-<img alt="semantic" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYlqbIXx46tAV7jh3lDvEXEwezCqWQAC_CQAAhvBaVeVd9uY_lk3MD0E.png" style="padding: 20px;">
+<img alt="semantic" src="https://img.remit.ee/i/xjf8G4KTmBPk" style="padding: 20px;">
 
 > [!TIP]
-> Semantic highlighting colors are controlled by VS Code's semantic token theming. You can override the default colors by configuring `editor.semanticTokenColorCustomizations` in your settings, e.g., to assign custom foreground colors or styles to register aliases, device aliases, etc. Refer to the VS Code documentation for details.
+> Semantic colors follow VS Code's semantic token theming. To use your own palette, configure `editor.semanticTokenColorCustomizations` — for example to give register or device aliases a custom foreground color or style. See the VS Code documentation for the exact syntax.
 
-### 3. Real-time Diagnostics
-The compiler incrementally re-analyzes code on every edit, instantly reporting lexical, syntax, and semantic errors categorized in the Problems panel.
+### 2. Real-time Diagnostics
+Every edit is re-analyzed straight away, with lexical, syntax, and semantic problems sorted into the Problems panel — no save required, no trip back to the game.
 
-<img alt="diagnostic" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYRqbIXg07nZ7QnZMfvbbf9OnUgzlAAC9yQAAhvBaVfa2hh2dBm4fD0E.png" style="padding: 20px;">
+<img alt="diagnostic" src="https://img.remit.ee/i/WxEIz5IP26cG" style="padding: 20px;">
 
 > [!NOTE]
-> As IC10 has no publicly available official language specification, compiler behavior is validated against Stationeers' actual in-game execution. For uncovered edge cases, feedback is welcome in [Issues](https://github.com/edoCsItahW/Stationeers/issues).
+> IC10 has no public official language specification, so the compiler's behavior is validated case by case against how Stationeers actually runs it in game. If you run into something we haven't covered, tell us in [Issues](https://github.com/edoCsItahW/Stationeers/issues).
 
-### 4. Hover Tooltips
-Hovering over any symbol (alias, label, constant, instruction keyword) displays its type, value, description, and other details.
+### 3. Hover Tooltips
+Hover any symbol — alias, label, constant, instruction keyword — to see its type, value, description, and more.
 
-<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRYdqbIXrD_Q8ZzxBf45gJJ7vfLMbhgAC-iQAAhvBaVcmb9otxvqKST0E.mp4"  style="padding: 20px;"></video>
+<video src="https://img.remit.ee/i/zgXZzeNCjl65"  style="padding: 20px;"></video>
 
-### 5. Intelligent Completion
+### 4. Intelligent Completion
 - Instruction keyword completion with prefix matching
-- Operand completion: automatically filters registers, device references, enum values, and jump targets based on the current instruction's operand type constraints (`typeN`)
-- Device context awareness: filters `LogicType`/`LogicSlot`/`BatchMode`/`SlotIndex` based on the preceding device node
-- Specialized `alias` / `define` directive completion
+- Operand completion: registers, device references, enum values, and jump targets filtered by the current instruction's operand type constraints (`typeN`)
+- Device context awareness: `LogicType`/`LogicSlot`/`BatchMode`/`SlotIndex` filtered by the preceding device node
+- Dedicated `alias` / `define` directive completion
 
-<video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRXBqbIUOZlor00XzLejyotnFMgE2nQAC4CQAAhvBaVfLuegPvCpe7T0E.mp4" style="padding: 20px;"></video>
+<video src="https://img.remit.ee/i/3FWX8xvn5i0d" style="padding: 20px;"></video>
 
-### 6. Function Signature Help
-Displays the current instruction's parameter signature and operand positions after typing a space or comma, highlighting the active parameter.
+### 5. Function Signature Help
+Type a space or a comma and you get the current instruction's parameter signature with every operand position, highlighting the one you're on.
 
 <video src="https://img.remit.ee/api/file/BAACAgUAAyEGAASHRsPbAAEYRZtqbIbBxWIdlw-xCLLbN2zHE87lbQACDiUAAhvBaVe996a-GINPfj0E.mp4"  style="padding: 20px;"> </video>
 
-### 7. Code Formatting
-Supports configuration from `.ic.yaml`, `.ic.yml`, or `.ic.json` in the project root. Formatting rules:
+### 6. Code Formatting
+Formatting options can be read from `.ic.yaml`, `.ic.yml`, or `.ic.json` in the project root. Available rules:
+
 - Consecutive `alias` / `define` column alignment
-- Trailing comment alignment within groups, with configurable code-comment spacing
-- Uniform indentation for instructions under labels (default 4 spaces or Tab)
-- Consecutive empty line compression to configurable maximum
-- Configurable minimum empty lines before labels
-- Aggressive mode: instruction operand column alignment within the same label scope
+- Trailing comments aligned within a group, with configurable spacing from the code
+- Uniform indentation for instructions under a label (4 spaces or Tab by default)
+- Runs of blank lines collapsed to a configurable maximum
+- Configurable minimum blank lines before labels
+- Aggressive mode: instruction operands aligned by column within the same label scope
 
 <img alt="formatting" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYVqbIXjgdYWiFEGaKZ6r1DcqEZPHwAC-CQAAhvBaVe71pql3gViLj0E.png" style="padding: 20px;">
 
 > [!TIP]
-> If your code contains Unicode characters (e.g., Chinese comments or special symbols), ensure that the editor uses a monospaced font; otherwise, the alignment effect of formatting may be skewed.
+> If your code contains Unicode characters (Chinese comments, special symbols), use a monospaced font — otherwise the alignment formatting produces can look off.
 
-### 8. Incremental Compilation
-The compilation pipeline implements line-level incremental lexical analysis and statement-level incremental parsing. Only lines affected by an edit are re-analyzed, dramatically reducing editing latency for large files. Incremental caches persist across editing sessions, avoiding full re-parsing on file open.
+### 7. Stays Responsive on Large Files
+Only the parts touched by your edit get re-analyzed, so multi-thousand-line scripts don't stutter as you type. The cache also carries over between sessions, so reopening a file doesn't start from scratch.
 
-### 9. Bilingual Support
-English (en-us) and Simplified Chinese (zh-hans), covering all interface text including compiler diagnostics, hover tooltips, and completion documentation. Language changes take effect immediately.
+### 8. Bilingual Interface
+English (en-us) and Simplified Chinese (zh-hans), covering diagnostics, hover tooltips, completion documentation, and the rest of the interface text. Switching takes effect immediately.
 
 <img alt="locale" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEYRYhqbIXub5wcp_zox88AAQUFM65H80wAAvskAAIbwWlX2n0Lf7hzuKw9BA.png" style="padding: 20px;">
 
-### 10. Type Annotation Syntax
-Annotate aliases with type information using special comment syntax:
+### 9. Type Annotation Syntax
+Annotate an alias with a special trailing comment:
+
 ```
 alias myDevice d0  #: @type DeviceType
 ```
-The compiler infers operand types from annotations, providing more precise completions and diagnostics. Type hints use the `#:` prefix and support tags such as `@type` and `@desc`.
+
+The compiler infers the operand's type from it, which makes completion and diagnostics noticeably more precise. Type hints start with `#:` and accept tags such as `@type` and `@desc`.
 
 > [!NOTE]
-> The compiler ships with a built-in standard library ([stdLib.ic](https://github.com/edoCsItahW/Stationeers/blob/develop/code/IC10/assets/ic/stdLib.ic)) that defines enumerations for common device types, logic slots, batch modes, and more. However, given the vast number of in-game devices, the standard library currently covers only a subset. If your project uses device types not yet in the standard library, contributions are welcome. The standard library uses a special documentation comment syntax (`#>`) to define enumerations and device types, for example:
-> ```
-> #> @device
-> #> @name MyDevice
-> #> @desc ./locals/enums.MyDevice.desc
-> #> @value ModeA 0 ./locals/enums.MyDevice.enums.ModeA.desc
-> #> @value ModeB 1 ./locals/enums.MyDevice.enums.ModeB.desc
-> #> @end-device
-> ```
+> A standard library ships built in, covering common device types, logic slots, and batch modes. Stationeers has rather a lot of devices, though, and only some of them are covered so far. If your project uses one that isn't, bring it up in [Issues](https://github.com/edoCsItahW/Stationeers/issues) or send the change straight to the [standard library](https://github.com/edoCsItahW/Stationeers/blob/develop/code/IC10/assets/ic/stdLib.ic).
+
+## Debugger: Coming in the Next Version
+
+> [!IMPORTANT]
+> Breakpoints, stepping, and variable inspection are **not part of this release**. They're planned for the next version.
 
 ## Requirements
 
-- **VS Code** `^1.125.0`
-- **Node.js** runtime (bundled with VS Code, no separate installation needed)
-
-> [!NOTE]
-> The extension's C++ compiler core (compiled to a Node.js native addon) is pre-built and bundled in `server/node_modules/ic10c_node`. No external build toolchain is required.
+- **VS Code** `1.125.0` or newer
+- Nothing else to install
 
 ## Extension Settings
 
-Location: `File > Preferences > Settings > Extensions > IC10`
+Location: `File > Preferences > Settings > Extensions > IC10 Language Support`
 
-- `ic10.language`: UI language, default `"en-us"`. Options: `"zh-hans"`. Changes take effect immediately.
+- `ic10.language`: interface language, default `"en-us"`, also accepts `"zh-hans"`. Takes effect immediately.
 
-- `ic10.format.useTab`: Use Tab for indentation, default `false`. When `true`, `indentWidth` is ignored.
+- `ic10.hoverRenderer`: how hover information is rendered, default `"svg"`, also accepts `"markdown"`. Each style has its own character — pick whichever you prefer.
 
-- `ic10.format.indentWidth`: Spaces per indentation level, default `4`.
+- `ic10.format.useTab`: use Tab for indentation, default `false`. When `true`, `indentWidth` is ignored.
 
-- `ic10.format.spacesBeforeTrailingComments`: Spaces before trailing comments, default `2`.
+- `ic10.format.indentWidth`: spaces per indentation level, default `4`.
 
-- `ic10.format.maxEmptyLinesToKeep`: Maximum consecutive empty lines to keep, default `1`.
+- `ic10.format.spacesBeforeTrailingComments`: spaces before trailing comments, default `2`.
 
-- `ic10.format.minEmptyLinesBeforeLabels`: Minimum empty lines before labels, `0` means no restriction, default `0`.
+- `ic10.format.maxEmptyLinesToKeep`: maximum consecutive empty lines to keep, default `1`.
 
-- `ic10.format.alignConsecutiveStatements`: Align consecutive statements of the same type by column, default `true`.
+- `ic10.format.minEmptyLinesBeforeLabels`: minimum empty lines before labels, `0` means no restriction, default `0`.
 
-- `ic10.format.alignTrailingComments`: Align trailing comments within the same group, default `true`.
+- `ic10.format.alignConsecutiveStatements`: align consecutive statements of the same type by column, default `true`.
+
+- `ic10.format.alignTrailingComments`: align trailing comments within the same group, default `true`.
 
 > [!TIP]
-> Formatting configuration can also be specified via a `.ic.json`, `.ic.yaml`, or `.ic.yml` file in the project root. See the [grammar reference](https://github.com/edoCsItahW/Stationeers/blob/main/docs/IC10.g4) for the schema.
+> Formatting can also be configured from a `.ic.json`, `.ic.yaml`, or `.ic.yml` file at the project root, instead of changing global settings.
 
 ## Known Issues
 
-1. **Large File Performance**: While incremental compilation significantly reduces editing latency, the initial full parse for very large files (thousands of lines) still takes a noticeable amount of time.
+1. **Opening very large files for the first time**: incremental analysis keeps day-to-day editing smooth, but the initial full parse of a multi-thousand-line file still takes a moment.
 
 ## Todo
 
@@ -284,13 +282,14 @@ Location: `File > Preferences > Settings > Extensions > IC10`
     - [ ] Incremental linker support to further reduce latency for declarative edits
 
 - IDE
-    - [ ] Add go-to-definition / find-references
-    - [ ] Add rename symbol
+    - [ ] Debugger: breakpoints, stepping, and variable inspection (next version)
+    - [ ] Go to definition / find references
+    - [ ] Rename symbol
 
 ## Release Notes
 
-This is the release note for version 1.0.0.
+### 2.0.0
 
-The first stable release, featuring a complete IC10 compiler pipeline: lexer, parser, semantic analyzer, and linker, all validated through corpus testing. IDE support covers the full editing experience: syntax highlighting, semantic highlighting, real-time diagnostics, hover tooltips, intelligent completion, signature help, and code formatting. The incremental compilation pipeline delivers near-zero latency for day-to-day editing.
+Released alongside IC10 v3. The compiler core is now v3 and the instruction and device metadata has been reorganized, so completion, hover, and diagnostics reach more devices and instructions than before. The extension's own packaging was reworked as well — it installs and just works.
 
-As IC10 has no publicly available official language specification, compiler behavior is validated against Stationeers' actual in-game execution. For uncovered edge cases, feedback is welcome in [Issues](https://github.com/edoCsItahW/Stationeers/issues).
+Full version history is in [CHANGELOG.md](./CHANGELOG.md).

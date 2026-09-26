@@ -776,7 +776,7 @@ export type Description = Errorable<StringNode | LinkNode>;
  * @desc 由 `#: @type ... @desc ... @builtin` 类型提示解析而来。
  * 对应 C++ `ic10::TypeHint`。
  */
-export interface TypeHintNode {
+export interface TypeHintNode extends ASTNode {
     /**
      * @summary 类型名（可选）
      * @desc 由 @type 注解指定的类型名
@@ -787,13 +787,13 @@ export interface TypeHintNode {
      * @summary 描述（可选）
      * @desc 由 @desc 注解指定的描述（链接或文本）
      */
-    readonly desc: IC10Utils.Optional<string>;
+    readonly desc: IC10Utils.Optional<Description>;
 
     /**
      * @summary 内置常量标记（可选）
      * @desc 由 @builtin 注解标记，用于将 define 字符串解析为预定义常量
      */
-    readonly builtin: IC10Utils.Optional<boolean>;
+    readonly builtin: boolean;
 }
 
 /**

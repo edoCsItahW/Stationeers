@@ -18,6 +18,7 @@ import { Languages } from "vscode-languageserver";
 import {
     PureExeInstructionNode,
     DefineDirectiveNode,
+    DynamicRegisterNode,
     AliasDirectiveNode,
     DynamicDeviceNode,
     StaticDeviceNode,
@@ -38,7 +39,7 @@ import {
     Program
 } from "@ic10/compiler";
 
-import { AST, groupHandlers, visit } from "../../utils";
+import { AST, groupHandlers, operandValueLength, visit } from "../../utils";
 import { DocumentCache } from "../cache";
 import { t } from "../../locals";
 
@@ -377,6 +378,18 @@ export class SemanticTokenHandler {
 
         result.push(...this.handleOperand(aliasDirective.registerOrDevice, context));
 
+        if (aliasDirective.typeHint) {
+            gap = this.getGap(context, aliasDirective.typeHint.position);
+
+            result.push({
+                line: gap.line,
+                start: gap.column,
+                length: aliasDirective.typeHint.end.column - aliasDirective.typeHint.position.column,
+                type: TokenLegend.Decorator,
+                modifier: 0
+            });
+        }
+
         return result;
     }
 
@@ -406,6 +419,18 @@ export class SemanticTokenHandler {
         }
 
         result.push(...this.handleOperand(defineDirective.operand, context));
+
+        if (defineDirective.typeHint) {
+            gap = this.getGap(context, defineDirective.typeHint.position);
+
+            result.push({
+                line: gap.line,
+                start: gap.column,
+                length: defineDirective.typeHint.end.column - defineDirective.typeHint.position.column,
+                type: TokenLegend.Decorator,
+                modifier: 0
+            });
+        }
 
         return result;
     }
@@ -463,6 +488,24 @@ export class SemanticTokenHandler {
             line: gap.line,
             start: gap.column,
             length: dynamicDevice.end.column - dynamicDevice.position.column,
+            type: this.toLegend(type.kind, type.category),
+            modifier: 0
+        });
+
+        return result;
+    }
+    
+    private handleDynamicRegister(dynamicRegister: DynamicRegisterNode, context: HandlerContext) {
+        const result: SemanticToken[] = [];
+
+        let gap = this.getGap(context, dynamicRegister.position);
+
+        const type = TypeOfNode[dynamicRegister.nodeName];
+
+        result.push({
+            line: gap.line,
+            start: gap.column,
+            length: dynamicRegister.end.column - dynamicRegister.position.column,
             type: this.toLegend(type.kind, type.category),
             modifier: 0
         });
