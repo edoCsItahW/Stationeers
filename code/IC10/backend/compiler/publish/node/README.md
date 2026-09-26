@@ -167,7 +167,7 @@ await Analyser.analyse(program);                // convenience: no results retur
 | `SymbolTable` | Resolved symbols | `toJSON()` |
 | `TypeTable` | Device/enum types from `#>` blocks | `toJSON()` |
 | `Linker` | Multi-unit compilation | `addUnit(source \| program, path?)`, `link()`, `diagnostics`, `units`, `typeTable` |
-| `IncLexer` / `IncParser` / `IncCompiler` | Incremental compilation | `tokenizeFull` / `tokenizeInc`, `parseFull` / `parseInc`, `compileFull` / `compileInc`, `hasCache()`, `clear()` |
+| `IncLexer` / `IncParser` / `IncCompiler` | Incremental compilation | `tokenizeFull` / `tokenizeInc`, `parseFull` / `parseInc`, `compileFull` / `compileInc`, `hasCache()`, `clear()`, plus `diagnostics` on the result structures |
 | `Token` | One lexical token | `type`, `pos`, `lexeme`, `category`, `keyword`, `toString()`, `toJSON()` |
 | `Pos` | Position | `line`, `column`, `offset`, `newline()`, `next()`, `move(index)` |
 | `IC10CompilerLocal` | Message language | `static setLanguage('en-us' \| 'zh-hans')` |
@@ -263,6 +263,28 @@ compiler.clear();                                     // drop the cache
 
 `IncLexer` (`tokenizeFull` / `tokenizeInc`) and `IncParser` (`parseFull` / `parseInc`) expose the two halves
 separately.
+
+All three result structures carry `diagnostics`, aggregated from their caches and covering the **whole
+source** rather than just the changed range: unchanged lines/statements reuse the diagnostics captured when
+they were cached, changed ones use this call's diagnostics, and diagnostics of shifted suffix lines are moved
+along with their positions. An editor can therefore publish lexical and syntax diagnostics straight from the
+incremental path instead of falling back to a full parse just to obtain them.
+
+`diagnostics` **excludes semantic diagnostics**: semantic analysis belongs to `Linker` / `Analyser` and has to
+be run separately (see below).
+
+```typescript
+const lexer  = new IncLexer();
+const parser = new IncParser();
+
+lexer.tokenizeFull(source);
+parser.parseFull(lexer.tokens);
+
+const lex    = lexer.tokenizeInc(edited);
+const parsed = parser.parseInc(lex.tokens, lex.changedStartLine);
+
+console.log(lex.diagnostics, parsed.diagnostics);   // whole-source lexical / syntax diagnostics
+```
 
 ### Diagnostics
 

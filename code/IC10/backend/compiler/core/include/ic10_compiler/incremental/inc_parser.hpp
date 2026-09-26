@@ -72,6 +72,7 @@
 #include <vector>
 #include <memory>
 
+#include "common/exception/diagnostic.hpp"
 #include "ic10_compiler/pch/ast.hpp"
 
 
@@ -93,6 +94,22 @@ namespace stationeers::ic10 {
     struct IncParserResult {
         /** @if zh @brief 解析后的Program AST @else @brief Parsed Program AST @endif */
         Program ast;
+
+        /**
+         * @if zh
+         * @brief 整个程序的语法诊断（复用的前缀语句 + 本次重解析的后缀语句）
+         * @details 前缀语句沿用其上次解析时的诊断，后缀语句用本次解析的诊断；因此本字段覆盖
+         *          整份程序，而不只是本次重解析的区间。
+         *
+         * @elseif en
+         * @brief Syntax diagnostics of the whole program (reused prefix statements + suffix re-parsed now)
+         * @details Prefix statements reuse the diagnostics of their earlier parse while suffix statements
+         *          use this call's diagnostics, so the field covers the whole program rather than only
+         *          the re-parsed range.
+         *
+         * @endif
+         */
+        std::vector<Diagnostic> diagnostics;
 
         /** @if zh @brief 是否为增量分析结果 @else @brief Whether this is an incremental result @endif */
         bool incremental = false;
@@ -207,6 +224,22 @@ namespace stationeers::ic10 {
 
         /**
          * @if zh
+         * @brief 整个程序当前有效的语法诊断
+         * @details 前缀语句的诊断被复用（这些语句的行号在本次变化之前，位置不会移动），
+         *          后缀语句的诊断随每次重解析整体替换。
+         *
+         * @elseif en
+         * @brief Syntax diagnostics currently valid for the whole program
+         * @details Diagnostics of the prefix statements are reused (they sit before the changed line,
+         *          so their positions cannot move), while the suffix statements' diagnostics are
+         *          replaced wholesale on every re-parse.
+         *
+         * @endif
+         */
+        std::vector<Diagnostic> diagnostics_;
+
+        /**
+         * @if zh
          * @brief 在语句列表中查找第一个行号 >= 指定行号的语句索引
          * @param program Program AST
          * @param lineNumber 目标行号（从1开始）
@@ -246,6 +279,7 @@ namespace stationeers::ic10 {
          *
          * @tparam R Token范围类型（元素为 shared_ptr<Token>）
          * @param tokenRange Token范围
+         * @param diagnostics 输出参数：追加本次解析的语法诊断
          * @return 解析得到的Program AST
          *
          * @elseif en
@@ -254,12 +288,13 @@ namespace stationeers::ic10 {
          *
          * @tparam R Token range type (elements are shared_ptr<Token>)
          * @param tokenRange Token range
+         * @param diagnostics Out parameter: appended with this parse's syntax diagnostics
          * @return Parsed Program AST
          *
          * @endif
          */
         template<std::ranges::input_range R>
-        static Program parseTokenRange(R&& tokenRange);
+        static Program parseTokenRange(R&& tokenRange, std::vector<Diagnostic>& diagnostics);
     };
 
 }  // namespace stationeers::ic10

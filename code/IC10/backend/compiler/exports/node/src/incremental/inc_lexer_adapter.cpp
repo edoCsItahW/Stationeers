@@ -15,6 +15,7 @@
  * */
 #include "ic10_compiler_node/incremental/inc_lexer_adapter.hpp"
 #include "ic10_compiler_node/lexer/token_adapter.hpp"
+#include "common_node/diagnostic_adapter.hpp"
 
 namespace stationeers::ic10 {
 
@@ -67,6 +68,11 @@ namespace stationeers::ic10 {
         for (std::size_t i = 0; i < result.tokens.size(); ++i)
             tokArr[i] = TokenAdapter::to(env, *result.tokens[i]);
         obj["tokens"] = tokArr;
+
+        auto diagArr = node::Array::New(env, result.diagnostics.size());
+        for (std::size_t i = 0; i < result.diagnostics.size(); ++i)
+            diagArr[i] = DiagnosticAdapter::to(env, result.diagnostics[i]);
+        obj["diagnostics"] = diagArr;
 
         obj["incremental"] = node::Boolean::New(env, result.incremental);
         obj["relexedLines"] = node::Number::New(env, static_cast<double>(result.relexedLines));

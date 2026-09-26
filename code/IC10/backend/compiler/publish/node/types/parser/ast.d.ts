@@ -109,15 +109,15 @@ export enum OperandType {
      * */
     REAGENT_MODE,
     /**
-     * Number（lb/lbn/lbs/lbns/sb/sbn/sbs 的设备类型哈希）
-     * deviceHash : 设备类型哈希值（支持字面量、常量别名、枚举、HASH 宏）
-     * 设备哈希（数字、标识符、HASH 宏）
+     * Number | Register（lb/lbn/lbs/lbns/sb/sbn/sbs 的设备类型哈希）
+     * deviceHash : 设备类型哈希值（支持字面量、寄存器、常量别名、HASH 宏）
+     * 设备哈希（数字、寄存器、标识符、HASH 宏）
      * */
     DEVICE_HASH,
     /**
-     * Number（lbn/lbns/sbn 的设备名称哈希）
-     * nameHash : 设备名称哈希值
-     * 名称哈希（数字、标识符、STR 宏）
+     * Number | Register（lbn/lbns/sbn 的设备名称哈希）
+     * nameHash : 设备名称哈希值（同 deviceHash，可用寄存器传递）
+     * 名称哈希（数字、寄存器、标识符、HASH 宏）
      * */
     NAME_HASH,
     /** 常量数值（仅数字） */

@@ -388,6 +388,75 @@ TEST_F(SemanticTestFixture, BatchModeAcceptsNumber) {
 }
 
 // ============================================================
+// 写入值与设备/名称哈希：寄存器、常量、枚举均为合法写法
+// Write value and device/name hash: registers, constants and enums are all legal
+// ============================================================
+
+/// @brief 写入值与设备哈希接受大众写法 / Common spellings of write value and device hash are accepted
+TEST_F(SemanticTestFixture, SetValueAndDeviceHashAcceptRegistersAndConstants) {
+    // 依据游戏标准（define 以数值替换、枚举常量即数字）与官方实现（ic10_v4 的 RaliasOrValue / Hash）：
+    // s/sb/ss 的末位操作数是「写入值」而非目标寄存器，设备哈希可先存入寄存器再传递，
+    // 两者都不应被 NUM_VALUE / DEVICE_HASH 的分类拒绝。
+    auto source = withStdLib(
+        "alias Hash r2\n"
+        "alias Type1Max r3\n"
+        "alias LBDial d0\n"
+        "alias Readout d1\n"
+        "define ResMax 17\n"
+        "define RoomOccupied 1\n"
+        "\n"
+        "lb Type1Max Hash Maximum Sum\n"
+        "sb Hash On RoomOccupied\n"
+        "sb r4 Setting 1\n"
+        "s LBDial Setting ResMax\n"
+        "s dr2 On 1\n"
+        "s Readout Color Color.Green\n"
+        "ss LBDial 0 Quantity 1\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IWA1_1"))
+        << "写入值不是目标寄存器，不应要求 REGISTER";
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IWA3_1"))
+        << "数字字面量、常量别名、枚举常量都是合法的写入值";
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IWA22_1"))
+        << "存放在寄存器中的设备哈希是合法的 deviceHash";
+}
+
+/// @brief 设备哈希与写入值仍拒绝设备 / Devices are still rejected as device hash and write value
+TEST_F(SemanticTestFixture, DeviceHashAndSetValueRejectDeviceOperands) {
+    // 边界：放宽的是「寄存器 / 数值」，设备（含设备别名）依旧不合法
+    auto source = withStdLib(
+        "alias door d0\n"
+        "sb door Setting 1\n"
+        "s d0 Setting door\n"
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IWA22_1")) << "设备别名不是 deviceHash";
+    EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IWA3_1")) << "设备别名不是合法的写入值";
+}
+
+/// @brief nameHash 用 HASH("...") 而非 STR("...") / nameHash takes HASH("..."), not STR("...")
+TEST_F(SemanticTestFixture, NameHashUsesHashMacro) {
+    auto ok = compile(withStdLib("lbn r0 100 HASH(\"Battery\") On Sum\nhcf\n"));
+
+    SCOPED_TRACE(formatDiags(ok.analyserDiags));
+    assertNoLexerParserDiags(ok);
+    EXPECT_FALSE(hasDiagnostic(ok.analyserDiags, "IWA23_1")) << "HASH(\"...\") 是合法的名称哈希";
+
+    // STR("...") 是把文本打包成数值用于绘制，不是哈希 → 语法阶段即无候选可匹配
+    auto bad = compile(withStdLib("lbn r0 100 STR(\"Battery\") On Sum\nhcf\n"));
+    EXPECT_FALSE(bad.parserDiags.empty()) << "STR(\"...\") 不应被当作设备名称哈希";
+}
+
+// ============================================================
 // 设备上下文：alias 带类型注解 + 后续 LOGIC_TYPE 检查
 // Device context: alias with type annotation + subsequent LOGIC_TYPE check
 // ============================================================

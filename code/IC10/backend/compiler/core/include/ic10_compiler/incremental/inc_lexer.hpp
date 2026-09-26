@@ -111,6 +111,22 @@ namespace stationeers::ic10 {
         /** @if zh @brief 词法分析得到的Token序列 @else @brief Token sequence from lexing @endif */
         std::vector<std::shared_ptr<Token>> tokens;
 
+        /**
+         * @if zh
+         * @brief 整个源码的词法诊断（全部缓存行，含本次重新扫描的行）
+         * @details 未变化的行沿用其扫描时缓存的诊断，变化的行用本次扫描的诊断，后缀行的诊断
+         *          随行号/偏移差值同步平移；因此本字段始终覆盖整份源码，而不只是变化区间。
+         *
+         * @elseif en
+         * @brief Lexical diagnostics of the whole source (every cached line, including lines re-scanned now)
+         * @details Unchanged lines reuse the diagnostics cached when they were scanned, changed lines use
+         *          this call's diagnostics, and suffix lines are shifted by the line/offset delta. The
+         *          field therefore always covers the whole source rather than just the changed range.
+         *
+         * @endif
+         */
+        std::vector<Diagnostic> diagnostics;
+
         /** @if zh @brief 是否为增量分析结果 @else @brief Whether this is an incremental result @endif */
         bool incremental = false;
 
@@ -243,6 +259,9 @@ namespace stationeers::ic10 {
             /** @if zh @brief 该行的Token序列 @else @brief Token sequence of this line @endif */
             std::vector<std::shared_ptr<Token>> tokens;
 
+            /** @if zh @brief 该行的词法诊断（位置已换算为全局） @else @brief Lexical diagnostics of this line (positions converted to global) @endif */
+            std::vector<Diagnostic> diagnostics;
+
             /** @if zh @brief 该行在全局源码中的起始偏移量 @else @brief Start offset of this line in global source @endif */
             std::size_t startOffset = 0;
 
@@ -314,6 +333,7 @@ namespace stationeers::ic10 {
          * @param lineContent 行内容
          * @param startOffset 该行在全局源码中的起始偏移量
          * @param lineNumber 行号（从1开始）
+         * @param diagnostics 输出参数：追加该行的词法诊断（位置已换算为全局）
          * @return 该行的Token序列（已过滤END）
          *
          * @elseif en
@@ -321,13 +341,33 @@ namespace stationeers::ic10 {
          * @param lineContent Line content
          * @param startOffset Start offset of this line in global source
          * @param lineNumber Line number (1-based)
+         * @param diagnostics Out parameter: appended with this line's lexical diagnostics (positions converted to global)
          * @return Token sequence of this line (END filtered out)
          *
          * @endif
          */
         static std::vector<std::shared_ptr<Token>> scanLine(
-            std::string_view lineContent, std::size_t startOffset, int lineNumber
+            std::string_view lineContent, std::size_t startOffset, int lineNumber,
+            std::vector<Diagnostic>& diagnostics
         );
+
+        /**
+         * @if zh
+         * @brief 汇总所有缓存行的词法诊断
+         * @details 按行序拼接 @ref LineTokenCache::diagnostics，得到覆盖整份源码的词法诊断列表。
+         *
+         * @return 词法诊断列表
+         *
+         * @elseif en
+         * @brief Collect the lexical diagnostics of every cached line
+         * @details Concatenates @ref LineTokenCache::diagnostics in line order, yielding a diagnostics
+         *          list that covers the whole source.
+         *
+         * @return Diagnostics list
+         *
+         * @endif
+         */
+        [[nodiscard]] std::vector<Diagnostic> collectDiagnostics() const;
 
         /**
          * @if zh
