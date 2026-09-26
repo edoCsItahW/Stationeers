@@ -11,7 +11,7 @@ import { COMM_EVENT_NAME, Optional, RequestEventData, ResponseEventData, Transfe
 import { LanguageClient, TransportKind, ServerOptions } from "vscode-languageclient/node";
 import { DebugAdapterDescriptor, DebugAdapterInlineImplementation } from "vscode";
 import { LanguageClientOptions } from "vscode-languageclient";
-import { IC10DebugSession } from "@ic10/debugger";
+//import { IC10DebugSession } from "@ic10/debugger";
 import * as path from "path";
 import {
     DebugAdapterDescriptorFactory,
@@ -31,7 +31,7 @@ class Extension implements Transfer {
     private readonly client: LanguageClient;
 
     constructor(
-        private readonly module: string = path.join("server", "out", "server", "server.js"),
+        private readonly module: string = path.join("server", "dist", "server.js"),
         private context: ExtensionContext
     ) {
         this.serverModule = this.context.asAbsolutePath(this.module);
@@ -84,20 +84,20 @@ let extension: Extension;
  * @param context - VS Code 扩展上下文 / VS Code extension context
  * */
 export async function activate(context: ExtensionContext) {
-    extension = new Extension(path.join("packages", "server", "out", "server", "server.js"), context);
+    extension = new Extension(path.join("packages", "server", "dist", "server.js"), context);
     extension.run();
 
-    const factor: DebugAdapterDescriptorFactory = {
-        createDebugAdapterDescriptor: (
-            session: DebugSession,
-            executable: Optional<DebugAdapterExecutable>
-        ): ProviderResult<DebugAdapterDescriptor> => new DebugAdapterInlineImplementation(
-            new IC10DebugSession(extension)
-        )
-    };
-    context.subscriptions.push(
-        debug.registerDebugAdapterDescriptorFactory("ic10", factor)
-    );
+//    const factor: DebugAdapterDescriptorFactory = {
+//        createDebugAdapterDescriptor: (
+//            session: DebugSession,
+//            executable: Optional<DebugAdapterExecutable>
+//        ): ProviderResult<DebugAdapterDescriptor> => new DebugAdapterInlineImplementation(
+//            new IC10DebugSession(extension)
+//        )
+//    };
+//    context.subscriptions.push(
+//        debug.registerDebugAdapterDescriptorFactory("ic10", factor)
+//    );
 }
 
 /**

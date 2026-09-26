@@ -2,5 +2,3 @@ packages:
   - "packages/*"
 allowBuilds:
   esbuild: true
-minimumReleaseAgeExclude:
-  - '@ic10/compiler@3.0.0'

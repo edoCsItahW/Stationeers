@@ -29,13 +29,22 @@ jobs:
                 with:
                     node-version: '24'
 
+            -   name: "[Auto] Setup pnpm | 配置 pnpm"
+                uses: pnpm/action-setup@v4
+                with:
+                    version: 11
+
             -   name: "[Auto] Install dependencies | 安装依赖"
                 working-directory: code/IC10/plugins/vscode/ic10-language-support
-                run: npm run install:npm
+                run: pnpm install --no-frozen-lockfile
 
             -   name: "[Auto] Compile TypeScript | 编译 TypeScript"
                 working-directory: code/IC10/plugins/vscode/ic10-language-support
-                run: npm run compile
+                run: pnpm run compile
+
+            -   name: "[Auto] Bundle extension | 打包扩展"
+                working-directory: code/IC10/plugins/vscode/ic10-language-support
+                run: pnpm run bundle
 
             -   name: "[Auto] Install VSCE tool | 安装 VSCE 工具"
                 run: npm install -g @vscode/vsce

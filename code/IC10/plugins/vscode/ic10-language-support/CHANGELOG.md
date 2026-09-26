@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-09-26
+
+### Added
+- Integrate the IC10 runtime (`ic10r-node`) into the language server
+- Add a hover renderer that can be switched between SVG and Markdown
+
+### Changed
+- Adapt the extension to IC10 v3 (`@ic10/compiler` v3.1.0)
+- Restructure the extension into a pnpm workspace of `client` / `common` / `debugger` / `server` packages
+- Extract instructions, enums and Stationpedia data into the standalone `@ic10/metadata` package
+- Ship `client` and `server` as esbuild bundles, so the installed extension no longer depends on the `node_modules` layout
+
+### Fixed
+- Patch the metadata and standard library data
+
 ## [1.0.2] - 2026-07-31
 
 - Fix invalid images in README when displayed in Marketplace

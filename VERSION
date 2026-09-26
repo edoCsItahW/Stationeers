@@ -3,4 +3,4 @@ core:
 
 plugins:
     vscode:
-        IC10 Language Support: 1.0.2
+        IC10 Language Support: 2.0.0

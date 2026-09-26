@@ -6,6 +6,5 @@
         { "path": "packages/common" },
         { "path": "packages/server" },
         { "path": "packages/client" },
-        { "path": "packages/debugger" }
     ]
 }
