@@ -14,12 +14,11 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
-import { BasicType, Symbol, TypeCategory } from "ic10c-node";
+import { BasicType, Symbol, TypeCategory } from "@ic10/compiler";
 
 import type { CompletionProviderContext, OperandProvider } from "./types";
 import { SemanticMap } from "../../../../utils";
 import { t } from "../../../../locals";
-
 
 export const provideIdentifier: OperandProvider = (ctx, opType, prefix) => {
     const result: CompletionItem[] = [];
@@ -36,7 +35,7 @@ export const provideIdentifier: OperandProvider = (ctx, opType, prefix) => {
                         prefix,
                         s => ({
                             detail: t("hover.operandType.register"),
-                            labelDetails: { detail: `: ${s.value}`, description: t("hover.operandType.register") },
+                            labelDetails: { detail: `: ${s.value}`, description: t("hover.operandType.register") }
                         }),
                         s => s.type === BasicType.REGISTER
                     )
@@ -70,11 +69,11 @@ export const provideIdentifier: OperandProvider = (ctx, opType, prefix) => {
                                 description: t("hover.operandType.number")
                             }
                         }),
-                        s => s.category === TypeCategory.NUMBER
+                        s =>
+                            s.category in
+                            [TypeCategory.NUMBER, TypeCategory.LABEL, TypeCategory.HASH_CALL, TypeCategory.STR_CALL]
                     )
                 );
-                break;
-            case "enum":
                 break;
             default:
                 break;

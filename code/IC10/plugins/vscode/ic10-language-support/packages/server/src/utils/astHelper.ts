@@ -14,8 +14,6 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import type { Position, Optional } from "@ic10/common";
-import { readFileSync } from "fs";
-import { resolve } from "path";
 import {
     PureExeInstructionNode,
     TokenCategory,
@@ -28,7 +26,7 @@ import {
     Operand,
     ASTNode,
     Token
-} from "ic10c-node";
+} from "@ic10/compiler";
 
 import { resources } from "../locals";
 
@@ -369,23 +367,41 @@ function operandSegmentAt(operand: Operand, column: number): Optional<OperandSeg
  *
  * @desc 取代「行内 token 序号即操作数序号」的推导方式：后者在 `d0:1`、`Foo.Bar` 这类
  * 多 token 操作数出现时会整体错位。判定规则：
- * 1. 光标不越过语句头部（关键字/标签名）→ 槽位 0；
- * 2. 光标落在某个非空操作数的列区间内（含终点）→ 该操作数的槽位；
- * 3. 其余（操作数之后的空隙）→ 光标之前操作数个数 + 1，即下一个槽位。
+ * 1. 语句未被识别（`ErrorNode`，如正在输入的关键字 `mo`）→ 槽位 0，此时不存在任何操作数；
+ * 2. 光标不越过语句头部（关键字/标签名）→ 槽位 0；
+ * 3. 光标落在某个非空操作数的列区间内（含终点）→ 该操作数的槽位；
+ * 4. 其余（操作数之后的空隙）→ 光标之前操作数个数 + 1，即下一个槽位。
+ *
+ * @desc 其中「操作数」只算**属于本行、且不是缺失占位**的节点：语句还没敲完时（如刚输入 `s `），
+ * 解析器会为缺失的操作数造占位 `ErrorNode`，并可能把它们挂到行尾的换行或下一行的 token 上；
+ * 这类节点若参与判定，光标一过行尾就会把占位当成已输入的操作数，槽位随之漂移到后面的 `typeN`。
  *
  * @desc Replaces the "token ordinal equals operand ordinal" derivation, which is shifted as soon as
  * a multi-token operand such as `d0:1` or `Foo.Bar` appears. Rules:
- * 1. cursor not past the statement head (keyword/label name) → slot 0;
- * 2. cursor inside the column range (end inclusive) of a non-empty operand → that operand's slot;
- * 3. otherwise (a gap after some operand) → operands before the cursor + 1, i.e. the next slot.
+ * 1. unrecognized statement (`ErrorNode`, e.g. while typing the keyword `mo`) → slot 0, since no
+ * operand exists at all;
+ * 2. cursor not past the statement head (keyword/label name) → slot 0;
+ * 3. cursor inside the column range (end inclusive) of a non-empty operand → that operand's slot;
+ * 4. otherwise (a gap after some operand) → operands before the cursor + 1, i.e. the next slot.
+ *
+ * @desc Only nodes **on this line and not a missing-operand placeholder** count as operands: while a
+ * statement is still being typed (say `s `), the parser fills the missing operands with placeholder
+ * `ErrorNode`s and may hang them on the trailing newline or on the next line's tokens. Letting those
+ * take part would make everything past the end of the line look like an already entered operand and
+ * drift the slot to a later `typeN`.
  *
  * @param stmt 光标所在行的语句节点
  * @param column 光标列（1-based）
  * */
 export function locateOperand(stmt: Statement, column: number): OperandLocation {
+    // 未识别的语句没有可定位的操作数（如输入到一半的关键字 `mo`）：整条语句都算语句头部，
+    // 否则会误报槽位 1 而让补全既给不出操作数、也给不出关键字
+    if (AST.isError(stmt)) return { slot: 0 };
+
     if (column <= statementHeadEnd(stmt)) return { slot: 0 };
 
     const operands = statementOperands(stmt);
+    const line = stmt.position.line;
 
     let slot = 0;
     let previous: Optional<OperandLocation["previous"]> = undefined;
@@ -395,8 +411,12 @@ export function locateOperand(stmt: Statement, column: number): OperandLocation 
         const start = operand.position.column;
         const end = operand.end.column; // 多 token 操作数的 end 覆盖其全部源码文本
 
-        // 缺失操作数对应的空错误节点不参与命中
-        if (start === end) continue;
+        // 不属于本行的节点不参与命中：IC10 以换行分隔语句，正常操作数不可能落在别的行上；
+        // 只有「缺失操作数」的占位节点会被解析器挂到下一行的 token 上（见 isMissingOperand）
+        if (operand.position.line !== line) continue;
+
+        // 缺失操作数对应的空占位节点不参与命中（宽度为 0，或占位在行尾空白/文件结束上）
+        if (start === end || isMissingOperand(operand)) continue;
 
         if (start <= column && column <= end)
             return { slot: i + 1, operand, segment: operandSegmentAt(operand, column), previous };
@@ -410,28 +430,107 @@ export function locateOperand(stmt: Statement, column: number): OperandLocation 
     return { slot: slot + 1, previous };
 }
 
-// `identifier`表示语法，因为有些不允许标识符，其余表示语义，通常`identifier`更具体的语义就是列举中非本身的那些
+/**
+ * @summary 判断操作数是否是解析器为「缺失的操作数」补的占位错误节点
+ *
+ * @summary Tell whether the operand is a placeholder error node for a missing operand
+ *
+ * @desc 操作数缺失时，解析器拿其后第一个 token 造 `ErrorNode`：行尾是 `NEWLINE`（行号仍在语句
+ * 所在行上，列号却已越过该行的可见文本），文件末尾是 `END`。这类占位不对应任何真实文本，
+ * 因此既不能让光标命中，也不能让槽位前进——否则光标只要过了行尾，就会把占位当成「已经输入
+ * 的操作数」，槽位顺次漂移到后面的 `typeN`（例如刚敲完 `s ` 却按 `LOGIC_PROP`/`REG_TARGET`
+ * 给出候选）。宽度为 0 的 `END` 占位由调用方的列区间判断自然排除，这里只处理有宽度的空白占位。
+ *
+ * @desc When an operand is missing the parser builds an `ErrorNode` from the next token: a `NEWLINE`
+ * at the end of the line (still on the statement's line, but past its visible text) or `END` at the end
+ * of the file. Such a placeholder covers no real text, so it must neither match the cursor nor advance
+ * the slot: otherwise anything past the end of the line would count as an already-entered operand and
+ * the slot would drift to a later `typeN` (typing `s ` and getting `LOGIC_PROP`/`REG_TARGET` candidates
+ * instead of a device). Zero-width `END` placeholders are already excluded by the column range check,
+ * so only blank placeholders with width are handled here.
+ * */
+function isMissingOperand(operand: Operand): boolean {
+    if (!AST.isError(operand)) return false;
+
+    return (
+        operand.token.category === TokenCategory.WHITESPACE ||
+        operand.token.category === TokenCategory.COMMENT ||
+        operand.token.type === TokenType.END
+    );
+}
+
+/**
+ * @summary 操作数的书写形式（补全类别）
+ *
+ * @summary Operand writing form (completion category)
+ *
+ * @desc {@link SemanticMap} 的每一项表示该槽位允许的**书写形式**，并对应一个补全提供器：
+ * `register` / `device` / `number` 各提供该形式的候选；`identifier` 表示允许标识符，
+ * 但它自身不提供候选——标识符的具体语义由同一列表中的其它项决定（见 identifier.ts 的分派）。
+ *
+ * @desc 枚举值不在此列表：标准库枚举的标识符写法（如 `Setting`）是**语义**，由
+ * {@link EnumKeyMap} 声明；显式枚举写法 `Foo.Bar` 是**语法**，由补全处理器依据 AST
+ * （`AST.isEnum` 与子段定位）处理。因此本表既不表示也不驱动 `Foo.Bar` 语法。
+ *
+ * @remarks 值数组中的顺序会影响解析顺序从而影响补全项顺序
+ *
+ * @desc Each entry of {@link SemanticMap} is a **writing form** allowed at that slot and maps to a
+ * completion provider: `register` / `device` / `number` supply candidates in that form, while
+ * `identifier` merely states that an identifier is allowed — it supplies nothing itself, because the
+ * identifier's concrete semantics are decided by the other entries of the same list (see the
+ * dispatch in identifier.ts).
+ *
+ * @desc Enum values are absent from this list: an identifier that denotes a standard-library enum
+ * member (`Setting`) is a **semantic** fact declared by {@link EnumKeyMap}, whereas the explicit
+ * `Foo.Bar` form is a **syntax** fact handled by the completion handler from the AST
+ * (`AST.isEnum` plus sub-segment location). This table neither expresses nor drives `Foo.Bar`.
+ * */
 export type GenericOperandType = "register" | "device" | "identifier" | "number" | "enum";
 export const SemanticMap = {
-    [OperandType.REG_TARGET]: ["register", "identifier"] as const,
-    [OperandType.REG_OR_DEV]: ["register", "device"] as const,
-    [OperandType.NUM_VALUE]: ["register", "identifier", "number", "enum"] as const,
-    [OperandType.JUMP_LINE]: ["register", "identifier", "number"] as const,
-    [OperandType.ADDRESS]: ["register", "number"] as const,
+    [OperandType.REG_TARGET]: ["identifier", "register"] as const,
+    [OperandType.REG_OR_DEV]: ["device", "register"] as const,
+    [OperandType.NUM_VALUE]: ["identifier", "number", "register", "enum"] as const,
+    [OperandType.JUMP_LINE]: ["identifier", "number", "register"] as const,
+    [OperandType.ADDRESS]: ["number", "register"] as const,
     [OperandType.SLOT_IDX]: ["number"] as const,
-    [OperandType.HARDWARE_ID]: ["register", "number"] as const,
-    [OperandType.REAGENT_HASH]: ["register", "number"] as const,
-    [OperandType.DEVICE_REF]: ["device", "register", "identifier"] as const,
+    [OperandType.HARDWARE_ID]: ["number", "register"] as const,
+    [OperandType.REAGENT_HASH]: ["number", "register"] as const,
+    [OperandType.DEVICE_REF]: ["identifier", "device", "register"] as const,
     [OperandType.DEVICE_REF_STRICT]: ["device"] as const,
     [OperandType.LOGIC_PROP]: ["identifier", "number"] as const,
     [OperandType.LOGIC_SLOT_PROP]: ["identifier", "number"] as const,
     [OperandType.AGG_MODE]: ["identifier", "number", "enum"] as const,
     [OperandType.REAGENT_MODE]: ["identifier", "number", "enum"] as const,
-    [OperandType.DEVICE_HASH]: ["number"] as const,
-    [OperandType.NAME_HASH]: ["number"] as const,
+    [OperandType.DEVICE_HASH]: ["identifier", "number", "register"] as const,
+    [OperandType.NAME_HASH]: ["identifier", "number", "register"] as const,
     [OperandType.CONST_NUM]: ["number"] as const
 } satisfies Record<OperandType, GenericOperandType[]>;
 
+/**
+ * @summary 操作数类型对应的标准库枚举类型（枚举补全的语义开关）
+ *
+ * @summary Standard-library enum type of an operand type (the semantic switch for enum completion)
+ *
+ * @desc 该槽位上的标识符在**语义**上是标准库声明的枚举值（`LOGIC_PROP` 的 `Setting` 属于
+ * `LogicType`），因此需要枚举候选：全局枚举成员，以及设备注解声明该设备拥有的逻辑属性、
+ * 逻辑槽属性、槽位列表（见 providers/enum.ts）。此表是纯语义的，与 {@link SemanticMap}
+ * 的书写形式正交——`LOGIC_PROP` 只接受标识符写法，语义上却是枚举。
+ *
+ * @desc 对应编译器侧的 `operand_type_name`（LOGIC_PROP / LOGIC_SLOT_PROP / REAGENT_MODE /
+ * AGG_MODE 映射到标准库枚举）；此处多出的 `SLOT_IDX` 没有同名标准库枚举（`SlotIdx` 在标准库中
+ * 并不存在，全局查找会落空），列出它只为启用设备注解的槽位列表补全。
+ *
+ * @desc The identifier at that slot **semantically** denotes a standard-library enum member
+ * (`Setting` at `LOGIC_PROP` belongs to `LogicType`), so enum candidates are wanted: global enum
+ * members plus the device annotation's logic properties, logic-slot properties and slot list
+ * (see providers/enum.ts). The table is purely semantic and orthogonal to the writing forms of
+ * {@link SemanticMap} — `LOGIC_PROP` accepts nothing but an identifier yet is an enum semantically.
+ *
+ * @desc Mirrors the compiler's `operand_type_name` (LOGIC_PROP / LOGIC_SLOT_PROP / REAGENT_MODE /
+ * AGG_MODE map to standard-library enums); the extra `SLOT_IDX` has no such enum (`SlotIdx` does not
+ * exist in the standard library, so the global lookup finds nothing) and is listed only to enable the
+ * device annotation's slot list.
+ * */
 export const EnumKeyMap = {
     [OperandType.LOGIC_PROP]: "LogicType",
     [OperandType.LOGIC_SLOT_PROP]: "LogicSlotType",
@@ -484,7 +583,7 @@ export function findRangeTokens(
 }
 
 export class DescriptionSolver {
-    public static ROOT = "../mateData";
+    public static ROOT = "@ic10/metadata";
 
     static solve(description: Description, lang: keyof typeof resources): Optional<string> {
         switch (description.nodeName) {
@@ -549,9 +648,10 @@ export class DescriptionSolver {
 
         for (const p of link.paths) path += `/${p}`;
 
-        path += ".json";
+        let mod = require(path);
 
-        let json = JSON.parse(readFileSync(resolve(__dirname, path), "utf-8"));
+        // 兼容 ESM 编译产物：\`export default data\` 会变成 \`{ __esModule: true, default: data }\`
+        let json = mod && mod.__esModule && mod.default ? mod.default : (mod?.default ?? mod);
 
         for (const field of link.fields) json = json[field];
 

@@ -14,7 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { Languages, DiagnosticSeverity } from "vscode-languageserver";
-import type { Diagnostic } from "ic10c-node";
+import type { Diagnostic } from "@ic10/compiler";
 import { Console, debug } from "@ic10/common";
 
 import { DocumentCache } from "../cache";

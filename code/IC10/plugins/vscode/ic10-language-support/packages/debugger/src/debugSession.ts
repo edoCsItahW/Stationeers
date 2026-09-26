@@ -14,7 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { DebugProtocol } from "@vscode/debugprotocol";
-import { BasicType, TypeCategory } from "ic10c-node";
+import { BasicType, TypeCategory } from "@ic10/compiler";
 import { getEnumName, Transfer } from "@ic10/common";
 import { Uri } from "vscode";
 import {
