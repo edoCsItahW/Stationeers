@@ -41,9 +41,12 @@ namespace stationeers::ic10 {
             result.caches.reserve(std::ranges::size(range));
 
         for (const auto& lineContent : range) {
+            std::vector<Diagnostic> diagnostics;
+
             LineTokenCache cache{
                 .hash = detail::hashLine(lineContent),
-                .tokens = scanLine(lineContent, offset, lineNumber),
+                .tokens = scanLine(lineContent, offset, lineNumber, diagnostics),
+                .diagnostics = std::move(diagnostics),
                 .startOffset = offset,
                 .lineLen = lineContent.size()
             };

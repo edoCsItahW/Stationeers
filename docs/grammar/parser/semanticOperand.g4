@@ -2,8 +2,9 @@ grammar IC10;
 
 import grammarOperand;
 
-// r? : 目标寄存器（写入结果），必须是纯寄存器
-regTarget : register ;
+// r? : 目标寄存器（写入结果），可为寄存器或其别名；
+//      别名是否真的指向寄存器由语义阶段判定（指向常量的别名会报错）
+regTarget : register | identifier ;
 
 // r?|d? : （alias 的目标）可作为别名目标的寄存器或设备
 regOrDev : register | device ;
@@ -44,11 +45,11 @@ aggMode : identifier | number | enum ;
 // reagentMode : 试剂模式（如 Contents、Recipe）
 reagentMode : identifier | number | enum ;
 
-// deviceHash : 设备类型哈希值（支持字面量、常量别名、枚举、HASH 宏）
-deviceHash : number | identifier | hashMacro ;
+// deviceHash : 设备类型哈希值（支持字面量、寄存器、常量别名、HASH 宏）
+deviceHash : register | number | identifier | hashMacro ;
 
-// nameHash : 设备名称哈希值
-nameHash : number | identifier | hashMacro ;
+// nameHash : 设备名称哈希值（同 deviceHash，可用寄存器传递）
+nameHash : register | number | identifier | hashMacro ;
 
 // num : （define 的值部分）纯数值字面量（仅数字）
 constNum : number ;

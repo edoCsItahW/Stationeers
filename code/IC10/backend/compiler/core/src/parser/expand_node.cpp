@@ -76,7 +76,7 @@ namespace stationeers::ic10 {
     }
 
     std::string EnumAnnotationValue::toJSON() const {
-        return jsonBase<"name", "value", "link", "tag">(
+        return jsonBase<"name", "value", "desc", "tag">(
             name, value,
             desc ? std::optional(call(*desc, [](const auto& desc) { return desc.toJSON(); }))
                  : std::nullopt, "value"

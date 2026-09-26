@@ -37,9 +37,14 @@ namespace stationeers::ic10 {
 
         const auto parserResult = parser_.parseFull(lexerResult.tokens);
 
+        // 词法诊断在前、语法诊断在后，二者都已覆盖整份源码
+        auto diagnostics = lexerResult.diagnostics;
+        diagnostics.insert_range(diagnostics.end(), parserResult.diagnostics);
+
         return {
             .tokens        = std::move(lexerResult.tokens),
             .ast           = std::move(parserResult.ast),
+            .diagnostics   = std::move(diagnostics),
             .incremental   = false,
             .relexedLines  = lexerResult.relexedLines,
             .reparsedStmts = parserResult.reparsedStmts
@@ -63,12 +68,17 @@ namespace stationeers::ic10 {
             .tokens = std::move(lexerResult.tokens), .relexedLines = lexerResult.relexedLines
         };
 
+        // 词法诊断覆盖整份源码，语法诊断随后按实际走的解析路径追加
+        result.diagnostics = lexerResult.diagnostics;
+
         if (!lexerResult.incremental) {
             const auto parserResult = parser_.parseFull(result.tokens);
 
             result.ast           = std::move(parserResult.ast);
             result.reparsedStmts = parserResult.reparsedStmts;
             result.incremental   = false;
+
+            result.diagnostics.insert_range(result.diagnostics.end(), parserResult.diagnostics);
 
             return result;
         }
@@ -78,6 +88,8 @@ namespace stationeers::ic10 {
         result.ast           = std::move(parserResult.ast);
         result.reparsedStmts = parserResult.reparsedStmts;
         result.incremental   = parserResult.incremental;
+
+        result.diagnostics.insert_range(result.diagnostics.end(), parserResult.diagnostics);
 
         return result;
     }

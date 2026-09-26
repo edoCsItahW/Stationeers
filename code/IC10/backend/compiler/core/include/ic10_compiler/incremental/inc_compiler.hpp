@@ -99,6 +99,22 @@ namespace stationeers::ic10 {
         /** @if zh @brief 语法分析得到的Program AST @else @brief Program AST from parsing @endif */
         Program ast;
 
+        /**
+         * @if zh
+         * @brief 整份源码的词法诊断与语法诊断（词法在前，语法在后）
+         * @details 二者都由增量分析器按当前缓存汇总，覆盖整份源码，可直接用于编辑器诊断。
+         *          注意其中**不含**语义诊断：语义分析属于 @ref Linker，需要另行全量执行。
+         *
+         * @elseif en
+         * @brief Lexical and syntax diagnostics of the whole source (lexical first, then syntax)
+         * @details Both are aggregated by the incremental analysers from their caches and cover the
+         *          whole source, ready for editor diagnostics. Note that **semantic** diagnostics are
+         *          not included: semantic analysis belongs to @ref Linker and must be run separately.
+         *
+         * @endif
+         */
+        std::vector<Diagnostic> diagnostics;
+
         /** @if zh @brief 是否为增量编译结果 @else @brief Whether this is an incremental result @endif */
         bool incremental = false;
 
