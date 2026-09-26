@@ -16,6 +16,7 @@
 #include "ic10_compiler_node/incremental/inc_parser_adapter.hpp"
 #include "ic10_compiler_node/lexer/token_adapter.hpp"
 #include "ic10_compiler_node/parser/ast_adapter.hpp"
+#include "common_node/diagnostic_adapter.hpp"
 
 namespace stationeers::ic10 {
 
@@ -77,6 +78,12 @@ namespace stationeers::ic10 {
         auto obj = node::Object::New(env);
 
         obj["ast"] = ProgramAdapter::to(env, result.ast);
+
+        auto diagArr = node::Array::New(env, result.diagnostics.size());
+        for (std::size_t i = 0; i < result.diagnostics.size(); ++i)
+            diagArr[i] = DiagnosticAdapter::to(env, result.diagnostics[i]);
+        obj["diagnostics"] = diagArr;
+
         obj["incremental"] = node::Boolean::New(env, result.incremental);
         obj["reparsedStmts"] = node::Number::New(env, static_cast<double>(result.reparsedStmts));
         obj["affectedStmtStart"] = node::Number::New(env, static_cast<double>(result.affectedStmtStart));

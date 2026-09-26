@@ -18,9 +18,9 @@ quaternaryInstruction : KeywordBap    numValue numValue numValue jumpLine
                        | KeywordLr     regTarget deviceRef reagentMode numValue
                        | KeywordLs     regTarget deviceRef slotIdx logicSlotProp
                        | KeywordSap    regTarget numValue numValue numValue
-                       | KeywordSbn    deviceHash nameHash logicProp regTarget
-                       | KeywordSbs    deviceHash slotIdx logicSlotProp regTarget
+                       | KeywordSbn    deviceHash nameHash logicProp numValue
+                       | KeywordSbs    deviceHash slotIdx logicSlotProp numValue
                        | KeywordSelect regTarget numValue numValue numValue
                        | KeywordSna    regTarget numValue numValue numValue
-                       | KeywordSs     deviceRef slotIdx logicSlotProp regTarget
+                       | KeywordSs     deviceRef slotIdx logicSlotProp numValue
                        ;

@@ -8,12 +8,14 @@
 /**
  * @file incremental.d.ts
  * @author edocsitahw
- * @version 1.2
- * @date 2026/09/24
+ * @version 1.3
+ * @date 2026/09/25
  * @desc 增量编译相关声明：{@link IncLexer}、{@link IncParser} 与把二者串起来的 {@link IncCompiler}，
  *       以及它们的返回结构。目标是让编辑器场景只重新处理改动的行与语句。
+ *       三个结果结构都带 `diagnostics`：由各自的缓存汇总，覆盖整份源码，而不只是变化区间。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+import { Diagnostic } from "./common";
 import { Token } from "./lexer";
 import { Program } from "./parser";
 
@@ -29,6 +31,14 @@ import { Program } from "./parser";
 export interface IncLexerResult {
     /** 本次得到的完整 token 流（含换行、注释与结尾的 `END`） */
     tokens: Token[];
+
+    /**
+     * 整份源码的词法诊断（全部缓存行，含本次重新扫描的行）
+     *
+     * @desc 未变化的行沿用其扫描时缓存的诊断，变化的行用本次扫描的诊断，后缀行的诊断随
+     *       行号/偏移差值同步平移，因此本字段始终覆盖整份源码。
+     */
+    diagnostics: Diagnostic[];
 
     /** 是否走了增量路径；`false` 表示这次是全量词法分析 */
     incremental: boolean;
@@ -106,6 +116,14 @@ export interface IncParserResult {
     /** 本次得到的程序 AST（根节点） */
     ast: Program;
 
+    /**
+     * 整个程序的语法诊断（复用的前缀语句 + 本次重解析的后缀语句）
+     *
+     * @desc 前缀语句沿用其上次解析时的诊断，后缀语句用本次解析的诊断；因此本字段覆盖整份程序，
+     *       而不只是本次重解析的区间。
+     */
+    diagnostics: Diagnostic[];
+
     /** 是否走了增量路径；`false` 表示这次是全量解析 */
     incremental: boolean;
 
@@ -182,6 +200,14 @@ export interface IncCompileResult {
 
     /** 本次得到的程序 AST */
     ast: Program;
+
+    /**
+     * 整份源码的词法诊断与语法诊断（词法在前，语法在后）
+     *
+     * @desc 二者都由增量分析器按当前缓存汇总，覆盖整份源码。**不含**语义诊断：
+     *       语义分析属于 `Linker`，需要另行全量执行。
+     */
+    diagnostics: Diagnostic[];
 
     /** 是否走了增量路径；`false` 表示这次是词法+语法全量 */
     incremental: boolean;

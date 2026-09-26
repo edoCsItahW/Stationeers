@@ -15,10 +15,10 @@
  * @details 定义IC10中的四元指令(含四个操作数的指令),
  *        按 docs/grammar/parser/instructions/quaternary.g4 操作数类型分组:
  *        - REG_TARGET NUM_VALUE NUM_VALUE NUM_VALUE: clamp、lerp、ext、ins、sap、sna、select
- *        - DEVICE_REF SLOT_IDX LOGIC_SLOT_PROP REG_TARGET : ss
+ *        - DEVICE_REF SLOT_IDX LOGIC_SLOT_PROP NUM_VALUE : ss
  *        - REG_TARGET DEVICE_HASH LOGIC_PROP AGG_MODE : lb
- *        - DEVICE_HASH NAME_HASH LOGIC_PROP REG_TARGET : sbn
- *        - DEVICE_HASH SLOT_IDX LOGIC_SLOT_PROP REG_TARGET : sbs
+ *        - DEVICE_HASH NAME_HASH LOGIC_PROP NUM_VALUE : sbn
+ *        - DEVICE_HASH SLOT_IDX LOGIC_SLOT_PROP NUM_VALUE : sbs
  *        - NUM_VALUE NUM_VALUE NUM_VALUE JUMP_LINE : bap、bapal、bna、bnaal、brap、brna
  *        - REG_TARGET DEVICE_REF SLOT_IDX LOGIC_SLOT_PROP : ls
  *        - REG_TARGET DEVICE_REF REAGENT_MODE NUM_VALUE : lr
@@ -29,10 +29,10 @@
  * @details Defines quaternary instructions (instructions with four operands) in IC10, grouped by
  *        operand types per docs/grammar/parser/instructions/quaternary.g4:
  *        - REG_TARGET NUM_VALUE NUM_VALUE NUM_VALUE: clamp, lerp, ext, ins, sap, sna, select
- *        - DEVICE_REF SLOT_IDX LOGIC_SLOT_PROP REG_TARGET : ss
+ *        - DEVICE_REF SLOT_IDX LOGIC_SLOT_PROP NUM_VALUE : ss
  *        - REG_TARGET DEVICE_HASH LOGIC_PROP AGG_MODE : lb
- *        - DEVICE_HASH NAME_HASH LOGIC_PROP REG_TARGET : sbn
- *        - DEVICE_HASH SLOT_IDX LOGIC_SLOT_PROP REG_TARGET : sbs
+ *        - DEVICE_HASH NAME_HASH LOGIC_PROP NUM_VALUE : sbn
+ *        - DEVICE_HASH SLOT_IDX LOGIC_SLOT_PROP NUM_VALUE : sbs
  *        - NUM_VALUE NUM_VALUE NUM_VALUE JUMP_LINE : bap, bapal, bna, bnaal, brap, brna
  *        - REG_TARGET DEVICE_REF SLOT_IDX LOGIC_SLOT_PROP : ls
  *        - REG_TARGET DEVICE_REF REAGENT_MODE NUM_VALUE : lr
@@ -113,11 +113,12 @@ namespace stationeers::ic10 {
         OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
-    // ---------- DEVICE_REF SLOT_IDX LOGIC_SLOT_PROP REG_TARGET ----------
+    // ---------- DEVICE_REF SLOT_IDX LOGIC_SLOT_PROP NUM_VALUE ----------
 
+    // 第四个操作数是写入槽位的「值」，非目标寄存器
     DEFINE_QUATERNARY_INSTRUCTION(
         ss, Ss, SS, OperandType::DEVICE_REF, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT_PROP,
-        OperandType::REG_TARGET
+        OperandType::NUM_VALUE
     )
 
     // ---------- REG_TARGET DEVICE_HASH LOGIC_PROP AGG_MODE ----------
@@ -127,18 +128,19 @@ namespace stationeers::ic10 {
         OperandType::AGG_MODE
     )
 
-    // ---------- DEVICE_HASH NAME_HASH LOGIC_PROP REG_TARGET ----------
+    // ---------- DEVICE_HASH NAME_HASH LOGIC_PROP NUM_VALUE ----------
 
+    // 第四个操作数是写入设备的「值」，非目标寄存器
     DEFINE_QUATERNARY_INSTRUCTION(
         sbn, Sbn, SBN, OperandType::DEVICE_HASH, OperandType::NAME_HASH, OperandType::LOGIC_PROP,
-        OperandType::REG_TARGET
+        OperandType::NUM_VALUE
     )
 
-    // ---------- DEVICE_HASH SLOT_IDX LOGIC_SLOT_PROP REG_TARGET ----------
+    // ---------- DEVICE_HASH SLOT_IDX LOGIC_SLOT_PROP NUM_VALUE ----------
 
     DEFINE_QUATERNARY_INSTRUCTION(
         sbs, Sbs, SBS, OperandType::DEVICE_HASH, OperandType::SLOT_IDX,
-        OperandType::LOGIC_SLOT_PROP, OperandType::REG_TARGET
+        OperandType::LOGIC_SLOT_PROP, OperandType::NUM_VALUE
     )
 
     // ---------- NUM_VALUE NUM_VALUE NUM_VALUE JUMP_LINE ----------

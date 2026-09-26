@@ -784,9 +784,11 @@ namespace stationeers::ic10 {
 
     using ReagentMode = Errorable<Number, Identifier, Enum>;
 
-    using DeviceHash = Errorable<Number, Identifier, HashMacro>;
+    // 哈希值可先算入寄存器再按需传递，故候选集合含Register
+    using DeviceHash = Errorable<Number, Register, Identifier, HashMacro>;
 
-    using NameHash = Errorable<Number, Identifier, StrMacro>;
+    // 设备名称哈希同样是哈希，需HASH("...")而非STR("...")
+    using NameHash = Errorable<Number, Register, Identifier, HashMacro>;
 
     using AliasDef = ShallowErrorable<Identifier>;
 

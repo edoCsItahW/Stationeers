@@ -163,7 +163,7 @@ await Analyser.analyse(program);                // 便捷入口：不返回结�
 | `SymbolTable` | 已解析的符号 | `toJSON()` |
 | `TypeTable` | `#>` 块声明的设备/枚举类型 | `toJSON()` |
 | `Linker` | 多单元编译 | `addUnit(source \| program, path?)`、`link()`、`diagnostics`、`units`、`typeTable` |
-| `IncLexer` / `IncParser` / `IncCompiler` | 增量编译 | `tokenizeFull` / `tokenizeInc`、`parseFull` / `parseInc`、`compileFull` / `compileInc`、`hasCache()`、`clear()` |
+| `IncLexer` / `IncParser` / `IncCompiler` | 增量编译 | `tokenizeFull` / `tokenizeInc`、`parseFull` / `parseInc`、`compileFull` / `compileInc`、`hasCache()`、`clear()`，以及结果结构上的 `diagnostics` |
 | `Token` | 单个词法标记 | `type`、`pos`、`lexeme`、`category`、`keyword`、`toString()`、`toJSON()` |
 | `Pos` | 位置信息 | `line`、`column`、`offset`、`newline()`、`next()`、`move(index)` |
 | `IC10CompilerLocal` | 消息语言 | `static setLanguage('en-us' \| 'zh-hans')` |
@@ -258,6 +258,25 @@ compiler.clear();                                     // 丢弃缓存
 ```
 
 `IncLexer`（`tokenizeFull` / `tokenizeInc`）与 `IncParser`（`parseFull` / `parseInc`）把这两半分别暴露出来。
+
+三者的结果结构都带有 `diagnostics`：由各自的缓存汇总，**覆盖整份源码**而不只是变化区间——未变化的
+行/语句沿用其缓存时的诊断，变化的行/语句用本次诊断，后缀的行号与偏移变化会同步平移诊断位置。
+因此编辑器可以在增量路径下直接提交词法与语法诊断，无需为了拿到诊断而回退到全量解析。
+
+`diagnostics` **不含语义诊断**：语义分析属于 `Linker` / `Analyser`，需要另行执行（见下）。
+
+```typescript
+const lexer  = new IncLexer();
+const parser = new IncParser();
+
+lexer.tokenizeFull(source);
+parser.parseFull(lexer.tokens);
+
+const lex    = lexer.tokenizeInc(edited);
+const parsed = parser.parseInc(lex.tokens, lex.changedStartLine);
+
+console.log(lex.diagnostics, parsed.diagnostics);   // 整份源码的词法/语法诊断
+```
 
 ### 诊断
 

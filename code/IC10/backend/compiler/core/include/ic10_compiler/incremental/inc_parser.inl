@@ -16,6 +16,8 @@
  *          增量路径只需拼出受影响行的 Token 序列即可调用本函数，无需关心解析器状态与终止标记的维护。
  *
  * @note @ref Parser 依赖结尾的 END 标记收尾，该标记由本函数统一补齐，调用方不应再自行追加。
+ * @note 本次解析的语法诊断经 @p diagnostics 输出：静态形式 @c Parser::parsing 会连同诊断一起丢弃，
+ *       因此这里改用 @ref Parser 实例并读取 @ref Parser::getDiagnostics。
  * @see IncParser 增量语法分析器
  * @see Parser 全量语法分析器
  *
@@ -26,6 +28,9 @@
  *          The incremental path only has to assemble the tokens of the affected lines; parser state and terminator maintenance are not its concern.
  *
  * @note @ref Parser relies on the trailing END marker, which this function appends, so callers must not add another one.
+ * @note This parse's syntax diagnostics are emitted through @p diagnostics: the static form
+ *       @c Parser::parsing discards them along with the parser instance, so the instance form and
+ *       @ref Parser::getDiagnostics are used here.
  * @see IncParser incremental parser
  * @see Parser full parser
  *
@@ -41,7 +46,7 @@
 namespace stationeers::ic10 {
 
     template<std::ranges::input_range R>
-    Program IncParser::parseTokenRange(R&& tokenRange) {
+    Program IncParser::parseTokenRange(R&& tokenRange, std::vector<Diagnostic>& diagnostics) {
         std::vector<std::shared_ptr<Token>> tokens;
         if constexpr (std::ranges::sized_range<R>)
             tokens.reserve(std::ranges::size(tokenRange) + 1);
@@ -50,7 +55,14 @@ namespace stationeers::ic10 {
 
         tokens.push_back(buildEndToken(tokens));
 
-        return Parser::parsing(tokens);
+        // 用实例而非 Parser::parsing：静态形式会把诊断一起丢弃
+        Parser parser{tokens};
+
+        auto program = parser.parse();
+
+        diagnostics.insert_range(diagnostics.end(), parser.getDiagnostics());
+
+        return program;
     }
 
 }  // namespace stationeers::ic10

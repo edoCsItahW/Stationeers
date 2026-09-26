@@ -46,6 +46,18 @@ namespace stationeers::ic10 {
         return lines;
     }
 
+    // shiftPos: 按行号与偏移差值平移一个位置
+    //
+    // 增量路径中后缀（变化行之后）的缓存内容整体后移/前移，
+    // Token 与诊断的位置都要按同样的差值修正。
+    // 偏移差值可能为负（删除行），故先转到有符号再运算。
+    static Pos shiftPos(const Pos& pos, const int lineDelta, const std::ptrdiff_t offsetDelta) noexcept {
+        return Pos(
+            pos.line() + lineDelta, pos.column(),
+            static_cast<std::size_t>(static_cast<std::ptrdiff_t>(pos.offset()) + offsetDelta)
+        );
+    }
+
     // hasCache: 检查是否存在有效的行缓存
     //
     // 通过判断 lineCache_ 是否为空来确定是否有缓存。
@@ -81,6 +93,7 @@ namespace stationeers::ic10 {
 
         return {
             .tokens            = std::move(tokens),
+            .diagnostics       = collectDiagnostics(),
             .incremental       = false,
             .relexedLines      = newlines.size(),
             .changedStartLine  = 1,
@@ -127,7 +140,7 @@ namespace stationeers::ic10 {
 
             tokens.push_back(buildEndToken(oldlines, sourceCache_.size()));
 
-            return {.tokens = std::move(tokens), .incremental = true, .relexedLines = 0};
+            return {.tokens = std::move(tokens), .diagnostics = collectDiagnostics(), .incremental = true, .relexedLines = 0};
         }
 
         std::size_t lastChangedNew = newlineSize, lastChangedOld = oldLineSize;
@@ -197,13 +210,23 @@ namespace stationeers::ic10 {
         // 导致位置偏移量累加错误
         for (auto cache : lineCache_ | std::views::drop(lastChangedOld)) {
             cache.startOffset += offsetDelta;
-            if (lineDelta != 0 || offsetDelta != 0)
+
+            if (lineDelta != 0 || offsetDelta != 0) {
                 for (auto& token : cache.tokens) {
                     token = std::make_shared<Token>(*token);
                     token->pos =
                         Pos(token->pos.line() + lineDelta, token->pos.column(),
                             token->pos.offset() + static_cast<std::size_t>(offsetDelta));
                 }
+
+                // 诊断与 Token 同源，同样需要平移，否则后缀的错误会停留在旧行号上
+                for (auto& diagnostic : cache.diagnostics) {
+                    if (diagnostic.start) diagnostic.start = shiftPos(*diagnostic.start, lineDelta, offsetDelta);
+
+                    if (diagnostic.end) diagnostic.end = shiftPos(*diagnostic.end, lineDelta, offsetDelta);
+                }
+            }
+
             newLineCache.push_back(std::move(cache));
         }
 
@@ -216,6 +239,7 @@ namespace stationeers::ic10 {
 
         return {
             .tokens            = std::move(tokens),
+            .diagnostics       = collectDiagnostics(),
             .incremental       = true,
             .relexedLines      = lastChangedNew - firstChanged,
             .changedStartLine  = static_cast<int>(firstChanged) + 1,
@@ -228,11 +252,14 @@ namespace stationeers::ic10 {
     //
     // 调用全量 Lexer 对单行内容进行词法分析，
     // 然后过滤掉 END Token（因为每行单独分析都会产生END），
-    // 最后修正 Token 的全局位置（行号和偏移量）。
+    // 最后修正 Token 与词法诊断的全局位置（行号和偏移量）。
     std::vector<std::shared_ptr<Token>> IncLexer::scanLine(
-        std::string_view lineContent, std::size_t startOffset, int lineNumber
+        std::string_view lineContent, std::size_t startOffset, int lineNumber,
+        std::vector<Diagnostic>& diagnostics
     ) {
-        auto tokens = Lexer::tokenize(lineContent);
+        Lexer lexer{lineContent};
+
+        auto tokens = lexer.scan();
 
         std::erase_if(tokens, [](const auto& ptr) { return ptr->type == TokenType::END; });
 
@@ -240,7 +267,34 @@ namespace stationeers::ic10 {
             ptr->pos = Pos(lineNumber, ptr->pos.column(), startOffset + ptr->pos.offset());
         });
 
+        // 诊断的位置同样是相对本行的，需与 Token 做相同的换算
+        for (auto diagnostic : lexer.getDiagnostics()) {
+            if (diagnostic.start)
+                diagnostic.start = Pos(
+                    lineNumber, diagnostic.start->column(), startOffset + diagnostic.start->offset()
+                );
+
+            if (diagnostic.end)
+                diagnostic.end =
+                    Pos(lineNumber, diagnostic.end->column(), startOffset + diagnostic.end->offset());
+
+            diagnostics.push_back(std::move(diagnostic));
+        }
+
         return tokens;
+    }
+
+    // collectDiagnostics: 汇总所有缓存行的词法诊断
+    //
+    // 行缓存与 Token 一样按行拼接，因此按行序展开各行的诊断即可得到整份源码的词法诊断。
+    // 未变化的行使用其缓存时的诊断，变化的行在后缀平移后同样是全局位置。
+    std::vector<Diagnostic> IncLexer::collectDiagnostics() const {
+        std::vector<Diagnostic> diagnostics;
+
+        for (const auto& cache : lineCache_)
+            diagnostics.insert_range(diagnostics.end(), cache.diagnostics);
+
+        return diagnostics;
     }
 
     // buildEndToken: 构造文件结束标记（END Token）
