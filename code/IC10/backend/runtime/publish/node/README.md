@@ -1,6 +1,6 @@
-# ic10r-node
+# @ic10/runtime
 
-[![npm version](https://badge.fury.io/js/ic10r_node.svg)](https://badge.fury.io/js/ic10r_node)
+[![npm version](https://badge.fury.io/js/@ic10%2Fruntime.svg)](https://www.npmjs.com/package/@ic10/runtime)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)](https://nodejs.org/)
 [![C++23](https://img.shields.io/badge/C%2B%2B-23-blue)](https://isocpp.org/)
 [![License: CC BY-NC-SA](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
@@ -9,49 +9,69 @@
 
 ## Overview
 
-`ic10r-node` is the Node.js native binding module for the **IC10 Runtime**, providing a complete execution engine for IC10 programs.
+`@ic10/runtime` is the Node.js native addon for the **IC10 runtime**: it executes the AST and symbol table
+produced by the [IC10 compiler](https://www.npmjs.com/package/@ic10/compiler) (`@ic10/compiler`), tick by
+tick, simulating the IC10 processor.
 
-IC10 is an assembly-style programming language used in the game [Stationeers](https://store.steampowered.com/app/544550/Stationeers/) to control computers and devices in the game. This module takes the compiled AST and symbol table (produced by [`ic10c-node`](https://www.npmjs.com/package/ic10c-node)) and executes the program tick-by-tick, simulating the IC10 processor's behavior.
+IC10 is the assembly-style language used in [Stationeers](https://store.steampowered.com/app/544550/Stationeers/)
+to script in-game computers and devices. This package takes the program produced by the compiler and runs
+it against a register file, a stack and a device manager: no C++ toolchain required, since the native
+module ships prebuilt.
+
+Current version: **2.0.0** (IC10 v3 — the executor follows the unified per-arity AST and the relaxed
+operand grammar). See [CHANGELOG.md](./CHANGELOG.md) / [CHANGELOG.zh.md](./CHANGELOG.zh.md).
 
 ## Features
 
-- **Execution Engine** – runs IC10 programs tick-by-tick (`runTick`) or to completion (`runFull`)
+- **Execution Engine** – runs IC10 programs tick-by-tick (`runTick`), to completion (`runFull`) or one
+  statement at a time (`step`), and reports everything it cannot execute as diagnostics
 - **Register File & Stack** – full 16-register file (`r0`–`r15`) and stack memory (`push`/`pop`/`peek`/`poke`)
 - **Device Manager** – register external devices and the chip device, query by type/name hash
 - **Device I/O** – read/write logic properties, device stacks, slots, and reagent modes
+- **IC10 v3 operands** – alias write targets, device aliases, dynamic registers (`rr0`), dynamic device
+  ports (`dr0` / `drr0`), register-valued device/name hashes and enum operands evaluated from the type table
 - **Execution Control** – `halt`/`sleep` support, instruction limit, tick duration configuration
+- **Message language** – diagnostics in English (`en-us`) or Simplified Chinese (`zh-hans`)
+- **Complete TypeScript types** – shipped in the package, no `@types/*` needed
 - **Cross‑Platform** – builds on Linux (GCC/Clang) and Windows (MSVC)
 
 ## Installation
 
-### Prerequisites
-
-- Node.js >= 16.0.0 (Node.js 26.x recommended)
-- C++ compiler (GCC 13+ / Clang 16+ / MSVC 2022)
-- CMake >= 3.28.1
-- [`ic10c-node`](https://www.npmjs.com/package/ic10c-node) (peer dependency for compilation)
-
-### Install from npm
+### From npm
 
 ```bash
-npm install ic10r-node ic10c-node
+npm install @ic10/runtime @ic10/compiler
 ```
 
-### Build from Source
+The published package already contains the compiled `src/ic10r-node.node` addon, so installing it requires
+**no** C++ compiler, CMake or node-gyp. Node.js >= 16 is required; the compiler package is a peer
+dependency, since a program has to be compiled before it can be executed.
+
+### From source
+
+Building the addon is part of the repository build; see
+[DEVELOPER_GUIDE.md](https://github.com/edoCsItahW/Stationeers/blob/main/DEVELOPER_GUIDE.md) for the full
+toolchain table. In short you need CMake >= 3.28.1 and a C++23 compiler (GCC 13+ / Clang 16+ / MSVC 2022).
 
 ```bash
-# Clone repository
+# Linux / macOS — configures CMake, builds the addon, runs the Node.js tests
+code/scripts/bashShell/buildIC10RuntimeNode.sh
+```
+
+```powershell
+# Windows (PowerShell)
 git clone https://github.com/edoCsItahW/Stationeers.git
-cd Stationeers/code/IC10/backend/runtime
+cd Stationeers
+pwsh code/scripts/powerShell/BuildIC10RuntimeNode.ps1
+```
 
-# Install dependencies
-npm install
+Both scripts build the CMake target `ic10_runtime_node` and copy the artifact to
+`code/IC10/backend/runtime/publish/node/src/ic10r-node.node`. If you prefer to drive CMake yourself:
 
-# Download Node.js headers
-npx node-gyp install
-
-# Build native module
-npm run build
+```bash
+cd code
+cmake -B build -S . -DBUILD_IC10_RUNTIME_EXPORTS_NODE=ON
+cmake --build build --target ic10_runtime_node --config Release
 ```
 
 ## Quick Start
@@ -59,8 +79,8 @@ npm run build
 ### Basic Usage
 
 ```typescript
-import * as ic10c from 'ic10c-node';
-import * as ic10r from 'ic10r-node';
+import * as ic10c from '@ic10/compiler';
+import * as ic10r from '@ic10/runtime';
 
 // IC10 source code
 const source = `
@@ -70,14 +90,14 @@ const source = `
         hcf
 `;
 
-// 1. Compile (using ic10c-node)
+// 1. Compile (using @ic10/compiler)
 const tokens = ic10c.Lexer.tokenize(source);
 const program = new ic10c.Parser(tokens).parse();
 const analyser = new ic10c.Analyser();
 await analyser.visit(program);
 
-// 2. Create engine (using ic10r-node)
-const engine = new ic10r.Engine(program, analyser.symbolTable);
+// 2. Create engine (using @ic10/runtime); the type table is needed for enum operands
+const engine = new ic10r.Engine(program, analyser.symbolTable, undefined, analyser.typeTable);
 
 // 3. Execute
 engine.runFull();
@@ -91,8 +111,8 @@ console.log(`r0 = ${r0}, r1 = ${r1}`);
 ### Tick-by-Tick Execution
 
 ```typescript
-import * as ic10c from 'ic10c-node';
-import * as ic10r from 'ic10r-node';
+import * as ic10c from '@ic10/compiler';
+import * as ic10r from '@ic10/runtime';
 
 const source = `
     loop:
@@ -106,7 +126,7 @@ const program = new ic10c.Parser(tokens).parse();
 const analyser = new ic10c.Analyser();
 await analyser.visit(program);
 
-const engine = new ic10r.Engine(program, analyser.symbolTable);
+const engine = new ic10r.Engine(program, analyser.symbolTable, undefined, analyser.typeTable);
 
 // Run one tick at a time
 engine.runTick();  // executes one tick
@@ -116,8 +136,8 @@ engine.runTick();  // executes next tick
 ### Device Interaction
 
 ```typescript
-import * as ic10c from 'ic10c-node';
-import * as ic10r from 'ic10r-node';
+import * as ic10c from '@ic10/compiler';
+import * as ic10r from '@ic10/runtime';
 
 const source = `
     alias led d0
@@ -158,11 +178,12 @@ console.log(device.readLogic('Setting'));  // 1
 | `Memory` | Register file and stack memory |
 | `Manager` | Device manager |
 | `Device` | Device I/O interface (logic, slots, reagents) |
+| `IC10RuntimeLocal` | Message language of the runtime diagnostics |
 
 ### Config
 
 ```typescript
-import type { Config } from 'ic10r-node';
+import type { Config } from '@ic10/runtime';
 
 const config: Config = {
     tickDuration: 0.5,       // seconds per tick
@@ -174,8 +195,8 @@ const config: Config = {
 ### Engine
 
 ```typescript
-import { Engine } from 'ic10r-node';
-import type { Program, SymbolTable, TypeTable } from 'ic10c-node';
+import { Engine } from '@ic10/runtime';
+import type { Program, SymbolTable, TypeTable } from '@ic10/compiler';
 
 // Create engine with optional config and type table
 const engine = new Engine(program, symbolTable, {
@@ -186,17 +207,30 @@ const engine = new Engine(program, symbolTable, {
 // Execute
 engine.runTick();  // one tick
 engine.runFull();  // until halt
+engine.step();     // exactly one statement (true while the program can continue)
 
 // Access context
 const ctx = engine.context;
 console.log(ctx.pc);            // program counter
 console.log(ctx.halted);         // halted flag
+
+// Diagnostics of everything the runtime could not execute
+for (const d of engine.diagnostics)
+    console.log(`${d.level} ${d.id} at line ${d.start.line}: ${d.message}`);
 ```
 
 > **Type table**: the fourth argument is the type table produced by semantic analysis
 > (`analyser.typeTable`). Evaluating enum constant operands (such as `Color.Green` in
 > `s d0 Color Color.Green`) depends on it; without it such operands are reported as
 > unevaluable (IEM2_1).
+
+### Message language
+
+```typescript
+import { IC10RuntimeLocal } from '@ic10/runtime';
+
+IC10RuntimeLocal.setLanguage('zh-hans');   // or 'en-us' (default)
+```
 
 ### Device references and aliases
 
@@ -212,6 +246,24 @@ Device references are resolved by port name, matching the keys of `Manager`:
 
 Write targets support aliases (`alias tmp r3` → `r3`) and dynamic registers (`rr0`: the register
 number is held in `r0`) in exactly the same way.
+
+### Supported operand forms
+
+The executor accepts every operand form the v3 grammar allows and reports the rest as `IEM2_1`:
+
+| Operand position | Accepted forms |
+|:---|:---|
+| Write target (`REG_TARGET`) | register (`r0`, `ra`, `sp`), dynamic register (`rr0`), alias of a register (`alias tmp r3`) |
+| Device reference (`DEVICE_REF`) | `d0`…`d5`, pinned `d0:1`, `db`, dynamic port `dr0` / `drr0`, alias of a device |
+| Device / name hash (`DEVICE_HASH`, `NAME_HASH`) | number, `$hex` / `%bin`, constant alias, register, `HASH("…")` |
+| Write value of `s` / `sb` / `ss` / `sbn` / `sbs` | number, constant alias, register, enum constant |
+| Logic property / slot property | identifier (`Pressure`, `On`), or a legacy number passed on as its decimal text |
+| Aggregate / reagent mode | member name (`Average`, `Contents`), `Enum.Member`, number |
+| Numeric value (`NUM_VALUE`) | number, `$hex` / `%bin`, register, constant alias, enum constant (`Color.Green`), `HASH("…")` / `STR("…")` |
+
+Enum members are looked up in the type table: `Color.Green` uses its own enum type, while bare member
+names (`Pressure`, `Sum`, `Contents`) are searched in `LogicType`, `LogicSlotType`, `BatchMode` and
+`ReagentMode`, exactly like the compiler's operand checks do.
 
 ### Context
 
@@ -261,13 +313,16 @@ const json = mem.toJSON();
 ```typescript
 const mgr = engine.context.manager;
 
-// Device registration
-mgr.setExternalDevice('d0', device);
-mgr.setChipDevice(chipDevice);
+// Device registration — the binding creates and owns a virtual device per port, so register the
+// port first and take its handle back afterwards (`setChipDevice` replaces the chip device)
+mgr.setExternalDevice('d0', undefined as never);
+const dev = mgr.getDevice('d0');
+mgr.setChipDevice(undefined as never);
+const chip = mgr.getDevice('db');
 
 // Device lookup
-const dev = mgr.getDevice('d0');
 const found = mgr.findDeviceByType(typeHash);
+const byName = mgr.findDeviceByTypeAndName(typeHash, nameHash);
 const all = mgr.findDevicesByType(typeHash);
 ```
 
@@ -328,7 +383,28 @@ loop:
 ```ic10
 alias led d0
 s led Setting 1
-r r0 led Setting
+l r0 led Setting
+```
+
+### IC10 v3 operands
+
+```ic10
+alias tmp r3
+define Level 3
+
+alias led d0
+move tmp Level          # write through an alias of r3
+s led Setting Level     # constant alias as the write value
+s led Color Color.Green # enum constant (needs the type table)
+
+move r0 1
+s dr0 On 1              # dynamic port: the port number is in r0
+
+alias Hash r2
+move Hash HASH("StructureDoor")
+sb Hash On 1            # device hash taken from a register
+
+lb r4 HASH("StructureDoor") Pressure Average   # bare aggregate mode member name
 ```
 
 ## TypeScript
@@ -336,8 +412,9 @@ r r0 led Setting
 This module includes complete TypeScript type definitions.
 
 ```typescript
-import { Engine, Context, Memory, Manager, Device } from 'ic10r-node';
-import type { Config } from 'ic10r-node';
+import { Engine, Context, Memory, Manager, Device, IC10RuntimeLocal } from '@ic10/runtime';
+import type { Config } from '@ic10/runtime';
+import type { Program, SymbolTable, TypeTable, Diagnostic } from '@ic10/compiler';
 
 const config: Config = {
     tickDuration: 0.5,
@@ -359,39 +436,59 @@ const config: Config = {
 ### Build Steps
 
 ```bash
-# 1. Install Node.js dependencies
-npm install
-
-# 2. Download Node.js headers
-npx node-gyp install
-
-# 3. Configure CMake
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
-
-# 4. Build
-cmake --build build --parallel 4
-
-# 5. Copy generated .node file
-cp build/ic10r-node.node src/
+# Linux / macOS — configure, build the addon and run the Node.js tests
+code/scripts/bashShell/buildIC10RuntimeNode.sh
 ```
+
+```powershell
+# Windows (PowerShell)
+pwsh code/scripts/powerShell/BuildIC10RuntimeNode.ps1
+```
+
+Manually, with CMake:
+
+```bash
+cd code
+cmake -B build -S . -DBUILD_IC10_RUNTIME_EXPORTS_NODE=ON
+cmake --build build --target ic10_runtime_node --config Release
+
+# The addon lands in the package together with its type declarations
+# build/IC10/backend/runtime/exports/node/Release/ic10r-node.node
+#   → IC10/backend/runtime/publish/node/src/ic10r-node.node
+```
+
+### Tests
+
+```bash
+cd code/IC10/backend/runtime
+pnpm test        # jest — binding-level tests (tests/node)
+```
+
+The C++ core tests are GoogleTest targets (`ic10_runtime_tests`) built through CMake; run them with
+`ctest` or the target's executable.
 
 ## Project Structure
 
 ```
-ic10r-node/
+@ic10/runtime/
 ├── src/
-│   └── ic10r-node.node   # Native module (built)
+│   └── ic10r-node.node    # Native module (built)
 ├── types/
-│   ├── index.d.ts         # TypeScript type definitions (entry)
+│   ├── index.d.ts          # TypeScript type definitions (entry)
 │   ├── config.d.ts         # Config interface
 │   ├── context.d.ts        # Context class
 │   ├── device.d.ts         # Device class
 │   ├── engine.d.ts         # Engine class
+│   ├── locale.d.ts         # IC10RuntimeLocal class
 │   ├── manager.d.ts        # Manager class
-│   └── memory.d.ts         # Memory class
+│   ├── memory.d.ts         # Memory class
+│   └── value.d.ts          # HASH / STR / constant helpers
+├── CHANGELOG.md
+├── CHANGELOG.zh.md
 ├── tsconfig.json
 ├── package.json
-└── README.md
+├── README.md
+└── README.zh.md
 ```
 
 ## License
@@ -418,7 +515,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Related Links
 
-- [ic10c-node – IC10 Compiler Node.js Bindings](https://www.npmjs.com/package/ic10c-node)
+- [@ic10/compiler – IC10 Compiler Node.js Bindings](https://www.npmjs.com/package/@ic10/compiler) — the package that produces the AST, symbol table and type table this runtime consumes
 - [Stationeers Official Website](https://store.steampowered.com/app/544550/Stationeers/)
 - [Node.js N-API Documentation](https://nodejs.org/api/n-api.html)
 - [node-addon-api Documentation](https://github.com/nodejs/node-addon-api)

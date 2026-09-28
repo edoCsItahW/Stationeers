@@ -66,6 +66,17 @@ describe('Engine', () => {
 });
 
 // ============================================================
+// 模块导出
+// ============================================================
+
+describe('Module exports', () => {
+    it('should expose the runtime locale under IC10RuntimeLocal', () => {
+        // 导出名必须与 types/locale.d.ts 的声明一致（与编译器的 IC10CompilerLocal 命名对齐）
+        expect(typeof IC10R.IC10RuntimeLocal.setLanguage).toBe('function');
+    });
+});
+
+// ============================================================
 // 寄存器操作
 // ============================================================
 
