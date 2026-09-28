@@ -14,6 +14,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_compiler_node/semantic/symbol_table_adapter.hpp"
+#include "ic10_compiler_node/semantic/type_table_adapter.hpp"
 #include "ic10_compiler_node/parser/ast_adapter.hpp"
 #include "ic10_runtime_node/context_adapter.hpp"
 #include "ic10_runtime_node/manager_adapter.hpp"
@@ -32,9 +33,15 @@ namespace stationeers::ic10 {
             Arguments args(info);
             auto program = ProgramAdapter::from(args.getWithCheck<node::Object>(0));
             auto symbols = SymbolTableAdapter::from(args.getWithCheck<node::Object>(1));
-            auto cfg = info.Length() >= 3 ? ConfigAdapter::from(args.getWithCheck<node::Object>(2))
-                                          : Config{};
-            return {std::move(program), std::move(symbols), cfg};
+            // 配置与类型表均可缺省（传 undefined 亦可）
+            auto cfg = info.Length() >= 3 && args.get(2).IsObject()
+                           ? ConfigAdapter::from(args.getWithCheck<node::Object>(2))
+                           : Config{};
+            // 第 4 个参数是类型表：枚举常量操作数（如 Color.Green）的求值依赖它
+            auto types = info.Length() >= 4 && args.get(3).IsObject()
+                             ? TypeTableAdapter::from(args.getWithCheck<node::Object>(3))
+                             : TypeTable{};
+            return {std::move(program), std::move(symbols), cfg, types};
         }()) {}
 
     node::Object ContextAdapter::init(node::Env env, node::Object exports) {
@@ -80,7 +87,7 @@ namespace stationeers::ic10 {
     node::Object ContextAdapter::to(node::Env env, const Context& ctx) {
         node::Object obj = constructor.New(
             {ProgramAdapter::to(env, ctx.program), SymbolTableAdapter::to(env, ctx.symbols),
-             ConfigAdapter::to(env, ctx.cfg)}
+             ConfigAdapter::to(env, ctx.cfg), TypeTableAdapter::to(env, ctx.types)}
         );
         ContextAdapter* wrapper  = Unwrap(obj);
         wrapper->context_.memory = ctx.memory;

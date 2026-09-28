@@ -16,6 +16,11 @@
 #include "ic10_runtime/executor/executor.hpp"
 #include "ic10_runtime/locals/local.hpp"
 #include "ic10_runtime/value/value.hpp"
+#include <algorithm>
+#include <ranges>
+#include <cctype>
+#include <array>
+#include <string_view>
 
 
 namespace stationeers::ic10 {
@@ -41,8 +46,8 @@ namespace stationeers::ic10 {
                         if constexpr (
                             std::is_same_v<U, LabelDef> || std::is_same_v<U, AliasDirective>
                             || std::is_same_v<U, DefineDirective>
-                            || std::is_same_v<U, EnumDocComment>
-                            || std::is_same_v<U, DeviceDocComment>
+                            || std::is_same_v<U, EnumAnnotation>
+                            || std::is_same_v<U, DeviceAnnotation>
                         )
                             return false;
 
@@ -75,7 +80,8 @@ namespace stationeers::ic10 {
                         return true;
                     }
                 },
-                stmt->get()
+                // Statement 是语句变体的句柄，取内部变体后才能分派
+                stmt->get().raw()
             )) {
             ctx_.advancePC();
 
@@ -96,8 +102,14 @@ namespace stationeers::ic10 {
             case INTEGER:
                 if (symbol->type.category == TypeCategory::LABEL) break;
                 [[fallthrough]];
-            case FLOAT: return std::stod(*symbol->value);
-            case REGISTER: return ctx_.memory.getReg<double>(*symbol->value);
+            case FLOAT: return numericText(*symbol->value);
+            case REGISTER:
+                // 别名指向的仍是寄存器文本（可能是动态寄存器），需再解析一层
+                if (symbol->value)
+                    if (auto name = resolveRegisterText(*symbol->value); name)
+                        return readRegister(*name);
+
+                return std::nullopt;
             default: break;
         }
 
@@ -119,6 +131,112 @@ namespace stationeers::ic10 {
     }
 
     // ========================================================================
+    // 操作数解析辅助
+    // ========================================================================
+
+    double Executor::readRegister(const std::string& name) {
+        // sp 是独立于寄存器表的栈指针
+        if (name == "sp") return ctx_.memory.getSP();
+
+        return ctx_.memory.getReg<double>(name);
+    }
+
+    void Executor::writeRegister(const std::string& name, double value) {
+        if (name == "sp") {
+            ctx_.memory.setSP(value);
+
+            return;
+        }
+
+        ctx_.memory.setReg(name, value);
+    }
+
+    std::optional<std::string> Executor::resolveRegisterText(const std::string& text) {
+        if (text == "ra") return text;
+
+        if (text == "sp") return text;
+
+        if (text.size() > 1 && text.front() == 'r') {
+            std::string_view rest = std::string_view(text).substr(1);
+
+            // r?：直接寄存器
+            if (std::ranges::all_of(rest, [](unsigned char c) { return std::isdigit(c) != 0; }))
+                return text;
+
+            // r<reg>：动态寄存器，内层寄存器的值即目标寄存器编号
+            if (auto inner = resolveRegisterText(std::string(rest)); inner) {
+                auto index = readRegister(*inner);
+
+                if (auto idx = static_cast<int64_t>(index);
+                    static_cast<double>(idx) == index && idx >= 0 && idx <= 17)
+                    return std::format("r{}", idx);
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    std::optional<std::string> Executor::resolveDeviceKey(const std::string& text) {
+        if (text == "db") return text;
+
+        if (text.size() < 2 || text.front() != 'd') return std::nullopt;
+
+        std::string_view rest = std::string_view(text).substr(1);
+
+        // d? / d?:?：静态端口（带引脚时端口名整体作为键）
+        if (std::isdigit(static_cast<unsigned char>(rest.front())) != 0) return text;
+
+        // d<reg>：动态端口，寄存器内容即端口编号（-1 为自身引用）
+        if (auto reg = resolveRegisterText(std::string(rest)); reg) {
+            auto port = readRegister(*reg);
+
+            if (port == -1.0) return std::string("db");
+
+            if (auto idx = static_cast<int64_t>(port);
+                static_cast<double>(idx) == port && idx >= 0 && idx <= 5)
+                return std::format("d{}", idx);
+        }
+
+        return std::nullopt;
+    }
+
+    std::optional<double> Executor::enumValue(const Enum& node) {
+        const auto* name  = std::get_if<Identifier>(&node.name);
+        const auto* value = std::get_if<Identifier>(&node.value);
+        if (!name || !value) return std::nullopt;
+
+        return enumMemberOf(name->value, value->value);
+    }
+
+    std::optional<double> Executor::enumMember(const std::string& name) {
+        // 与语义阶段的操作数检查保持一致：这些位置的裸成员名分别属于下列枚举
+        // （LogicType / LogicSlotType / BatchMode / ReagentMode）
+        static constexpr std::array<std::string_view, 4> kOperandEnums{
+            "LogicType", "LogicSlotType", "BatchMode", "ReagentMode"
+        };
+
+        for (auto enumName : kOperandEnums)
+            if (auto value = enumMemberOf(std::string(enumName), name); value) return value;
+
+        return std::nullopt;
+    }
+
+    std::optional<double> Executor::enumMemberOf(
+        const std::string& enumName, const std::string& member
+    ) {
+        const CustomType* type = ctx_.types.find(enumName);
+        if (!type) return std::nullopt;
+
+        const auto* enumType = std::get_if<EnumAnnotation>(type);
+        if (!enumType) return std::nullopt;
+
+        for (const auto& item : enumType->values)
+            if (item.name == member) return numericText(item.value);
+
+        return std::nullopt;
+    }
+
+    // ========================================================================
     // 非指令类型 no-op
     // ========================================================================
 
@@ -128,9 +246,9 @@ namespace stationeers::ic10 {
 
     void Executor::executeIns(const DefineDirective&, Flag&) noexcept {}
 
-    void Executor::executeIns(const EnumDocComment&, Flag&) noexcept {}
+    void Executor::executeIns(const EnumAnnotation&, Flag&) noexcept {}
 
-    void Executor::executeIns(const DeviceDocComment&, Flag&) noexcept {}
+    void Executor::executeIns(const DeviceAnnotation&, Flag&) noexcept {}
 
     void Executor::executeIns(const ErrorNode&, Flag&) noexcept {}
 

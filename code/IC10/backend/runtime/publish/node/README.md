@@ -131,17 +131,21 @@ const program = new ic10c.Parser(tokens).parse();
 const analyser = new ic10c.Analyser();
 await analyser.visit(program);
 
-const engine = new ic10r.Engine(program, analyser.symbolTable);
+const engine = new ic10r.Engine(program, analyser.symbolTable, undefined, analyser.typeTable);
 
-// Register an external device
+// Register an external device on port d0 (the runtime creates a virtual device for it),
+// then take the handle back
+engine.context.manager.setExternalDevice('d0', undefined as never);
 const device = engine.context.manager.getDevice('d0');
-engine.context.manager.setExternalDevice('d0', device);
 
 engine.runFull();
 
 // Read device logic after execution
 console.log(device.readLogic('Setting'));  // 1
 ```
+
+> How logic property names (`Setting`) and device references (`d0`, `db`, `dr0` and aliases) are
+> resolved is described in "Device references and aliases" below.
 
 ## API Reference
 
@@ -171,13 +175,13 @@ const config: Config = {
 
 ```typescript
 import { Engine } from 'ic10r-node';
-import type { Program, SymbolTable } from 'ic10c-node';
+import type { Program, SymbolTable, TypeTable } from 'ic10c-node';
 
-// Create engine with optional config
+// Create engine with optional config and type table
 const engine = new Engine(program, symbolTable, {
     tickDuration: 0.5,
     maxInstructions: 128
-});
+}, typeTable);
 
 // Execute
 engine.runTick();  // one tick
@@ -188,6 +192,26 @@ const ctx = engine.context;
 console.log(ctx.pc);            // program counter
 console.log(ctx.halted);         // halted flag
 ```
+
+> **Type table**: the fourth argument is the type table produced by semantic analysis
+> (`analyser.typeTable`). Evaluating enum constant operands (such as `Color.Green` in
+> `s d0 Color Color.Green`) depends on it; without it such operands are reported as
+> unevaluable (IEM2_1).
+
+### Device references and aliases
+
+Device references are resolved by port name, matching the keys of `Manager`:
+
+| Form | Resolution |
+|:---|:---|
+| `d0` … `d5` | `Manager::getDevice("d0")` … `("d5")` |
+| `d0:1` | the pinned port name `"d0:1"` |
+| `db` | the self reference (the device hosting the chip) |
+| `dr0` / `drr0` | reads the register for the port number, then looks up `d0`…`d5` (`-1` means `db`) |
+| `alias led d0` | a name alias, resolved through the symbol table to `d0` and then as above |
+
+Write targets support aliases (`alias tmp r3` → `r3`) and dynamic registers (`rr0`: the register
+number is held in `r0`) in exactly the same way.
 
 ### Context
 

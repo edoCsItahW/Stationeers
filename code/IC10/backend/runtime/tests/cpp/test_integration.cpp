@@ -43,7 +43,7 @@ protected:
         task.getFuture().get();
 
         Config cfg;
-        Engine engine(ast, analyser->getSymbolTable(), cfg);
+        Engine engine(ast, analyser->getSymbolTable(), cfg, analyser->getTypeTable());
         engine.runFull();
         return engine.getContext().memory.getReg(regName);
     }
@@ -57,7 +57,28 @@ protected:
         task.getFuture().get();
 
         Config cfg;
-        engine_ = std::make_unique<Engine>(ast_, analyser_->getSymbolTable(), cfg);
+        engine_ = std::make_unique<Engine>(
+            ast_, analyser_->getSymbolTable(), cfg, analyser_->getTypeTable()
+        );
+    }
+
+    /// 拼接最小标准库片段：逻辑属性名需命中 LogicType 枚举才算合法
+    static std::string withLogicTypes(const std::string& source) {
+        static constexpr std::string_view kLogicTypes =
+            "#> @enum\n"
+            "#> @name LogicType\n"
+            "#> @value Setting 12\n"
+            "#> @value On 28\n"
+            "#> @value Color 3\n"
+            "#> @value Pressure 5\n"
+            "#> @end-enum\n"
+            "#> @enum\n"
+            "#> @name BatchMode\n"
+            "#> @value Average 0\n"
+            "#> @value Sum 1\n"
+            "#> @end-enum\n";
+
+        return std::string(kLogicTypes) + source;
     }
 
     Program ast_;
@@ -246,6 +267,165 @@ TEST_F(IntegrationTestFixture, MultipleDefines) {
         "add r0 r0 C\n"
         "hcf\n";
     EXPECT_DOUBLE_EQ(runAndGetReg(src, "r0"), 60.0);
+}
+
+// ============================================================
+// v3 放宽语法：别名写入目标、设备引用、写入值形态
+// ============================================================
+
+TEST_F(IntegrationTestFixture, AliasAsWriteTarget) {
+    // 目标操作数可为指向寄存器的别名（v3 语法放宽）
+    std::string src =
+        "alias tmp r3\n"
+        "move tmp 7\n"
+        "move r4 tmp\n"
+        "hcf\n";
+    compile(src);
+    engine_->runFull();
+    EXPECT_DOUBLE_EQ(engine_->getContext().memory.getReg("r3"), 7.0);
+    EXPECT_DOUBLE_EQ(engine_->getContext().memory.getReg("r4"), 7.0);
+}
+
+TEST_F(IntegrationTestFixture, DeviceAliasWithValueForms) {
+    // 设备别名 + 写入值的三种合法形态：常量别名、字面量、寄存器
+    std::string src =
+        "alias led d0\n"
+        "define Level 3\n"
+        "move r1 5\n"
+        "s led Setting Level\n"
+        "s led On r1\n"
+        "s led Color 7\n"
+        "l r0 led Setting\n"
+        "hcf\n";
+
+    compile(withLogicTypes(src));
+
+    auto device     = std::make_unique<VirtualDevice>();
+    auto* devicePtr = device.get();
+    engine_->getContext().manager.setExternalDevice("d0", std::move(device));
+
+    engine_->runFull();
+
+    EXPECT_DOUBLE_EQ(devicePtr->readLogic("Setting"), 3.0);
+    EXPECT_DOUBLE_EQ(devicePtr->readLogic("On"), 5.0);
+    EXPECT_DOUBLE_EQ(devicePtr->readLogic("Color"), 7.0);
+    EXPECT_DOUBLE_EQ(engine_->getContext().memory.getReg("r0"), 3.0);
+}
+
+TEST_F(IntegrationTestFixture, DynamicDevicePort) {
+    // dr0：端口号存于 r0，运行时按 d0..d5 查找
+    std::string src =
+        "move r0 1\n"
+        "s dr0 Setting 9\n"
+        "hcf\n";
+
+    compile(withLogicTypes(src));
+
+    auto device     = std::make_unique<VirtualDevice>();
+    auto* devicePtr = device.get();
+    engine_->getContext().manager.setExternalDevice("d1", std::move(device));
+
+    engine_->runFull();
+
+    EXPECT_DOUBLE_EQ(devicePtr->readLogic("Setting"), 9.0);
+}
+
+TEST_F(IntegrationTestFixture, DynamicDevicePortOutOfRangeReportsError) {
+    // 边界：端口号越界时设备引用无法解析，应上报运行期诊断而不是静默写入
+    std::string src =
+        "move r0 9\n"
+        "s dr0 Setting 1\n"
+        "hcf\n";
+
+    compile(withLogicTypes(src));
+    engine_->runFull();
+
+    EXPECT_FALSE(engine_->getDiagnostics().empty());
+}
+
+TEST_F(IntegrationTestFixture, EnumConstantAsWriteValue) {
+    // 枚举常量作写入值：取值来自类型表的枚举注解
+    std::string src =
+        "#> @enum\n"
+        "#> @name Color\n"
+        "#> @value Green 2\n"
+        "#> @end-enum\n"
+        "alias led d0\n"
+        "s led Color Color.Green\n"
+        "hcf\n";
+
+    compile(withLogicTypes(src));
+
+    auto device     = std::make_unique<VirtualDevice>();
+    auto* devicePtr = device.get();
+    engine_->getContext().manager.setExternalDevice("d0", std::move(device));
+
+    engine_->runFull();
+
+    EXPECT_DOUBLE_EQ(devicePtr->readLogic("Color"), 2.0);
+}
+
+TEST_F(IntegrationTestFixture, DeviceHashFromRegister) {
+    // sb 的设备哈希可存放在寄存器中（v3 语法放宽）：此处设备类型哈希为 0
+    std::string src =
+        "alias Hash r2\n"
+        "move Hash 0\n"
+        "sb Hash Setting 4\n"
+        "hcf\n";
+
+    compile(withLogicTypes(src));
+
+    auto device     = std::make_unique<VirtualDevice>();
+    auto* devicePtr = device.get();
+    engine_->getContext().manager.setExternalDevice("d0", std::move(device));
+
+    engine_->runFull();
+
+    EXPECT_DOUBLE_EQ(devicePtr->readLogic("Setting"), 4.0);
+}
+
+TEST_F(IntegrationTestFixture, AggregateModeBareEnumMember) {
+    // 裸枚举成员名（Average）不是符号表条目，运行时据类型表在 BatchMode 中求值
+    std::string src =
+        "define DevType 0\n"
+        "lb r0 DevType Pressure Average\n"
+        "hcf\n";
+
+    compile(withLogicTypes(src));
+
+    auto first  = std::make_unique<VirtualDevice>();
+    auto second = std::make_unique<VirtualDevice>();
+    first->writeLogic("Pressure", 6.0);
+    second->writeLogic("Pressure", 12.0);
+
+    auto& manager = engine_->getContext().manager;
+    manager.setExternalDevice("d0", std::move(first));
+    manager.setExternalDevice("d1", std::move(second));
+    // 芯片自身也是类型哈希为 0 的设备，lb 的设备集合包含它
+    manager.getDevice("db")->writeLogic("Pressure", 3.0);
+
+    engine_->runFull();
+
+    // Average = (6 + 12 + 3) / 3：既证明成员名解析为模式 0，也证明三台设备都参与了聚合
+    EXPECT_DOUBLE_EQ(engine_->getContext().memory.getReg("r0"), 7.0);
+}
+
+TEST_F(IntegrationTestFixture, NumericLogicPropLegacySyntax) {
+    // 旧语法：逻辑属性写成数字，按十进制文本作为属性名传递
+    std::string src =
+        "alias led d0\n"
+        "s led 3 8\n"
+        "hcf\n";
+
+    compile(withLogicTypes(src));
+
+    auto device     = std::make_unique<VirtualDevice>();
+    auto* devicePtr = device.get();
+    engine_->getContext().manager.setExternalDevice("d0", std::move(device));
+
+    engine_->runFull();
+
+    EXPECT_DOUBLE_EQ(devicePtr->readLogic("3"), 8.0);
 }
 
 // ============================================================

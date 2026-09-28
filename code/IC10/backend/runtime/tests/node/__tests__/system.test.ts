@@ -32,7 +32,7 @@ async function compile(source: string): Promise<{
     const program = parser.parse();
     const analyser = new Analyser();
     await analyser.visit(program);
-    const engine = new Engine(program, analyser.symbolTable);
+    const engine = new Engine(program, analyser.symbolTable, undefined, analyser.typeTable);
     return {
         engine,
         reg: (name: string) => engine.context.memory.getReg(name)
@@ -269,7 +269,7 @@ describe('Engine configuration', () => {
         const program = parser.parse();
         const analyser = new Analyser();
         await analyser.visit(program);
-        const engine = new Engine(program, analyser.symbolTable, {tickDuration: 1.0});
+        const engine = new Engine(program, analyser.symbolTable, {tickDuration: 1.0}, analyser.typeTable);
         expect(engine).toBeInstanceOf(Engine);
         engine.runFull();
         expect(engine.context.memory.getReg('r0')).toBe(42);
@@ -281,7 +281,7 @@ describe('Engine configuration', () => {
         const program = parser.parse();
         const analyser = new Analyser();
         await analyser.visit(program);
-        const engine = new Engine(program, analyser.symbolTable, {maxInstructions: 1});
+        const engine = new Engine(program, analyser.symbolTable, {maxInstructions: 1}, analyser.typeTable);
         engine.runTick();
         expect(engine.context.memory.getReg('r0')).toBe(1);
         engine.runTick();
@@ -294,7 +294,7 @@ describe('Engine configuration', () => {
         const program = parser.parse();
         const analyser = new Analyser();
         await analyser.visit(program);
-        const engine = new Engine(program, analyser.symbolTable, {maxStackSize: 256});
+        const engine = new Engine(program, analyser.symbolTable, {maxStackSize: 256}, analyser.typeTable);
         engine.runFull();
         expect(engine.context.memory.peek()).toBe(1);
     });

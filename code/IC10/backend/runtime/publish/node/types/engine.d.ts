@@ -13,15 +13,25 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { SymbolTable, Diagnostic } from "ic10c-node";
-import { Program } from "ic10c-node";
-import { Context } from "./context";
-import { Config } from "./config";
+import type { SymbolTable, Diagnostic } from "@ic10/compiler";
+import type { TypeTable } from "@ic10/compiler";
+import type { Program } from "@ic10/compiler";
+import type { Context } from "./context";
+import type { Config } from "./config";
 
 
 export class Engine {
 
-    constructor(program: Program, symbols: SymbolTable, config?: Partial<Config>);
+    /**
+     * @param typeTable 语义分析产出的类型表（`analyser.typeTable`）。枚举常量操作数
+     *                  （如 `s d0 Color Color.Green`）的求值依赖它，缺省时这类操作数无法求值。
+     */
+    constructor(
+        program: Program,
+        symbols: SymbolTable,
+        config?: Partial<Config>,
+        typeTable?: TypeTable
+    );
 
     runTick(): void;
 

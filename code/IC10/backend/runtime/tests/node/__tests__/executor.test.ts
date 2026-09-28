@@ -33,7 +33,7 @@ async function compileStepByStep(source: string): Promise<{
     const program = parser.parse();
     const analyser = new Analyser();
     await analyser.visit(program);
-    const engine = new Engine(program, analyser.symbolTable, { maxInstructions: 1 });
+    const engine = new Engine(program, analyser.symbolTable, { maxInstructions: 1 }, analyser.typeTable);
     return {
         engine,
         reg: (name: string) => engine.context.memory.getReg(name),
@@ -53,7 +53,7 @@ async function compile(source: string): Promise<{
     const program = parser.parse();
     const analyser = new Analyser();
     await analyser.visit(program);
-    const engine = new Engine(program, analyser.symbolTable);
+    const engine = new Engine(program, analyser.symbolTable, undefined, analyser.typeTable);
     return {
         engine,
         reg: (name: string) => engine.context.memory.getReg(name)
