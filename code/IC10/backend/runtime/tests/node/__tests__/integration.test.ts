@@ -59,7 +59,11 @@ async function compile(source: string): Promise<{
 function registerDevice(engine: InstanceType<typeof Engine>, name: string) {
     const manager = engine.context.manager;
     manager.setExternalDevice(name, undefined as never);
-    return manager.getDevice(name);
+
+    const device = manager.getDevice(name);
+    if (!device) throw new Error(`port '${name}' should have a registered device`);
+
+    return device;
 }
 
 /**
@@ -434,7 +438,9 @@ describe('v3 relaxed syntax', () => {
         first.writeLogic('Pressure', 6);
         second.writeLogic('Pressure', 12);
         // 芯片自身也是类型哈希为 0 的设备，lb 的设备集合包含它
-        engine.context.manager.getDevice('db').writeLogic('Pressure', 3);
+        const chip = engine.context.manager.getDevice('db');
+        if (!chip) throw new Error("the chip device 'db' should exist");
+        chip.writeLogic('Pressure', 3);
 
         engine.runFull();
 
