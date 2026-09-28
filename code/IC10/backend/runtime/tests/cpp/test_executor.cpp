@@ -45,7 +45,9 @@ protected:
         task.getFuture().get();
 
         Config cfg;
-        context_ = std::make_unique<Context>(ast_, analyser_->getSymbolTable(), cfg);
+        context_ = std::make_unique<Context>(
+            ast_, analyser_->getSymbolTable(), cfg, analyser_->getTypeTable()
+        );
         executor_ = std::make_unique<Executor>(*context_);
     }
 
@@ -774,7 +776,9 @@ TEST_F(ExecutorTestFixture, PokeStack) {
 
 TEST_F(ExecutorTestFixture, SleepPausesExecution) {
     compile("sleep 1\nmove r0 42\nhcf\n");
-    EXPECT_TRUE(step());  // sleep 1
+    // 暂停与 halt 一样会结束本次 tick 的指令循环（Engine::runTick 依赖该返回值），
+    // 但程序并未终止：后续 tick 仍可继续执行
+    EXPECT_FALSE(step());
     // After sleep, context should be sleeping
     EXPECT_TRUE(context_->isSleeping());
 }
@@ -843,6 +847,7 @@ TEST_F(ExecutorTestFixture, SimpleLoop) {
     );
     step();  // move r0 0
     for (int i = 0; i < 3; i++) {
+        step();  // loop: 标签语句自身占一步（跳转目标是标签所在语句）
         step();  // add r0 r0 1  (r0 becomes i+1)
         step();  // blt r0 3 loop  (jump back while r0 < 3)
     }

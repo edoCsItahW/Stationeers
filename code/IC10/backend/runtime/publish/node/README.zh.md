@@ -131,17 +131,19 @@ const program = new ic10c.Parser(tokens).parse();
 const analyser = new ic10c.Analyser();
 await analyser.visit(program);
 
-const engine = new ic10r.Engine(program, analyser.symbolTable);
+const engine = new ic10r.Engine(program, analyser.symbolTable, undefined, analyser.typeTable);
 
-// 注册外部设备
+// 在端口 d0 上注册外部设备（运行时为该端口创建虚拟设备），再取回句柄
+engine.context.manager.setExternalDevice('d0', undefined as never);
 const device = engine.context.manager.getDevice('d0');
-engine.context.manager.setExternalDevice('d0', device);
 
 engine.runFull();
 
 // 执行后读取设备逻辑
 console.log(device.readLogic('Setting'));  // 1
 ```
+
+> 逻辑属性名（`Setting`）与设备引用（`d0`、`db`、`dr0` 及别名）的解析规则见下文「设备引用与别名」。
 
 ## API 文档
 
@@ -171,13 +173,13 @@ const config: Config = {
 
 ```typescript
 import { Engine } from 'ic10r-node';
-import type { Program, SymbolTable } from 'ic10c-node';
+import type { Program, SymbolTable, TypeTable } from 'ic10c-node';
 
-// 创建引擎，可选配置
+// 创建引擎，可选配置与类型表
 const engine = new Engine(program, symbolTable, {
     tickDuration: 0.5,
     maxInstructions: 128
-});
+}, typeTable);
 
 // 执行
 engine.runTick();  // 一个 tick
@@ -188,6 +190,24 @@ const ctx = engine.context;
 console.log(ctx.pc);            // 程序计数器
 console.log(ctx.halted);         // 停机标志
 ```
+
+> **类型表**：第 4 个参数是语义分析产出的类型表（`analyser.typeTable`），
+> 枚举常量操作数（如 `s d0 Color Color.Green` 中的 `Color.Green`）的求值依赖它；
+> 不传时这类操作数会被上报为无法求值（IEM2_1）。
+
+### 设备引用与别名
+
+运行时按端口名解析设备引用，与 `Manager` 的键一致：
+
+| 写法 | 解析结果 |
+|:---|:---|
+| `d0` … `d5` | `Manager::getDevice("d0")` … `("d5")` |
+| `d0:1` | 端口名含引脚的 `"d0:1"` |
+| `db` | 自身引用（芯片所在设备） |
+| `dr0` / `drr0` | 读寄存器取端口号后按 `d0`…`d5` 查找（`-1` 为 `db`） |
+| `alias led d0` | 名称别名，经符号表解析为 `d0` 后同上 |
+
+写入目标同理支持别名（`alias tmp r3` → `r3`）与动态寄存器（`rr0`：寄存器编号存于 `r0`）。
 
 ### Context
 

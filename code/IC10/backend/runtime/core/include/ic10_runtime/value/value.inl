@@ -50,6 +50,23 @@ namespace stationeers::ic10 {
         );
     }
 
+    template<typename T>
+    std::optional<double> directionValue(const T& arg) {
+        using U = std::decay_t<T>;
+
+        // 数字字面量：文本可能是十进制、$十六进制或%二进制
+        if constexpr (std::is_same_v<U, Integer> || std::is_same_v<U, Float>
+                      || std::is_same_v<U, HexNumber> || std::is_same_v<U, BinaryNumber>)
+            return numericText(arg.value);
+
+        // 宏调用：HASH 求哈希、STR 打包文本
+        else if constexpr (std::is_same_v<U, HashMacro> || std::is_same_v<U, StrMacro>)
+            return macroCall(arg);
+
+        else
+            return std::nullopt;
+    }
+
     template<typename U, typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>
     U arithmeticTrans(T&& value) noexcept {

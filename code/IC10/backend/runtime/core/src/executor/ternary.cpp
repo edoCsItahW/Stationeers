@@ -26,55 +26,55 @@ namespace stationeers::ic10 {
     void Executor::executeIns(const AddInstruction& ins, Flag&) {
         auto a = operandValue(ins.operand2);
         auto b = operandValue(ins.operand3);
-        if (a && b) ctx_.memory.setReg(getValue<Register>(ins.operand1).value, *a + *b);
+        if (a && b) assignRegister(ins.operand1, *a + *b);
     }
 
     void Executor::executeIns(const Atan2Instruction& ins, Flag&) {
         auto a = operandValue(ins.operand2);
         auto b = operandValue(ins.operand3);
-        if (a && b) ctx_.memory.setReg(getValue<Register>(ins.operand1).value, std::atan2(*a, *b));
+        if (a && b) assignRegister(ins.operand1, std::atan2(*a, *b));
     }
 
     void Executor::executeIns(const DivInstruction& ins, Flag&) {
         auto a = operandValue(ins.operand2);
         auto b = operandValue(ins.operand3);
-        if (a && b) ctx_.memory.setReg(getValue<Register>(ins.operand1).value, *a / *b);
+        if (a && b) assignRegister(ins.operand1, *a / *b);
     }
 
     void Executor::executeIns(const MaxInstruction& ins, Flag&) {
         auto a = operandValue(ins.operand2);
         auto b = operandValue(ins.operand3);
-        if (a && b) ctx_.memory.setReg(getValue<Register>(ins.operand1).value, std::max(*a, *b));
+        if (a && b) assignRegister(ins.operand1, std::max(*a, *b));
     }
 
     void Executor::executeIns(const MinInstruction& ins, Flag&) {
         auto a = operandValue(ins.operand2);
         auto b = operandValue(ins.operand3);
-        if (a && b) ctx_.memory.setReg(getValue<Register>(ins.operand1).value, std::min(*a, *b));
+        if (a && b) assignRegister(ins.operand1, std::min(*a, *b));
     }
 
     void Executor::executeIns(const ModInstruction& ins, Flag&) {
         auto a = operandValue(ins.operand2);
         auto b = operandValue(ins.operand3);
-        if (a && b) ctx_.memory.setReg(getValue<Register>(ins.operand1).value, std::fmod(*a, *b));
+        if (a && b) assignRegister(ins.operand1, std::fmod(*a, *b));
     }
 
     void Executor::executeIns(const MulInstruction& ins, Flag&) {
         auto a = operandValue(ins.operand2);
         auto b = operandValue(ins.operand3);
-        if (a && b) ctx_.memory.setReg(getValue<Register>(ins.operand1).value, *a * *b);
+        if (a && b) assignRegister(ins.operand1, *a * *b);
     }
 
     void Executor::executeIns(const PowInstruction& ins, Flag&) {
         auto a = operandValue(ins.operand2);
         auto b = operandValue(ins.operand3);
-        if (a && b) ctx_.memory.setReg(getValue<Register>(ins.operand1).value, std::pow(*a, *b));
+        if (a && b) assignRegister(ins.operand1, std::pow(*a, *b));
     }
 
     void Executor::executeIns(const SubInstruction& ins, Flag&) {
         auto a = operandValue(ins.operand2);
         auto b = operandValue(ins.operand3);
-        if (a && b) ctx_.memory.setReg(getValue<Register>(ins.operand1).value, *a - *b);
+        if (a && b) assignRegister(ins.operand1, *a - *b);
     }
 
     void Executor::executeIns(const RolInstruction& ins, Flag&) {
@@ -84,7 +84,7 @@ namespace stationeers::ic10 {
             auto bits       = static_cast<uint64_t>(*a);
             int shift       = static_cast<int>(*b) % 64;
             uint64_t result = shift == 0 ? bits : (bits << shift) | (bits >> (64 - shift));
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+            assignRegister(ins.operand1, result);
         }
     }
 
@@ -95,7 +95,7 @@ namespace stationeers::ic10 {
             auto bits       = static_cast<uint64_t>(*a);
             int shift       = static_cast<int>(*b) % 64;
             uint64_t result = (shift == 0) ? bits : (bits >> shift) | (bits << (64 - shift));
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+            assignRegister(ins.operand1, result);
         }
     }
 
@@ -105,7 +105,7 @@ namespace stationeers::ic10 {
         if (a && b) {
             auto bitsA = static_cast<uint64_t>(*a);
             auto bitsB = static_cast<uint64_t>(*b);
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, bitsA & bitsB);
+            assignRegister(ins.operand1, bitsA & bitsB);
         }
     }
 
@@ -115,7 +115,7 @@ namespace stationeers::ic10 {
         if (a && b) {
             auto bitsA = static_cast<int64_t>(*a);
             auto bitsB = static_cast<int64_t>(*b);
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, ~(bitsA | bitsB));
+            assignRegister(ins.operand1, ~(bitsA | bitsB));
         }
     }
 
@@ -125,7 +125,7 @@ namespace stationeers::ic10 {
         if (a && b) {
             auto bitsA = static_cast<uint64_t>(*a);
             auto bitsB = static_cast<uint64_t>(*b);
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, bitsA | bitsB);
+            assignRegister(ins.operand1, bitsA | bitsB);
         }
     }
 
@@ -135,7 +135,7 @@ namespace stationeers::ic10 {
         if (a && b) {
             auto bits = static_cast<int64_t>(*a);
             int shift = static_cast<int>(*b);
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, bits << shift);
+            assignRegister(ins.operand1, bits << shift);
         }
     }
 
@@ -145,7 +145,7 @@ namespace stationeers::ic10 {
         if (a && b) {
             auto bits = static_cast<uint64_t>(*a);
             int shift = static_cast<int>(*b);
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, bits << shift);
+            assignRegister(ins.operand1, bits << shift);
         }
     }
 
@@ -155,7 +155,7 @@ namespace stationeers::ic10 {
         if (a && b) {
             auto bits = static_cast<int64_t>(*a);
             int shift = static_cast<int>(*b);
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, bits >> shift);
+            assignRegister(ins.operand1, bits >> shift);
         }
     }
 
@@ -165,7 +165,7 @@ namespace stationeers::ic10 {
         if (a && b) {
             auto bits = static_cast<uint64_t>(*a);
             int shift = static_cast<int>(*b);
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, bits >> shift);
+            assignRegister(ins.operand1, bits >> shift);
         }
     }
 
@@ -175,7 +175,7 @@ namespace stationeers::ic10 {
         if (a && b) {
             auto bitsA = static_cast<uint64_t>(*a);
             auto bitsB = static_cast<uint64_t>(*b);
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, bitsA ^ bitsB);
+            assignRegister(ins.operand1, bitsA ^ bitsB);
         }
     }
 
@@ -185,7 +185,7 @@ namespace stationeers::ic10 {
         // Set if Approximately Positive or Zero: 值大于约等于 0
         // 的下容差即视为成立（包含正值、零及容差内的微小负值）
         if (a) result = (*a >= -std::numeric_limits<double>::denorm_min() * 8.0) ? 1.0 : 0.0;
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+        assignRegister(ins.operand1, result);
     }
 
     void Executor::executeIns(const SnazInstruction& ins, Flag&) {
@@ -194,49 +194,49 @@ namespace stationeers::ic10 {
         // Set if Approximately Negative: 值小于约等于 0
         // 的下容差才视为成立（排除容差内的近零微小值）
         if (a) result = (*a < -std::numeric_limits<double>::denorm_min() * 8.0) ? 1.0 : 0.0;
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+        assignRegister(ins.operand1, result);
     }
 
     void Executor::executeIns(const SeqInstruction& ins, Flag&) {
         auto a        = operandValue(ins.operand2);
         auto b        = operandValue(ins.operand3);
         double result = (a && b && *a == *b) ? 1.0 : 0.0;
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+        assignRegister(ins.operand1, result);
     }
 
     void Executor::executeIns(const SneInstruction& ins, Flag&) {
         auto a        = operandValue(ins.operand2);
         auto b        = operandValue(ins.operand3);
         double result = (a && b && *a != *b) ? 1.0 : 0.0;
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+        assignRegister(ins.operand1, result);
     }
 
     void Executor::executeIns(const SgeInstruction& ins, Flag&) {
         auto a        = operandValue(ins.operand2);
         auto b        = operandValue(ins.operand3);
         double result = (a && b && *a >= *b) ? 1.0 : 0.0;
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+        assignRegister(ins.operand1, result);
     }
 
     void Executor::executeIns(const SgtInstruction& ins, Flag&) {
         auto a        = operandValue(ins.operand2);
         auto b        = operandValue(ins.operand3);
         double result = (a && b && *a > *b) ? 1.0 : 0.0;
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+        assignRegister(ins.operand1, result);
     }
 
     void Executor::executeIns(const SleInstruction& ins, Flag&) {
         auto a        = operandValue(ins.operand2);
         auto b        = operandValue(ins.operand3);
         double result = (a && b && *a <= *b) ? 1.0 : 0.0;
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+        assignRegister(ins.operand1, result);
     }
 
     void Executor::executeIns(const SltInstruction& ins, Flag&) {
         auto a        = operandValue(ins.operand2);
         auto b        = operandValue(ins.operand3);
         double result = (a && b && *a < *b) ? 1.0 : 0.0;
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+        assignRegister(ins.operand1, result);
     }
 
     // ========================================================================
@@ -244,16 +244,11 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const GetInstruction& ins, Flag&) {
-        auto devOp = std::get_if<Device>(&ins.operand2);
-        if (!devOp) return;
+        IDevice* dev = deviceRef(ins.operand2);
+        if (!dev) return;
 
-        if (IDevice* dev = ctx_.manager.getDevice(devOp->value); dev) {
-            if (auto addr = operandValue(ins.operand3); addr)
-                ctx_.memory.setReg(
-                    getValue<Register>(ins.operand1).value,
-                    dev->readStack(static_cast<std::size_t>(*addr))
-                );
-        }
+        if (auto addr = operandValue(ins.operand3); addr)
+            assignRegister(ins.operand1, dev->readStack(static_cast<std::size_t>(*addr)));
     }
 
     // ========================================================================
@@ -261,16 +256,11 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const RmapInstruction& ins, Flag&) {
-        auto devOp = std::get_if<Device>(&ins.operand2);
-        if (!devOp) return;
+        IDevice* dev = deviceRef(ins.operand2);
+        if (!dev) return;
 
-        if (IDevice* dev = ctx_.manager.getDevice(devOp->value); dev) {
-            if (auto hash = operandValue(ins.operand3); hash)
-                ctx_.memory.setReg(
-                    getValue<Register>(ins.operand1).value,
-                    dev->queryReagentAmount(static_cast<int64_t>(*hash))
-                );
-        }
+        if (auto hash = operandValue(ins.operand3); hash)
+            assignRegister(ins.operand1, dev->queryReagentAmount(static_cast<int64_t>(*hash)));
     }
 
     // ========================================================================
@@ -278,15 +268,13 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const PutInstruction& ins, Flag&) {
-        auto devOp = std::get_if<Device>(&ins.operand1);
-        if (!devOp) return;
+        IDevice* dev = deviceRef(ins.operand1);
+        if (!dev) return;
 
-        if (IDevice* dev = ctx_.manager.getDevice(devOp->value); dev) {
-            auto addr = operandValue(ins.operand2);
-            auto val  = operandValue(ins.operand3);
+        auto addr = operandValue(ins.operand2);
+        auto val  = operandValue(ins.operand3);
 
-            if (addr && val) dev->writeStack(static_cast<std::size_t>(*addr), *val);
-        }
+        if (addr && val) dev->writeStack(static_cast<std::size_t>(*addr), *val);
     }
 
     // ========================================================================
@@ -294,14 +282,13 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const LInstruction& ins, Flag&) {
-        auto devOp = std::get_if<Device>(&ins.operand2);
-        if (!devOp) return;
+        IDevice* dev = deviceRef(ins.operand2);
+        if (!dev) return;
 
-        if (IDevice* dev = ctx_.manager.getDevice(devOp->value); dev) {
-            auto prop = getValue<Identifier>(ins.operand3).value;
-            auto val  = dev->readLogic(prop);
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, val);
-        }
+        auto prop = propName(ins.operand3);
+        if (!prop) return;
+
+        assignRegister(ins.operand1, dev->readLogic(*prop));
     }
 
     // ========================================================================
@@ -309,14 +296,14 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const SInstruction& ins, Flag&) {
-        auto devOp = std::get_if<Device>(&ins.operand1);
-        if (!devOp) return;
+        IDevice* dev = deviceRef(ins.operand1);
+        if (!dev) return;
 
-        if (IDevice* dev = ctx_.manager.getDevice(devOp->value); dev) {
-            auto prop = getValue<Identifier>(ins.operand2).value;
+        auto prop = propName(ins.operand2);
+        if (!prop) return;
 
-            if (auto val = operandValue(ins.operand3); val) dev->writeLogic(prop, *val);
-        }
+        // 末位操作数是写入值：寄存器、字面量、常量别名、枚举常量均合法
+        if (auto val = operandValue(ins.operand3); val) dev->writeLogic(*prop, *val);
     }
 
     // ========================================================================
@@ -324,15 +311,18 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const SbInstruction& ins, Flag&) {
+        // 设备类型哈希可以是字面量、常量别名、寄存器或 HASH 宏
         auto hash = operandValue(ins.operand1);
         if (!hash) return;
 
-        auto prop = getValue<Identifier>(ins.operand2).value;
-        auto val  = operandValue(ins.operand3);
+        auto prop = propName(ins.operand2);
+        if (!prop) return;
+
+        auto val = operandValue(ins.operand3);
         if (!val) return;
 
         if (auto dev = ctx_.manager.findDeviceByType(static_cast<std::size_t>(*hash)); dev)
-            dev->writeLogic(prop, *val);
+            dev->writeLogic(*prop, *val);
     }
 
     // ========================================================================
@@ -340,31 +330,31 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const BdnvlInstruction& ins, Flag& flag) {
-        auto devOp = std::get_if<Device>(&ins.operand1);
-        if (!devOp) return;
+        IDevice* dev = deviceRef(ins.operand1);
+        if (!dev) return;
 
-        if (IDevice* dev = ctx_.manager.getDevice(devOp->value); dev) {
-            auto prop = getValue<Identifier>(ins.operand2).value;
-            if (!dev->canReadLogic(prop)) {
-                if (auto target = operandValue(ins.operand3); target) {
-                    ctx_.setPC(*target);
-                    flag.jumped = true;
-                }
+        auto prop = propName(ins.operand2);
+        if (!prop) return;
+
+        if (!dev->canReadLogic(*prop)) {
+            if (auto target = operandValue(ins.operand3); target) {
+                ctx_.setPC(*target);
+                flag.jumped = true;
             }
         }
     }
 
     void Executor::executeIns(const BdnvsInstruction& ins, Flag& flag) {
-        auto devOp = std::get_if<Device>(&ins.operand1);
-        if (!devOp) return;
+        IDevice* dev = deviceRef(ins.operand1);
+        if (!dev) return;
 
-        if (IDevice* dev = ctx_.manager.getDevice(devOp->value); dev) {
-            auto prop = getValue<Identifier>(ins.operand2).value;
-            if (!dev->canWriteLogic(prop)) {
-                if (auto target = operandValue(ins.operand3); target) {
-                    ctx_.setPC(*target);
-                    flag.jumped = true;
-                }
+        auto prop = propName(ins.operand2);
+        if (!prop) return;
+
+        if (!dev->canWriteLogic(*prop)) {
+            if (auto target = operandValue(ins.operand3); target) {
+                ctx_.setPC(*target);
+                flag.jumped = true;
             }
         }
     }

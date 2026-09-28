@@ -27,19 +27,19 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const PeekInstruction& ins, Flag&) {
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, ctx_.memory.peek());
+        assignRegister(ins.operand1, ctx_.memory.peek());
     }
 
     void Executor::executeIns(const RandInstruction& ins, Flag&) {
         thread_local std::mt19937 gen{std::random_device{}()};
         thread_local std::uniform_real_distribution dist{0.0, 1.0};
 
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, dist(gen));
+        assignRegister(ins.operand1, dist(gen));
     }
 
     void Executor::executeIns(const PopInstruction& ins, Flag&) {
         const auto val = ctx_.memory.pop();
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, val);
+        assignRegister(ins.operand1, val);
     }
 
     // ========================================================================
@@ -47,9 +47,8 @@ namespace stationeers::ic10 {
     // ========================================================================
 
     void Executor::executeIns(const ClrInstruction& ins, Flag&) {
-        auto dev = getValue<Device>(ins.operand1);
-
-        if (IDevice* device = ctx_.manager.getDevice(dev.value); device) device->clearStack();
+        // clr 只接受严格设备端口（静态端口），别名与动态设备在语义阶段已被拒绝
+        if (IDevice* dev = deviceRef(ins.operand1); dev) dev->clearStack();
     }
 
     // ========================================================================

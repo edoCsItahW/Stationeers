@@ -50,7 +50,48 @@ namespace stationeers::ic10 {
 
     std::optional<double> macroCall(const Macro& macroCall);
 
-    std::optional<double> directionValue(const Operand& operand);
+    /**
+     * @if zh
+     * @brief 解析数值文本
+     * @details 语法阶段的字面量保留原文本（`-5`、`$FF`、`%1010`），符号表里的常量值同样以文本存放，
+     *          因此按前缀分派：`$` 为十六进制、`%` 为二进制，其余交给 `std::stod`。
+     * @param text 数值文本
+     * @return 解析成功返回数值，文本非法时返回空值
+     *
+     * @else
+     * @brief Parse numeric text
+     * @details Literals keep their source text (`-5`, `$FF`, `%1010`) and the values of constants are
+     *          stored as text in the symbol table as well, so the prefix decides the base: `$` is
+     *          hexadecimal, `%` is binary and anything else goes to `std::stod`.
+     * @param text Numeric text
+     * @return The value, or an empty optional when the text is malformed
+     *
+     * @endif
+     */
+    std::optional<double> numericText(const std::string& text) noexcept;
+
+    /**
+     * @if zh
+     * @brief 字面量/宏调用 → 数值
+     * @details 只处理无需执行上下文即可求值的形态：整数、浮点、进制字面量以及 `HASH`/`STR` 宏调用；
+     *          寄存器、标识符、设备等需要符号表或内存的形态由 Executor 处理。
+     * @tparam T 叶子节点类型
+     * @param arg 叶子节点
+     * @return 数值；形态不支持时返回空值
+     *
+     * @else
+     * @brief Literal/macro call → value
+     * @details Only handles the forms evaluable without execution context: integers, floats, based
+     *          literals and `HASH`/`STR` macro calls. Registers, identifiers and devices need the
+     *          symbol table or memory and are handled by Executor.
+     * @tparam T Leaf node type
+     * @param arg The leaf node
+     * @return The value, or an empty optional for an unsupported form
+     *
+     * @endif
+     */
+    template<typename T>
+    std::optional<double> directionValue(const T& arg);
 
     template<typename U, typename T>
         requires std::is_arithmetic_v<std::decay_t<T>>

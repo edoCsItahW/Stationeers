@@ -17,13 +17,17 @@
 
 namespace stationeers::ic10 {
 
-    Context::Context(const Program& program, const SymbolTable& symbols, const Config& config)
+    Context::Context(
+        const Program& program, const SymbolTable& symbols, const Config& config,
+        const TypeTable& types
+    )
         : program(program)
         , symbols(symbols)
-        , pc_(0)
-        , halted_(false)
         , memory(config)
-        , cfg(config) {
+        , cfg(config)
+        , types(types)
+        , pc_(0)
+        , halted_(false) {
         buildAddrs();
     }
 
@@ -42,7 +46,8 @@ namespace stationeers::ic10 {
                     if (!addrs_.contains(stmt.position.line()))
                         addrs_.insert(stmt.position.line(), i);
                 },
-                program.statements[i]
+                // Statement 是语句变体的句柄，取内部变体后才能访问分支
+                program.statements[i].raw()
             );
     }
 

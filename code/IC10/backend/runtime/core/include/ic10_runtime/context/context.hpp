@@ -29,7 +29,30 @@ namespace stationeers::ic10 {
 
     class Context {
     public:
-        Context(const Program& program, const SymbolTable& symbols, const Config& config);
+        /**
+         * @if zh
+         * @brief 构造执行上下文
+         * @param program 已解析的程序
+         * @param symbols 语义分析产出的符号表（别名、常量、标签）
+         * @param config 运行时配置
+         * @param types 语义分析产出的类型表（设备/枚举注解）；枚举常量操作数（如 `Color.Green`）
+         *              的求值依赖它，缺失时枚举操作数无法求值
+         *
+         * @else
+         * @brief Construct the execution context
+         * @param program The parsed program
+         * @param symbols The symbol table produced by semantic analysis (aliases, constants, labels)
+         * @param config Runtime configuration
+         * @param types The type table produced by semantic analysis (device/enum annotations);
+         *              evaluating enum operands such as `Color.Green` depends on it, and without it
+         *              enum operands cannot be evaluated
+         *
+         * @endif
+         */
+        Context(
+            const Program& program, const SymbolTable& symbols, const Config& config = {},
+            const TypeTable& types = {}
+        );
 
         Context(Context&&) noexcept = default;
         Context& operator=(Context&&) noexcept = default;
@@ -77,6 +100,9 @@ namespace stationeers::ic10 {
         Manager manager;
 
         Config cfg;
+
+        /// @brief 类型表（设备/枚举注解），枚举常量操作数的求值来源
+        TypeTable types;
 
     private:
         std::size_t currentTick_ = 0;

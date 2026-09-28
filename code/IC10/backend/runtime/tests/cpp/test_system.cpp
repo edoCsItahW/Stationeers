@@ -56,7 +56,9 @@ protected:
         task.getFuture().get();
 
         Config cfg;
-        engine_ = std::make_unique<Engine>(ast_, analyser_->getSymbolTable(), cfg);
+        engine_ = std::make_unique<Engine>(
+            ast_, analyser_->getSymbolTable(), cfg, analyser_->getTypeTable()
+        );
     }
 
     double reg(const std::string& name) {
