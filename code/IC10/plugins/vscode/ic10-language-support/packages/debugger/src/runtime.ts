@@ -15,7 +15,7 @@
  * */
 import type { AstResponseEventData, Optional } from "@ic10/common";
 import { Lexer, Parser, Linker, SymbolMap } from "@ic10/compiler";
-import { Engine, MemoryInfo } from "ic10r-node";
+import { Engine, MemoryInfo } from "@ic10/runtime";
 import { EventEmitter } from "node:events";
 import { readFileSync } from "node:fs";
 import { t } from "./locals";
@@ -234,9 +234,7 @@ export class IC10Runtime extends EventEmitter<IC10RuntimeEvents> {
     }
 
     getVariables() {
-        if (this.symbols) return Object.entries(this.symbols);
-
-        return [];
+        return this.symbols;
     }
 
     getStack() {

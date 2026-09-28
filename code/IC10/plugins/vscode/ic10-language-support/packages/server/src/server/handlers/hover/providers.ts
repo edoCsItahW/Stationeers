@@ -20,7 +20,7 @@ import { instructions as localsInstructions } from "@ic10/metadata/locals";
 import { instructions as stdInstructions } from "@ic10/metadata/std";
 import { Nullable, Optional, pascalToSnake } from "@ic10/common";
 import type { Hover } from "vscode-languageserver/node";
-import { hashValue, strValue } from "ic10r-node";
+import { hashValue, strValue } from "@ic10/runtime";
 import {
     PureExeInstructionNode,
     DefineDirectiveNode,

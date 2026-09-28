@@ -13,8 +13,8 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { DebugProtocol } from "@vscode/debugprotocol";
 import { BasicType, TypeCategory } from "@ic10/compiler";
+import { DebugProtocol } from "@vscode/debugprotocol";
 import { getEnumName, Transfer } from "@ic10/common";
 import { Uri } from "vscode";
 import {
@@ -42,12 +42,10 @@ import {
 import { IC10Runtime } from "./runtime";
 import { t } from "./locals";
 
-
 interface IC10LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
     program: string;
     stopOnEntry?: boolean;
 }
-
 
 const EVENT_MAP = {
     breakpoint: BreakpointEvent,
@@ -81,10 +79,9 @@ const EVENT_MAP = {
     thread: ThreadEvent
 } as const;
 
-
 export class IC10DebugSession extends LoggingDebugSession {
     private readonly runtime;
-    private variableHandles = new Handles<"registers" | "stack" | "variables">();
+    private variableHandles = new Handles<"registers" | "stack" | "variables" | "builtin">();
 
     private readonly configurationDonePromise: Promise<void>;
     private resolveConfigurationDone!: () => void;
@@ -360,6 +357,11 @@ export class IC10DebugSession extends LoggingDebugSession {
                     name: t("session.variable"),
                     variablesReference: this.variableHandles.create("variables"),
                     expensive: false
+                },
+                {
+                    name: t("session.builtin"),
+                    variablesReference: this.variableHandles.create("builtin"),
+                    expensive: false
                 }
             ]
         };
@@ -381,7 +383,8 @@ export class IC10DebugSession extends LoggingDebugSession {
 
         let variables: DebugProtocol.Variable[] = [];
 
-        switch (this.variableHandles.get(args.variablesReference)) {
+        const flag = this.variableHandles.get(args.variablesReference);
+        switch (flag) {
             case "registers":
                 variables = this.runtime.getRegisters().map((r, i) => ({
                     name: r.name,
@@ -397,15 +400,35 @@ export class IC10DebugSession extends LoggingDebugSession {
                 }));
                 break;
             case "variables":
-                variables = this.runtime.getVariables().map(([name, symbol], i): DebugProtocol.Variable => ({
-                    name,
-                    value: symbol.value || "",
-                    variablesReference: 0,
-                    type:
-                        symbol.typeName ||
-                        `${getEnumName(TypeCategory, symbol.category)?.toLowerCase()}:${getEnumName(BasicType, symbol.type)?.toLowerCase()}`,
-                    presentationHint: { kind: "data" }
-                }));
+            case "builtin": {
+                const symbols = this.runtime.getVariables();
+                // TODO: 填入device
+                variables = symbols?.symbols
+                    ? Object.entries(symbols.symbols)
+                          .filter(([, symbol]) => (flag === "builtin") === symbol.builtin)
+                          .map(([name, symbol]): DebugProtocol.Variable => {
+                              let value = symbol.value || "";
+
+                              if (symbol.type === BasicType.REGISTER) {
+                                  const reg = this.runtime.getRegisters().find(r => r.name === value);
+                                  if (reg) {
+                                      name = `${name} : ${reg.name}`;
+                                      value = reg.value.toString();
+                                  }
+                              }
+
+                              return {
+                                  name,
+                                  value,
+                                  variablesReference: 0,
+                                  type:
+                                      symbol.typeName ||
+                                      `${getEnumName(TypeCategory, symbol.category)?.toLowerCase()}:${getEnumName(BasicType, symbol.type)?.toLowerCase()}`,
+                                  presentationHint: { kind: "data" }
+                              };
+                          })
+                    : [];
+            }
         }
 
         response.body = { variables };

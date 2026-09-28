@@ -17,7 +17,8 @@ export default {
     session: {
         register: "寄存器",
         stack: "栈",
-        variable: "变量"
+        variable: "变量",
+        builtin: "内置"
     },
     runtime: {
         entry: "启用入口点暂停",

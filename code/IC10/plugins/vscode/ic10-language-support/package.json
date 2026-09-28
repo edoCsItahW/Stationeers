@@ -327,7 +327,7 @@
     },
     "dependencies": {
         "@ic10/compiler": "^3.1.1",
-        "@ic10/metadata": "^1.0.0",
-        "ic10r-node": "1.0.5"
+        "@ic10/runtime": "^2.0.0",
+        "@ic10/metadata": "^1.0.0"
     }
 }

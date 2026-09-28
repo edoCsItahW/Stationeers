@@ -11,6 +11,9 @@
         "CHANGELOG.md",
         "CHANGELOG.zh.md"
     ],
+    "publishConfig": {
+        "access": "public"
+    },
     "engines": {
         "node": ">=16.0.0"
     },
