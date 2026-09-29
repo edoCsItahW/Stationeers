@@ -1279,6 +1279,7 @@ TEST_F(SemanticTestFixture, ConstantsReferenceNoUndefinedError) {
         "define pi \"pi\" #: @builtin\n"
         "define nan \"nan\" #: @builtin\n"
         "define rgas \"rgas\" #: @builtin\n"
+        "define myConst 42\n"
         "move r0 pi\n"
         "move r1 nan\n"
         "move r2 rgas\n"
@@ -1290,6 +1291,26 @@ TEST_F(SemanticTestFixture, ConstantsReferenceNoUndefinedError) {
     assertNoLexerParserDiags(result);
     // 常量已由标准库定义，不应产生未定义错误
     EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IEA3_1"));
+
+    // `define <名> "<内建名>" #: @builtin` 的标记必须落到符号上，
+    // 否则调试器按 builtin 分组的「内置」作用域恒为空（Symbol::toJSON 的 builtin 字段恒 false）
+    auto& symtab = result.analyser->getSymbolTable();
+
+    auto piIt = symtab.find("pi");
+    ASSERT_NE(piIt, symtab.end()) << "pi 应进入符号表";
+    ASSERT_TRUE(piIt->second.ready());
+    EXPECT_TRUE(piIt->second.future.get().value()->isBuiltin) << "pi 是内置常量";
+
+    auto rgasIt = symtab.find("rgas");
+    ASSERT_NE(rgasIt, symtab.end()) << "rgas 应进入符号表";
+    ASSERT_TRUE(rgasIt->second.ready());
+    EXPECT_TRUE(rgasIt->second.future.get().value()->isBuiltin) << "rgas 是内置常量";
+
+    // 反向等价类：没有 @builtin 的普通 define 不能被标成内置
+    auto userIt = symtab.find("myConst");
+    ASSERT_NE(userIt, symtab.end()) << "myConst 应进入符号表";
+    ASSERT_TRUE(userIt->second.ready());
+    EXPECT_FALSE(userIt->second.future.get().value()->isBuiltin) << "普通常量不是内置常量";
 }
 
 /// @brief 空程序语义分析无错误 / Empty program semantic analysis has no errors

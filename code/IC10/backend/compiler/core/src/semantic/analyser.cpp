@@ -298,8 +298,13 @@ namespace stationeers::ic10 {
                         symbol.value = ins.value;
                     }
 
-                    if (auto& typeHint = defineDirective.typeHint; typeHint && typeHint->desc)
-                        symbol.desc = *typeHint->desc;
+                    // 与alias分支保持一致：@builtin标记必须落到符号上，
+                    // 否则标准库用`define <名> "<内建名>" #: @builtin`声明的常量会被当成用户常量
+                    if (auto& typeHint = defineDirective.typeHint; typeHint) {
+                        if (typeHint->desc) symbol.desc = *typeHint->desc;
+
+                        symbol.isBuiltin = typeHint->builtin;
+                    }
 
                     defineSymbol(identifier, std::move(symbol));
                 },
