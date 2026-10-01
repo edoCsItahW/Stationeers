@@ -39,12 +39,31 @@ import {
     Thread
 } from "@vscode/debugadapter";
 
-import { IC10Runtime } from "./runtime";
+import { IC10Runtime, staticPort, type DeviceGroup } from "./runtime";
 import { t } from "./locals";
 
 interface IC10LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
     program: string;
     stopOnEntry?: boolean;
+}
+
+/** 变量面板的引用载荷：作用域标签，或一个待展开的静态设备（及其分组） */
+type VariableRef = "registers" | "stack" | "variables" | "builtin" | DeviceRef | DeviceGroupRef;
+
+interface DeviceRef {
+    kind: "device";
+    /** 端口名：`d0`-`d5`（可带引脚）或 `db` */
+    port: string;
+    /** 声明类型名（来自 `#: @type` 提示），给出各分组字段的范围 */
+    typeName?: string;
+}
+
+interface DeviceGroupRef {
+    kind: "deviceGroup";
+    port: string;
+    typeName?: string;
+    /** 设备的分组（`logics` / `slotLogics` / `slots` / `hashes`） */
+    group: DeviceGroup;
 }
 
 const EVENT_MAP = {
@@ -81,7 +100,7 @@ const EVENT_MAP = {
 
 export class IC10DebugSession extends LoggingDebugSession {
     private readonly runtime;
-    private variableHandles = new Handles<"registers" | "stack" | "variables" | "builtin">();
+    private variableHandles = new Handles<VariableRef>();
 
     private readonly configurationDonePromise: Promise<void>;
     private resolveConfigurationDone!: () => void;
@@ -384,6 +403,18 @@ export class IC10DebugSession extends LoggingDebugSession {
         let variables: DebugProtocol.Variable[] = [];
 
         const flag = this.variableHandles.get(args.variablesReference);
+
+        // 设备引用：展开该端口的最后一级（设备本身或其一个分组）
+        if (flag && typeof flag === "object") {
+            const variables = flag.kind === "device" ? this.deviceVariables(flag) : this.deviceGroupVariables(flag);
+
+            response.body = { variables };
+
+            this.sendResponse(response);
+
+            return;
+        }
+
         switch (flag) {
             case "registers":
                 variables = this.runtime.getRegisters().map((r, i) => ({
@@ -402,38 +433,88 @@ export class IC10DebugSession extends LoggingDebugSession {
             case "variables":
             case "builtin": {
                 const symbols = this.runtime.getVariables();
-                // TODO: 填入device
-                variables = symbols?.symbols
-                    ? Object.entries(symbols.symbols)
-                          .filter(([, symbol]) => (flag === "builtin") === symbol.builtin)
-                          .map(([name, symbol]): DebugProtocol.Variable => {
-                              let value = symbol.value || "";
 
-                              if (symbol.type === BasicType.REGISTER) {
-                                  const reg = this.runtime.getRegisters().find(r => r.name === value);
-                                  if (reg) {
-                                      name = `${name} : ${reg.name}`;
-                                      value = reg.value.toString();
-                                  }
-                              }
+                // 内建设备端口（`d0`-`d5`）在 `builtinSymbols` 里，标准库常量在 `symbols` 里以
+                // `#: @builtin` 标记，两者同属“内置”作用域
+                const entries =
+                    flag === "builtin"
+                        ? [
+                              ...Object.entries(symbols?.symbols ?? {}).filter(([, symbol]) => symbol.builtin),
+                              ...Object.entries(symbols?.builtinSymbols ?? {})
+                          ]
+                        : Object.entries(symbols?.symbols ?? {}).filter(([, symbol]) => !symbol.builtin);
 
-                              return {
-                                  name,
-                                  value,
-                                  variablesReference: 0,
-                                  type:
-                                      symbol.typeName ||
-                                      `${getEnumName(TypeCategory, symbol.category)?.toLowerCase()}:${getEnumName(BasicType, symbol.type)?.toLowerCase()}`,
-                                  presentationHint: { kind: "data" }
-                              };
-                          })
-                    : [];
+                variables = entries.map(([name, symbol]): DebugProtocol.Variable => {
+                    let value = symbol.value || "";
+                    let variablesReference = 0;
+
+                    if (symbol.type === BasicType.REGISTER) {
+                        const reg = this.runtime.getRegisters().find(r => r.name === value);
+                        if (reg) {
+                            name = `${name} : ${reg.name}`;
+                            value = reg.value.toString();
+                        }
+                    }
+
+                    // 设备：静态端口一律可展开（分组来自注解声明与程序引用，见 runtime.getDeviceGroups）
+                    if (symbol.type === BasicType.DEVICE) {
+                        const port = staticPort(name, symbol.value);
+
+                        if (port) {
+                            // 与寄存器别名一致，把端口缀在名字后，值的列留给类型
+                            name = port === name ? name : `${name} : ${port}`;
+                            value = symbol.typeName ?? "device";
+
+                            variablesReference = this.variableHandles.create({
+                                kind: "device",
+                                port,
+                                typeName: symbol.typeName
+                            });
+                        }
+                    }
+
+                    return {
+                        name,
+                        value,
+                        variablesReference,
+                        type:
+                            symbol.typeName ||
+                            `${getEnumName(TypeCategory, symbol.category)?.toLowerCase()}:${getEnumName(BasicType, symbol.type)?.toLowerCase()}`,
+                        presentationHint: { kind: "data" }
+                    };
+                });
             }
         }
 
         response.body = { variables };
 
         this.sendResponse(response);
+    }
+
+    /**
+     * 展开一个设备：其下是按类别分的分组（子对象），分组字段的范围来自型号注解
+     * */
+    private deviceVariables({ port, typeName }: DeviceRef): DebugProtocol.Variable[] {
+        return this.runtime.getDeviceGroups(port, typeName).map((view): DebugProtocol.Variable => ({
+            name: view.group,
+            value: "",
+            variablesReference: this.variableHandles.create({ kind: "deviceGroup", port, typeName, group: view.group }),
+            presentationHint: { kind: "data" }
+        }));
+    }
+
+    /**
+     * 展开设备的一个分组：字段只有被赋过值才有值，未赋值的字段显示 `-`
+     * */
+    private deviceGroupVariables({ port, typeName, group }: DeviceGroupRef): DebugProtocol.Variable[] {
+        const view = this.runtime.getDeviceGroups(port, typeName).find(item => item.group === group);
+
+        return (view?.fields ?? []).map((field): DebugProtocol.Variable => ({
+            name: field.name,
+            value: field.value ?? "-",
+            variablesReference: 0,
+            presentationHint: { kind: "property" }
+        }));
     }
 
     /**
