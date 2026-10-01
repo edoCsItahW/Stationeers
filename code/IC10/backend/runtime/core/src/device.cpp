@@ -14,10 +14,16 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_runtime/device.hpp"
+#include <algorithm>
+#include <utility>
 
 namespace stationeers::ic10 {
 
     void IDevice::tick() {}
+
+    std::string IDevice::typeName() const { return {}; }
+
+    std::vector<DeviceMemberView> IDevice::snapshot() const { return {}; }
 
     VirtualDevice::VirtualDevice()
         : stack_(512, 0.0) {}
@@ -57,5 +63,48 @@ namespace stationeers::ic10 {
     void VirtualDevice::writeStack(std::size_t index, double value) { stack_[index] = value; }
 
     void VirtualDevice::clearStack() { std::fill(stack_.begin(), stack_.end(), 0.0); }
+
+    // SimDevice
+
+    SimDevice::SimDevice(DeviceType type, std::string typeName)
+        : type_(std::move(type))
+        , typeName_(typeName.empty() ? type_.name : std::move(typeName)) {}
+
+    int64_t SimDevice::getTypeHash() const { return type_.deviceHash; }
+
+    int64_t SimDevice::getNameHash() const { return type_.nameHash; }
+
+    std::string SimDevice::typeName() const { return typeName_; }
+
+    std::vector<DeviceMemberView> SimDevice::snapshot() const {
+        std::vector<DeviceMemberView> views;
+
+        views.reserve(type_.members.size() + logicProps_.size());
+
+        // 型号声明的成员：顺序与注解一致；只有被赋过值才有值，否则值为空（默认值不一定是 0）
+        for (const auto& member : type_.members) {
+            const auto& it = logicProps_.find(member.name);
+
+            const bool assigned = it != logicProps_.end();
+
+            views.push_back(
+                {member.name, member.kind, member.value,
+                 assigned ? std::optional<double>(it->second) : std::nullopt, true, assigned}
+            );
+        }
+
+        // 程序写过而型号没有声明的属性：如实列出（无型号设备只有这一类）；按名字排序保证输出稳定
+        std::vector<std::string> undeclared;
+
+        for (const auto& [name, value] : logicProps_)
+            if (!type_.contains(name)) undeclared.push_back(name);
+
+        std::ranges::sort(undeclared);
+
+        for (const auto& name : undeclared)
+            views.push_back({name, "logic", {}, logicProps_.at(name), false, true});
+
+        return views;
+    }
 
 }  // namespace stationeers::ic10

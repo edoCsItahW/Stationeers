@@ -55,6 +55,8 @@ namespace stationeers::ic10 {
 
         EXPORT_D_METHOD_VOID(setChipDevice)
 
+        EXPORT_D_METHOD_VALUE(ports)
+
         EXPORT_D_METHOD_VALUE(findDeviceByType)
 
         EXPORT_D_METHOD_VALUE(findDeviceByTypeAndName)

@@ -23,17 +23,17 @@ import type { Device } from "./device";
  *       {@link Manager.getDevice} 取设备；`lb`/`sb` 一类按哈希查找的指令走
  *       {@link Manager.findDeviceByType} 等接口。
  *
- * @note 内置设备一律由运行时创建并持有（`VirtualDevice`），所以注册端口时传入的设备句柄会被忽略：
- *       先注册端口，再用 `getDevice` 取回句柄。
+ * @note 设备一律由运行时创建并持有（型号化设备为 `SimDevice`，无型号设备为 `VirtualDevice`），
+ *       所以注册端口**不需要**传设备句柄：先注册端口（可选地带上型号名），再用 `getDevice` 取回句柄。
  *
  * @example
  * ```typescript
  * const mgr = engine.context.manager;
  *
- * mgr.setExternalDevice('d0', undefined as never);
- * const led = mgr.getDevice('d0');
+ * mgr.setExternalDevice('d0', 'Sensor');
+ * const sensor = mgr.getDevice('d0');
  *
- * led.writeLogic('Setting', 1);
+ * sensor.writeLogic('Setting', 1);
  * ```
  *
  * @public
@@ -53,17 +53,30 @@ export class Manager {
     getDevice(name: string): Device | null;
 
     /**
-     * @summary 注册（或替换）端口上的外部设备
+     * @summary 注册（或替换）端口上的设备
      *
-     * @param name - 端口名，如 `'d0'`
-     * @param device - 设备句柄
+     * @param name - 端口名，如 `'d0'`；`'db'` 表示自引用设备（替换芯片设备）
+     * @param typeName - 型号名（`#>` 设备块里的 `@name`），可选
      *
-     * @desc 管理器为该端口创建一个内置虚拟设备并持有它，随后可用 {@link Manager.getDevice} 取回
-     *       句柄读写逻辑属性。
+     * @desc 管理器创建并持有该端口的设备，随后可用 {@link Manager.getDevice} 取回句柄读写逻辑属性。
+     *       给了型号名且型号表里有该型号时，创建注解所描述的型号化设备（成员、类型／名称哈希都取自
+     *       注解）；型号未知时退化为无型号设备。重复调用会**替换**该端口的设备并把状态重置为新建状态，
+     *       型号沿用该端口已声明的型号；想显式换型号就传第二个参数。
      *
-     * @note `device` 参数当前由绑定层忽略（设备所有权在运行时一侧），传 `undefined` 亦可。
+     * @note 源码里用 `alias sensor d0 #: @type Sensor` 声明了型号的端口，在执行上下文构造时已经自动
+     *       绑定，通常无需手工调用本方法。第二个参数旧版是设备句柄（一直由绑定层忽略），因此旧调用
+     *       `setExternalDevice('d0', undefined as never)` 依然有效。
      */
-    setExternalDevice(name: string, device: Device): void;
+    setExternalDevice(name: string, typeName?: string): void;
+
+    /**
+     * @summary 已绑定的端口名
+     *
+     * @returns 端口名列表（按名字排序，不含芯片设备 `db`）
+     *
+     * @desc 供宿主与调试器枚举"这块芯片看得见哪些端口"。
+     */
+    ports(): string[];
 
     /**
      * @summary 替换芯片设备

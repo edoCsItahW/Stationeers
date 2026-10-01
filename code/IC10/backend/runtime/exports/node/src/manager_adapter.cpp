@@ -29,6 +29,7 @@ namespace stationeers::ic10 {
             {InstanceMethod<&ManagerAdapter::getDevice>("getDevice"),
              InstanceMethod<&ManagerAdapter::setExternalDevice>("setExternalDevice"),
              InstanceMethod<&ManagerAdapter::setChipDevice>("setChipDevice"),
+             InstanceMethod<&ManagerAdapter::ports>("ports"),
              InstanceMethod<&ManagerAdapter::findDeviceByType>("findDeviceByType"),
              InstanceMethod<&ManagerAdapter::findDeviceByTypeAndName>("findDeviceByTypeAndName"),
              InstanceMethod<&ManagerAdapter::findDevicesByType>("findDevicesByType"),
@@ -80,13 +81,43 @@ namespace stationeers::ic10 {
     void ManagerAdapter::setExternalDevice(const node::CallbackInfo& info) {
         Arguments args(info);
 
-        mgr().setExternalDevice(
-            args.getWithCheck<node::String>(0).Utf8Value(), std::make_unique<VirtualDevice>()
-        );
+        const std::string name = args.getWithCheck<node::String>(0).Utf8Value();
+
+        // 第二个参数是型号名（旧版这里是设备句柄，句柄一直由运行时忽略）
+        if (const auto typeName = args.get(1); typeName.IsString()) {
+            mgr().bindTyped(name, typeName.As<node::String>().Utf8Value());
+
+            return;
+        }
+
+        // 未给型号：沿用该端口已声明的型号（自动绑定或先前指定），只把设备状态重置为新建状态
+        IDevice* current = mgr().getDevice(name);
+
+        mgr().bindTyped(name, current ? current->typeName() : std::string{});
     }
 
     void ManagerAdapter::setChipDevice(const node::CallbackInfo& info) {
+        Arguments args(info);
+
+        // 给了型号名时按型号重建芯片设备（bindTyped 内部会替换芯片设备）
+        if (const auto typeName = args.get(0); typeName.IsString()) {
+            mgr().bindTyped("db", typeName.As<node::String>().Utf8Value());
+
+            return;
+        }
+
         mgr().setChipDevice(std::make_unique<VirtualDevice>());
+    }
+
+    node::Value ManagerAdapter::ports(const node::CallbackInfo& info) {
+        auto names = mgr().ports();
+
+        auto result = node::Array::New(info.Env(), names.size());
+
+        for (std::size_t i = 0; i < names.size(); i++)
+            result[i] = node::String::New(info.Env(), names[i]);
+
+        return result;
     }
 
     node::Value ManagerAdapter::findDeviceByType(const node::CallbackInfo& info) {
