@@ -278,10 +278,11 @@ namespace stationeers::ic10 {
     }
 
     Token Lexer::extractHexNumber() const {
+        // 起点必须在消费 '$' 之前取：否则 pos + lexeme.length 会越过 token 右边界一个字符
+        const auto start = pos_;
+
         std::string value = "$";
         pos_.next('$');
-
-        const auto start = pos_;
 
         while (inScope() && isAsciiHexDigit(*current())) {
             value += *current();
@@ -292,10 +293,11 @@ namespace stationeers::ic10 {
     }
 
     Token Lexer::extractBinaryNumber() const {
+        // 起点必须在消费 '%' 之前取
+        const auto start = pos_;
+
         std::string value = "%";
         pos_.next('%');
-
-        const auto start = pos_;
 
         while (inScope() && (isAsciiBinDigit(*current()) || *current() == '_')) {
             value += *current();
@@ -306,10 +308,12 @@ namespace stationeers::ic10 {
     }
 
     Token Lexer::extractString() {
+        // 起点必须在消费左引号之前取：lexeme 含两个引号，起点也要含左引号，
+        // 否则 pos + lexeme.length 会把右引号之后的字符一并算进 token 范围
+        const auto start = pos_;
+
         std::string value = "\"";
         pos_.next('"');
-
-        const auto start = pos_;
 
         // 循环直到遇到闭合引号、换行符或输入结束
         // 换行符作为同步点：IC10中字符串不应跨行，遇到换行说明字符串未闭合
@@ -345,10 +349,12 @@ namespace stationeers::ic10 {
     }
 
     Token Lexer::extractHash() const {
+        // 起点必须在消费 '#' 之前取：`#>`、`#:` 与注释的 lexeme 都含 '#'，
+        // 起点不含 '#' 会让 pos + lexeme.length 越过 token 右边界一个字符
+        const auto start = pos_;
+
         std::string value = "#";
         pos_.next('#');
-
-        const auto start = pos_;
 
         if (inScope()) {
             // 类型注解
