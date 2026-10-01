@@ -30,6 +30,7 @@ import {
     LabelDefNode,
     TypeCategory,
     OperandType,
+    StringNode,
     TypeOfNode,
     ErrorNode,
     Statement,
@@ -322,8 +323,7 @@ export class AliasDirectiveHoverProvider extends HoverOperand {
         if (stmt.typeHint?.desc) {
             const desc = DescriptionSolver.solve(stmt.typeHint.desc, ctx.getLocale());
 
-            if (desc)
-                descPart = `  \n**${ctx.t("hover.common.description")}**: ${desc}`;
+            if (desc) descPart = `  \n**${ctx.t("hover.common.description")}**: ${desc}`;
         }
 
         return {
@@ -414,9 +414,8 @@ export class DefineDirectiveHoverProvider extends HoverOperand {
             case "HashMacro":
             case "StrMacro":
                 value = AST.isString(stmt.operand.value)
-                    ? (AST.isHashMacro(stmt.operand)
-                          ? hashValue(stmt.operand.value.value)
-                          : strValue(stmt.operand.value.value)
+                    ? (AST.isHashMacro(stmt.operand) ? hashValue : strValue)(
+                          stmt.operand.value.value.replace('"', "")
                       ).toString()
                     : undefined;
                 break;
@@ -557,6 +556,7 @@ export class InstructionHoverProvider extends HoverOperand {
         let prefix = "";
         let color = "";
         let value: Optional<string>;
+        let literalValue = symbol.value;
 
         switch (symbol.type) {
             case BasicType.DEVICE:
@@ -579,13 +579,19 @@ export class InstructionHoverProvider extends HoverOperand {
                 break;
             case TypeCategory.HASH_CALL:
             case TypeCategory.STR_CALL:
-                const result = symbol.value ? /'(?<value>\w+?)'/.exec(symbol.value) : undefined;
-                if (result && result.groups)
+                const result = symbol.value ? /"(?<value>\w+?)"/.exec(symbol.value) : undefined;
+                if (result && result.groups) {
                     value = (
                         symbol.category === TypeCategory.HASH_CALL
                             ? hashValue(result.groups.value)
                             : strValue(result.groups.value)
                     ).toString();
+
+                    literalValue = operandToString({
+                        nodeName: symbol.category === TypeCategory.HASH_CALL ? "HashMacro" : "StrMacro",
+                        value: { nodeName: "String", value: `"${result.groups.value}"` } as StringNode
+                    } as Operand);
+                }
                 break;
         }
 
@@ -608,8 +614,8 @@ export class InstructionHoverProvider extends HoverOperand {
 
         if (symbol.value)
             this.supplement({
-                svg: [{ text: ` = ${symbol.value}` }],
-                markdown: [` = ${symbol.value}`]
+                svg: [{ text: ` = ${literalValue}` }],
+                markdown: [` = ${literalValue}`]
             });
 
         const descPart =

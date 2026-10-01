@@ -206,26 +206,24 @@ export class SemanticTokenHandler {
         rethrow: false
     })
     handle(...[params]: Parameters<OnHandlerType>): ReturnType<OnHandlerType> {
-        try {
-            const uri = params.textDocument.uri;
-            const cache = this.docCache.getCache(uri);
+        const uri = params.textDocument.uri;
+        const cache = this.docCache.getCache(uri);
 
-            if (!cache || !cache.ast || !cache.symbols) return { data: [] };
+        if (!cache || !cache.ast || !cache.symbols) return { data: [] };
 
-            // 命中令牌缓存则直接返回，避免重复遍历 AST
-            const cached = this.tokenCache.get(uri);
-            if (cached && cached.hash === cache.hash) return { data: cached.data };
+        // 命中令牌缓存则直接返回，避免重复遍历 AST
+        const cached = this.tokenCache.get(uri);
+        if (cached && cached.hash === cache.hash) return { data: cached.data };
 
-            const context: HandlerContext = {
-                prev: { line: 1, column: 1 },
-                table: cache.symbols
-            };
+        const context: HandlerContext = {
+            prev: { line: 1, column: 1 },
+            table: cache.symbols
+        };
 
-            const data = this.visitProgram(cache.ast, context);
-            this.tokenCache.set(uri, { hash: cache.hash, data });
+        const data = this.visitProgram(cache.ast, context);
+        this.tokenCache.set(uri, { hash: cache.hash, data });
 
-            return { data };
-        } catch (error) {}
+        return { data };
     }
 
     @debug({
@@ -701,7 +699,7 @@ export class SemanticTokenHandler {
                 return isIdentifier ? TokenLegend.NumberIdentifier : TokenLegend.Number;
             case TypeCategory.HASH_CALL:
             case TypeCategory.STR_CALL:
-                return TokenLegend.Macro;
+                return isIdentifier ? TokenLegend.NumberIdentifier : TokenLegend.Macro;
         }
 
         switch (type) {

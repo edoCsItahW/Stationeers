@@ -17,28 +17,34 @@ import { CompletionItem, CompletionItemKind, Connection } from "vscode-languages
 import { OperandType, TokenCategory, TokenType, TypeTableMap } from "@ic10/compiler";
 import { Console, debug, lowerBound } from "@ic10/common";
 
-import { AST, DescriptionSolver, end, findRangeTokens, getOperandType, locateOperand, OperandLocation } from "../../../utils";
+import {
+    DescriptionSolver,
+    findRangeTokens,
+    OperandLocation,
+    getOperandType,
+    locateOperand,
+    end,
+    AST
+} from "../../../utils";
 import { CompletionProviderContext } from "./providers/types";
 import { provideKeyword, provideOperand } from "./providers";
 import { combine, RelativeState, State } from "./state";
 import { DocumentCache } from "../../cache";
 import { locale, t } from "../../../locals";
 import { enumItem } from "./providers/enum";
-import * as console from "node:console";
 
 
 type OnCompletionHandlerType = Parameters<Connection["onCompletion"]>[0];
 type OnCompletionResolveHandlerType = Parameters<Connection["onCompletionResolve"]>[0];
 
-
 export class CompletionHandler {
     constructor(private readonly docCache: DocumentCache) {}
 
-        @debug({
-            message: err => t("server.handler.error", { name: "completion", err: (err as Error).message }),
-            logger: msg => Console.error(msg, "completion"),
-            rethrow: false
-        })
+    @debug({
+        message: err => t("server.handler.error", { name: "completion", err: (err as Error).message }),
+        logger: msg => Console.error(msg, "completion"),
+        rethrow: false
+    })
     handle(
         ...[
             {
@@ -65,6 +71,14 @@ export class CompletionHandler {
             stmt: cache.ast.statements[stmtIdx]?.position.line === line ? cache.ast.statements[stmtIdx] : undefined,
             symbols: cache.symbols,
             types: cache.types as TypeTableMap,
+            isDefine: false,
+            symbolMap: cache.symbols
+                ? Object.fromEntries(
+                      Object.entries(cache.symbols.symbols)
+                          .filter(([, s]) => s.value)
+                          .map(([, s]) => [s.value as string, s.name] as const)
+                  )
+                : undefined,
             getLocale: () => locale.getLocale()
         };
 
@@ -124,11 +138,7 @@ export class CompletionHandler {
             case State.END_WORD_INVOKED:
                 const inside = rel === RelativeState.INSIDE_WORD;
                 const token = tokens[inside ? currIdx : prevIdx];
-                return this.completeWord(
-                    ctx,
-                    slot,
-                    token.lexeme.substring(0, column - 1)
-                );
+                return this.completeWord(ctx, slot, token.lexeme.substring(0, column - 1));
 
             // 没有明确意图，重新弹出该位置的补全
             case State.START_WORD_INVOKED:
@@ -167,9 +177,10 @@ export class CompletionHandler {
                 return provideOperand(ctx, getOperandType(ctx.stmt, slot)!, prefix);
 
             // 是预处理指令，则不补全第一个操作数（用户自定义标识符），如果是第二个操作数则提供补全
-            else if (AST.isAliasDirective(ctx.stmt) && slot === 2)
+            ctx.isDefine = true;
+            if (AST.isAliasDirective(ctx.stmt) && slot === 2)
                 return provideOperand(ctx, OperandType.REG_OR_DEV, prefix);
-            else if (AST.isDefineDirective(ctx.stmt) && slot === 2)
+            if (AST.isDefineDirective(ctx.stmt) && slot === 2)
                 return provideOperand(ctx, OperandType.CONST_NUM, prefix);
         }
 

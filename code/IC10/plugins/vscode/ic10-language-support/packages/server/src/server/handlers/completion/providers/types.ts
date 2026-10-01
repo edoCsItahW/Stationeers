@@ -24,6 +24,8 @@ export interface CompletionProviderContext {
     stmt: Optional<Statement>;
     symbols: Optional<SymbolMap>;
     types: Optional<TypeTableMap>;
+    isDefine: boolean;
+    symbolMap?: Record<string, string>;
     getLocale(): ReturnType<typeof locale.getLocale>;
 }
 
