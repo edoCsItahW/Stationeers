@@ -118,6 +118,26 @@ namespace stationeers::ic10 {
         bool halted_;
 
         void buildAddrs();
+
+        /**
+         * @if zh
+         * @brief 初始化设备：构建型号表并按源码声明的型号绑定端口
+         * @else
+         * @brief Initialise devices: build the device type table and bind declared ports
+         * @endif
+         */
+        void initDevices();
+
+        /**
+         * @if zh
+         * @brief 收集声明了型号的设备符号
+         * @return 符号指针列表（生命周期由符号表保证）
+         * @else
+         * @brief Collect the device symbols that declare a type
+         * @return Symbol pointers (their lifetime is owned by the symbol table)
+         * @endif
+         */
+        [[nodiscard]] std::vector<const Symbol*> deviceSymbols() const;
     };
 
 }  // namespace stationeers::ic10

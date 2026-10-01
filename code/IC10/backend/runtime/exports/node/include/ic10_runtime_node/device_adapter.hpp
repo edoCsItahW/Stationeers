@@ -63,6 +63,10 @@ namespace stationeers::ic10 {
 
         EXPORT_D_METHOD_VOID(clearStack)
 
+        EXPORT_D_METHOD_VALUE(typeName)
+
+        EXPORT_D_METHOD_VALUE(snapshot)
+
         EXPORT_D_METHOD_VOID(tick)
     };
 

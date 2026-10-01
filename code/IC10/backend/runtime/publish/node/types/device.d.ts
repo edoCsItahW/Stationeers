@@ -20,9 +20,12 @@
  * @desc IC10 程序与外界设备之间的全部通道：逻辑属性、设备堆栈、槽位与试剂查询。执行 `l`/`s`/
  *       `sb`/`get`/`put`/`ls`/`ss`/`lb`/`lr` 等指令时，执行器就是通过这些方法读写设备。
  *
- * @note 绑定层返回的实例背后是运行时的**内置虚拟设备**：逻辑属性是一张字符串到数值的表，
- *       槽位读写委托给设备堆栈（槽位名不参与运算），试剂查询与类型／名称哈希返回 `0`。
- *       因此按类型哈希查找（`findDevicesByType(0)`）会命中所有内置设备，包括芯片自身（`db`）。
+ * @note 绑定层返回的实例背后是运行时的**内置模拟设备**：逻辑属性是一张字符串到数值的表，
+ *       槽位读写委托给设备堆栈（槽位名不参与运算）。端口一旦声明了设备型号（`alias sensor d0
+ *       #: @type Sensor`，或 `Manager.setExternalDevice('d0', 'Sensor')`），该设备就按型号注解提供
+ *       成员、类型／名称哈希取自注解，并可用 {@link Device.snapshot} 内省；没有型号的设备（含芯片
+ *       `db`）的试剂查询与哈希仍返回 `0`，因此按类型哈希查找（`findDevicesByType(0)`）会命中所有
+ *       无型号设备。
  *
  * @example
  * ```typescript
@@ -148,17 +151,17 @@ export class Device {
     /**
      * @summary 设备类型哈希
      *
-     * @returns 设备类型哈希；内置虚拟设备恒为 `0`
+     * @returns 设备类型哈希；无型号设备恒为 `0`，型号化设备取自注解的 `@device-hash`
      *
-     * @desc `lb` / `lbn` / `lbs` / `lbns` / `sb` / `sbn` / `sbs` 用它匹配设备。由于内置设备都返回
-     *       `0`，以 `0` 为哈希查找会命中全部设备（含芯片自身）。
+     * @desc `lb` / `lbn` / `lbs` / `lbns` / `sb` / `sbn` / `sbs` 用它匹配设备。无型号设备都返回
+     *       `0`，以 `0` 为哈希查找会命中全部无型号设备（含芯片自身）。
      */
     getTypeHash(): number;
 
     /**
      * @summary 设备名称哈希
      *
-     * @returns 设备名称哈希；内置虚拟设备恒为 `0`
+     * @returns 设备名称哈希；无型号设备恒为 `0`，型号化设备取自注解的 `@name-hash`
      *
      * @desc `lbn` / `lbns` / `sbn` 在类型哈希之外再按名称哈希缩小范围。
      */
@@ -172,10 +175,71 @@ export class Device {
     clearStack(): void;
 
     /**
+     * @summary 设备型号名
+     *
+     * @returns 型号名；未声明型号时为空字符串
+     *
+     * @desc 型号来自源码里的 `alias x d0 #: @type Sensor`（执行上下文按符号表自动绑定）或
+     *       `Manager.setExternalDevice('d0', 'Sensor')` 的显式指定。型号名只用于显示与定位，
+     *       成员寻址始终按名字进行。
+     */
+    typeName(): string;
+
+    /**
+     * @summary 成员与各自的状态
+     *
+     * @returns 成员列表：型号注解声明的成员（`isDeclared` 为 `true`，顺序与注解一致）在前，程序写过
+     *          但没有声明的成员（`isDeclared` 为 `false`）在后
+     *
+     * @desc 设备注解给出的是成员（字段）的**范围**，因此未声明的设备只有"被赋过值"的成员。
+     *       成员只有被赋过值才有值（`assigned` 为 `true`）：`value` 为 `null` 表示从未赋值，
+     *       与"赋值为 `0`"是两回事——设备的默认值不一定是 0。
+     *
+     * @example
+     * ```typescript
+     * const sensor = engine.context.manager.getDevice('d0');
+     *
+     * for (const member of sensor.snapshot())
+     *     console.log(`${member.kind} ${member.name} = ${member.assigned ? member.value : '(未赋值)'}`);
+     * ```
+     */
+    snapshot(): DeviceMember[];
+
+    /**
      * @summary 推进一个 tick
      *
-     * @desc 由 `Manager.tick()` 逐个设备调用；内置虚拟设备无内部状态，因此不做任何事，外部设备
+     * @desc 由 `Manager.tick()` 逐个设备调用；内置模拟设备无内部状态，因此不做任何事，外部设备
      *       可借此推进自身的仿真。
      */
     tick(): void;
+}
+
+/**
+ * @summary 设备成员的状态
+ *
+ * @desc 由 {@link Device.snapshot} 产出。成员种类 `kind` 对应 `#>` 设备块里的注解标签：
+ *       `logic`（`@logic`）、`logic-slot`（`@logic-slot`）、`slot`（`@slot`）、`hash`
+ *       （`@device-hash` / `@name-hash`）、`reagent-hash`（`@reagent-hash`）；程序写过的未声明成员
+ *       一律标为 `logic`。
+ *
+ * @public
+ */
+export interface DeviceMember {
+    /** 成员名（源码里的写法，如 `Setting`） */
+    name: string;
+
+    /** 成员种类：`logic` / `logic-slot` / `slot` / `hash` / `reagent-hash` */
+    kind: string;
+
+    /** 注解声明的取值（属性编号、槽位序号或哈希值）；未声明时为空字符串 */
+    declaredValue: string;
+
+    /** 当前值；从未赋值时为 `null` */
+    value: number | null;
+
+    /** 该成员是否由型号注解声明 */
+    isDeclared: boolean;
+
+    /** 该成员是否已被赋值 */
+    assigned: boolean;
 }
