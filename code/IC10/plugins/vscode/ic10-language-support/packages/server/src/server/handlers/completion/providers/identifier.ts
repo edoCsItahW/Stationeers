@@ -20,7 +20,7 @@ import type { CompletionProviderContext, OperandProvider } from "./types";
 import { SemanticMap } from "../../../../utils";
 import { t } from "../../../../locals";
 
-const NUMBER_CATEGORY_SET = new Set([
+export const NUMBER_CATEGORY_SET = new Set([
     TypeCategory.NUMBER,
     TypeCategory.LABEL,
     TypeCategory.HASH_CALL,

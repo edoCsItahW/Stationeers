@@ -26,9 +26,11 @@ import {
     HashMacroNode,
     TypeCategory,
     LabelDefNode,
+    TypeHintNode,
     StrMacroNode,
     OperandType,
     TypeOfNode,
+    TokenType,
     ErrorNode,
     BasicType,
     Statement,
@@ -36,10 +38,12 @@ import {
     RegOrDev,
     EnumNode,
     Operand,
-    Program
+    Program,
+    Token
 } from "@ic10/compiler";
 
-import { AST, groupHandlers, operandValueLength, visit } from "../../utils";
+
+import { AST, groupHandlers, visit } from "../../utils";
 import { DocumentCache } from "../cache";
 import { t } from "../../locals";
 
@@ -81,8 +85,10 @@ export enum TokenLegend {
     Constant,
     /** 注释 */
     Comment,
-    /** 注解/类型提示（#: @type） */
+    /** 类型提示前缀（`#:` / `#>`） */
     Decorator,
+    /** 类型提示里的标签（`@type` / `@desc` / `@builtin` 等） */
+    AnnotationTag,
     /** 标识符（标签名、别名、define 常量名） */
     Label,
     LabelIdentifier,
@@ -178,6 +184,8 @@ interface SemanticToken {
 interface HandlerContext {
     prev: Position;
     table: SymbolMap;
+    /** 该文档的词法 token：类型提示等"由多个片段组成"的位置要靠它逐段着色 */
+    tokens: Token[];
 }
 
 /**
@@ -217,7 +225,8 @@ export class SemanticTokenHandler {
 
         const context: HandlerContext = {
             prev: { line: 1, column: 1 },
-            table: cache.symbols
+            table: cache.symbols,
+            tokens: cache.tokens ?? []
         };
 
         const data = this.visitProgram(cache.ast, context);
@@ -264,7 +273,8 @@ export class SemanticTokenHandler {
 
             const context: HandlerContext = {
                 prev: { line: 1, column: 1 },
-                table: cache.symbols
+                table: cache.symbols,
+                tokens: cache.tokens ?? []
             };
 
             return {
@@ -376,17 +386,7 @@ export class SemanticTokenHandler {
 
         result.push(...this.handleOperand(aliasDirective.registerOrDevice, context));
 
-        if (aliasDirective.typeHint) {
-            gap = this.getGap(context, aliasDirective.typeHint.position);
-
-            result.push({
-                line: gap.line,
-                start: gap.column,
-                length: aliasDirective.typeHint.end.column - aliasDirective.typeHint.position.column,
-                type: TokenLegend.Decorator,
-                modifier: 0
-            });
-        }
+        if (aliasDirective.typeHint) result.push(...this.handleTypeHint(aliasDirective.typeHint, context));
 
         return result;
     }
@@ -418,16 +418,83 @@ export class SemanticTokenHandler {
 
         result.push(...this.handleOperand(defineDirective.operand, context));
 
-        if (defineDirective.typeHint) {
-            gap = this.getGap(context, defineDirective.typeHint.position);
+        if (defineDirective.typeHint) result.push(...this.handleTypeHint(defineDirective.typeHint, context));
 
-            result.push({
-                line: gap.line,
-                start: gap.column,
-                length: defineDirective.typeHint.end.column - defineDirective.typeHint.position.column,
-                type: TokenLegend.Decorator,
-                modifier: 0
-            });
+        return result;
+    }
+
+    /**
+     * @summary 类型提示的分段着色
+     *
+     * @summary Per-segment coloring of a type hint
+     *
+     * @desc 类型提示 `#: @type Foo @desc "文字"` 本身就是由多个词法 token 拼成的：`#:` 前缀、
+     * 每个 `@标签`、标签的取值（类型名或描述串）。整段发一个 token 只能整体着色，因此这里按词法
+     * token 逐段发射：`#:` → Decorator，`@标签` → AnnotationTag，类型名 → Enum（与 `Foo.Bar`
+     * 的类型名同色），描述串 → String。未映射的片段（例如 `@desc` 的链接写法）不着色，交给语法着色。
+     *
+     * @desc A type hint like `#: @type Foo @desc "text"` is a sequence of lexical tokens: the `#:`
+     * prefix, each `@tag`, and each tag's value (a type name or a description string). A single token
+     * for the whole hint can only color it as a whole, so this emits one semantic token per lexical
+     * token: `#:` → Decorator, `@tag` → AnnotationTag, the type name → Enum (same color as the type
+     * name in `Foo.Bar`), the description string → String. Unmapped segments (e.g. a `@desc` link)
+     * are left to the syntax grammar.
+     *
+     * @param hint 类型提示节点
+     * @param hint Type hint node
+     * @param context 处理器上下文（其中 `tokens` 为该文档的词法 token）
+     * @param context Handler context (`tokens` holds the document's lexical tokens)
+     *
+     * @returns 该提示各片段对应的语义 token
+     * @returns The semantic tokens for the hint's segments
+     * */
+    private handleTypeHint(hint: TypeHintNode, context: HandlerContext): SemanticToken[] {
+        const result: SemanticToken[] = [];
+
+        /** 最近一个标签的写法（`@type` / `@desc` / `@builtin`）：决定后面的取值怎么着色 */
+        let tag: Optional<string>;
+
+        const emit = (pos: Position, length: number, type: TokenLegend) => {
+            const gap = this.getGap(context, pos);
+
+            result.push({ line: gap.line, start: gap.column, length, type, modifier: 0 });
+        };
+
+        for (const token of context.tokens) {
+            const pos = token.pos;
+
+            if (pos.line < hint.position.line) continue;
+
+            // 类型提示不跨行：越过该行即结束
+            if (pos.line > hint.position.line) break;
+
+            // 提示之前的部分（关键字、别名、设备）由语句自身处理
+            if (pos.column < hint.position.column) continue;
+
+            // 同一行还有下一条语句（罕见）时交回语句处理，避免把关键字当成提示片段
+            if (token.type === TokenType.NEWLINE || token.type === TokenType.END) break;
+            if (token.type === TokenType.KEYWORD) break;
+
+            switch (token.type) {
+                // `#:` 前缀是提示标记本身
+                case TokenType.TYPE_HINT_PREFIX:
+                case TokenType.TYPE_ANNOTATION_PREFIX:
+                    emit(pos, token.lexeme.length, TokenLegend.Decorator);
+                    break;
+                // 每个 `@标签` 单独取色（主题里的 AnnotationTag）
+                case TokenType.TAG:
+                    tag = token.lexeme;
+                    emit(pos, token.lexeme.length, TokenLegend.AnnotationTag);
+                    break;
+                // 只有紧跟 `@type` 的标识符才是类型名；`@desc` 的链接写法由路径片段组成，不做处理
+                case TokenType.IDENTIFIER:
+                    if (tag === "@type") emit(pos, token.lexeme.length, TokenLegend.Enum);
+                    break;
+                // 描述文本
+                case TokenType.STRING:
+                    emit(pos, token.lexeme.length, TokenLegend.String);
+                    break;
+            }
         }
 
         return result;

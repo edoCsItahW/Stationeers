@@ -16,9 +16,16 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import { createConnection, TextDocuments, ProposedFeatures, MessageType } from "vscode-languageserver/node";
-import { Console, COMM_EVENT_NAME, AstRequestEventData, AstResponseEventData } from "@ic10/common";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import type { Connection } from "vscode-languageserver/node";
+import {
+    COMPLETION_SCOPE_EVENT_NAME,
+    CompletionScopeEventData,
+    AstResponseEventData,
+    AstRequestEventData,
+    COMM_EVENT_NAME,
+    Console
+} from "@ic10/common";
 
 import { ParserPipline, SettingsManager } from "./services";
 import { DocumentCache, GlobalCache } from "./cache";
@@ -184,6 +191,12 @@ export class Server {
             );
             this.connection.onCompletion(this.compHandler.handle.bind(this.compHandler));
             this.connection.onCompletionResolve(this.compHandler.handleResolve.bind(this.compHandler));
+
+            // 客户端按键推来的补全范围（收窄候选），见 CompletionHandler.setScope
+            this.connection.onNotification(
+                COMPLETION_SCOPE_EVENT_NAME,
+                ({ uri, scope, line }: CompletionScopeEventData) => this.compHandler.setScope(uri, scope, line)
+            );
             this.connection.onSignatureHelp(this.signatureHandler.handle.bind(this.signatureHandler));
             this.connection.onDocumentFormatting(this.fmtHandler.handle.bind(this.fmtHandler));
 

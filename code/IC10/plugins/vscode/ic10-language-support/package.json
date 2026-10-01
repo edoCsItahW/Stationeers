@@ -138,6 +138,7 @@
                     "Constant": "#C77DBB",
                     "Comment": "#7A7E85",
                     "Decorator": "#5F826B",
+                    "AnnotationTag": "#67A37C",
                     "Label": "#E8BF6A",
                     "Label.declaration": "#E8BF6A",
                     "LabelIdentifier": "#A3874C",
@@ -206,7 +207,12 @@
             {
                 "id": "Decorator",
                 "superType": "decorator",
-                "description": "IC10 type hint annotations (#: @type) | IC10类型提示注解"
+                "description": "IC10 type hint prefix (#: / #>) | IC10类型提示前缀"
+            },
+            {
+                "id": "AnnotationTag",
+                "superType": "decorator",
+                "description": "IC10 type hint tags (@type, @desc, @builtin) | IC10类型提示标签"
             },
             {
                 "id": "Label",
@@ -247,12 +253,80 @@
             "Constant": "#C77DBB",
             "Comment": "#7A7E85",
             "Decorator": "#5F826B",
+            "AnnotationTag": "#67A37C",
             "Label": "#E8BF6A",
             "LabelIdentifier": "#A3874C",
             "Enum": "#4EC9B0",
             "EnumMember": "#D9A0DC",
             "Unknown": "#F75464"
         },
+        "commands": [
+            {
+                "command": "ic10.completionScope.device",
+                "title": "IC10: 补全候选范围：设备 | Completion Scope: Device"
+            },
+            {
+                "command": "ic10.completionScope.register",
+                "title": "IC10: 补全候选范围：寄存器 | Completion Scope: Register"
+            },
+            {
+                "command": "ic10.completionScope.number",
+                "title": "IC10: 补全候选范围：数字与常量 | Completion Scope: Number"
+            },
+            {
+                "command": "ic10.completionScope.enum",
+                "title": "IC10: 补全候选范围：枚举成员 | Completion Scope: Enum"
+            },
+            {
+                "command": "ic10.completionScope.identifier",
+                "title": "IC10: 补全候选范围：标识符与标签 | Completion Scope: Identifier"
+            },
+            {
+                "command": "ic10.completionScope.keyword",
+                "title": "IC10: 补全候选范围：指令关键字 | Completion Scope: Keyword"
+            },
+            {
+                "command": "ic10.completionScope.all",
+                "title": "IC10: 补全候选范围：全部（清除） | Completion Scope: All (Clear)"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "ic10.completionScope.device",
+                "key": "ctrl+alt+d",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.register",
+                "key": "ctrl+alt+r",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.number",
+                "key": "ctrl+alt+n",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.enum",
+                "key": "ctrl+alt+e",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.identifier",
+                "key": "ctrl+alt+i",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.keyword",
+                "key": "ctrl+alt+k",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.all",
+                "key": "ctrl+alt+0",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            }
+        ],
         "breakpoints": [
             {
                 "language": "ic10"
@@ -326,7 +400,7 @@
         "verdaccio": "^6.9.2"
     },
     "dependencies": {
-        "@ic10/compiler": "^3.1.1",
+        "@ic10/compiler": "^3.1.2",
         "@ic10/runtime": "^2.1.0",
         "@ic10/metadata": "^1.0.0"
     }

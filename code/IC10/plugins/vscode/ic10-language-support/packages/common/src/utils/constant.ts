@@ -38,3 +38,17 @@ export const CONFIGURATION_SECTION_NAME = "ic10" as const;
  * @desc Used for custom event communication between the LSP client and server.
  * */
 export const COMM_EVENT_NAME = "ic10/event" as const;
+
+/**
+ * @summary 补全范围事件通道名称
+ *
+ * @summary Completion scope event channel name
+ *
+ * @desc 客户端在用户按下"收窄补全范围"的按键时，通过该通道把范围推给服务端；
+ * 范围是**一次性**的，被下一次补全请求消费掉，因此正常补全行为不受影响。
+ *
+ * @desc When the user presses a "narrow the completion scope" key, the client pushes the scope to
+ * the server through this channel. The scope is **one-shot**: it is consumed by the next completion
+ * request, so ordinary completion stays unaffected.
+ * */
+export const COMPLETION_SCOPE_EVENT_NAME = "ic10/completionScope" as const;
