@@ -240,3 +240,95 @@ describe('Engine execution', () => {
         expect(typeof engine.context.pc).toBe('number');
     });
 });
+
+// ============================================================
+// 设备型号与内省（绑定层接线）
+// ============================================================
+
+/** 声明了型号的设备程序：注解 + 带类型提示的别名（不含 `hcf`，需要执行的用例自行收尾） */
+const DEVICE_SOURCE =
+    '#> @device\n' +
+    '#> @name Sensor\n' +
+    '#> @device-hash 12345\n' +
+    '#> @logic Pressure 5\n' +
+    '#> @logic Setting 12\n' +
+    '#> @end-device\n' +
+    'alias sensor d0 #: @type Sensor\n';
+
+describe('Device type and introspection', () => {
+    /** 取端口上的设备，端口没有设备时直接失败 */
+    function deviceOf(engine: InstanceType<typeof Engine>, port: string) {
+        const device = engine.context.manager.getDevice(port);
+        if (!device) throw new Error(`port '${port}' should have a bound device`);
+        return device;
+    }
+
+    it('should bind the type declared in the source to the port', async () => {
+        const {engine} = await compile(DEVICE_SOURCE);
+        const device = deviceOf(engine, 'd0');
+
+        expect(device.typeName()).toBe('Sensor');
+        expect(device.getTypeHash()).toBe(12345);
+    });
+
+    it('should list the bound ports', async () => {
+        const {engine} = await compile(DEVICE_SOURCE);
+        expect(engine.context.manager.ports()).toEqual(['d0']);
+    });
+
+    it('should snapshot declared members with their values', async () => {
+        const {engine} = await compile(DEVICE_SOURCE);
+        const members = deviceOf(engine, 'd0').snapshot();
+
+        expect(members.map(member => member.name)).toEqual(['deviceHash', 'Pressure', 'Setting']);
+        expect(members[1]).toEqual({
+            name: 'Pressure',
+            kind: 'logic',
+            declaredValue: '5',
+            value: null,
+            isDeclared: true,
+            assigned: false
+        });
+    });
+
+    it('should report a value only for assigned members', async () => {
+        // 写入必须排在 hcf 之前，否则程序还没写到设备就停机了
+        const {engine} = await compile(DEVICE_SOURCE + 's sensor Setting 12\nhcf\n');
+        const device = deviceOf(engine, 'd0');
+
+        const before = device.snapshot().find(member => member.name === 'Setting');
+
+        expect(before?.assigned).toBe(false);
+        expect(before?.value).toBeNull();
+
+        engine.runFull();
+
+        const after = device.snapshot().find(member => member.name === 'Setting');
+
+        expect(after?.assigned).toBe(true);
+        expect(after?.value).toBe(12);
+
+        // 没被赋过值的声明成员依旧没有值
+        const pressure = device.snapshot().find(member => member.name === 'Pressure');
+
+        expect(pressure?.assigned).toBe(false);
+        expect(pressure?.value).toBeNull();
+    });
+
+    it('should bind a type given explicitly and fall back for unknown types', async () => {
+        const {engine} = await compile(DEVICE_SOURCE);
+        const manager = engine.context.manager;
+
+        manager.setExternalDevice('d1', 'Sensor');
+        manager.setExternalDevice('d2', 'Nonexistent');
+
+        expect(manager.ports()).toEqual(['d0', 'd1', 'd2']);
+        expect(deviceOf(engine, 'd1').typeName()).toBe('Sensor');
+        expect(deviceOf(engine, 'd1').getTypeHash()).toBe(12345);
+
+        // 型号表里没有该型号：退化为无型号设备（型号名保留，成员不受约束）
+        expect(deviceOf(engine, 'd2').typeName()).toBe('Nonexistent');
+        expect(deviceOf(engine, 'd2').getTypeHash()).toBe(0);
+        expect(deviceOf(engine, 'd2').canWriteLogic('Anything')).toBe(true);
+    });
+});

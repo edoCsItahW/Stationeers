@@ -14,8 +14,36 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_runtime/context/context.hpp"
+#include <optional>
+#include <ranges>
+#include <string>
+#include <utility>
 
 namespace stationeers::ic10 {
+
+    namespace {
+
+        /**
+         * @if zh
+         * @brief 取符号指向的静态端口
+         * @param symbol 设备符号
+         * @return 端口名；符号不是静态设备（如动态端口别名 `dr0`）时为空
+         * @else
+         * @brief Obtain the static port a symbol points at
+         * @param symbol The device symbol
+         * @return The port name; empty when the symbol is not a static device (e.g. `dr0`)
+         * @endif
+         */
+        std::optional<std::string> symbolPort(const Symbol& symbol) {
+            // 别名的值是端口文本（d0），内建端口符号没有值，名字本身就是端口
+            const std::string& text = symbol.value && !symbol.value->empty() ? *symbol.value : symbol.name;
+
+            if (!isStaticPort(text)) return std::nullopt;
+
+            return text;
+        }
+
+    }  // namespace
 
     Context::Context(
         const Program& program, const SymbolTable& symbols, const Config& config,
@@ -28,7 +56,55 @@ namespace stationeers::ic10 {
         , types(types)
         , pc_(0)
         , halted_(false) {
+        initDevices();
         buildAddrs();
+    }
+
+    void Context::initDevices() {
+        DeviceRegistry registry;
+
+        // 1) 程序自身的 `#>` 设备块
+        for (const auto& statement : program.statements)
+            if (const auto* annotation = std::get_if<DeviceAnnotation>(&statement.raw()); annotation)
+                registry.add(*annotation);
+
+        // 2) 设备符号引用到的型号：型号可能来自其它编译单元（如标准库），只能按名字查类型表
+        const auto devices = deviceSymbols();
+
+        for (const Symbol* symbol : devices)
+            if (symbol->type.typeName) registry.addFrom(types, *symbol->type.typeName);
+
+        manager.setRegistry(std::move(registry));
+
+        // 3) 静态端口按源码声明的型号自动绑定；动态端口在运行期换算后才知道落在哪个端口，故不预绑定
+        for (const Symbol* symbol : devices)
+            if (const auto port = symbolPort(*symbol); port) manager.bindTyped(*port, *symbol->type.typeName);
+    }
+
+    std::vector<const Symbol*> Context::deviceSymbols() const {
+        std::vector<const Symbol*> result;
+
+        const auto collect = [&result](const Symbol& symbol) {
+            if (symbol.type.kind != BasicType::DEVICE || !symbol.type.typeName) return;
+
+            result.push_back(&symbol);
+        };
+
+        // 内建端口 d0-d5：别名带类型提示时语义阶段会把类型名一并写到它们身上
+        for (const auto& symbol : symbols.builtinSymbols | std::views::values)
+            collect(symbol);
+
+        for (auto it = symbols.begin(); it != symbols.end(); ++it) {
+            const auto& entry = it->second;
+
+            if (!entry.ready()) continue;
+
+            const auto& resolved = entry.future.get();
+
+            if (resolved.has_value()) collect(*resolved.value());
+        }
+
+        return result;
     }
 
     void Context::setReporter(DiagnosticReporter<IC10RuntimeMsgPack>* reporter) noexcept {
