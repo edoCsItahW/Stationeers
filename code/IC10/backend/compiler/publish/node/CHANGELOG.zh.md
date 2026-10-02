@@ -65,3 +65,19 @@
 
 - [3.0.0]: IC10 v3 —— 重写词法与语法分析并统一按元数生成的 AST，调整 `annotation` 与 `link` 语法规则，解决预定义常量问题，同时修补元数据与标准库
 - [3.0.1]: 修复增量编译部分问题，放宽部分语法限制
+
+## 2026/09/26
+
+- [3.1.1]: 放宽操作数规则：`s` / `sb` / `ss` / `sbn` / `sbs` 的写入值由"只能是寄存器"改为通用数值（字面量、常量别名、寄存器或枚举常量），`DEVICE_HASH` / `NAME_HASH` 位置也可直接写寄存器；`types/parser/ast.d.ts` 同步
+
+## 2026/10/01
+
+- [3.1.2]: 修复词法分析器若干 token 的起始位置偏移（字符串、`#:` / `#>` 前缀、十六进制与二进制数字）
+- [3.1.2]: 修复 `@builtin` 提示的内建符号在语义分析中的错误
+
+## 2026/10/02
+
+- [3.2.0]: `#:` 类型提示新增 `@default` 标签：`@default 分组 字段 值` 声明设备成员的默认值（分组为 `logic` / `logic-slot` / `slot`），`@default 值` 声明寄存器的默认值；取值可以是字面量或常量标识符，同一分组同一字段重复声明报 `IEP37_1`，分组不合法报 `IEP34_1`
+- [3.2.0]: `#>` 设备注解的成员行（`@logic` / `@logic-slot` / `@slot`）支持在末尾追加默认值（`@logic Setting 12 1`）；**不写就没有默认值**，而不是 0
+- [3.2.0]: 语言侧导出上述语法：类型表与 `types/parser/ast.d.ts` 给出 `TypeHintNode.defaults`、`TypeHintDefaultNode`（`category` / `name` / `value`）与 `TypeAnnotationLineBaseNode.defaultValue`
+- [3.2.0]: 修复 `@default` 缺少取值时中断进程的问题：取值解析抛出的 `Error` 跨过了 `TypeHint` 解析的 `noexcept` 边界；现在只上报诊断并丢弃该条默认值

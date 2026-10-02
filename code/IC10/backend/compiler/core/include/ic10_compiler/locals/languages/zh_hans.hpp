@@ -104,6 +104,8 @@ namespace stationeers::ic10 {
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP36, "平凡设备不在r0-r5范围内 - 语法分析。")
 
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEP37_1, "属性'{}'的@default重复定义 - 语法分析。")
+
     /* Analysis */
 
     // Warnning

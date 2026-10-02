@@ -195,6 +195,10 @@ export class Device {
      *       成员只有被赋过值才有值（`assigned` 为 `true`）：`value` 为 `null` 表示从未赋值，
      *       与"赋值为 `0`"是两回事——设备的默认值不一定是 0。
      *
+     * @desc 注解声明了默认值的成员（`@logic Setting 12 1`）：赋值前按该默认值作答
+     *       （{@link Device.canReadLogic} 为 `true`、{@link Device.readLogic} 返回默认值），
+     *       `defaultValue` 字段如实报告该声明，`value` 仍只在真正赋过值时才非 `null`。
+     *
      * @example
      * ```typescript
      * const sensor = engine.context.manager.getDevice('d0');
@@ -233,6 +237,12 @@ export interface DeviceMember {
 
     /** 注解声明的取值（属性编号、槽位序号或哈希值）；未声明时为空字符串 */
     declaredValue: string;
+
+    /**
+     * 注解为成员声明的默认值（成员行末尾追加的取值，如 `@logic Setting 12 1` 的 `1`）；
+     * 未声明时为 `null` —— 设备的默认值不一定是 0，用 0 冒充会把"未声明默认值"与"默认值为 0"混为一谈
+     */
+    defaultValue: number | null;
 
     /** 当前值；从未赋值时为 `null` */
     value: number | null;

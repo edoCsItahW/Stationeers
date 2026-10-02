@@ -41,6 +41,42 @@ namespace stationeers::ic10 {
 
     // TypeHint
 
+    /**
+     * @if zh
+     * @brief 类型提示里的一条 `@default`
+     * @details 设备成员用 `@default <分组> <字段> <值>`（分组为 `logic`/`logic-slot`/`slot`），
+     *          寄存器用 `@default <值>`（分组与字段都为空）。
+     * @else
+     * @brief One `@default` entry of a type hint
+     * @details A device member uses `@default <category> <field> <value>` (the category being
+     *          `logic`/`logic-slot`/`slot`); a register uses `@default <value>` (no category/field).
+     * @endif
+     * */
+    struct TypeHintDefault : AST<TypeHintDefault> {
+        static constexpr auto nodeName = "TypeHintDefault"_fs;
+
+        static constexpr auto FIRST = std::make_tuple(std::array{TokenType::TAG});
+
+        /** 分组：`logic` / `logic-slot` / `slot`；寄存器默认值为空 */
+        std::optional<std::string> category;
+
+        /** 字段名（成员名）；寄存器默认值为空 */
+        std::optional<std::string> name;
+
+        /** 默认值（源码里的写法） */
+        std::string value;
+
+        Pos endPos;
+
+        using AST<TypeHintDefault>::AST;
+
+        [[nodiscard]] Pos end() const override;
+
+        [[nodiscard]] std::string toString() const override;
+
+        [[nodiscard]] std::string toJSON() const override;
+    };
+
     struct TypeHint : AST<TypeHint> {
         static constexpr auto nodeName = "TypeHint"_fs;
 
@@ -49,6 +85,9 @@ namespace stationeers::ic10 {
         std::optional<std::string> type;
 
         std::optional<Description> desc;
+
+        /** `@default` 条目（可多条，同一属性名只允许一次） */
+        std::vector<TypeHintDefault> defaults;
 
         bool builtin = false;
 
@@ -87,6 +126,19 @@ namespace stationeers::ic10 {
         std::string name;
 
         std::string value;
+
+        /**
+         * @if zh
+         * @brief 默认值（可选，追加在取值之后）
+         * @details 形如 `@logic Setting 12 1` 的第四个 token；不写表示**没有默认值**（而非 0），
+         *          由求值方决定是报错还是以 0 顶替。
+         * @else
+         * @brief Default value (optional, appended after the value)
+         * @details The fourth token of e.g. `@logic Setting 12 1`; omitting it means **no default**
+         *          (not 0) and leaves the strict/lenient decision to the evaluator.
+         * @endif
+         * */
+        std::optional<std::string> defaultValue;
 
         std::optional<Description> desc;
 

@@ -40,6 +40,21 @@ namespace stationeers::ic10 {
     }
 
 
+    // TypeHintDefault
+
+    Pos TypeHintDefault::end() const { return endPos; }
+
+    std::string TypeHintDefault::toString() const {
+        return name && category ? std::format("@default {} {} {}", *category, *name, value)
+                                : std::format("@default {}", value);
+    }
+
+    std::string TypeHintDefault::toJSON() const {
+        return jsonBase<"category", "name", "value">(
+            category ? category : std::nullopt, name ? name : std::nullopt, value
+        );
+    }
+
     // TypeHint
 
     Pos TypeHint::end() const { return endPos; }
@@ -51,15 +66,18 @@ namespace stationeers::ic10 {
 
         if (desc) ss << call(*desc, [](const auto& desc) { return desc.toString(); }) << " ";
 
+        for (const auto& entry : defaults) ss << entry.toString() << " ";
+
         if (builtin) ss << "@builtin";
 
         return ss.str();
     }
 
     std::string TypeHint::toJSON() const {
-        return jsonBase<"type", "desc", "builtin">(
+        return jsonBase<"type", "desc", "defaults", "builtin">(
             type ? type : std::nullopt,
-            desc ? std::optional(call(*desc, [](const auto& desc) { return desc.toJSON(); })) : std::nullopt, builtin
+            desc ? std::optional(call(*desc, [](const auto& desc) { return desc.toJSON(); })) : std::nullopt,
+            seqJSON(defaults, [](const auto& entry) { return entry.toJSON(); }), builtin
         );
     }
 

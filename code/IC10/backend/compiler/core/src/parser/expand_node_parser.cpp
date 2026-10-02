@@ -69,6 +69,63 @@ namespace stationeers::ic10 {
         return result;
     }
 
+    // TypeHintDefault
+
+    TypeHintDefault NodeParser<TypeHintDefault>::parse(Parser& p) {
+        /** 分组只允许这三种：与设备注解的成员行标签一致 */
+        const auto isCategory = [](const std::string& name) {
+            return name == "logic" || name == "logic-slot" || name == "slot";
+        };
+
+        /** 默认值的取值可以是字面量（整数/浮点/十六进制/二进制）或常量标识符 */
+        const auto isValue = [](TokenType type) {
+            return type == TokenType::INTEGER || type == TokenType::FLOAT || type == TokenType::HEX_NUMBER
+                || type == TokenType::BINARY_NUMBER || type == TokenType::IDENTIFIER;
+        };
+
+        // 已通过前瞻确定 @default TAG，无需try-catch
+        const auto tag = p.expect(TokenType::TAG);
+
+        TypeHintDefault result{tag->pos};
+
+        result.endPos = endPos(*tag);
+
+        // `@default 分组 字段 值`（设备成员）或 `@default 值`（寄存器）：
+        // 两个标识符在前是设备形式，否则整条就是寄存器的一个取值
+        if (const auto first = p.current(); first && first->type == TokenType::IDENTIFIER)
+            if (const auto second = p.peek(); second && second->type == TokenType::IDENTIFIER) {
+                const auto category = first->lexeme;
+
+                p.consume();
+
+                if (!isCategory(category))
+                    p.reporter_.errorWith<ICMsgId::IEP34_1>(
+                        first->pos, endPos(*first), "logic, logic-slot, slot"
+                    );
+
+                result.category = category;
+                result.name = std::move(NodeParser<Identifier>::parse(p).value);
+            }
+
+        // 负值：单独的 '-' 也算取值的一部分
+        if (const auto current = p.current(); current && current->type == TokenType::SUB) {
+            result.endPos = endPos(*current);
+            result.value = current->lexeme;
+
+            p.consume();
+        }
+
+        if (const auto current = p.current(); current && isValue(current->type)) {
+            result.endPos = endPos(*current);
+            result.value += current->lexeme;
+
+            p.consume();
+        } else [[unlikely]]
+            p.expect(TokenType::INTEGER);  // 引发错误（缺少默认值）
+
+        return result;
+    }
+
     // TypeHint
 
     TypeHint NodeParser<TypeHint>::parse(Parser& p) noexcept {
@@ -136,10 +193,47 @@ namespace stationeers::ic10 {
             }
         );
 
+        units.add<"defaults", Cardinality::REPEATED>(
+            [](Parser& parser) {
+                const auto& tokenPtr = parser.current();
+
+                return tokenPtr && tokenPtr->type == TokenType::TAG && tokenPtr->lexeme.substr(1) == "default";
+            },
+            [](Parser& parser, auto& result) noexcept {
+                TypeHintDefault entry;
+
+                // 取值缺失时 expect 会抛出：本 lambda 与 TypeHint::parse 都是 noexcept，
+                // 抛出会直接 terminate（用户才敲到 `#: @default` 就会崩掉语言服务），
+                // 因此就地捕获——诊断已由 expect 上报，这里只需丢弃这一条
+                try {
+                    entry = NodeParser<TypeHintDefault>::parse(parser);
+                } catch (const Error&) { return; }
+
+                // 同一分组的同一字段只允许一次：重复时报错并丢弃后一条
+                if (entry.name)
+                    if (const auto& it = std::ranges::find_if(
+                            result.defaults, [&](const auto& d) {
+                                return d.category == entry.category && d.name == entry.name;
+                            }
+                        );
+                        it != result.defaults.end()) {
+                        parser.reporter_.errorWith<ICMsgId::IEP37_1>(
+                            entry.start(), entry.end(), std::format("{} {}", *entry.category, *entry.name)
+                        );
+
+                        return;
+                    }
+
+                result.endPos = entry.end();
+
+                result.defaults.push_back(std::move(entry));
+            }
+        );
+
         units.until([](const Parser& parser) {
             const auto& tokenPtr = parser.current();
 
-            static const std::unordered_set<std::string> set{"type", "desc", "builtin"};
+            static const std::unordered_set<std::string> set{"type", "desc", "default", "builtin"};
 
 
             return !tokenPtr || tokenPtr->type != TokenType::TAG

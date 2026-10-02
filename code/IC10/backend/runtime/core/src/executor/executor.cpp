@@ -93,9 +93,55 @@ namespace stationeers::ic10 {
         return !flag.halted && !flag.paused;
     }
 
+    namespace {
+
+        /**
+         * @if zh
+         * @brief 从宏调用文本里取出实参
+         * @details 符号表把宏常量按源码文本存放（`HASH("Test")`），因此这里剥掉 `名称(` 与结尾的
+         *          `)`，再去掉字符串两端的引号。注意：词法阶段写入的空白转义不会在这里还原。
+         * @param text 宏调用文本
+         * @return 实参文本
+         *
+         * @else
+         * @brief Extract the argument from a macro call text
+         * @details The symbol table stores macro constants as source text (`HASH("Test")`), so this
+         *          strips `NAME(`, the trailing `)` and the surrounding quotes. Note: whitespace
+         *          escapes written by the lexer are not decoded here.
+         * @param text Macro call text
+         * @return The argument text
+         *
+         * @endif
+         * */
+        std::string macroArgument(const std::string& text) {
+            const auto open  = text.find('(');
+            const auto close = text.rfind(')');
+
+            const auto inner = open == std::string::npos || close <= open
+                ? std::string_view{text}
+                : std::string_view{text}.substr(open + 1, close - open - 1);
+
+            if (inner.size() >= 2 && inner.front() == '"' && inner.back() == '"')
+                return std::string{inner.substr(1, inner.size() - 2)};
+
+            return std::string{inner};
+        }
+
+    }  // namespace
+
     std::optional<double> Executor::operandValue(const std::shared_ptr<Symbol>& symbol) {
         if (!symbol || (symbol->type.category != TypeCategory::CONSTANT && !symbol->value))
             return std::nullopt;
+
+        // 宏常量（`define H HASH("x")` / `define S STR("x")`）必须先于按 kind 的数值分支：
+        // 它们的 kind 是数值类型，但存的文本是宏调用（`HASH("x")`），numericText 解不出来
+        if (symbol->value)
+            switch (symbol->type.category) {
+                using enum TypeCategory;
+                case HASH_CALL: return hashValue(macroArgument(*symbol->value));
+                case STR_CALL: return strValue(macroArgument(*symbol->value));
+                default: break;
+            }
 
         switch (symbol->type.kind) {
             using enum BasicType;

@@ -12,6 +12,9 @@
 
 namespace stationeers::ic10 {
 
+    // 注：NodeParser<TypeHintDefault>::parse 是**显式特化**（非模板成员），定义放在
+    // expand_node_parser.cpp 中，避免被多个 TU 各自实例化而重复定义（LNK2005）
+
     // TypeAnnotationLineBase<Name, Tag>
 
     template<FString Name, FString Tag>
@@ -32,6 +35,14 @@ namespace stationeers::ic10 {
         }
         else [[unlikely]]
             p.expect(TokenType::INTEGER);
+
+        // 追加的默认值：`@logic Setting 12 1`；不写就是没有默认值（而非 0）
+        if (p.isMatch<Integer>()) {
+            auto defaultValue = NodeParser<Integer>::parse(p);
+
+            result.endPos = defaultValue.end();
+            result.defaultValue = std::move(defaultValue.value);
+        }
 
         if (p.isVariantMatch<Description>()) {
             auto desc = p.matchVariant<Description>();

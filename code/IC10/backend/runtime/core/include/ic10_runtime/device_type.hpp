@@ -20,6 +20,7 @@
 #include "ic10_compiler/pch/ast.hpp"
 #include "ic10_compiler/semantic/semantic.hpp"
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -64,6 +65,26 @@ namespace stationeers::ic10 {
 
         /** @if zh @brief 成员种类：`logic` / `logic-slot` / `slot` / `hash` / `reagent-hash` @else @brief Member kind: `logic` / `logic-slot` / `slot` / `hash` / `reagent-hash` @endif */
         std::string kind;
+
+        /**
+         * @if zh
+         * @brief 注解声明的默认值（成员行末追加的那个取值）
+         *
+         * @details 写作 `@logic Setting 12 1` 时默认值为 1；不写则**没有默认值**（`nullopt`），
+         *          而不是 0——设备的默认值不一定是 0，用 0 冒充会把"未声明默认值"与"默认值为 0"
+         *          混为一谈。成员被赋值前，`IDevice::readLogic` 就以该值作答。
+         *
+         * @else
+         * @brief Default declared by the annotation (the value appended to the member line)
+         *
+         * @details `@logic Setting 12 1` declares 1; omitting it means **no default**
+         *          (`nullopt`) rather than 0, because a member's default is not necessarily 0 and
+         *          reporting 0 would conflate "no default declared" with "defaults to 0". Before the
+         *          member is assigned, `IDevice::readLogic` answers with this value.
+         *
+         * @endif
+         */
+        std::optional<double> defaultValue = std::nullopt;
     };
 
     /**

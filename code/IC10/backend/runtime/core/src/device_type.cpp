@@ -46,6 +46,24 @@ namespace stationeers::ic10 {
             return value ? static_cast<std::int64_t>(*value) : 0;
         }
 
+        /**
+         * @if zh
+         * @brief 把注解行声明的默认值文本转成数值
+         * @param text 注解行末尾追加的默认值文本（解析阶段已确认为整数）
+         * @return 默认值；未声明或文本不是数字时为空（**不是 0**）
+         * @else
+         * @brief Convert the default declared by an annotation line into a number
+         * @param text The default text appended to the annotation line (already known to be an
+         *             integer at parse time)
+         * @return The default, or empty when it was not declared or is not numeric (**not 0**)
+         * @endif
+         */
+        std::optional<double> memberDefault(const std::optional<std::string>& text) {
+            if (!text) return std::nullopt;
+
+            return numericText(*text);
+        }
+
     }  // namespace
 
     const DeviceMemberDecl* DeviceType::findMember(const std::string& name) const noexcept {
@@ -80,13 +98,15 @@ namespace stationeers::ic10 {
             type.members.push_back({"nameHash", annotation.nameHash->value, "hash"});
 
         for (const auto& logic : annotation.logics)
-            type.members.push_back({logic.name, logic.value, "logic"});
+            type.members.push_back({logic.name, logic.value, "logic", memberDefault(logic.defaultValue)});
 
         for (const auto& slot : annotation.logicSlots)
-            type.members.push_back({slot.name, slot.value, "logic-slot"});
+            type.members.push_back(
+                {slot.name, slot.value, "logic-slot", memberDefault(slot.defaultValue)}
+            );
 
         for (const auto& slot : annotation.slots)
-            type.members.push_back({slot.name, slot.value, "slot"});
+            type.members.push_back({slot.name, slot.value, "slot", memberDefault(slot.defaultValue)});
 
         // 试剂哈希没有名字，只有哈希值，用序号区分
         for (std::size_t i = 0; i < annotation.reagentHashes.size(); ++i)
