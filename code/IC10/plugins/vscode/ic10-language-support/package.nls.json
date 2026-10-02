@@ -3,6 +3,7 @@
     "ic10.configuration.title": "IC10 Language Support",
     "ic10.configuration.language.description": "The language displayed to users by this plugin, including the language used by the IC10 compiler core",
     "ic10.configuration.hoverRenderer.description": "How hover information is rendered; each mode has its own characteristics",
+    "ic10.configuration.hover.maxWidth.description": "Maximum content width of a hover card in pixels (SVG renderer); a longer line wraps inside the card.",
     "ic10.configuration.format.useTab.description": "Use tabs for indentation. When true, indentWidth is ignored.",
     "ic10.configuration.format.indentWidth.description": "Number of spaces per indentation level.",
     "ic10.configuration.format.spacesBeforeTrailingComments.description": "Number of spaces before trailing comments.",

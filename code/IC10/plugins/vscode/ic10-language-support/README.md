@@ -107,7 +107,9 @@ alias myDevice d0  #: @type DeviceType
 
 - `ic10.language`：界面语言，默认 `"en-us"`，可选 `"zh-hans"`。切换后即时生效。
 
-- `ic10.hoverRenderer`：悬停信息的渲染方式，默认 `"svg"`，可选 `"markdown"`。两种风格各有特点，按自己的喜好挑就行。
+- `ic10.hoverRenderer`：悬停信息的渲染方式，默认 `"svg"`，可选 `"markdown"`。两种风格各有特点，按自己的喜好挑就行。`svg` 是一张等宽卡片：第一行是「图标 + 显示物 + 类型」（图标用类型色画外圈、标识符色填充、中间一个大写字面），第二行是「(语法类型) 表达式 [: 纯数据] [= 计算值]」，分隔线之后是**按列对齐**的字段（内容过长会换行并保持缩进），末尾以小一号的字给出当前文件路径；`markdown` 是同一份内容的原生 Markdown。
+
+- `ic10.hover.maxWidth`：悬停卡片的内容区最大宽度（px），默认 `560`。只有 `svg` 渲染方式用得到它。
 
 - `ic10.format.useTab`：使用 Tab 缩进，默认 `false`。为 `true` 时忽略 `indentWidth`。
 
@@ -265,7 +267,9 @@ Location: `File > Preferences > Settings > Extensions > IC10 Language Support`
 
 - `ic10.language`: interface language, default `"en-us"`, also accepts `"zh-hans"`. Takes effect immediately.
 
-- `ic10.hoverRenderer`: how hover information is rendered, default `"svg"`, also accepts `"markdown"`. Each style has its own character — pick whichever you prefer.
+- `ic10.hoverRenderer`: how hover information is rendered, default `"svg"`, also accepts `"markdown"`. Each style has its own character — pick whichever you prefer. `svg` is a monospace card: the first line is "icon + subject + type" (the icon draws a type-colored ring, an identifier-colored fill and an uppercase letter in the middle), the second line is "(syntax kind) expression [: raw data] [= computed value]", then a rule and **column-aligned** fields (a long content wraps keeping the indent), and the current file path closes the card one size down; `markdown` is the same content as native Markdown.
+
+- `ic10.hover.maxWidth`: maximum content width of a hover card in pixels, default `560`. Only the `svg` renderer uses it.
 
 - `ic10.format.useTab`: use Tab for indentation, default `false`. When `true`, `indentWidth` is ignored.
 

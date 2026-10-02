@@ -51,6 +51,9 @@ export interface HoverContext {
     /** 文档的词法 token（提示里的 `@标签` 不在 AST 上，只能从 token 定位） */
     /** The document's lexical tokens (the `@tags` of a hint are not in the AST, so tokens locate them) */
     tokens?: Token[];
+    /** 当前文档路径（相对工作区；没有工作区时为绝对路径），渲染成卡片末尾的小字脚注 */
+    /** The current document path (relative to the workspace, absolute without one), rendered as a small footnote */
+    path?: string;
     /** 获取当前语言环境 */
     /** Get the current locale */
     getLocale(): ReturnType<typeof locale.getLocale>;

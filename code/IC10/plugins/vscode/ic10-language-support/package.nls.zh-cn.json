@@ -3,6 +3,7 @@
     "ic10.configuration.title": "IC10 语言支持",
     "ic10.configuration.language.description": "该插件向用户展示的语言，也包括 IC10 编译器核心使用的语言",
     "ic10.configuration.hoverRenderer.description": "渲染悬停信息的模式，各有特点",
+    "ic10.configuration.hover.maxWidth.description": "悬停卡片的内容区最大宽度（px，SVG 渲染器）：超出的行会在卡片内换行。",
     "ic10.configuration.format.useTab.description": "使用 Tab 缩进。为 true 时忽略 indentWidth。",
     "ic10.configuration.format.indentWidth.description": "每级缩进的空格数。",
     "ic10.configuration.format.spacesBeforeTrailingComments.description": "行尾注释前的空格数。",

@@ -83,6 +83,11 @@
                     "default": "svg",
                     "description": "%ic10.configuration.hoverRenderer.description%"
                 },
+                "ic10.hover.maxWidth": {
+                    "type": "number",
+                    "default": 560,
+                    "description": "%ic10.configuration.hover.maxWidth.description%"
+                },
                 "ic10.format.useTab": {
                     "type": "boolean",
                     "default": false,
