@@ -191,6 +191,10 @@ namespace stationeers::ic10 {
         ///< @else Ordinary device are not within the range of r0-r5 - syntax analysis. @endif
         IEP36,
 
+        ///< @if zh @brief 属性'{}'的@default重复定义 - 语法分析。
+        ///< @else Duplicate @default for property '{}' - syntax analysis. @endif
+        IEP37_1,
+
         /* 语义分析阶段 (Analysis) */
 
         ///< @if zh @brief '{}'不是一个寄存器类型 - 语义分析。

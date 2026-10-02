@@ -771,9 +771,27 @@ export interface LinkNode extends ASTNode {
 export type Description = Errorable<StringNode | LinkNode>;
 
 /**
+ * @summary 类型提示里的一条 `@default`
+ *
+ * @desc 由 `#: @default ...` 解析而来。设备成员写作 `@default <分组> <字段> <值>`（分组为
+ * `logic` / `logic-slot` / `slot`，因此同名成员在不同分组里不会混淆）；寄存器写作
+ * `@default <值>`，此时 `category` 与 `name` 都为空。同一分组下的同一字段只允许出现一次。
+ */
+export interface TypeHintDefaultNode extends ASTNode {
+    /** 分组：`logic` / `logic-slot` / `slot`；寄存器默认值为空 */
+    readonly category: IC10Utils.Optional<string>;
+
+    /** 字段名（成员名）；寄存器默认值为空 */
+    readonly name: IC10Utils.Optional<string>;
+
+    /** 默认值（源码里的写法） */
+    readonly value: string;
+}
+
+/**
  * @summary 类型提示节点
  *
- * @desc 由 `#: @type ... @desc ... @builtin` 类型提示解析而来。
+ * @desc 由 `#: @type ... @desc ... @default ... @builtin` 类型提示解析而来。
  * 对应 C++ `ic10::TypeHint`。
  */
 export interface TypeHintNode extends ASTNode {
@@ -788,6 +806,14 @@ export interface TypeHintNode extends ASTNode {
      * @desc 由 @desc 注解指定的描述（链接或文本）
      */
     readonly desc: IC10Utils.Optional<Description>;
+
+    /**
+     * @summary 默认值（可多条）
+     *
+     * @desc 由 `@default` 注解给出：设备成员写作 `<分组> <字段> <值>`，寄存器只写 `<值>`。
+     *       此处的默认值**覆盖**设备类型注解（`#>` 设备块）中同一分组同一字段的默认值。
+     */
+    readonly defaults: TypeHintDefaultNode[];
 
     /**
      * @summary 内置常量标记（可选）
@@ -1075,6 +1101,13 @@ interface TypeAnnotationLineBase<N extends string, T extends string> extends AST
 
     /** 取值（如引脚或槽位序号） */
     readonly value: string;
+
+    /**
+     * 可选的默认值（追加在取值之后，如 `@logic Setting 12 1`）
+     *
+     * @desc 不写表示**没有默认值**（而非 0）：求值方在严苛模式下报错，宽松模式下以 0 顶替。
+     */
+    readonly defaultValue: IC10Utils.Optional<string>;
 
     /** 可选的描述 */
     readonly desc: IC10Utils.Optional<Description>;

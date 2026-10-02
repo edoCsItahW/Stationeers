@@ -114,6 +114,8 @@ namespace stationeers::ic10 {
 
     IC10_COMPILER_LOCAL_MSG_EN_US(IEP36, "Ordinary device are not within the range of r0-r5 - syntax analysis.")
 
+    IC10_COMPILER_LOCAL_MSG_EN_US(IEP37_1, "Duplicate @default for property '{}' - syntax analysis.")
+
     /* Analysis */
 
     // Warning

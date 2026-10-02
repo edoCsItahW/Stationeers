@@ -130,6 +130,36 @@ namespace stationeers::ic10 {
 
         /**
          * @if zh
+         * @brief 应用类型提示上的默认值
+         *
+         * @details 处理 `alias ... #: @default ...`：设备形式（`@default 分组 字段 值`）覆写该端口
+         *          设备上对应成员声明的默认值；寄存器形式（`@default 值`）把该值作为寄存器初值写入
+         *          （未写过时读到的就是它，而不是 0）。
+         *
+         * @note 只对**已经按型号绑定**的端口生效（见 @ref initDevices）：没有声明型号的端口上不存在
+         *       成员范围，也就没有可覆写的默认值；动态端口与动态寄存器（`dr0` / `rr0`）在构造期无法
+         *       确定目标，同样跳过。
+         *
+         * @else
+         *
+         * @brief Apply the defaults declared by type hints
+         *
+         * @details Handles `alias ... #: @default ...`: the device form (`@default category field value`)
+         *          overrides the default that member declares on the port's device, while the register
+         *          form (`@default value`) seeds the register (an unwritten register then reads that
+         *          value instead of 0).
+         *
+         * @note Only ports **already bound to a type** are affected (see @ref initDevices): a port
+         *       without a declared type has no member range to override. Dynamic ports and dynamic
+         *       registers (`dr0` / `rr0`) are skipped as well, since their target is unknowable at
+         *       construction time.
+         *
+         * @endif
+         */
+        void initHintDefaults();
+
+        /**
+         * @if zh
          * @brief 收集声明了型号的设备符号
          * @return 符号指针列表（生命周期由符号表保证）
          * @else

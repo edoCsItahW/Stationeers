@@ -29,6 +29,9 @@ namespace stationeers::ic10 {
         if (auto maxStackSize = obj.Get("maxStackSize"); maxStackSize.IsNumber())
             config.maxStackSize = maxStackSize.ToNumber();
 
+        if (auto strictEvaluation = obj.Get("strictEvaluation"); strictEvaluation.IsBoolean())
+            config.strictEvaluation = strictEvaluation.ToBoolean();
+
         return config;
     }
 
@@ -40,6 +43,8 @@ namespace stationeers::ic10 {
         obj.Set("maxInstructions", node::Number::New(env, cfg.maxInstructions));
 
         obj.Set("maxStackSize", node::Number::New(env, cfg.maxStackSize));
+
+        obj.Set("strictEvaluation", node::Boolean::New(env, cfg.strictEvaluation));
 
         return obj;
     }

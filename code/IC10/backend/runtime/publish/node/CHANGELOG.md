@@ -26,3 +26,15 @@
 - [2.0.0]: The value written by `s` / `sb` / `ss` / `sbn` / `sbs` may be a literal, a constant alias, a register or an enum constant, matching the relaxed operand list of the compiler
 - [2.0.0]: Enum operands are evaluated from the type table (`Color.Green`, and bare member names such as `Pressure`, `Sum` or `Contents` in logic property / aggregate mode / reagent mode positions); `Engine` and `Context` take an optional `TypeTable` as their fourth argument
 - [2.0.0]: Legacy numeric logic properties are passed on as their decimal text, `$hex` / `%bin` text is parsed both in operand values and in constants, and a register / device / operand that cannot be resolved reports `IEM2_1` instead of silently doing nothing
+
+## 2026/10/01
+
+- [2.1.0]: Device types and introspection: `#>` device annotations make up a type registry (`DeviceType` / `DeviceRegistry`), the execution context binds ports automatically from the type declared in the source (`Manager.bindTyped`), and `SimDevice` reports its type name plus type / name hash, which is what makes hash-based device lookups (`lb` / `lbn` / `sb` / `sbn`) meaningful on typed ports
+- [2.1.0]: `IDevice.snapshot()` lists a device's members (name, kind, value declared by the annotation, current value, whether the type declares it, whether it was assigned). A member **has a value only once it was assigned**: `value` is empty rather than 0 while it was never assigned (a device's default is not necessarily 0); the binding gained `Device.snapshot()` and the `Manager` type / port APIs, with `types/device.d.ts` and `types/manager.d.ts` kept in sync
+
+## 2026/10/02
+
+- [2.2.0]: Device member defaults: the value appended to an annotation member line becomes that member's default (`DeviceMemberDecl.defaultValue`). Before the member is assigned, `readLogic` answers with the default and `canReadLogic` is true; `IDevice::setMemberDefault()` lets a host override it, and the binding reports the declaration through `DeviceMember.defaultValue`
+- [2.2.0]: Defaults declared by type hints are consumed by the execution context (`Context::initHintDefaults`): `alias s d0 #: @type Sensor @default logic Setting 1` overrides the default of that member on the port's device (only members the annotation declares, and only on ports already bound through `@type`), while `alias a r1 #: @default 7` seeds the register with that initial value; dynamic ports (`dr0`) and dynamic registers (`rr0`) are skipped, as their target is unknowable at construction time
+- [2.2.0]: New `Config.strictEvaluation` option (enabled by default): an operand that cannot be evaluated reports `IEM2_1`; when disabled such operands take part as 0 (which lets the debugger avoid "unable to evaluate"). `ConfigAdapter` and `types/config.d.ts` kept in sync
+- [2.2.0]: Fix macro constants such as `define H HASH("x")` / `define S STR("x")` failing to evaluate (`IEM2_1`): macro constants are now decided before the kind-based numeric branch
