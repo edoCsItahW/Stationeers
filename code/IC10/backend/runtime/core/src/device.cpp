@@ -25,6 +25,8 @@ namespace stationeers::ic10 {
 
     std::vector<DeviceMemberView> IDevice::snapshot() const { return {}; }
 
+    void IDevice::setMemberDefault(const std::string&, double) {}
+
     VirtualDevice::VirtualDevice()
         : stack_(512, 0.0) {}
 
@@ -70,6 +72,38 @@ namespace stationeers::ic10 {
         : type_(std::move(type))
         , typeName_(typeName.empty() ? type_.name : std::move(typeName)) {}
 
+    std::optional<double> SimDevice::memberDefault(const std::string& prop) const noexcept {
+        const auto* member = type_.findMember(prop);
+
+        return member ? member->defaultValue : std::nullopt;
+    }
+
+    double SimDevice::readLogic(const std::string& prop) {
+        if (const auto& it = logicProps_.find(prop); it != logicProps_.end()) return it->second;
+
+        // 从未赋值：注解声明了默认值就以默认值作答（默认值不一定是 0，故不能一律返回 0）
+        if (const auto declared = memberDefault(prop); declared) return *declared;
+
+        return VirtualDevice::readLogic(prop);
+    }
+
+    bool SimDevice::canReadLogic(const std::string& prop) const {
+        if (VirtualDevice::canReadLogic(prop)) return true;
+
+        // 声明了默认值的成员始终可读：默认值就是设备提供的取值
+        return memberDefault(prop).has_value();
+    }
+
+    void SimDevice::setMemberDefault(const std::string& name, double value) {
+        // 只有注解声明过的成员才接受覆写：注解给出的字段范围就是默认值的落点
+        for (auto& member : type_.members)
+            if (member.name == name) {
+                member.defaultValue = value;
+
+                return;
+            }
+    }
+
     int64_t SimDevice::getTypeHash() const { return type_.deviceHash; }
 
     int64_t SimDevice::getNameHash() const { return type_.nameHash; }
@@ -88,7 +122,7 @@ namespace stationeers::ic10 {
             const bool assigned = it != logicProps_.end();
 
             views.push_back(
-                {member.name, member.kind, member.value,
+                {member.name, member.kind, member.value, member.defaultValue,
                  assigned ? std::optional<double>(it->second) : std::nullopt, true, assigned}
             );
         }
@@ -102,7 +136,7 @@ namespace stationeers::ic10 {
         std::ranges::sort(undeclared);
 
         for (const auto& name : undeclared)
-            views.push_back({name, "logic", {}, logicProps_.at(name), false, true});
+            views.push_back({name, "logic", {}, std::nullopt, logicProps_.at(name), false, true});
 
         return views;
     }

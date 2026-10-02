@@ -64,4 +64,15 @@ export interface Config {
      * @default 512
      */
     maxStackSize: number;
+
+    /**
+     * @summary 是否严格求值
+     *
+     * @desc 启用时，无法求值的操作数（例如尚未赋值的设备逻辑字段、未知的 `define` 哈希常量）
+     *       会报告 `IEM2_1`（无法求值）并中止本次 tick；关闭时这些操作数按 `0` 参与运算，
+     *       便于在调试器中观察程序行为。
+     *
+     * @default true
+     */
+    strictEvaluation: boolean;
 }

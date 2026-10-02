@@ -184,6 +184,10 @@ namespace stationeers::ic10 {
 
             item.Set("declaredValue", node::String::New(info.Env(), view.declaredValue));
 
+            // 注解声明的默认值：没声明就是 null，与"默认值为 0"区分开
+            if (view.defaultValue) item.Set("defaultValue", node::Number::New(info.Env(), *view.defaultValue));
+            else item.Set("defaultValue", info.Env().Null());
+
             // 未赋过值的成员没有值，用 null 与"赋值为 0"区分开
             if (view.value) item.Set("value", node::Number::New(info.Env(), *view.value));
             else item.Set("value", info.Env().Null());

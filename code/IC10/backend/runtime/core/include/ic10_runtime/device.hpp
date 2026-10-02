@@ -65,6 +65,24 @@ namespace stationeers::ic10 {
         /** @if zh @brief 注解声明的取值（未声明时为空） @else @brief Value declared by the annotation (empty when undeclared) @endif */
         std::string declaredValue;
 
+        /**
+         * @if zh
+         * @brief 注解为成员声明的默认值
+         *
+         * @details 与 `value` 的区别：`defaultValue` 是**声明**在注解里的兜底取值，`value` 是此刻
+         *          的真实取值。从未赋值且声明了默认值时两者相同；未声明默认值时为 `nullopt`。
+         *
+         * @else
+         * @brief Default the annotation declares for the member
+         *
+         * @details Unlike `value`: `defaultValue` is the fallback **declared** in the annotation while
+         *          `value` is the real value at this instant. They coincide when the member was never
+         *          assigned but declares a default; `nullopt` when no default is declared.
+         *
+         * @endif
+         */
+        std::optional<double> defaultValue;
+
         /** @if zh @brief 当前值；从未赋值时为 nullopt @else @brief Current value; nullopt when it was never assigned @endif */
         std::optional<double> value;
 
@@ -128,6 +146,36 @@ namespace stationeers::ic10 {
          * @endif
          */
         [[nodiscard]] virtual std::vector<DeviceMemberView> snapshot() const;
+
+        /**
+         * @if zh
+         *
+         * @brief 覆写成员声明的默认值
+         *
+         * @param name 成员名
+         * @param value 默认值
+         *
+         * @details 由执行上下文按类型提示 `#: @default 分组 字段 值` 调用，用于给同一型号的不同
+         *          端口设备安排各自的默认值。
+         *
+         * @note 默认实现什么都不做：没有型号信息的宿主设备没有可覆写的声明。
+         *
+         * @else
+         *
+         * @brief Override the default a member declares
+         *
+         * @param name Member name
+         * @param value The default
+         *
+         * @details Called by the execution context for the type hint `#: @default category field value`,
+         *          so that two ports sharing one device type can arrange their own defaults.
+         *
+         * @note The default implementation does nothing: a host device without type information has no
+         *       declaration to override.
+         *
+         * @endif
+         */
+        virtual void setMemberDefault(const std::string& name, double value);
     };
 
     class VirtualDevice : public IDevice {
@@ -177,9 +225,9 @@ namespace stationeers::ic10 {
      *          是否被赋过值。型号哈希与名称哈希取自注解，因此按哈希查找设备
      *          （`lb` / `lbn` / `sb` / `sbn`）在型号化的端口上才有意义。
      *
-     * @note 型号**只影响身份与内省，不影响执行语义**：读写逻辑属性仍沿用 @ref VirtualDevice 的行为
-     *       （任意名字可写、读未赋过值的属性为 0、`canReadLogic` 表示是否被赋过值），因此现有程序
-     *       与测试的语义不变；对未声明成员的约束与诊断留待后续阶段。
+     * @note 型号**只影响身份、内省与默认值，不影响读写的基本行为**：任意名字仍可写、既没被赋过值也没
+     *       声明默认值的属性仍读作 0、`canReadLogic` 在"赋过值或声明了默认值"时为真，因此现有程序与
+     *       测试的语义不变；对未声明成员的约束与诊断留待后续阶段。
      *
      * @else
      *
@@ -192,11 +240,11 @@ namespace stationeers::ic10 {
      *          Type and name hashes come from the annotation, which is what makes hash based lookups
      *          (`lb` / `lbn` / `sb` / `sbn`) meaningful on typed ports.
      *
-     * @note The type **affects identity and introspection only, not execution semantics**: logic
-     *       properties still behave as in @ref VirtualDevice (any name may be written, an unassigned
-     *       property reads as 0, `canReadLogic` tells whether it was assigned), so existing programs
-     *       and tests keep their semantics. Constraining or diagnosing undeclared members is left to
-     *       a later stage.
+     * @note The type **affects identity, introspection and defaults only, not the basic read/write
+     *       behaviour**: any name may still be written, a property that was neither assigned nor given
+     *       a declared default still reads as 0, and `canReadLogic` is true when the member was
+     *       assigned *or* declares a default, so existing programs and tests keep their semantics.
+     *       Constraining or diagnosing undeclared members is left to a later stage.
      *
      * @endif
      */
@@ -216,6 +264,10 @@ namespace stationeers::ic10 {
          */
         explicit SimDevice(DeviceType type = {}, std::string typeName = {});
 
+        double readLogic(const std::string& prop) override;
+
+        bool canReadLogic(const std::string& prop) const override;
+
         int64_t getTypeHash() const override;
 
         int64_t getNameHash() const override;
@@ -223,6 +275,8 @@ namespace stationeers::ic10 {
         [[nodiscard]] std::string typeName() const override;
 
         [[nodiscard]] std::vector<DeviceMemberView> snapshot() const override;
+
+        void setMemberDefault(const std::string& name, double value) override;
 
         /**
          * @if zh
@@ -236,6 +290,19 @@ namespace stationeers::ic10 {
         [[nodiscard]] const DeviceType& type() const noexcept { return type_; }
 
     private:
+        /**
+         * @if zh
+         * @brief 查成员声明的默认值
+         * @param prop 成员名
+         * @return 默认值；未声明该成员或该成员没有默认值时为 nullopt
+         * @else
+         * @brief Look up the default a member declares
+         * @param prop Member name
+         * @return The default, or nullopt when the member is undeclared or declares no default
+         * @endif
+         */
+        [[nodiscard]] std::optional<double> memberDefault(const std::string& prop) const noexcept;
+
         DeviceType type_;
 
         std::string typeName_;

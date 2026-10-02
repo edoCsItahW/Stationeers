@@ -14,9 +14,12 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_runtime/context/context.hpp"
+#include "ic10_runtime/value/value.hpp"
+#include <cctype>
 #include <optional>
 #include <ranges>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace stationeers::ic10 {
@@ -43,6 +46,37 @@ namespace stationeers::ic10 {
             return text;
         }
 
+        /**
+         * @if zh
+         * @brief 取静态寄存器文本
+         * @param text 别名指向的寄存器文本（如 `r1`、`ra`）
+         * @return 规范化后的寄存器名；不是静态寄存器（如动态寄存器 `rr0`）时为空
+         *
+         * @note 动态寄存器的目标编号要读内层寄存器才知道，构造期无法确定，故不在这里处理。
+         *
+         * @else
+         * @brief Obtain the text of a static register
+         * @param text The register text an alias points at (e.g. `r1`, `ra`)
+         * @return The canonical register name; empty when it is not a static register (e.g. `rr0`)
+         *
+         * @note A dynamic register's target index depends on the value of an inner register and is
+         *       therefore unknowable at construction time, so it is not handled here.
+         *
+         * @endif
+         */
+        std::optional<std::string> staticRegister(const std::string& text) {
+            if (text == "ra" || text == "sp") return text;
+
+            if (text.size() > 1 && text.front() == 'r') {
+                const std::string_view rest = std::string_view(text).substr(1);
+
+                if (std::ranges::all_of(rest, [](unsigned char c) { return std::isdigit(c) != 0; }))
+                    return text;
+            }
+
+            return std::nullopt;
+        }
+
     }  // namespace
 
     Context::Context(
@@ -57,6 +91,7 @@ namespace stationeers::ic10 {
         , pc_(0)
         , halted_(false) {
         initDevices();
+        initHintDefaults();
         buildAddrs();
     }
 
@@ -105,6 +140,56 @@ namespace stationeers::ic10 {
         }
 
         return result;
+    }
+
+    void Context::initHintDefaults() {
+        for (const auto& statement : program.statements) {
+            const auto* alias = std::get_if<AliasDirective>(&statement.raw());
+
+            if (!alias || !alias->typeHint || alias->typeHint->defaults.empty()) continue;
+
+            const auto* name = std::get_if<Identifier>(&alias->identifier);
+
+            if (!name) continue;  // 别名本身写坏了：语义阶段已报错
+
+            const auto symbol = resolve(name->value);
+
+            if (!symbol || !*symbol) continue;
+
+            const Symbol& target = **symbol;
+
+            const auto& defaults = alias->typeHint->defaults;
+
+            // `@default 分组 字段 值`：设备成员——覆写该端口设备上该成员声明的默认值
+            if (target.type.kind == BasicType::DEVICE) {
+                const auto port = symbolPort(target);
+
+                IDevice* device = port ? manager.getDevice(*port) : nullptr;
+
+                if (!device) continue;
+
+                for (const auto& entry : defaults)
+                    if (entry.name)
+                        if (const auto value = numericText(entry.value); value)
+                            device->setMemberDefault(*entry.name, *value);
+
+                continue;
+            }
+
+            // `@default 值`：寄存器——作为初值写入（未写过时读到的就是它，而不是 0）
+            if (target.type.kind == BasicType::REGISTER && target.value) {
+                const auto reg = staticRegister(*target.value);
+
+                if (!reg) continue;
+
+                for (const auto& entry : defaults)
+                    if (!entry.name)
+                        if (const auto value = numericText(entry.value); value) {
+                            if (*reg == "sp") memory.setSP(*value);
+                            else memory.setReg(*reg, *value);
+                        }
+            }
+        }
     }
 
     void Context::setReporter(DiagnosticReporter<IC10RuntimeMsgPack>* reporter) noexcept {

@@ -285,10 +285,23 @@ describe('Device type and introspection', () => {
             name: 'Pressure',
             kind: 'logic',
             declaredValue: '5',
+            defaultValue: null,
             value: null,
             isDeclared: true,
             assigned: false
         });
+    });
+
+    it('should expose the default declared by the annotation line', async () => {
+        // 成员行末尾追加的取值即默认值：没写默认值的成员给出 null（而不是 0）
+        const {engine} = await compile(DEVICE_SOURCE.replace('@logic Setting 12', '@logic Setting 12 1'));
+        const members = deviceOf(engine, 'd0').snapshot();
+
+        const setting = members.find(member => member.name === 'Setting');
+
+        expect(setting?.defaultValue).toBe(1);
+        expect(setting?.assigned).toBe(false);
+        expect(setting?.value).toBeNull();
     });
 
     it('should report a value only for assigned members', async () => {

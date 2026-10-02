@@ -25,3 +25,15 @@
 - [2.0.0]: `s` / `sb` / `ss` / `sbn` / `sbs` 的写入值可为字面量、常量别名、寄存器或枚举常量，与编译器放宽后的操作数集合一致
 - [2.0.0]: 枚举操作数据类型表求值（`Color.Green`，以及逻辑属性 / 聚合模式 / 试剂模式位置上的裸成员名 `Pressure`、`Sum`、`Contents` 等）；`Engine` 与 `Context` 新增第 4 个可选参数 `TypeTable`
 - [2.0.0]: 旧语法的数字逻辑属性按十进制文本传递，`$` 十六进制与 `%` 二进制文本在操作数取值和常量中都能解析，无法解析的寄存器 / 设备 / 操作数改为上报 `IEM2_1`（不再静默跳过）
+
+## 2026/10/01
+
+- [2.1.0]: 设备型号与内省：`#>` 设备注解构成型号表（`DeviceType` / `DeviceRegistry`），执行上下文按源码声明的型号自动绑定端口（`Manager.bindTyped`），`SimDevice` 报告型号名与型号 / 名称哈希，从而让按哈希查设备（`lb` / `lbn` / `sb` / `sbn`）在型号化端口上可用
+- [2.1.0]: `IDevice.snapshot()` 列出设备成员（成员名、种类、注解声明的取值、当前值、是否由型号声明、是否被赋过值）。成员**只有被赋过值才有值**，未赋值时 `value` 为空而不是 0（设备默认值不一定是 0）；绑定层新增 `Device.snapshot()` 与 `Manager` 的型号 / 端口接口，`types/device.d.ts`、`types/manager.d.ts` 同步
+
+## 2026/10/02
+
+- [2.2.0]: 设备成员默认值：注解成员行末尾追加的取值即该成员的默认值（`DeviceMemberDecl.defaultValue`）；成员被赋值前 `readLogic` 就按默认值作答、`canReadLogic` 为真，`IDevice::setMemberDefault()` 供宿主覆写，绑定层的 `DeviceMember.defaultValue` 如实报告该声明
+- [2.2.0]: 类型提示上的默认值由执行上下文消费（`Context::initHintDefaults`）：`alias s d0 #: @type Sensor @default logic Setting 1` 覆写该端口设备上对应成员的默认值（只认注解声明过的成员，端口需已按 `@type` 绑定），`alias a r1 #: @default 7` 把默认值播种为寄存器初值；动态端口（`dr0`）与动态寄存器（`rr0`）在构造期目标不可知，不参与
+- [2.2.0]: 新增配置项 `Config.strictEvaluation`（默认开启）：无法求值的操作数上报 `IEM2_1`；关闭后这些操作数按 0 参与运算（调试器可借此避开"无法求值"）。绑定层 `ConfigAdapter` 与 `types/config.d.ts` 同步
+- [2.2.0]: 修复 `define H HASH("x")` / `define S STR("x")` 这类宏常量无法求值（`IEM2_1`）的问题：宏常量改为先于按 kind 的数值分支判断

@@ -59,6 +59,16 @@ namespace {
         return type;
     }
 
+    /// 声明了默认值的型号：一条有默认值（`@logic Setting 12 1`）、一条没有（`@logic Pressure 5`）
+    DeviceType defaultedType() {
+        DeviceType type;
+
+        type.name    = "Sensor";
+        type.members = {{"Pressure", "5", "logic"}, {"Setting", "12", "logic", 1.0}};
+
+        return type;
+    }
+
 }  // namespace
 
 class DeviceTestFixture : public ::testing::Test {
@@ -193,6 +203,62 @@ TEST_F(DeviceTestFixture, AssignedZeroIsDistinctFromNeverAssigned) {
 }
 
 // ============================================================
+// 等价类：注解声明的默认值
+// ============================================================
+
+TEST_F(DeviceTestFixture, DeclaredDefaultAnswersBeforeAssignment) {
+    // 声明了默认值的成员：赋值前就以默认值作答（默认为 1，不能拿 0 顶替）
+    SimDevice device(defaultedType());
+
+    EXPECT_TRUE(device.canReadLogic("Setting"));
+    EXPECT_DOUBLE_EQ(device.readLogic("Setting"), 1.0);
+
+    // 快照如实区分"声明的默认值"与"此刻的值"：未赋值 → value 为空、defaultValue 有值
+    const auto views = device.snapshot();
+
+    ASSERT_EQ(views.size(), 2u);
+    EXPECT_EQ(views[1].name, "Setting");
+    ASSERT_TRUE(views[1].defaultValue.has_value());
+    EXPECT_DOUBLE_EQ(*views[1].defaultValue, 1.0);
+    EXPECT_FALSE(views[1].assigned);
+    EXPECT_FALSE(views[1].value.has_value());
+}
+
+TEST_F(DeviceTestFixture, AssignmentOverridesDeclaredDefault) {
+    // 赋过值后，真实取值盖过默认值（默认值只是兜底）
+    SimDevice device(defaultedType());
+
+    device.writeLogic("Setting", 9.0);
+
+    EXPECT_DOUBLE_EQ(device.readLogic("Setting"), 9.0);
+
+    const auto views = device.snapshot();
+
+    ASSERT_EQ(views.size(), 2u);
+    EXPECT_TRUE(views[1].assigned);
+    ASSERT_TRUE(views[1].value.has_value());
+    EXPECT_DOUBLE_EQ(*views[1].value, 9.0);
+    ASSERT_TRUE(views[1].defaultValue.has_value());
+    EXPECT_DOUBLE_EQ(*views[1].defaultValue, 1.0);
+}
+
+TEST_F(DeviceTestFixture, MemberWithoutDefaultKeepsVirtualSemantics) {
+    // 边界：没声明默认值的成员与无型号设备一致——读回 0、canReadLogic 为 false、defaultValue 为空
+    SimDevice device(defaultedType());
+
+    EXPECT_FALSE(device.canReadLogic("Pressure"));
+    EXPECT_DOUBLE_EQ(device.readLogic("Pressure"), 0.0);
+
+    const auto views = device.snapshot();
+
+    ASSERT_EQ(views.size(), 2u);
+    EXPECT_EQ(views[0].name, "Pressure");
+    EXPECT_FALSE(views[0].defaultValue.has_value());
+    EXPECT_FALSE(views[0].assigned);
+    EXPECT_FALSE(views[0].value.has_value());
+}
+
+// ============================================================
 // 型号表
 // ============================================================
 
@@ -249,6 +315,37 @@ TEST_F(DeviceTestFixture, RegistryHashDefaultsToZero) {
     EXPECT_EQ(sensor->nameHash, 0);
     EXPECT_TRUE(sensor->contains("Setting"));
     EXPECT_FALSE(sensor->contains("Pressure"));
+}
+
+TEST_F(DeviceTestFixture, RegistryKeepsDeclaredDefaults) {
+    // 成员行末尾追加的取值即默认值（不写就没有默认值，而不是 0）
+    compile(
+        "#> @device\n"
+        "#> @name Sensor\n"
+        "#> @logic Setting 12 1\n"
+        "#> @logic Pressure 5\n"
+        "#> @logic-slot Quantity 3 0\n"
+        "#> @end-device\n"
+        "hcf\n"
+    );
+
+    const DeviceType* sensor = registry().find("Sensor");
+
+    ASSERT_NE(sensor, nullptr);
+
+    const DeviceMemberDecl* setting = sensor->findMember("Setting");
+    const DeviceMemberDecl* pressure = sensor->findMember("Pressure");
+    const DeviceMemberDecl* quantity = sensor->findMember("Quantity");
+
+    ASSERT_NE(setting, nullptr);
+    ASSERT_NE(pressure, nullptr);
+    ASSERT_NE(quantity, nullptr);
+
+    ASSERT_TRUE(setting->defaultValue.has_value());
+    EXPECT_DOUBLE_EQ(*setting->defaultValue, 1.0);
+    EXPECT_FALSE(pressure->defaultValue.has_value());
+    ASSERT_TRUE(quantity->defaultValue.has_value());
+    EXPECT_DOUBLE_EQ(*quantity->defaultValue, 0.0);
 }
 
 // ============================================================
@@ -336,3 +433,70 @@ TEST_F(DeviceTestFixture, BindTypedOverridesDeclaredType) {
     EXPECT_TRUE(unknown->canWriteLogic("Anything"));
     EXPECT_EQ(manager().ports(), (std::vector<std::string>{"d0", "d1"}));
 }
+
+// ============================================================
+// 类型提示上的默认值（`#: @default 分组 字段 值` / `#: @default 值`）
+// ============================================================
+
+TEST_F(DeviceTestFixture, HintDefaultOverridesAnnotationDefault) {
+    // 同一型号的不同端口各有自己的默认值：提示覆写注解声明的默认值
+    compile(
+        "#> @device\n"
+        "#> @name Sensor\n"
+        "#> @logic Setting 12 1\n"
+        "#> @end-device\n"
+        "alias sensor d0 #: @type Sensor @default logic Setting 3\n"
+        "hcf\n"
+    );
+
+    IDevice* device = manager().getDevice("d0");
+
+    ASSERT_NE(device, nullptr);
+    EXPECT_TRUE(device->canReadLogic("Setting"));
+    EXPECT_DOUBLE_EQ(device->readLogic("Setting"), 3.0);
+}
+
+TEST_F(DeviceTestFixture, HintDefaultForUndeclaredMemberIsIgnored) {
+    // 边界：注解没声明过的成员不接受默认值——注解给出的字段范围就是默认值的落点
+    compile(
+        "#> @device\n"
+        "#> @name Sensor\n"
+        "#> @logic Setting 12\n"
+        "#> @end-device\n"
+        "alias sensor d0 #: @type Sensor @default logic Pressure 3\n"
+        "hcf\n"
+    );
+
+    IDevice* device = manager().getDevice("d0");
+
+    ASSERT_NE(device, nullptr);
+    EXPECT_FALSE(device->canReadLogic("Pressure"));
+    EXPECT_DOUBLE_EQ(device->readLogic("Pressure"), 0.0);
+    EXPECT_FALSE(device->canReadLogic("Setting"));
+}
+
+TEST_F(DeviceTestFixture, RegisterDefaultSeedsRegister) {
+    // 寄存器默认值：没写过也读得到默认值（而不是 0）
+    compile("alias counter r1 #: @default 7\nl r0 counter\nhcf\n");
+
+    engine_->runFull();
+
+    EXPECT_DOUBLE_EQ(engine_->getContext().memory.getReg("r0"), 7.0);
+}
+
+TEST_F(DeviceTestFixture, DynamicRegisterDefaultIsNotSeeded) {
+    // 边界：动态寄存器（rr0）的目标编号构造期无法确定，默认值不播种
+    compile("alias counter rr0 #: @default 7\nl r1 counter\nhcf\n");
+
+    engine_->runFull();
+
+    EXPECT_DOUBLE_EQ(engine_->getContext().memory.getReg("r1"), 0.0);
+}
+
+TEST_F(DeviceTestFixture, HintDefaultIgnoredWithoutDeclaredType) {
+    // 边界：端口没有声明型号（没有 `@type`）时不绑定设备，也就没有可覆写的成员范围
+    compile("alias sensor d0 #: @default logic Setting 3\nhcf\n");
+
+    EXPECT_EQ(manager().getDevice("d0"), nullptr);
+}
+

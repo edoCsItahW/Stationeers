@@ -52,8 +52,11 @@ namespace stationeers::ic10 {
                 else
                     value = directionValue(arg);
 
-                if (!value && throwError)
+                if (!value && throwError && ctx_.cfg.strictEvaluation)
                     reporter_->errorWith<IRMsgId::IEM2_1>(arg.start(), arg.end(), arg.toString());
+
+                // 宽松求值：求值失败时不上报诊断，以 0 顶替（调试器可关掉严苛求值以避开"无法求值"）
+                if (!value && !ctx_.cfg.strictEvaluation) value = 0.0;
 
                 return value;
             },
