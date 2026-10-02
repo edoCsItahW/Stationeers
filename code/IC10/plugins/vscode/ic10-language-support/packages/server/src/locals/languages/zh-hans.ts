@@ -71,6 +71,12 @@ export default {
             slotIdx: "槽索引",
             pin: "引脚",
             enum: "枚举"
+        },
+        hintTag: {
+            type: "`@type 类型名`：声明别名指向的设备/枚举型号",
+            desc: "`@desc \"描述\"`：为别名/常量添加描述（悬停与补全中显示）",
+            builtin: "`@builtin`：标记该别名为内置符号",
+            default: "`@default 分组 字段 值`：设备成员的默认值（寄存器则写 `@default 值`）"
         }
     },
     completion: {
@@ -85,6 +91,13 @@ export default {
         direction: {
             input: "输入",
             output: "输出"
+        },
+        hint: {
+            category: {
+                logic: "逻辑属性",
+                "logic-slot": "槽位逻辑属性",
+                slot: "槽位"
+            }
         }
     },
     formatting: {

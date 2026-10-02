@@ -16,7 +16,7 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
-import type { Statement, SymbolMap, TypeTableMap } from "@ic10/compiler";
+import type { Statement, SymbolMap, Token, TypeTableMap } from "@ic10/compiler";
 import type { Hover } from "vscode-languageserver/node";
 import type { Nullable } from "@ic10/common";
 
@@ -48,6 +48,9 @@ export interface HoverContext {
     /** 文档中的所有语句 */
     /** All statements in the document */
     statements: Statement[];
+    /** 文档的词法 token（提示里的 `@标签` 不在 AST 上，只能从 token 定位） */
+    /** The document's lexical tokens (the `@tags` of a hint are not in the AST, so tokens locate them) */
+    tokens?: Token[];
     /** 获取当前语言环境 */
     /** Get the current locale */
     getLocale(): ReturnType<typeof locale.getLocale>;

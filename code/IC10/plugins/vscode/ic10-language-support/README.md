@@ -123,6 +123,19 @@ alias myDevice d0  #: @type DeviceType
 
 - `ic10.format.alignTrailingComments`：同组内行尾注释对齐，默认 `true`。
 
+### 运行时（调试器）
+
+- `ic10.runtime.tickDuration`：单个 tick 代表的游戏内时长（秒），默认 `0.5`。`sleep n` 会换算成 `n / tickDuration` 个 tick 来等待，因此该值也决定休眠精度，必须为正数。
+
+- `ic10.runtime.maxInstructions`：单个 tick 内允许执行的最大语句数，默认 `128`。
+
+- `ic10.runtime.maxStackSize`：栈的最大容量（以 double 元素计），默认 `512`。
+
+- `ic10.runtime.strictEvaluation`：严格求值，默认 `true`。开启时无法求值的操作数（未赋值的设备字段、未知的宏常量等）上报诊断；关闭时按 `0` 参与运算，变量面板中这些字段也按 `0` 显示。
+
+> [!NOTE]
+> 这四项同时也是 `launch.json` 的字段，优先级为 `launch.json` > 工作区设置 > 运行时默认值——只想临时改一次就在 `launch.json` 里写，想一直这样就在设置里改。
+
 > [!TIP]
 > 格式化配置也可以直接写在项目根目录的 `.ic.json`、`.ic.yaml` 或 `.ic.yml` 里，不必去改全局设置。
 
@@ -267,6 +280,19 @@ Location: `File > Preferences > Settings > Extensions > IC10 Language Support`
 - `ic10.format.alignConsecutiveStatements`: align consecutive statements of the same type by column, default `true`.
 
 - `ic10.format.alignTrailingComments`: align trailing comments within the same group, default `true`.
+
+### Runtime (Debugger)
+
+- `ic10.runtime.tickDuration`: length of one tick in in-game seconds, default `0.5`. `sleep n` waits `n / tickDuration` ticks, so this also sets the sleep precision; it must be positive.
+
+- `ic10.runtime.maxInstructions`: maximum number of statements executed within one tick, default `128`.
+
+- `ic10.runtime.maxStackSize`: maximum stack capacity counted in double elements, default `512`.
+
+- `ic10.runtime.strictEvaluation`: strict evaluation, default `true`. When on, operands that cannot be evaluated (unassigned device fields, unknown macro constants, …) report a diagnostic; when off they take part as `0`, and the variables panel shows `0` for them as well.
+
+> [!NOTE]
+> These four are also `launch.json` entries, and the precedence is `launch.json` > workspace settings > runtime default — put a value in `launch.json` to override it once, or change the setting to keep it.
 
 > [!TIP]
 > Formatting can also be configured from a `.ic.json`, `.ic.yaml`, or `.ic.yml` file at the project root, instead of changing global settings.

@@ -26,7 +26,8 @@ import {
     DefineDirectiveHoverProvider,
     AliasDirectiveHoverProvider,
     InstructionHoverProvider,
-    LabelDefHoverProvider
+    LabelDefHoverProvider,
+    HintTagHoverProvider
 } from "./providers";
 
 
@@ -54,7 +55,9 @@ export class HoverHandler {
             new LabelDefHoverProvider(this.settingMgr),
             new AliasDirectiveHoverProvider(this.settingMgr),
             new DefineDirectiveHoverProvider(this.settingMgr),
-            new InstructionHoverProvider(this.settingMgr)
+            new InstructionHoverProvider(this.settingMgr),
+            // 必须排在伪指令之后：只有它们的悬停落空（光标在 `#:` 提示里）时才轮到标签
+            new HintTagHoverProvider()
         ];
     }
 
@@ -93,6 +96,7 @@ export class HoverHandler {
             symbols: cache.symbols,
             types: cache.types,
             statements: cache.ast.statements,
+            tokens: cache.tokens,
             getLocale: () => locale.getLocale(),
             t: (key, ...args) => t(key, ...args)
         };

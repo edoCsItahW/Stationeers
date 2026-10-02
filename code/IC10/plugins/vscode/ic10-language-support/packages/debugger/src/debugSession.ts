@@ -39,12 +39,25 @@ import {
     Thread
 } from "@vscode/debugadapter";
 
-import { IC10Runtime, staticPort, type DeviceGroup } from "./runtime";
+import { IC10Runtime, staticPort, type DeviceGroup, type IRuntimeOptions } from "./runtime";
 import { t } from "./locals";
 
-interface IC10LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
+/**
+ * @summary launch 请求参数
+ *
+ * @summary Launch request arguments
+ *
+ * @desc `program` 与 `stopOnEntry` 之外的字段就是运行时配置（见 `@ic10/runtime` 的 `Config`）：
+ *       launch.json 里没写明的项由客户端用 `ic10.runtime.*` 设置补齐（见客户端的调试配置提供器），
+ *       两边都没给才落到运行时的默认值。
+ *
+ * @desc Besides `program` and `stopOnEntry` these are the runtime configuration options (see
+ *       `@ic10/runtime`'s `Config`): the client fills whatever launch.json leaves out from the
+ *       `ic10.runtime.*` settings (see the client's debug configuration provider), and the runtime's
+ *       default applies only when neither provides a value.
+ */
+interface IC10LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments, IRuntimeOptions {
     program: string;
-    stopOnEntry?: boolean;
 }
 
 /** 变量面板的引用载荷：作用域标签，或一个待展开的静态设备（及其分组） */
@@ -146,6 +159,10 @@ export class IC10DebugSession extends LoggingDebugSession {
 
     /**
      * launchRequest（启动模式）：调试器启动并运行一个新程序
+     *
+     * @desc launch 参数里与运行时配置同名的字段（`tickDuration` / `maxInstructions` /
+     *       `maxStackSize` / `strictEvaluation`，见 {@link RUNTIME_CONFIG_KEYS}）原样交给运行时；
+     *       未给出的项由客户端按 `ic10.runtime.*` 设置补齐，因此这里不再兜底。
      * */
     protected async launchRequest(response: DebugProtocol.LaunchResponse, args: IC10LaunchRequestArguments) {
         try {
@@ -163,7 +180,15 @@ export class IC10DebugSession extends LoggingDebugSession {
                 data: { uri: Uri.file(args.program).toString() }
             });
 
-            await this.runtime.start(data.data, args.program, args.stopOnEntry ?? false);
+            const options: IRuntimeOptions = {
+                stopOnEntry: args.stopOnEntry,
+                tickDuration: args.tickDuration,
+                maxInstructions: args.maxInstructions,
+                maxStackSize: args.maxStackSize,
+                strictEvaluation: args.strictEvaluation
+            };
+
+            await this.runtime.start(data.data, args.program, options);
 
             this.sendResponse(response);
         } catch (e) {
@@ -504,7 +529,8 @@ export class IC10DebugSession extends LoggingDebugSession {
     }
 
     /**
-     * 展开设备的一个分组：字段只有被赋过值才有值，未赋值的字段显示 `-`
+     * 展开设备的一个分组：字段只有被赋过值才有值，未赋值的字段按严格求值的口径显示
+     * （见 runtime 的 `getDeviceGroups`：注解默认值 / "无法求值" / 0），`-` 只留给无法定位的槽位
      * */
     private deviceGroupVariables({ port, typeName, group }: DeviceGroupRef): DebugProtocol.Variable[] {
         const view = this.runtime.getDeviceGroups(port, typeName).find(item => item.group === group);

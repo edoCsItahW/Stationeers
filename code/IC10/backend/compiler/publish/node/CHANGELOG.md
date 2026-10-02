@@ -78,7 +78,7 @@
 
 ## 2026/10/02
 
-- [3.2.2]: New `@default` tag in a `#:` type hint: `@default category field value` declares a device member's default (categories are `logic` / `logic-slot` / `slot`), while `@default value` declares a register's default. The value may be a literal or a constant identifier; declaring the same field of the same category twice reports `IEP37_1` and an unknown category reports `IEP34_1`
-- [3.2.2]: Member lines of a `#>` device annotation (`@logic` / `@logic-slot` / `@slot`) accept a default appended at the end (`@logic Setting 12 1`); **omitting it means there is no default**, not that the default is 0
-- [3.2.2]: The syntax above is exposed to the language side: the type table and `types/parser/ast.d.ts` provide `TypeHintNode.defaults`, `TypeHintDefaultNode` (`category` / `name` / `value`) and `TypeAnnotationLineBaseNode.defaultValue`
-- [3.2.2]: Fix the process abort when `@default` has no value: the `Error` thrown while parsing the value crossed the `noexcept` boundary of the `TypeHint` parser; the diagnostic is now reported and that default is dropped
+- [3.2.0]: New `@default` tag in a `#:` type hint: `@default category field value` declares a device member's default (categories are `logic` / `logic-slot` / `slot`), while `@default value` declares a register's default. The value may be a literal or a constant identifier; declaring the same field of the same category twice reports `IEP37_1` and an unknown category reports `IEP34_1`
+- [3.2.0]: Member lines of a `#>` device annotation (`@logic` / `@logic-slot` / `@slot`) accept a default appended at the end (`@logic Setting 12 1`); **omitting it means there is no default**, not that the default is 0
+- [3.2.0]: The syntax above is exposed to the language side: the type table and `types/parser/ast.d.ts` provide `TypeHintNode.defaults`, `TypeHintDefaultNode` (`category` / `name` / `value`) and `TypeAnnotationLineBaseNode.defaultValue`
+- [3.2.0]: Fix the process abort when `@default` has no value: the `Error` thrown while parsing the value crossed the `noexcept` boundary of the `TypeHint` parser; the diagnostic is now reported and that default is dropped

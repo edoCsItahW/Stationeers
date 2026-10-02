@@ -22,6 +22,8 @@ import {
     AliasDirectiveNode,
     DynamicDeviceNode,
     StaticDeviceNode,
+    DeviceAnnotation,
+    EnumAnnotation,
     IdentifierNode,
     HashMacroNode,
     TypeCategory,
@@ -143,6 +145,21 @@ export const TOKEN_TYPES = Object.keys(TokenLegend).filter(k => isNaN(Number(k))
  * LSP semantic tokens modifier legend. Numeric keys are filtered out, leaving only enum member names.
  * */
 export const TOKEN_MODIFIERS = Object.keys(TokenModifier).filter(k => isNaN(Number(k)));
+
+/**
+ * @summary 块注解里名字代表"声明的成员"的标签
+ *
+ * @summary Annotation tags whose following name declares a member
+ *
+ * @desc 这些标签后面的标识符是注解**声明出来的成员**（`@logic Setting 12` 的 `Setting`、
+ * `@slot Slot0 0` 的 `Slot0`、枚举注解 `@value Green 2` 的 `Green`），按成员着色。
+ *
+ * @desc The identifier following these tags is a member **declared** by the annotation (the
+ * `Setting` of `@logic Setting 12`, the `Slot0` of `@slot Slot0 0`, the `Green` of an enum
+ * annotation's `@value Green 2`), and is colored as a member.
+ * */
+const ANNOTATION_MEMBER_TAGS = new Set(["@logic", "@logic-slot", "@slot", "@value"]);
+
 
 interface SemanticToken {
     /**
@@ -502,6 +519,117 @@ export class SemanticTokenHandler {
 
     private visitError(error: ErrorNode, context: HandlerContext): SemanticToken[] {
         return this.handleError(error, context);
+    }
+
+    /**
+     * @summary 设备块注解（`#>`）的分段着色
+     *
+     * @summary Per-segment coloring of a device annotation block (`#>`)
+     *
+     * @desc 设备块是一段多行语句（`#> @device` … `#> @end-device`），逐段着色见
+     * {@link handleAnnotationLines}。
+     *
+     * @desc A device block is a single multi-line statement (`#> @device` … `#> @end-device`); see
+     * {@link handleAnnotationLines} for the per-segment mapping.
+     * */
+    private visitDeviceAnnotation(annotation: DeviceAnnotation, context: HandlerContext): SemanticToken[] {
+        return this.handleAnnotationLines(annotation.position.line, annotation.end.line, context);
+    }
+
+    /**
+     * @summary 枚举块注解（`#>`）的分段着色
+     *
+     * @summary Per-segment coloring of an enum annotation block (`#>`)
+     *
+     * @desc 枚举块与设备块共用同一套标签行写法，故复用 {@link handleAnnotationLines}。
+     *
+     * @desc An enum block uses the same tag lines as a device block, so it reuses
+     * {@link handleAnnotationLines}.
+     * */
+    private visitEnumAnnotation(annotation: EnumAnnotation, context: HandlerContext): SemanticToken[] {
+        return this.handleAnnotationLines(annotation.position.line, annotation.end.line, context);
+    }
+
+    /**
+     * @summary 块注解标签行的分段着色
+     *
+     * @summary Per-segment coloring of the tag lines of an annotation block
+     *
+     * @desc `#>` 块由多行标签行组成（`#> @logic Setting 12 1`），与 {@link handleTypeHint} 共用
+     * 同一套按词法 token 的分段映射：`#>` 前缀 → Decorator，`@标签` → AnnotationTag，
+     * `@name` 后的类型名 → Enum，成员名（`@logic Setting 12` 的 `Setting`、`@value Green 2` 的
+     * `Green`）→ EnumMember，编号/序号/默认值/哈希 → Number，描述串 → String。
+     * 未映射的片段（如 `@desc` 的链接写法）不着色，交给语法着色。
+     *
+     * @desc A `#>` block is a sequence of tag lines (`#> @logic Setting 12 1`) and shares the
+     * per-lexical-token mapping of {@link handleTypeHint}: the `#>` prefix → Decorator, each `@tag` →
+     * AnnotationTag, the type name after `@name` → Enum, member names (the `Setting` of
+     * `@logic Setting 12`, the `Green` of `@value Green 2`) → EnumMember, indices/slot numbers/
+     * defaults/hashes → Number, and description strings → String. Unmapped segments (e.g. a `@desc`
+     * link) are left to the syntax grammar.
+     *
+     * @param firstLine 块的起始行（`#> @device` 所在行）
+     * @param firstLine The block's first line (the `#> @device` line)
+     * @param lastLine 块的结束行（`#> @end-device` 所在行）
+     * @param lastLine The block's last line (the `#> @end-device` line)
+     * @param context 处理器上下文（其中 `tokens` 为该文档的词法 token）
+     * @param context Handler context (`tokens` holds the document's lexical tokens)
+     *
+     * @returns 各标签行片段对应的语义 token
+     * @returns The semantic tokens for the tag lines' segments
+     * */
+    private handleAnnotationLines(firstLine: number, lastLine: number, context: HandlerContext): SemanticToken[] {
+        const result: SemanticToken[] = [];
+
+        /** 最近一个标签的写法：决定后面的取值怎么着色 */
+        let tag: Optional<string>;
+
+        const emit = (pos: Position, length: number, type: TokenLegend) => {
+            const gap = this.getGap(context, pos);
+
+            result.push({ line: gap.line, start: gap.column, length, type, modifier: 0 });
+        };
+
+        for (const token of context.tokens) {
+            const line = token.pos.line;
+
+            if (line < firstLine) continue;
+
+            // 块注解不跨块：越过结束行即结束
+            if (line > lastLine) break;
+
+            switch (token.type) {
+                // `#>` 前缀是注解标记本身
+                case TokenType.TYPE_ANNOTATION_PREFIX:
+                case TokenType.TYPE_HINT_PREFIX:
+                    emit(token.pos, token.lexeme.length, TokenLegend.Decorator);
+                    break;
+                // 每个 `@标签` 单独取色（主题里的 AnnotationTag）
+                case TokenType.TAG:
+                    tag = token.lexeme;
+                    emit(token.pos, token.lexeme.length, TokenLegend.AnnotationTag);
+                    break;
+                case TokenType.IDENTIFIER:
+                    // `@name Sensor` 声明的是型号/枚举名；成员行的名字是声明出来的成员（`Setting`、`Slot0`）
+                    if (tag === "@name") emit(token.pos, token.lexeme.length, TokenLegend.Enum);
+                    else if (tag && ANNOTATION_MEMBER_TAGS.has(tag))
+                        emit(token.pos, token.lexeme.length, TokenLegend.EnumMember);
+                    break;
+                // 属性编号、槽位序号、默认值、哈希
+                case TokenType.INTEGER:
+                case TokenType.FLOAT:
+                case TokenType.HEX_NUMBER:
+                case TokenType.BINARY_NUMBER:
+                    emit(token.pos, token.lexeme.length, TokenLegend.Number);
+                    break;
+                // 描述文本
+                case TokenType.STRING:
+                    emit(token.pos, token.lexeme.length, TokenLegend.String);
+                    break;
+            }
+        }
+
+        return result;
     }
 
     private handleError(error: ErrorNode, context: HandlerContext): SemanticToken[] {

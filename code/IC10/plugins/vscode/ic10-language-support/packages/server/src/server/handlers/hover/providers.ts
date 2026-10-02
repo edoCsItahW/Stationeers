@@ -32,18 +32,28 @@ import {
     OperandType,
     StringNode,
     TypeOfNode,
+    TokenType,
     ErrorNode,
     Statement,
     BasicType,
     Operand
 } from "@ic10/compiler";
 
-import { AST, DescriptionSolver, EnumKeyMap, locateOperand, operandToString, operandValueLength } from "../../../utils";
 import { formatBasicType, formatType, isInsideNode } from "./utils";
 import type { HoverContext, IHoverProvider } from "./types";
 import svgBuilder from "../../../utils/svgBuilder";
 import { SettingsManager } from "../../services";
 import { s } from "../../../style";
+import {
+    operandValueLength,
+    DescriptionSolver,
+    operandToString,
+    locateOperand,
+    TypeHintTags,
+    EnumKeyMap,
+    AST,
+    end
+} from "../../../utils";
 
 type HoverRendererKey = SettingsManager["hoverRenderer"];
 
@@ -628,6 +638,55 @@ export class InstructionHoverProvider extends HoverOperand {
             contents: {
                 kind: "markdown",
                 value: this.renderer() + descPart + valuePart
+            }
+        };
+    }
+}
+
+// ==================== HintTag Provider ====================
+
+/**
+ * @summary 类型提示标签悬停提供器 — 为 `#:` 提示里的 `@标签` 生成说明
+ *
+ * @summary Type-hint tag hover provider — documents the `@tags` of a `#:` hint
+ *
+ * @desc 提示里的每个标签（`@type` / `@desc` / `@builtin` / `@default`）都只由词法 token 承载，
+ * AST 上只有位置而没有标签名，因此按光标所在列在 token 里定位标签；命中受支持的标签时显示它的
+ * 用法说明。其余位置返回 null，交回语句自己的悬停提供器。
+ *
+ * @desc Every tag of a hint (`@type` / `@desc` / `@builtin` / `@default`) exists only as a lexical
+ * token: the AST carries positions but no tag names, so the tag under the cursor is located among the
+ * tokens and, when it is a supported tag, its usage is shown. Any other position returns null so the
+ * statement's own hover provider takes over.
+ * */
+export class HintTagHoverProvider implements IHoverProvider {
+    canHandle(node: Statement): boolean {
+        return (AST.isAliasDirective(node) || AST.isDefineDirective(node)) && !!node.typeHint;
+    }
+
+    provideHover(node: Statement, ctx: HoverContext): Nullable<Hover> {
+        const hint = (node as AliasDirectiveNode | DefineDirectiveNode).typeHint;
+
+        if (!hint) return null;
+
+        const token = ctx.tokens?.find(
+            t =>
+                t.pos.line === ctx.line &&
+                t.type === TokenType.TAG &&
+                t.pos.column >= hint.position.column &&
+                t.pos.column <= ctx.character &&
+                ctx.character <= end(t).column
+        );
+
+        if (!token) return null;
+
+        // 提示只认这四个标签（`#>` 块注解是另一套，不在这里）
+        if (!(TypeHintTags as readonly string[]).includes(token.lexeme)) return null;
+
+        return {
+            contents: {
+                kind: "markdown",
+                value: `**${token.lexeme}** — ${ctx.t(`hover.hintTag.${token.lexeme.slice(1)}` as any)}`
             }
         };
     }

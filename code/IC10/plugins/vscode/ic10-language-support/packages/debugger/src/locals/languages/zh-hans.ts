@@ -25,5 +25,8 @@ export default {
         critical: "严重错误",
         step: "逐过程调试",
         breakpoint: "命中断点"
+    },
+    device: {
+        cannotEvaluate: "无法求值"
     }
 };

@@ -14,11 +14,21 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import type { AstResponseEventData, Optional } from "@ic10/common";
-import { Lexer, OperandType, Parser, Linker, SymbolMap, type Program, type TypeTableMap } from "@ic10/compiler";
-import { Engine, MemoryInfo } from "@ic10/runtime";
+import { Engine, MemoryInfo, type Config } from "@ic10/runtime";
 import { EventEmitter } from "node:events";
 import { readFileSync } from "node:fs";
 import { t } from "./locals";
+import {
+    type TypeHintDefaultNode,
+    type DeviceAnnotation,
+    type TypeTableMap,
+    type Program,
+    OperandType,
+    SymbolMap,
+    Parser,
+    Linker,
+    Lexer,
+} from "@ic10/compiler";
 
 import type { IC10RuntimeEvents } from "./types";
 
@@ -31,6 +41,36 @@ export interface IRuntimeBreakpoint {
     line: number;
     address: number;
     verified: boolean;
+}
+
+/**
+ * @summary 运行时配置项的名字
+ *
+ * @summary Names of the runtime configuration options
+ *
+ * @desc 与 `@ic10/runtime` 的 `Config` 同名的那些 launch 参数（见 {@link IRuntimeOptions}）。客户端
+ *       按这份清单把 `ic10.runtime.*` 设置补进未在 launch.json 里写明的字段，因此两边的名字必须一致。
+ *
+ * @desc The launch arguments named after `@ic10/runtime`'s `Config` (see {@link IRuntimeOptions}). The
+ *       client fills the ones missing from launch.json with the `ic10.runtime.*` settings through this
+ *       list, so both sides must agree on the names.
+ */
+export const RUNTIME_CONFIG_KEYS = ["tickDuration", "maxInstructions", "maxStackSize", "strictEvaluation"] as const;
+
+/**
+ * @summary 调试会话的启动选项
+ *
+ * @summary Options of a debug session
+ *
+ * @desc 除暂停点外都是 `Config` 的子集：未给出的项由运行时取默认值，变量面板的显示口径见
+ *       {@link IC10Runtime.strictEvaluation}。
+ *
+ * @desc Apart from the entry pause these are a subset of `Config`: anything left out keeps the
+ *       runtime's default, and the variables panel follows {@link IC10Runtime.strictEvaluation}.
+ */
+export interface IRuntimeOptions extends Partial<Config> {
+    /** @summary 是否在入口点暂停 / @summary Whether to pause at the entry point */
+    stopOnEntry?: boolean;
 }
 
 /** 设备成员分组：与 `#>` 设备块里的注解标签一一对应 */
@@ -55,6 +95,16 @@ interface DeviceUsage {
     /** 槽位逻辑属性：属性名 → 同一条语句里的槽位序号（序号无法静态确定时为 undefined） */
     logicSlots: Map<string, Optional<number>>;
 }
+
+/**
+ * 类型提示里的默认值项：`@default 分组 字段 值`（设备成员）或 `@default 值`（寄存器）
+ *
+ * @desc 与注解侧的 `DeviceAnnotationLogic` 不同：提示里 `value` 就是默认值，`category` 是分组。
+ */
+type HintedDefault = TypeHintDefaultNode;
+
+/** 设备注解声明的成员行（`logics` / `logicSlots` / `slots` 三个列表的元素类型一致） */
+type AnnotatedMember = DeviceAnnotation["logics"][number];
 
 /** 虚拟设备堆栈的长度（见 runtime core 的 device.cpp：`stack_(512, 0.0)`；越界读会读到相邻内存） */
 const DEVICE_STACK_SIZE = 512;
@@ -128,8 +178,19 @@ export class IC10Runtime extends EventEmitter<IC10RuntimeEvents> {
     /** 各设备端口上被程序引用过的成员，start() 时从 AST 收集 */
     private usage: Map<string, DeviceUsage> = new Map();
 
+    /** 各设备端口上按类型提示覆写的成员默认值（端口 → 字段名 → 取值），start() 时从 AST 收集 */
+    private hintDefaults: Map<string, Map<string, string>> = new Map();
+
     /** 逻辑属性名的全集（类型表里的 `LogicType` 枚举），用于探测端口上被赋过值的属性 */
     private logicTypeNames: string[] = [];
+
+    /**
+     * 严格求值：无法求值的操作数上报诊断（见 runtime core 的 `Config.strictEvaluation`）
+     *
+     * @desc 关闭时操作数按 0 参与运算。变量面板的显示随之切换：严格模式把没有值的字段标为
+     *       "无法求值"，宽松模式按 0 显示。
+     */
+    private strictEvaluation = true;
 
     private static breakpointId = 1;
 
@@ -162,9 +223,18 @@ export class IC10Runtime extends EventEmitter<IC10RuntimeEvents> {
     /**
      * 使用 source 在 debugger 进程内本地重新 Lexer→Parser→Analyser→Engine，
      * 避免跨 JSON-RPC 进程传递 C++ 包装对象 (Program/SymbolTable)
+     *
+     * @param data 语言服务返回的 AST 事件数据（含源码）
+     * @param programPath 程序路径
+     * @param options 启动选项：是否在入口点暂停，以及运行时配置（未给出的项取运行时默认值）
      */
-    async start(data: AstResponseEventData["data"], programPath: string, stopOnEntry: boolean) {
+    async start(data: AstResponseEventData["data"], programPath: string, options: IRuntimeOptions = {}) {
         this.programPath = programPath;
+
+        const { stopOnEntry = false, ...config } = options;
+
+        // 变量面板的显示口径跟着严格求值走（见 IC10Runtime.strictEvaluation）
+        this.strictEvaluation = config.strictEvaluation ?? true;
 
         if (!data || !data.source) throw new Error("No source available from language server");
 
@@ -179,8 +249,10 @@ export class IC10Runtime extends EventEmitter<IC10RuntimeEvents> {
 
         this.indexUsage(parseResult.ast);
 
+        this.indexHintDefaults(parseResult.ast);
+
         // 枚举常量操作数（如 `s d0 Color Color.Green`）的求值依赖类型表
-        this.engine = new Engine(parseResult.ast, parseResult.symbolTable, undefined, parseResult.typeTable);
+        this.engine = new Engine(parseResult.ast, parseResult.symbolTable, config, parseResult.typeTable);
 
         // 端口默认没有设备（见 runtime 的 manager.d.ts），注册后调试器才读得到程序写入的逻辑属性与设备堆栈。
         // 副作用：按类型哈希查找（`lb`、`sbn` 等）会连同这些端口一起命中。
@@ -334,7 +406,8 @@ export class IC10Runtime extends EventEmitter<IC10RuntimeEvents> {
      *
      * @desc 每个分组看作设备的一个子对象：字段范围来自型号注解，没有注解时就只有被赋过值的字段。
      *       字段**只有被赋过值才有值**——设备默认值不一定是 0，用 0 冒充会把"从未赋值"与
-     *       "赋值为 0"混为一谈。
+     *       "赋值为 0"混为一谈，因此没赋值的字段按"提示覆写 → 注解默认值 → 严格求值的口径"依次取
+     *       显示值（见 {@link IC10Runtime.strictEvaluation}）：严格模式标为"无法求值"，宽松模式按 0 显示。
      */
     getDeviceGroups(port: string, typeName?: string): DeviceGroupView[] {
         const device = this.engine?.context.manager.getDevice(port);
@@ -346,14 +419,50 @@ export class IC10Runtime extends EventEmitter<IC10RuntimeEvents> {
         const slots = new Map<string, DeviceField>();
         const hashes = new Map<string, DeviceField>();
 
-        // 1) 型号注解给出的字段范围（先占位，值稍后按运行期状态补）
-        annotation?.logics.forEach(({ name }) => logics.set(name, { name }));
-        annotation?.logicSlots.forEach(({ name }) => slotLogics.set(name, { name }));
-        annotation?.slots.forEach(({ name }) => slots.set(name, { name }));
+        /** 没被赋过值、注解也没声明默认值时的显示值：严格求值下是"无法求值"，否则按 0 */
+        const fallback = this.strictEvaluation ? t("device.cannotEvaluate") : "0";
 
-        // 2) 运行期被赋过值的逻辑属性：注解只是范围，值只认赋过值的
-        for (const name of this.logicTypeNames)
+        // 1) 型号注解给出的字段范围（先按提示覆写、注解声明的默认值，值稍后按运行期状态补）
+        const declared = (line: AnnotatedMember): DeviceField => ({
+            name: line.name,
+            value: this.hintDefaults.get(port)?.get(line.name) ?? line.defaultValue ?? fallback
+        });
+
+        (annotation?.logics as Optional<AnnotatedMember[]>)?.forEach(line =>
+            logics.set(line.name, declared(line))
+        );
+
+        (annotation?.logicSlots as Optional<AnnotatedMember[]>)?.forEach(line =>
+            slotLogics.set(line.name, declared(line))
+        );
+
+        (annotation?.slots as Optional<AnnotatedMember[]>)?.forEach(line =>
+            slots.set(line.name, declared(line))
+        );
+
+        // 2) 运行期被赋过值的逻辑属性：注解只是范围，值只认**赋过值**的
+        //
+        // "赋过值"优先用设备的 `snapshot()`（`assigned`）判定：设备声明的默认值（注解里的、或提示
+        // 覆写过的）也会让 `canReadLogic` 为真，但它并不是程序写进去的值——照搬会把提示覆写的默认值
+        // 顶回注解里的那个。没有内省能力的宿主设备（snapshot 为空）退化为 `canReadLogic`。
+        const members = device?.snapshot() ?? [];
+
+        const written = new Map(
+            members.filter(member => member.assigned).map(member => [member.name, member.value])
+        );
+
+        for (const name of this.logicTypeNames) {
+            if (members.length) {
+                const value = written.get(name);
+
+                // 赋值为 0 也是值，故只判 `assigned`，不看取值
+                if (value != null) logics.set(name, { name, value: value.toString() });
+
+                continue;
+            }
+
             if (device?.canReadLogic(name)) logics.set(name, { name, value: device.readLogic(name).toString() });
+        }
 
         // 3) 程序引用过的槽位属性：属性名读不出值，槽位序号只能从同一条语句里拿
         usage?.logicSlots.forEach((index, prop) => {
@@ -368,9 +477,9 @@ export class IC10Runtime extends EventEmitter<IC10RuntimeEvents> {
 
             if (value === undefined || value === 0) continue;
 
-            const declared = annotation?.slots.find(slot => Number(slot.value) === index)?.name ?? `[${index}]`;
+            const slotName = annotation?.slots.find(slot => Number(slot.value) === index)?.name ?? `[${index}]`;
 
-            slots.set(declared, { name: declared, value: value.toString() });
+            slots.set(slotName, { name: slotName, value: value.toString() });
         }
 
         // 5) 注解声明的哈希是型号常量，恒有值
@@ -431,6 +540,37 @@ export class IC10Runtime extends EventEmitter<IC10RuntimeEvents> {
             usage.logicSlots.set(slotProp, slotIndex);
 
             this.usage.set(port, usage);
+        }
+    }
+
+    /**
+     * 收集类型提示声明的设备成员默认值
+     *
+     * @desc `alias sensor d0 #: @type Sensor @default logic Setting 3`：提示覆写的是**该端口**设备上
+     *       对应成员的默认值，所以先按别名指向的端口归位（端口文本在符号表里，与 {@link indexUsage}
+     *       一致：别名自身不是端口名）。
+     *       寄存器形式的提示（`@default 5`，没有字段名）不在这里收集：寄存器初值由运行时播种。
+     */
+    private indexHintDefaults(program: Program) {
+        this.hintDefaults.clear();
+
+        for (const statement of program.statements as unknown as Record<string, unknown>[]) {
+            const defaults = (statement.typeHint as Optional<{ defaults?: HintedDefault[] }>)?.defaults;
+
+            if (!defaults?.length) continue;
+
+            const alias = (statement.identifier as Optional<OperandNode>)?.value;
+
+            const port =
+                typeof alias === "string" ? staticPort(alias, this.symbols?.symbols[alias]?.value) : undefined;
+
+            if (!port) continue;
+
+            const fields = this.hintDefaults.get(port) ?? new Map<string, string>();
+
+            for (const entry of defaults) if (entry.name) fields.set(entry.name, entry.value);
+
+            this.hintDefaults.set(port, fields);
         }
     }
 

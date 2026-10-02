@@ -25,5 +25,8 @@ export default {
         critical: "Critical error",
         step: "Step",
         breakpoint: "Breakpoint hit"
+    },
+    device: {
+        cannotEvaluate: "Unable to evaluate"
     }
 };

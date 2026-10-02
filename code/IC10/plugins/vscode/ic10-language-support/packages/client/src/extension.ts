@@ -7,15 +7,18 @@
  * permission, please contact the author: edocsitahw@qq.com
  */
 
+import { IC10DebugSession, locale as debuggerLocale, RUNTIME_CONFIG_KEYS } from "@ic10/debugger";
 import { LanguageClient, TransportKind, ServerOptions } from "vscode-languageclient/node";
 import { DebugAdapterDescriptor, DebugAdapterInlineImplementation } from "vscode";
 import { LanguageClientOptions } from "vscode-languageclient";
-import { IC10DebugSession, locale as debuggerLocale } from "@ic10/debugger";
 import * as path from "path";
 import {
     DebugAdapterDescriptorFactory,
+    DebugConfigurationProvider,
     DebugAdapterExecutable,
+    DebugConfiguration,
     ExtensionContext,
+    WorkspaceFolder,
     ProviderResult,
     DebugSession,
     workspace,
@@ -33,6 +36,7 @@ import {
     Optional,
     Transfer
 } from "@ic10/common";
+
 import { applyLanguage, t } from "./locals";
 
 
@@ -166,6 +170,8 @@ export async function activate(context: ExtensionContext) {
 
     registerCompletionScopes(context);
 
+    registerRuntimeConfiguration(context);
+
     const factor: DebugAdapterDescriptorFactory = {
         createDebugAdapterDescriptor: (
             session: DebugSession,
@@ -195,6 +201,37 @@ function applyLanguages() {
     const language = applyLanguage();
 
     if (language) debuggerLocale.setLocale(language);
+}
+
+/**
+ * @summary 注册运行时配置提供器：把 `ic10.runtime.*` 设置补进 launch 配置
+ *
+ * @summary Register the runtime configuration provider: fill the launch config from `ic10.runtime.*`
+ *
+ * @desc 运行时配置（每 tick 时长、每 tick 指令数、栈容量、严格求值，见 `@ic10/runtime` 的 `Config`）
+ *       同时是工作区设置与 launch.json 的一项。这里只在 launch.json **没有写明**该项时才用设置补齐，
+ *       因此优先级是 launch.json > 工作区设置 > 运行时默认值，且每次启动调试都会重新读取设置。
+ *
+ * @desc The runtime configuration (tick duration, instructions per tick, stack size, strict evaluation;
+ *       see `@ic10/runtime`'s `Config`) exists both as a workspace setting and as a launch.json entry.
+ *       A value is taken from the settings only when launch.json leaves it out, so the precedence is
+ *       launch.json > workspace settings > runtime default, and the settings are re-read on every launch.
+ * */
+function registerRuntimeConfiguration(context: ExtensionContext) {
+    const provider: DebugConfigurationProvider = {
+        resolveDebugConfiguration(
+            _folder: Optional<WorkspaceFolder>,
+            config: DebugConfiguration
+        ): ProviderResult<DebugConfiguration> {
+            const settings = workspace.getConfiguration(`${CONFIGURATION_SECTION_NAME}.runtime`);
+
+            for (const key of RUNTIME_CONFIG_KEYS) config[key] ??= settings.get(key);
+
+            return config;
+        }
+    };
+
+    context.subscriptions.push(debug.registerDebugConfigurationProvider("ic10", provider));
 }
 
 /**

@@ -71,6 +71,12 @@ export default {
             slotIdx: "SlotIdx",
             pin: "Pin",
             enum: "Enum"
+        },
+        hintTag: {
+            type: "`@type Name`: declares the device/enum type the alias points at",
+            desc: "`@desc \"text\"`: adds a description to the alias/constant (shown in hover and completion)",
+            builtin: "`@builtin`: marks the alias as a built-in symbol",
+            default: "`@default category field value`: a device member's default (a register writes `@default value`)"
         }
     },
     completion: {
@@ -85,6 +91,13 @@ export default {
         direction: {
             input: "Input",
             output: "Output"
+        },
+        hint: {
+            category: {
+                logic: "Logic property",
+                "logic-slot": "Slot logic property",
+                slot: "Slot"
+            }
         }
     },
     formatting: {
