@@ -13,8 +13,8 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { DebugProtocol } from "@vscode/debugprotocol";
 import { BasicType, TypeCategory } from "@ic10/compiler";
+import { DebugProtocol } from "@vscode/debugprotocol";
 import { getEnumName, Transfer } from "@ic10/common";
 import { Uri } from "vscode";
 import {
@@ -39,15 +39,45 @@ import {
     Thread
 } from "@vscode/debugadapter";
 
-import { IC10Runtime } from "./runtime";
+import { IC10Runtime, staticPort, type DeviceGroup, type IRuntimeOptions } from "./runtime";
 import { t } from "./locals";
 
-
-interface IC10LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
+/**
+ * @summary launch 请求参数
+ *
+ * @summary Launch request arguments
+ *
+ * @desc `program` 与 `stopOnEntry` 之外的字段就是运行时配置（见 `@ic10/runtime` 的 `Config`）：
+ *       launch.json 里没写明的项由客户端用 `ic10.runtime.*` 设置补齐（见客户端的调试配置提供器），
+ *       两边都没给才落到运行时的默认值。
+ *
+ * @desc Besides `program` and `stopOnEntry` these are the runtime configuration options (see
+ *       `@ic10/runtime`'s `Config`): the client fills whatever launch.json leaves out from the
+ *       `ic10.runtime.*` settings (see the client's debug configuration provider), and the runtime's
+ *       default applies only when neither provides a value.
+ */
+interface IC10LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments, IRuntimeOptions {
     program: string;
-    stopOnEntry?: boolean;
 }
 
+/** 变量面板的引用载荷：作用域标签，或一个待展开的静态设备（及其分组） */
+type VariableRef = "registers" | "stack" | "variables" | "builtin" | DeviceRef | DeviceGroupRef;
+
+interface DeviceRef {
+    kind: "device";
+    /** 端口名：`d0`-`d5`（可带引脚）或 `db` */
+    port: string;
+    /** 声明类型名（来自 `#: @type` 提示），给出各分组字段的范围 */
+    typeName?: string;
+}
+
+interface DeviceGroupRef {
+    kind: "deviceGroup";
+    port: string;
+    typeName?: string;
+    /** 设备的分组（`logics` / `slotLogics` / `slots` / `hashes`） */
+    group: DeviceGroup;
+}
 
 const EVENT_MAP = {
     breakpoint: BreakpointEvent,
@@ -81,10 +111,9 @@ const EVENT_MAP = {
     thread: ThreadEvent
 } as const;
 
-
 export class IC10DebugSession extends LoggingDebugSession {
     private readonly runtime;
-    private variableHandles = new Handles<"registers" | "stack" | "variables">();
+    private variableHandles = new Handles<VariableRef>();
 
     private readonly configurationDonePromise: Promise<void>;
     private resolveConfigurationDone!: () => void;
@@ -130,6 +159,10 @@ export class IC10DebugSession extends LoggingDebugSession {
 
     /**
      * launchRequest（启动模式）：调试器启动并运行一个新程序
+     *
+     * @desc launch 参数里与运行时配置同名的字段（`tickDuration` / `maxInstructions` /
+     *       `maxStackSize` / `strictEvaluation`，见 {@link RUNTIME_CONFIG_KEYS}）原样交给运行时；
+     *       未给出的项由客户端按 `ic10.runtime.*` 设置补齐，因此这里不再兜底。
      * */
     protected async launchRequest(response: DebugProtocol.LaunchResponse, args: IC10LaunchRequestArguments) {
         try {
@@ -147,7 +180,15 @@ export class IC10DebugSession extends LoggingDebugSession {
                 data: { uri: Uri.file(args.program).toString() }
             });
 
-            await this.runtime.start(data.data, args.program, args.stopOnEntry ?? false);
+            const options: IRuntimeOptions = {
+                stopOnEntry: args.stopOnEntry,
+                tickDuration: args.tickDuration,
+                maxInstructions: args.maxInstructions,
+                maxStackSize: args.maxStackSize,
+                strictEvaluation: args.strictEvaluation
+            };
+
+            await this.runtime.start(data.data, args.program, options);
 
             this.sendResponse(response);
         } catch (e) {
@@ -360,6 +401,11 @@ export class IC10DebugSession extends LoggingDebugSession {
                     name: t("session.variable"),
                     variablesReference: this.variableHandles.create("variables"),
                     expensive: false
+                },
+                {
+                    name: t("session.builtin"),
+                    variablesReference: this.variableHandles.create("builtin"),
+                    expensive: false
                 }
             ]
         };
@@ -381,7 +427,20 @@ export class IC10DebugSession extends LoggingDebugSession {
 
         let variables: DebugProtocol.Variable[] = [];
 
-        switch (this.variableHandles.get(args.variablesReference)) {
+        const flag = this.variableHandles.get(args.variablesReference);
+
+        // 设备引用：展开该端口的最后一级（设备本身或其一个分组）
+        if (flag && typeof flag === "object") {
+            const variables = flag.kind === "device" ? this.deviceVariables(flag) : this.deviceGroupVariables(flag);
+
+            response.body = { variables };
+
+            this.sendResponse(response);
+
+            return;
+        }
+
+        switch (flag) {
             case "registers":
                 variables = this.runtime.getRegisters().map((r, i) => ({
                     name: r.name,
@@ -397,20 +456,91 @@ export class IC10DebugSession extends LoggingDebugSession {
                 }));
                 break;
             case "variables":
-                variables = this.runtime.getVariables().map(([name, symbol], i): DebugProtocol.Variable => ({
-                    name,
-                    value: symbol.value || "",
-                    variablesReference: 0,
-                    type:
-                        symbol.typeName ||
-                        `${getEnumName(TypeCategory, symbol.category)?.toLowerCase()}:${getEnumName(BasicType, symbol.type)?.toLowerCase()}`,
-                    presentationHint: { kind: "data" }
-                }));
+            case "builtin": {
+                const symbols = this.runtime.getVariables();
+
+                // 内建设备端口（`d0`-`d5`）在 `builtinSymbols` 里，标准库常量在 `symbols` 里以
+                // `#: @builtin` 标记，两者同属“内置”作用域
+                const entries =
+                    flag === "builtin"
+                        ? [
+                              ...Object.entries(symbols?.symbols ?? {}).filter(([, symbol]) => symbol.builtin),
+                              ...Object.entries(symbols?.builtinSymbols ?? {})
+                          ]
+                        : Object.entries(symbols?.symbols ?? {}).filter(([, symbol]) => !symbol.builtin);
+
+                variables = entries.map(([name, symbol]): DebugProtocol.Variable => {
+                    let value = symbol.value || "";
+                    let variablesReference = 0;
+
+                    if (symbol.type === BasicType.REGISTER) {
+                        const reg = this.runtime.getRegisters().find(r => r.name === value);
+                        if (reg) {
+                            name = `${name} : ${reg.name}`;
+                            value = reg.value.toString();
+                        }
+                    }
+
+                    // 设备：静态端口一律可展开（分组来自注解声明与程序引用，见 runtime.getDeviceGroups）
+                    if (symbol.type === BasicType.DEVICE) {
+                        const port = staticPort(name, symbol.value);
+
+                        if (port) {
+                            // 与寄存器别名一致，把端口缀在名字后，值的列留给类型
+                            name = port === name ? name : `${name} : ${port}`;
+                            value = symbol.typeName ?? "device";
+
+                            variablesReference = this.variableHandles.create({
+                                kind: "device",
+                                port,
+                                typeName: symbol.typeName
+                            });
+                        }
+                    }
+
+                    return {
+                        name,
+                        value,
+                        variablesReference,
+                        type:
+                            symbol.typeName ||
+                            `${getEnumName(TypeCategory, symbol.category)?.toLowerCase()}:${getEnumName(BasicType, symbol.type)?.toLowerCase()}`,
+                        presentationHint: { kind: "data" }
+                    };
+                });
+            }
         }
 
         response.body = { variables };
 
         this.sendResponse(response);
+    }
+
+    /**
+     * 展开一个设备：其下是按类别分的分组（子对象），分组字段的范围来自型号注解
+     * */
+    private deviceVariables({ port, typeName }: DeviceRef): DebugProtocol.Variable[] {
+        return this.runtime.getDeviceGroups(port, typeName).map((view): DebugProtocol.Variable => ({
+            name: view.group,
+            value: "",
+            variablesReference: this.variableHandles.create({ kind: "deviceGroup", port, typeName, group: view.group }),
+            presentationHint: { kind: "data" }
+        }));
+    }
+
+    /**
+     * 展开设备的一个分组：字段只有被赋过值才有值，未赋值的字段按严格求值的口径显示
+     * （见 runtime 的 `getDeviceGroups`：注解默认值 / "无法求值" / 0），`-` 只留给无法定位的槽位
+     * */
+    private deviceGroupVariables({ port, typeName, group }: DeviceGroupRef): DebugProtocol.Variable[] {
+        const view = this.runtime.getDeviceGroups(port, typeName).find(item => item.group === group);
+
+        return (view?.fields ?? []).map((field): DebugProtocol.Variable => ({
+            name: field.name,
+            value: field.value ?? "-",
+            variablesReference: 0,
+            presentationHint: { kind: "property" }
+        }));
     }
 
     /**

@@ -540,6 +540,21 @@ export const EnumKeyMap = {
 } as const;
 
 /**
+ * @summary `#:` 类型提示可用的标签（补全与悬停共用）
+ *
+ * @summary The tags available inside a `#:` type hint (shared by completion and hover)
+ *
+ * @desc 与编译器 `TypeHint` 的各个单元一一对应：`@type` 型号、`@desc` 描述、`@builtin` 内置标记、
+ * `@default` 默认值。`#>` 块注解是另一套标签（`@device` / `@logic` / …），且**不接受** `@default`。
+ *
+ * @desc One entry per unit of the compiler's `TypeHint`: `@type` (type), `@desc` (description),
+ * `@builtin` (built-in marker) and `@default` (default). A `#>` annotation block uses another tag
+ * set (`@device` / `@logic` / …) and does **not** accept `@default`.
+ * */
+export const TypeHintTags = ["@type", "@desc", "@builtin", "@default"] as const;
+
+
+/**
  * @summary 寻找所在列附近范围内的token
  *
  * @desc column位于单词中间则curr为该单词在tokens的索引，否则为-1表示没有，prev总是为curr之前的单词索引，无论curr是否命中单词

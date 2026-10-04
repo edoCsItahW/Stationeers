@@ -17,12 +17,16 @@ export default {
     session: {
         register: "寄存器",
         stack: "栈",
-        variable: "变量"
+        variable: "变量",
+        builtin: "内置"
     },
     runtime: {
         entry: "启用入口点暂停",
         critical: "严重错误",
         step: "逐过程调试",
         breakpoint: "命中断点"
+    },
+    device: {
+        cannotEvaluate: "无法求值"
     }
 };

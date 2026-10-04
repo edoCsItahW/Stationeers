@@ -14,7 +14,19 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 export default {
+    session: {
+        register: "Registers",
+        stack: "Stack",
+        variable: "Variables",
+        builtin: "Built-in"
+    },
     runtime: {
-
+        entry: "Paused on entry",
+        critical: "Critical error",
+        step: "Step",
+        breakpoint: "Breakpoint hit"
+    },
+    device: {
+        cannotEvaluate: "Unable to evaluate"
     }
 };

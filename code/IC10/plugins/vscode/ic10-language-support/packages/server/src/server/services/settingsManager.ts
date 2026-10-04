@@ -78,6 +78,10 @@ export interface Settings {
     format: FormatSettings;
     /** 悬停渲染类型 */
     hoverRenderer: "svg" | "markdown";
+    /** 悬停卡片的内容区最大宽度（px，仅 SVG 渲染器使用） */
+    hover: {
+        maxWidth: number;
+    };
 }
 
 type OnInitializeHandlerType = Parameters<Connection["onInitialize"]>[0];
@@ -97,7 +101,10 @@ const DEFAULT_SETTINGS: Settings = {
         alignConsecutiveStatements: true,
         alignTrailingComments: true
     },
-    hoverRenderer: "svg"
+    hoverRenderer: "svg",
+    hover: {
+        maxWidth: 560
+    }
 };
 
 /**
@@ -154,6 +161,23 @@ export class SettingsManager {
 
     set hoverRenderer(value) {
         this.settings.hoverRenderer = value;
+    }
+
+    /**
+     * @summary 悬停卡片的内容区最大宽度（px）
+     *
+     * @summary Maximum content width of a hover card in pixels
+     *
+     * @desc 只对 SVG 渲染器有意义：超过该宽度的行会换行。设置缺失或非法时退回默认值，避免"设置写坏了
+     * 就渲染不出悬停"。
+     *
+     * @desc Only meaningful for the SVG renderer: a wider line wraps. A missing or invalid setting
+     * falls back to the default, so a broken value cannot make hovers unrenderable.
+     * */
+    get hoverMaxWidth() {
+        const width = this.settings.hover?.maxWidth;
+
+        return typeof width === "number" && width > 0 ? width : DEFAULT_SETTINGS.hover.maxWidth;
     }
 
     /**

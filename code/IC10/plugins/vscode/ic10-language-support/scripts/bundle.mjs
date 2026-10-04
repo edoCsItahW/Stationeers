@@ -26,7 +26,7 @@
  * - `@ic10/compiler`：包主入口是原生模块 `src/ic10c-node.node`，且 `src/stdLib.ic` 在运行时
  *   通过 `require.resolve` 读取，必须保持真实文件 / native main entry plus a runtime
  *   `require.resolve` of `src/stdLib.ic`
- * - `ic10r-node`：原生模块 / native addon
+ * - `@ic10/runtime`：原生模块（`src/ic10r-node.node`）/ native addon (`src/ic10r-node.node`)
  *
  * 用法 / Usage:
  *   node scripts/bundle.mjs            一次性构建 / one-shot build
@@ -44,14 +44,24 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
  * 必须保持 external、随 VSIX 一起发布的运行时依赖 @type {string[]}
  *
  * - `@ic10/compiler`：包主入口就是原生模块 `src/ic10c-node.node`，且 `src/stdLib.ic`
- *   在运行时经 `require.resolve` 读取
- * - `ic10r-node`：原生模块
+ *   在运行时经 `require.resolve` 读取（服务端与调试器都用）
+ * - `@ic10/runtime`：原生模块 `src/ic10r-node.node`，调试器用它驱动 IC10 运行时、服务端
+ *   hover 用它计算 `HASH`/`STR`
  * - `@ic10/metadata`：`astHelper.ts` 的 `DescriptionSolver.link()` 用拼接出来的 specifier
  *   （如 `@ic10/metadata/locals/enums`）做动态 `require`，esbuild 无法静态解析，只能原样保留。
  *   因此它必须同时是**根** package.json 的依赖（vsce 只收集根依赖，这样它才会随 VSIX 发布），
  *   且根上的版本规格需与 packages/server 一致，见 assertMetadataVersionMatches()。
+ *
+ * 原生模块一旦被内联，esbuild 会因为无法为 `.node` 配置 loader 而直接报错；反过来若漏了 external，
+ * 运行时会以 MODULE_NOT_FOUND 静默失败。两侧都要靠这份清单，新增原生依赖时务必同步更新。
  * */
-const externalRuntime = ["@ic10/compiler", "@ic10/compiler/*", "ic10r-node", "@ic10/metadata", "@ic10/metadata/*"];
+const externalRuntime = [
+    "@ic10/compiler",
+    "@ic10/compiler/*",
+    "@ic10/runtime",
+    "@ic10/metadata",
+    "@ic10/metadata/*"
+];
 
 /**
  * 必须随 VSIX 一起发布的运行时外部依赖。
@@ -69,16 +79,17 @@ const externalRuntime = ["@ic10/compiler", "@ic10/compiler/*", "ic10r-node", "@i
 const requiredRuntimeFiles = [
     { name: "@ic10/compiler", file: join(root, "node_modules", "@ic10", "compiler", "src", "ic10c-node.node") },
     { name: "@ic10/metadata", file: join(root, "node_modules", "@ic10", "metadata", "dist", "locals", "enums.js") },
-    { name: "ic10r-node", file: join(root, "node_modules", "ic10r-node", "src", "ic10r-node.node") }
+    { name: "@ic10/runtime", file: join(root, "node_modules", "@ic10", "runtime", "src", "ic10r-node.node") }
 ];
 
 /** 打包目标 @type {{name: string, entry: string, outfile: string, external: string[]}[]} */
 const targets = [
     {
+        // 客户端内联了 @ic10/debugger（调试适配器），因此同样需要那些原生/元数据 external
         name: "client",
         entry: join(root, "packages", "client", "src", "extension.ts"),
         outfile: join(root, "packages", "client", "dist", "extension.js"),
-        external: ["vscode"]
+        external: ["vscode", ...externalRuntime]
     },
     {
         name: "server",

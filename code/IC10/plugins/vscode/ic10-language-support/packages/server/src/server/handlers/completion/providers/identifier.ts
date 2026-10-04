@@ -20,6 +20,13 @@ import type { CompletionProviderContext, OperandProvider } from "./types";
 import { SemanticMap } from "../../../../utils";
 import { t } from "../../../../locals";
 
+export const NUMBER_CATEGORY_SET = new Set([
+    TypeCategory.NUMBER,
+    TypeCategory.LABEL,
+    TypeCategory.HASH_CALL,
+    TypeCategory.STR_CALL
+]);
+
 export const provideIdentifier: OperandProvider = (ctx, opType, prefix) => {
     const result: CompletionItem[] = [];
 
@@ -69,9 +76,7 @@ export const provideIdentifier: OperandProvider = (ctx, opType, prefix) => {
                                 description: t("hover.operandType.number")
                             }
                         }),
-                        s =>
-                            s.category in
-                            [TypeCategory.NUMBER, TypeCategory.LABEL, TypeCategory.HASH_CALL, TypeCategory.STR_CALL]
+                        s => NUMBER_CATEGORY_SET.has(s.category)
                     )
                 );
                 break;

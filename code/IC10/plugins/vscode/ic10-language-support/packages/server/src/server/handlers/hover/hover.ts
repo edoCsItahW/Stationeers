@@ -16,17 +16,20 @@
 
 import type { Connection } from "vscode-languageserver/node";
 import { Console, debug } from "@ic10/common";
+import { relative } from "node:path";
 
 import type { HoverContext, IHoverProvider } from "./types";
 import { findStatementAtPosition } from "./utils";
 import { SettingsManager } from "../../services";
 import { t, locale } from "../../../locals";
 import { DocumentCache } from "../../cache";
+import { uriToPath } from "../../../utils";
 import {
     DefineDirectiveHoverProvider,
     AliasDirectiveHoverProvider,
     InstructionHoverProvider,
-    LabelDefHoverProvider
+    LabelDefHoverProvider,
+    HintTagHoverProvider
 } from "./providers";
 
 
@@ -54,7 +57,9 @@ export class HoverHandler {
             new LabelDefHoverProvider(this.settingMgr),
             new AliasDirectiveHoverProvider(this.settingMgr),
             new DefineDirectiveHoverProvider(this.settingMgr),
-            new InstructionHoverProvider(this.settingMgr)
+            new InstructionHoverProvider(this.settingMgr),
+            // 必须排在伪指令之后：只有它们的悬停落空（光标在 `#:` 提示里）时才轮到标签
+            new HintTagHoverProvider(this.settingMgr)
         ];
     }
 
@@ -87,12 +92,18 @@ export class HoverHandler {
         const stmt = findStatementAtPosition(cache.ast.statements, line);
         if (!stmt) return { contents: [] };
 
+        const root = this.settingMgr.getProjectRootDir();
+        const absolute = uriToPath(textDocument.uri);
+
         const ctx: HoverContext = {
             line,
             character,
             symbols: cache.symbols,
             types: cache.types,
             statements: cache.ast.statements,
+            tokens: cache.tokens,
+            // 相对工作区的路径更短更好认；没有工作区时退回绝对路径
+            path: root ? relative(root, absolute) : absolute,
             getLocale: () => locale.getLocale(),
             t: (key, ...args) => t(key, ...args)
         };

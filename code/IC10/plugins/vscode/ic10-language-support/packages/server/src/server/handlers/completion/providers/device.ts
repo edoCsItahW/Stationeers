@@ -47,7 +47,29 @@ const DEVICES = [...ORDINARY_DEVICES, SELF_REFERENCE_DEVICE];
 
 export const provideDevice: OperandProvider = (ctx, opType, prefix) => {
     // 内置设备
-    const items = DEVICES.filter(d => d.value.startsWith(prefix)).map(deviceItem);
+    const items = DEVICES.filter(d => {
+        if (!d.value.startsWith(prefix)) return false;
+
+        // 定义模式：已有别名 → 不显示
+        return !(ctx.isDefine && ctx.symbolMap?.[d.value]);
+    }).map(d => {
+        const res = deviceItem(d);
+        // 使用模式：已有别名 → 沉底，让别名优先
+        if (!ctx.isDefine) {
+            const alias = ctx.symbolMap?.[d.value];
+            // 两档都带前缀，确保排在别名之后
+            // 有别名 → z1 沉底；无别名 → z0 靠前
+            res.sortText = alias ? `z1_${d.sort}` : `z0_${d.sort}`;
+
+            if (alias)
+                res.labelDetails = {
+                    detail: ` = ${alias}`,
+                    description: t("hover.operandType.device")
+                };
+        }
+
+        return res;
+    });
 
     if (prefix && /^dr+$/.test(prefix))
         items.push(

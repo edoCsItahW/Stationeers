@@ -15,6 +15,6 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-export * from "./svgBuilder";
+export * from "./hoverCard";
 export * from "./astHelper";
 export * from "./utils";

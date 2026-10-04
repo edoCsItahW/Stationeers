@@ -1,10 +1,10 @@
 {
     "name": "ic10",
     "displayName": "IC10",
-    "description": "IC10 language support | IC10语言支持",
+    "description": "%ic10.description%",
     "author": "edocsitahw",
     "license": "CC BY-NC-SA 4.0",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "publisher": "edocsitahw",
     "repository": {
         "type": "git",
@@ -57,7 +57,7 @@
         ],
         "configuration": {
             "type": "object",
-            "title": "IC10 Language Support",
+            "title": "%ic10.configuration.title%",
             "properties": {
                 "ic10.language": {
                     "enum": [
@@ -69,7 +69,7 @@
                         "简体中文"
                     ],
                     "default": "en-us",
-                    "description": "The language displayed to users by this plugin also includes the language used by the IC10 compiler core | 该插件向用户展示的语言，也包括IC10编译器核心使用的语言"
+                    "description": "%ic10.configuration.language.description%"
                 },
                 "ic10.hoverRenderer": {
                     "enum": [
@@ -81,42 +81,67 @@
                         "Markdown"
                     ],
                     "default": "svg",
-                    "description": "The modes for rendering hover information have their own characteristics | 渲染悬停信息的模式，各有特点"
+                    "description": "%ic10.configuration.hoverRenderer.description%"
+                },
+                "ic10.hover.maxWidth": {
+                    "type": "number",
+                    "default": 560,
+                    "description": "%ic10.configuration.hover.maxWidth.description%"
                 },
                 "ic10.format.useTab": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Use tabs for indentation. When true, indentWidth is ignored. | 使用 Tab 缩进。为 true 时忽略 indentWidth。"
+                    "description": "%ic10.configuration.format.useTab.description%"
                 },
                 "ic10.format.indentWidth": {
                     "type": "number",
                     "default": 4,
-                    "description": "Number of spaces per indentation level. | 每级缩进的空格数。"
+                    "description": "%ic10.configuration.format.indentWidth.description%"
                 },
                 "ic10.format.spacesBeforeTrailingComments": {
                     "type": "number",
                     "default": 2,
-                    "description": "Number of spaces before trailing comments. | 行尾注释前的空格数。"
+                    "description": "%ic10.configuration.format.spacesBeforeTrailingComments.description%"
                 },
                 "ic10.format.maxEmptyLinesToKeep": {
                     "type": "number",
                     "default": 1,
-                    "description": "Maximum number of consecutive empty lines to keep. | 保留的最大连续空行数。"
+                    "description": "%ic10.configuration.format.maxEmptyLinesToKeep.description%"
                 },
                 "ic10.format.minEmptyLinesBeforeLabels": {
                     "type": "number",
                     "default": 0,
-                    "description": "Minimum empty lines before labels. 0 means no restriction. | 标签前的最小空行数。0 表示无限制。"
+                    "description": "%ic10.configuration.format.minEmptyLinesBeforeLabels.description%"
                 },
                 "ic10.format.alignConsecutiveStatements": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Align consecutive statements of the same type by column. | 按列对齐连续的同类语句。"
+                    "description": "%ic10.configuration.format.alignConsecutiveStatements.description%"
                 },
                 "ic10.format.alignTrailingComments": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Align trailing comments within the same group. | 对齐同组内的行尾注释。"
+                    "description": "%ic10.configuration.format.alignTrailingComments.description%"
+                },
+                "ic10.runtime.tickDuration": {
+                    "type": "number",
+                    "default": 0.5,
+                    "description": "%ic10.configuration.runtime.tickDuration.description%"
+                },
+                "ic10.runtime.maxInstructions": {
+                    "type": "integer",
+                    "default": 128,
+                    "description": "%ic10.configuration.runtime.maxInstructions.description%"
+                },
+                "ic10.runtime.maxStackSize": {
+                    "type": "integer",
+                    "default": 512,
+                    "description": "%ic10.configuration.runtime.maxStackSize.description%"
+                },
+                "ic10.runtime.strictEvaluation": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%ic10.configuration.runtime.strictEvaluation.description%"
                 }
             }
         },
@@ -138,6 +163,7 @@
                     "Constant": "#C77DBB",
                     "Comment": "#7A7E85",
                     "Decorator": "#5F826B",
+                    "AnnotationTag": "#67A37C",
                     "Label": "#E8BF6A",
                     "Label.declaration": "#E8BF6A",
                     "LabelIdentifier": "#A3874C",
@@ -151,87 +177,92 @@
             {
                 "id": "Keyword",
                 "superType": "keyword",
-                "description": "IC10 instruction keywords and preprocessor directives | IC10指令关键字和预处理指令"
+                "description": "%ic10.semanticToken.Keyword.description%"
             },
             {
                 "id": "Register",
                 "superType": "variable",
-                "description": "IC10 register references (r0, r1, ra, sp) | IC10寄存器引用"
+                "description": "%ic10.semanticToken.Register.description%"
             },
             {
                 "id": "RegisterIdentifier",
                 "superType": "variable",
-                "description": "IC10 user-defined register identifiers (alias names) | IC10用户定义的寄存器标识符（别名名称）"
+                "description": "%ic10.semanticToken.RegisterIdentifier.description%"
             },
             {
                 "id": "Macro",
                 "superType": "function",
-                "description": "IC10 macro calls (hash, str) | IC10宏调用"
+                "description": "%ic10.semanticToken.Macro.description%"
             },
             {
                 "id": "Device",
                 "superType": "type",
-                "description": "IC10 device references (d0, d1, db) | IC10设备引用"
+                "description": "%ic10.semanticToken.Device.description%"
             },
             {
                 "id": "DeviceIdentifier",
                 "superType": "variable",
-                "description": "IC10 user-defined device identifiers (alias names) | IC10用户定义的设备标识符（别名名称）"
+                "description": "%ic10.semanticToken.DeviceIdentifier.description%"
             },
             {
                 "id": "Number",
                 "superType": "number",
-                "description": "IC10 numeric literals | IC10数字字面量"
+                "description": "%ic10.semanticToken.Number.description%"
             },
             {
                 "id": "NumberIdentifier",
                 "superType": "variable",
-                "description": "IC10 user-defined constant identifiers (define names) | IC10用户定义的常量标识符（define名称）"
+                "description": "%ic10.semanticToken.NumberIdentifier.description%"
             },
             {
                 "id": "String",
                 "superType": "string",
-                "description": "IC10 string literals | IC10字符串字面量"
+                "description": "%ic10.semanticToken.String.description%"
             },
             {
                 "id": "Constant",
                 "superType": "variable",
-                "description": "IC10 constant literals | IC10常量字面量"
+                "description": "%ic10.semanticToken.Constant.description%"
             },
             {
                 "id": "Comment",
                 "superType": "comment",
-                "description": "IC10 comments | IC10注释"
+                "description": "%ic10.semanticToken.Comment.description%"
             },
             {
                 "id": "Decorator",
                 "superType": "decorator",
-                "description": "IC10 type hint annotations (#: @type) | IC10类型提示注解"
+                "description": "%ic10.semanticToken.Decorator.description%"
+            },
+            {
+                "id": "AnnotationTag",
+                "superType": "decorator",
+                "description": "%ic10.semanticToken.AnnotationTag.description%"
             },
             {
                 "id": "Label",
                 "superType": "variable",
-                "description": "IC10 labels, aliases and define constants | IC10标签、别名和define常量"
+                "description": "%ic10.semanticToken.Label.description%"
             },
             {
                 "id": "LabelIdentifier",
                 "superType": "variable",
-                "description": "IC10 user-defined label identifiers | IC10用户定义的标签标识符"
+                "description": "%ic10.semanticToken.LabelIdentifier.description%"
             },
             {
                 "id": "Enum",
                 "superType": "enum",
-                "description": "IC10 enum type names (Foo in Foo.Bar) | IC10枚举类型名（Foo.Bar 中的 Foo）"
+                "description": "%ic10.semanticToken.Enum.description%"
             },
             {
                 "id": "EnumMember",
                 "superType": "enumMember",
-                "description": "IC10 enum members (Bar in Foo.Bar) | IC10枚举成员（Foo.Bar 中的 Bar）"
+                "description": "%ic10.semanticToken.EnumMember.description%"
             },
             {
                 "id": "Unknown",
                 "superType": "variable",
-                "description": "Unknown or unresolved tokens | 未知或未解析的令牌"
+                "description": "%ic10.semanticToken.Unknown.description%"
             }
         ],
         "semanticTokenColors": {
@@ -247,12 +278,80 @@
             "Constant": "#C77DBB",
             "Comment": "#7A7E85",
             "Decorator": "#5F826B",
+            "AnnotationTag": "#67A37C",
             "Label": "#E8BF6A",
             "LabelIdentifier": "#A3874C",
             "Enum": "#4EC9B0",
             "EnumMember": "#D9A0DC",
             "Unknown": "#F75464"
         },
+        "commands": [
+            {
+                "command": "ic10.completionScope.device",
+                "title": "%ic10.command.completionScope.device%"
+            },
+            {
+                "command": "ic10.completionScope.register",
+                "title": "%ic10.command.completionScope.register%"
+            },
+            {
+                "command": "ic10.completionScope.number",
+                "title": "%ic10.command.completionScope.number%"
+            },
+            {
+                "command": "ic10.completionScope.enum",
+                "title": "%ic10.command.completionScope.enum%"
+            },
+            {
+                "command": "ic10.completionScope.identifier",
+                "title": "%ic10.command.completionScope.identifier%"
+            },
+            {
+                "command": "ic10.completionScope.keyword",
+                "title": "%ic10.command.completionScope.keyword%"
+            },
+            {
+                "command": "ic10.completionScope.all",
+                "title": "%ic10.command.completionScope.all%"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "ic10.completionScope.device",
+                "key": "ctrl+alt+d",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.register",
+                "key": "ctrl+alt+r",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.number",
+                "key": "ctrl+alt+n",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.enum",
+                "key": "ctrl+alt+e",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.identifier",
+                "key": "ctrl+alt+i",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.keyword",
+                "key": "ctrl+alt+k",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.completionScope.all",
+                "key": "ctrl+alt+0",
+                "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            }
+        ],
         "breakpoints": [
             {
                 "language": "ic10"
@@ -274,12 +373,17 @@
                         "properties": {
                             "program": {
                                 "type": "string",
-                                "description": "要调试的 .ic 文件的绝对路径",
+                                "description": "%ic10.debugger.launch.program.description%",
                                 "default": "${workspaceFolder}/${command:AskForProgramName}"
                             },
                             "stopOnEntry": {
                                 "type": "boolean",
-                                "description": "启动后自动暂停在入口",
+                                "description": "%ic10.debugger.launch.stopOnEntry.description%",
+                                "default": true
+                            },
+                            "strictEvaluation": {
+                                "type": "boolean",
+                                "description": "%ic10.debugger.launch.strictEvaluation.description%",
                                 "default": true
                             }
                         }
@@ -289,19 +393,19 @@
                     {
                         "type": "ic10",
                         "request": "launch",
-                        "name": "Launch IC10 File",
+                        "name": "%ic10.debugger.launch.configurationName%",
                         "program": "${file}",
                         "stopOnEntry": true
                     }
                 ],
                 "configurationSnippets": [
                     {
-                        "label": "IC10 Debug: Launch",
-                        "description": "调试当前打开的 .ic 文件",
+                        "label": "%ic10.debugger.snippet.label%",
+                        "description": "%ic10.debugger.snippet.description%",
                         "body": {
                             "type": "ic10",
                             "request": "launch",
-                            "name": "Launch IC10",
+                            "name": "%ic10.debugger.snippet.name%",
                             "program": "^\\\"\\\\${workspaceFolder}/\\\\${command:AskForProgramName}\\\"",
                             "stopOnEntry": true
                         }
@@ -326,8 +430,8 @@
         "verdaccio": "^6.9.2"
     },
     "dependencies": {
-        "@ic10/compiler": "^3.1.1",
-        "@ic10/metadata": "^1.0.0",
-        "ic10r-node": "1.0.5"
+        "@ic10/compiler": "^3.2.0",
+        "@ic10/runtime": "^2.2.0",
+        "@ic10/metadata": "^1.0.0"
     }
 }
