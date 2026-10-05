@@ -26,7 +26,7 @@ import java.io.IOException;
  * // Parse into typed AST:
  * ProgramNode ast = ProgramParser.parse(json);
  * for (ASTNode stmt : ast.getStatements()) {
- *     switch (stmt.getType()) {
+ *     switch (stmt.getNodeName()) {
  *         case "addInstruction" -> {
  *             TernaryInstruction ins = (TernaryInstruction) stmt;
  *             System.out.println("add: " + ins.getOperand1() + " + " + ins.getOperand2());

@@ -8,8 +8,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
- * Define directive node ("DefineDirective") — "define NAME value".
+ * Enum annotation node ("EnumAnnotation") — the whole {@code #> @enum ... #> @end-enum} block.
  *
  * @author edocsitahw
  * @since 1.1.0
@@ -17,8 +19,13 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DefineDirectiveNode extends ASTNode {
-    private ASTNode identifier;   // IdentifierNode or ErrorNode
-    private ASTNode operand;      // numeric literal (Integer/Float/HexNumber/BinaryNumber) or ErrorNode
-    private TypeHintNode typeHint; // optional (#: @type ... @desc ... @builtin)
+public class EnumAnnotationNode extends ASTNode {
+    /** Enum type name. */
+    private String name;
+
+    /** Description ({@link StringNode}, {@link LinkNode} or {@link ErrorNode}); null when absent. */
+    private ASTNode desc;
+
+    /** {@code @value} lines (empty list when there are none). */
+    private List<EnumAnnotationValueNode> values;
 }

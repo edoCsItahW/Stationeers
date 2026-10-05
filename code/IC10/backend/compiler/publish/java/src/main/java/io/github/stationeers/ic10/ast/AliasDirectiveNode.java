@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * Alias directive node ("AliasDirective") — "alias NAME d0/Register".
+ * Alias directive node ("AliasDirective") — "alias NAME d0/r0".
  *
  * @author edocsitahw
  * @since 1.1.0
@@ -19,14 +19,13 @@ import lombok.EqualsAndHashCode;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AliasDirectiveNode extends ASTNode {
     private ASTNode identifier;         // IdentifierNode or ErrorNode
-    private ASTNode registerOrDevice;   // RegisterNode, DeviceNode, IdentifierNode, or ErrorNode
-    private String typeName;            // optional (@type)
-    private String desc;                // optional (@desc)
+    private ASTNode registerOrDevice;   // static/dynamic register, static/dynamic device, or ErrorNode
+    private TypeHintNode typeHint;      // optional (#: @type ... @desc ... @builtin)
 
 
     @Override
     public int length() {
-        if (registerOrDevice.getType().equals("Error"))
+        if ("Error".equals(registerOrDevice.getNodeName()))
             return -1;
 
         return registerOrDevice.getPosition().getColumn() - getPosition().getColumn() + registerOrDevice.length();

@@ -4,6 +4,7 @@
 
 package io.github.stationeers.ic10.ast;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
@@ -22,15 +23,21 @@ import lombok.Data;
  * per arity and are mapped to generic arity classes
  * ({@link NullaryInstruction}, {@link UnaryInstruction}, ...,
  * {@link SenaryInstruction}). The specific instruction is identified
- * by the {@link #getType()} field (e.g. {@code "addInstruction"}).
+ * by the {@link #getNodeName()} field (e.g. {@code "addInstruction"}).
  * </p>
  *
  * <h3>Type Hierarchy</h3>
  * <pre>
  * ASTNode
- * ├── Leaf nodes: IntegerNode, FloatNode, ..., ErrorNode
+ * ├── Leaf nodes: IntegerNode, FloatNode, HexNumberNode, BinaryNumberNode,
+ * │               IdentifierNode, StringNode, EnumNode, ErrorNode
+ * ├── Register nodes: StaticRegisterNode (3 spellings), DynamicRegisterNode
+ * ├── Device nodes: StaticDevicePortNode (2 spellings), StaticDeviceNode, DynamicDeviceNode
+ * ├── Macro nodes: HashMacroNode, StrMacroNode
  * ├── Directive nodes: LabelDefNode, DefineDirectiveNode, AliasDirectiveNode
- * ├── Doc comment nodes: DeviceDocCommentNode, EnumDocCommentNode
+ * ├── Type hint nodes: TypeHintNode, TypeHintDefaultNode, LinkNode
+ * ├── Annotation nodes: DeviceAnnotationNode, EnumAnnotationNode plus their sub-nodes
+ * │                     (TypeAnnotationLineNode, TypeAnnotationValueNode, EnumAnnotationValueNode)
  * ├── ProgramNode
  * └── InstructionNode (abstract)
  *     ├── NullaryInstruction     (2 instructions)
@@ -61,16 +68,27 @@ import lombok.Data;
         @JsonSubTypes.Type(value = BinaryNumberNode.class, name = "BinaryNumber"),
         @JsonSubTypes.Type(value = IdentifierNode.class, name = "Identifier"),
         @JsonSubTypes.Type(value = StringNode.class, name = "String"),
-        @JsonSubTypes.Type(value = RegisterNode.class, name = "Register"),
-        @JsonSubTypes.Type(value = DeviceNode.class, name = "Device"),
-        @JsonSubTypes.Type(value = ConstantNode.class, name = "Constant"),
+        @JsonSubTypes.Type(value = EnumNode.class, name = "Enum"),
+
+        // ============================================================
+        // Registers and devices (statically spelled kinds share one class each;
+        // the discriminator tells the spellings apart)
+        // ============================================================
+        @JsonSubTypes.Type(value = StaticRegisterNode.class, name = "GeneralPurposeRegister"),
+        @JsonSubTypes.Type(value = StaticRegisterNode.class, name = "AddressRegister"),
+        @JsonSubTypes.Type(value = StaticRegisterNode.class, name = "StackPointerRegister"),
+        @JsonSubTypes.Type(value = DynamicRegisterNode.class, name = "DynamicRegister"),
+        @JsonSubTypes.Type(value = StaticDevicePortNode.class, name = "SelfReferenceDevice"),
+        @JsonSubTypes.Type(value = StaticDevicePortNode.class, name = "OrdinaryDevice"),
+        @JsonSubTypes.Type(value = StaticDeviceNode.class, name = "StaticDevice"),
+        @JsonSubTypes.Type(value = DynamicDeviceNode.class, name = "DynamicDevice"),
 
         // ============================================================
         // Special / error / macro nodes
         // ============================================================
         @JsonSubTypes.Type(value = ErrorNode.class, name = "Error"),
-        @JsonSubTypes.Type(value = HashCallNode.class, name = "HashCall"),
-        @JsonSubTypes.Type(value = StrCallNode.class, name = "StrCall"),
+        @JsonSubTypes.Type(value = HashMacroNode.class, name = "HashMacro"),
+        @JsonSubTypes.Type(value = StrMacroNode.class, name = "StrMacro"),
 
         // ============================================================
         // Statement / directive nodes
@@ -80,10 +98,24 @@ import lombok.Data;
         @JsonSubTypes.Type(value = AliasDirectiveNode.class, name = "AliasDirective"),
 
         // ============================================================
-        // Doc comment nodes
+        // Type hints (#: comments attached to alias / define)
         // ============================================================
-        @JsonSubTypes.Type(value = DeviceDocCommentNode.class, name = "DeviceDocComment"),
-        @JsonSubTypes.Type(value = EnumDocCommentNode.class, name = "EnumDocComment"),
+        @JsonSubTypes.Type(value = TypeHintNode.class, name = "TypeHint"),
+        @JsonSubTypes.Type(value = TypeHintDefaultNode.class, name = "TypeHintDefault"),
+        @JsonSubTypes.Type(value = LinkNode.class, name = "Link"),
+
+        // ============================================================
+        // Annotation nodes (#> blocks) and their sub-nodes
+        // ============================================================
+        @JsonSubTypes.Type(value = EnumAnnotationNode.class, name = "EnumAnnotation"),
+        @JsonSubTypes.Type(value = EnumAnnotationValueNode.class, name = "EnumAnnotationValue"),
+        @JsonSubTypes.Type(value = DeviceAnnotationNode.class, name = "DeviceAnnotation"),
+        @JsonSubTypes.Type(value = TypeAnnotationLineNode.class, name = "DeviceAnnotationLogic"),
+        @JsonSubTypes.Type(value = TypeAnnotationLineNode.class, name = "DeviceAnnotationLogicSlot"),
+        @JsonSubTypes.Type(value = TypeAnnotationLineNode.class, name = "DeviceAnnotationSlot"),
+        @JsonSubTypes.Type(value = TypeAnnotationValueNode.class, name = "DeviceAnnotationDeviceHash"),
+        @JsonSubTypes.Type(value = TypeAnnotationValueNode.class, name = "DeviceAnnotationNameHash"),
+        @JsonSubTypes.Type(value = TypeAnnotationValueNode.class, name = "DeviceAnnotationReagentHash"),
 
         // ============================================================
         // Program root
@@ -289,8 +321,18 @@ import lombok.Data;
 @Data
 public abstract class ASTNode {
 
-    /** Discriminator field ("Integer", "addInstruction", ...). Set by Jackson. */
-    private String type;
+    /**
+     * Discriminator field ("Integer", "addInstruction", "DeviceAnnotation", ...). Set by Jackson.
+     * <p>
+     * The Java property is named exactly like the JSON key emitted by the C++ core — and like
+     * {@code Program.getNodeName()} in the parent package. It deliberately is <b>not</b> called
+     * {@code type}, because {@code "type"} is a real key of its own on {@link TypeHintNode}
+     * (the {@code #: @type ...} name), and a shadowing field would make {@code getType()} mean two
+     * different things depending on the class.
+     * </p>
+     */
+    @JsonProperty("nodeName")
+    private String nodeName;
 
     /** Source position of this node. */
     private Position position;
@@ -309,7 +351,7 @@ public abstract class ASTNode {
     /**
      * Returns true if this node is a literal value node.
      *
-     * @return true for IntegerNode, FloatNode, RegisterNode, etc.
+     * @return true for IntegerNode, FloatNode, StaticRegisterNode, StaticDevicePortNode, etc.
      */
     public boolean isLiteral() {
         return this instanceof ValueNode;
@@ -331,6 +373,6 @@ public abstract class ASTNode {
 
     @Override
     public String toString() {
-        return type + "@" + position;
+        return nodeName + "@" + position;
     }
 }
