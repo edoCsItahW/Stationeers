@@ -168,6 +168,10 @@ namespace stationeers::ic10 {
 
     IC10_COMPILER_LOCAL_MSG_EN_US(IWA24, "Deprecated syntax - semantic analysis.")
 
+    IC10_COMPILER_LOCAL_MSG_EN_US(IWA25_3, "'{}' is '{}', but the instruction needs '{}' - semantic analysis.")
+
+    IC10_COMPILER_LOCAL_MSG_EN_US(IWA26_3, "'{}' is not applicable to device '{}' slot '{}' - semantic analysis.")
+
     // Error
 
     IC10_COMPILER_LOCAL_MSG_EN_US(IEA1_2, "'{}' expected, but found '{}' - semantic analysis.")

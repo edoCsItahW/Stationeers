@@ -50,7 +50,7 @@
 namespace stationeers::ic10 {
 
     /**
-     * @def DEFINE_BINARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)
+     * @def DEFINE_BINARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)
      * @if zh
      *
      * @brief 定义二元指令
@@ -58,6 +58,7 @@ namespace stationeers::ic10 {
      * @param lowerCase 指令小写名
      * @param pascalCase 指令PascalCase名
      * @param upperCase 指令大写下划线名(对应InstructionKeyword枚举值)
+     * @param memberAccess 该指令对逻辑属性的读写方向(@ref Access；不涉及逻辑属性时为 @ref Access::None)
      * @param ... 可变参数(操作数类型)
      *
      * @elseif en
@@ -68,149 +69,150 @@ namespace stationeers::ic10 {
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name (InstructionKeyword enum value)
+     * @param memberAccess Read/write direction needed for a logic property (@ref Access; @ref Access::None if none)
      * @param ... Variadic parameters (operand types)
      *
      * @endif
      */
-#define DEFINE_BINARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)                           \
-    DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, BinaryInstructionBase, __VA_ARGS__)
+#define DEFINE_BINARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)      \
+    DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, BinaryInstructionBase, __VA_ARGS__)
 
     // ---------- REG_TARGET NUM_VALUE ----------
 
-    DEFINE_BINARY_INSTRUCTION(abs, Abs, ABS, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(abs, Abs, ABS, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
 #ifndef STATIONEERS_SIMPLE_DEBUG_MODE
 
-    DEFINE_BINARY_INSTRUCTION(acos, Acos, ACOS, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(acos, Acos, ACOS, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(asin, Asin, ASIN, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(asin, Asin, ASIN, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(atan, Atan, ATAN, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(atan, Atan, ATAN, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(ceil, Ceil, CEIL, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(ceil, Ceil, CEIL, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(cos, Cos, COS, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(cos, Cos, COS, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(exp, Exp, EXP, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(exp, Exp, EXP, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(floor, Floor, FLOOR, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(floor, Floor, FLOOR, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(log, Log, LOG, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(log, Log, LOG, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(round, Round, ROUND, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(round, Round, ROUND, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(sin, Sin, SIN, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(sin, Sin, SIN, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(sqrt, Sqrt, SQRT, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(sqrt, Sqrt, SQRT, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(tan, Tan, TAN, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(tan, Tan, TAN, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(trunc, Trunc, TRUNC, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(trunc, Trunc, TRUNC, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(not, Not, NOT, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(not, Not, NOT, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(move, Move, MOVE, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(move, Move, MOVE, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(sgn, Sgn, SGN, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(sgn, Sgn, SGN, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(seqz, Seqz, SEQZ, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(seqz, Seqz, SEQZ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(snez, Snez, SNEZ, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(snez, Snez, SNEZ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(sgez, Sgez, SGEZ, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(sgez, Sgez, SGEZ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(sgtz, Sgtz, SGTZ, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(sgtz, Sgtz, SGTZ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(slez, Slez, SLEZ, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(slez, Slez, SLEZ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(sltz, Sltz, SLTZ, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(sltz, Sltz, SLTZ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
     #ifdef SNAN
         #undef SNAN
     #endif
-    DEFINE_BINARY_INSTRUCTION(snan, Snan, SNAN, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(snan, Snan, SNAN, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(snanz, Snanz, SNANZ, OperandType::REG_TARGET, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(snanz, Snanz, SNANZ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE)
 
     // ---------- DEVICE_REF JUMP_LINE ----------
 
-    DEFINE_BINARY_INSTRUCTION(bdns, Bdns, BDNS, OperandType::DEVICE_REF, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(bdns, Bdns, BDNS, Access::None, OperandType::DEVICE_REF, OperandType::JUMP_LINE)
 
     DEFINE_BINARY_INSTRUCTION(
-        bdnsal, Bdnsal, BDNSAL, OperandType::DEVICE_REF, OperandType::JUMP_LINE
+        bdnsal, Bdnsal, BDNSAL, Access::None, OperandType::DEVICE_REF, OperandType::JUMP_LINE
     )
 
-    DEFINE_BINARY_INSTRUCTION(bdse, Bdse, BDSE, OperandType::DEVICE_REF, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(bdse, Bdse, BDSE, Access::None, OperandType::DEVICE_REF, OperandType::JUMP_LINE)
 
     DEFINE_BINARY_INSTRUCTION(
-        bdseal, Bdseal, BDSEAL, OperandType::DEVICE_REF, OperandType::JUMP_LINE
+        bdseal, Bdseal, BDSEAL, Access::None, OperandType::DEVICE_REF, OperandType::JUMP_LINE
     )
 
-    DEFINE_BINARY_INSTRUCTION(brdns, Brdns, BRDNS, OperandType::DEVICE_REF, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(brdns, Brdns, BRDNS, Access::None, OperandType::DEVICE_REF, OperandType::JUMP_LINE)
 
-    DEFINE_BINARY_INSTRUCTION(brdse, Brdse, BRDSE, OperandType::DEVICE_REF, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(brdse, Brdse, BRDSE, Access::None, OperandType::DEVICE_REF, OperandType::JUMP_LINE)
 
     // ---------- REG_TARGET DEVICE_REF ----------
 
-    DEFINE_BINARY_INSTRUCTION(sdns, Sdns, SDNS, OperandType::REG_TARGET, OperandType::DEVICE_REF)
+    DEFINE_BINARY_INSTRUCTION(sdns, Sdns, SDNS, Access::None, OperandType::REG_TARGET, OperandType::DEVICE_REF)
 
-    DEFINE_BINARY_INSTRUCTION(sdse, Sdse, SDSE, OperandType::REG_TARGET, OperandType::DEVICE_REF)
+    DEFINE_BINARY_INSTRUCTION(sdse, Sdse, SDSE, Access::None, OperandType::REG_TARGET, OperandType::DEVICE_REF)
 
     // ---------- ADDRESS/NUM_VALUE + NUM_VALUE/JUMP_LINE ----------
 
-    DEFINE_BINARY_INSTRUCTION(poke, Poke, POKE, OperandType::ADDRESS, OperandType::NUM_VALUE)
+    DEFINE_BINARY_INSTRUCTION(poke, Poke, POKE, Access::None, OperandType::ADDRESS, OperandType::NUM_VALUE)
 
-    DEFINE_BINARY_INSTRUCTION(beqz, Beqz, BEQZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
-
-    DEFINE_BINARY_INSTRUCTION(
-        beqzal, Beqzal, BEQZAL, OperandType::NUM_VALUE, OperandType::JUMP_LINE
-    )
-
-    DEFINE_BINARY_INSTRUCTION(bnez, Bnez, BNEZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(beqz, Beqz, BEQZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
     DEFINE_BINARY_INSTRUCTION(
-        bnezal, Bnezal, BNEZAL, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        beqzal, Beqzal, BEQZAL, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
-    DEFINE_BINARY_INSTRUCTION(bgez, Bgez, BGEZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(bnez, Bnez, BNEZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
     DEFINE_BINARY_INSTRUCTION(
-        bgezal, Bgezal, BGEZAL, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bnezal, Bnezal, BNEZAL, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
-    DEFINE_BINARY_INSTRUCTION(bgtz, Bgtz, BGTZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(bgez, Bgez, BGEZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
     DEFINE_BINARY_INSTRUCTION(
-        bgtzal, Bgtzal, BGTZAL, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bgezal, Bgezal, BGEZAL, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
-    DEFINE_BINARY_INSTRUCTION(blez, Blez, BLEZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(bgtz, Bgtz, BGTZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
     DEFINE_BINARY_INSTRUCTION(
-        blezal, Blezal, BLEZAL, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bgtzal, Bgtzal, BGTZAL, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
-    DEFINE_BINARY_INSTRUCTION(bltz, Bltz, BLTZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(blez, Blez, BLEZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
     DEFINE_BINARY_INSTRUCTION(
-        bltzal, Bltzal, BLTZAL, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        blezal, Blezal, BLEZAL, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
-    DEFINE_BINARY_INSTRUCTION(bnan, Bnan, BNAN, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(bltz, Bltz, BLTZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
-    DEFINE_BINARY_INSTRUCTION(breqz, Breqz, BREQZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(
+        bltzal, Bltzal, BLTZAL, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+    )
 
-    DEFINE_BINARY_INSTRUCTION(brnez, Brnez, BRNEZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(bnan, Bnan, BNAN, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
-    DEFINE_BINARY_INSTRUCTION(brgez, Brgez, BRGEZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(breqz, Breqz, BREQZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
-    DEFINE_BINARY_INSTRUCTION(brgtz, Brgtz, BRGTZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(brnez, Brnez, BRNEZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
-    DEFINE_BINARY_INSTRUCTION(brlez, Brlez, BRLEZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(brgez, Brgez, BRGEZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
-    DEFINE_BINARY_INSTRUCTION(brltz, Brltz, BRLTZ, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(brgtz, Brgtz, BRGTZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
-    DEFINE_BINARY_INSTRUCTION(brnan, Brnan, BRNAN, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+    DEFINE_BINARY_INSTRUCTION(brlez, Brlez, BRLEZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+
+    DEFINE_BINARY_INSTRUCTION(brltz, Brltz, BRLTZ, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
+
+    DEFINE_BINARY_INSTRUCTION(brnan, Brnan, BRNAN, Access::None, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
 
 #endif
 

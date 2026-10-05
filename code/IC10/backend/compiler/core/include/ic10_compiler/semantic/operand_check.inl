@@ -244,12 +244,8 @@ namespace stationeers::ic10 {
                                 arg.start(), arg.end(), arg.value, deviceTypeName
                             );
 
-                        // TODO: 检查读写权限
-                        // else {
-                        //     auto& [idx, slot] = *it;
-                        //
-                        //
-                        // }
+                        // 读写权限检查不在此处：带设备上下文时由
+                        // Analyser::checkWithDeviceContext 完成（IWA25_3），此处只判属性名是否存在
 
                         return true;
                     }

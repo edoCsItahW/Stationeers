@@ -36,7 +36,7 @@ namespace stationeers::ic10 {
 
 
     /**
-     * @def DEFINE_SENARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)
+     * @def DEFINE_SENARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)
      * @if zh
      *
      * @brief 定义六元指令
@@ -44,6 +44,7 @@ namespace stationeers::ic10 {
      * @param lowerCase 指令小写名
      * @param pascalCase 指令PascalCase名
      * @param upperCase 指令大写下划线名(对应InstructionKeyword枚举值)
+     * @param memberAccess 该指令对逻辑属性的读写方向(@ref Access；不涉及逻辑属性时为 @ref Access::None)
      * @param ... 可变参数(操作数类型)
      *
      * @elseif en
@@ -54,17 +55,18 @@ namespace stationeers::ic10 {
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name (InstructionKeyword enum value)
+     * @param memberAccess Read/write direction needed for a logic property (@ref Access; @ref Access::None if none)
      * @param ... Variadic parameters (operand types)
      *
      * @endif
      */
-#define DEFINE_SENARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)                           \
-    DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, SenaryInstructionBase, __VA_ARGS__)
+#define DEFINE_SENARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)      \
+    DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, SenaryInstructionBase, __VA_ARGS__)
 
     // ---------- REG_TARGET DEVICE_HASH NAME_HASH SLOT_IDX LOGIC_SLOT_PROP AGG_MODE ----------
 
     DEFINE_SENARY_INSTRUCTION(
-        lbns, Lbns, LBNS, OperandType::REG_TARGET, OperandType::DEVICE_HASH, OperandType::NAME_HASH,
+        lbns, Lbns, LBNS, Access::Read, OperandType::REG_TARGET, OperandType::DEVICE_HASH, OperandType::NAME_HASH,
         OperandType::SLOT_IDX, OperandType::LOGIC_SLOT_PROP, OperandType::AGG_MODE
     )
 

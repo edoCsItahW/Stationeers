@@ -553,6 +553,39 @@ namespace stationeers::ic10 {
 
         /**
          * @if zh
+         * @brief 当前指令对逻辑属性的读写方向（`Access::None` 表示该指令不涉及逻辑属性）
+         * @details 由 @ref operator()(const Ins<V, Vs...>&) 在处理每条指令前从 `InstructionMapper`
+         *          取出（与 `pendingDeviceSymbol_` 一样是"当前指令"的状态），
+         *          @ref checkWithDeviceContext 据此校验设备注解成员声明的权限是否满足指令的需要。
+         * @elseif en
+         * @brief The read/write direction the current instruction needs for a logic property
+         *        (`Access::None` means the instruction does not touch logic properties)
+         * @details Fetched from the `InstructionMapper` before each instruction by
+         *          @ref operator()(const Ins<V, Vs...>&) — the same "state of the current instruction"
+         *          pattern as `pendingDeviceSymbol_` — and used by @ref checkWithDeviceContext to
+         *          verify that a device annotation member's declared access satisfies it.
+         * @endif
+         */
+        Access currentAccess_ = Access::None;
+
+        /**
+         * @if zh
+         * @brief 当前指令里**字面量**槽位序号（编译期已知的槽位索引，可为空）
+         * @details 由 @ref checkSlotIndexWithDevice 在核对槽位序号操作数时记下，
+         *          @ref checkWithDeviceContext 处理随后的槽位逻辑属性时据此校验「该属性是否适用于此
+         *          槽位」；序号来自寄存器等运行期才知的形式时为空，此时跳过该检查。
+         * @elseif en
+         * @brief The **literal** slot index of the current instruction (known at compile time, may be empty)
+         * @details Recorded by @ref checkSlotIndexWithDevice while checking a slot-index operand and used by
+         *          @ref checkWithDeviceContext to verify "does this property apply to this slot" for a
+         *          later slot-logic property; empty when the index only becomes known at run time
+         *          (a register), in which case the check is skipped.
+         * @endif
+         */
+        std::optional<int> pendingSlotIndex_;
+
+        /**
+         * @if zh
          *
          * @brief 发后即忘协程的持有者
          * @details 语句协程与指令操作数折叠协程在挂起后需要被恢复（前向引用），
