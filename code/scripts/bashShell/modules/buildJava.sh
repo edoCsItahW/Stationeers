@@ -14,6 +14,8 @@ build_java() {
     local artifact_name=$(jq -r ".ArtifactName.${os}" <<<"$config_json")
     local artifact="${artifact_dir}/${artifact_name}"
     local publish_dir=$(jq -r '.PublishDir' <<<"$config_json")
+    local stdlib=$(jq -r '.StdLibPath' <<<"$config_json")
+    local stdlib_dir=$(jq -r '.StdLibDir' <<<"$config_json")
     local test_dir=$(jq -r '.TestDir' <<<"$config_json")
     local test_script=$(jq -r ".TestScript.${os}" <<<"$config_json")
 
@@ -24,6 +26,16 @@ build_java() {
     local resolved_artifact
     resolved_artifact=$(resolve_artifact_path "$artifact")
     copy_artifact "$resolved_artifact" "$publish_dir"
+
+    write_st_phase "$(get_text "Build.StdLib.Head")"
+
+    # 标准库只有声明了 StdLibDir 的目标才有；这里放进 jar 的 resources 根（.dll 在 native/ 下）；
+    # jq 读不到键时会给出字面量 null，所以两种空值都要挡掉
+    if [[ -z "$stdlib_dir" || "$stdlib_dir" == "null" ]]; then
+        write_st_info "$(get_text "Build.StdLib.Skipped" "$target")"
+    else
+        sync_stdlib "$stdlib" "$stdlib_dir"
+    fi
 
     write_st_phase "$(get_text "Java.Test")"
     (cd "$test_dir" && {
