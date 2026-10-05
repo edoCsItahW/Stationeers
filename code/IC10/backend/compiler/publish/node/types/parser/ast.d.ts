@@ -15,7 +15,6 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import {Position, IC10Utils} from "../common";
-import {Token} from "../lexer";
 
 
 /**
@@ -186,13 +185,14 @@ export interface ASTNode {
  * - **数值字面量**：{@link IntegerNode}、{@link FloatNode}、{@link HexNumberNode}、{@link BinaryNumberNode}
  * - **标识符**：{@link IdentifierNode}
  * - **字符串字面量**：{@link StringNode}
- * - **寄存器引用**：{@link RegisterNode}
- * - **设备引用**：{@link DeviceNode}
+ * - **寄存器引用**：{@link GeneralPurposeRegisterNode}、{@link AddressRegisterNode}、
+ *   {@link StackPointerRegisterNode}、{@link DynamicRegisterNode}
+ * - **设备引用**：{@link StaticDeviceNode}、{@link DynamicDeviceNode}
  * - **宏调用**：{@link HashMacroNode}、{@link StrMacroNode}
  * - **错误节点**：{@link ErrorNode}
  *
- * @see {@link NumberNode} - 数值字面量的联合类型
- * @see {@link OperandNode} - 操作数类型的联合类型
+ * @see {@link Number} - 数值字面量的联合类型
+ * @see {@link Operand} - 操作数类型的联合类型
  */
 
 export type Errorable<T> = T | ErrorNode;
@@ -207,9 +207,9 @@ export type Errorable<T> = T | ErrorNode;
  * ```typescript
  * // JSON 表示
  * {
- *   "type": "Integer",
+ *   "nodeName": "Integer",
  *   "position": { "line": 0, "column": 5 },
- *   "value": 42
+ *   "value": "42"
  * }
  * ```
  *
@@ -220,9 +220,9 @@ export interface IntegerNode extends ASTNode {
 
     /**
      * @summary 整数值
-     * @desc 十进制整数，可正可负
+     * @desc 十进制整数的**字面写法**（字符串，可带前导 `-`）
      */
-    readonly value: number;
+    readonly value: string;
 }
 
 
@@ -236,9 +236,9 @@ export interface IntegerNode extends ASTNode {
  * ```typescript
  * // JSON 表示
  * {
- *   "type": "Float",
+ *   "nodeName": "Float",
  *   "position": { "line": 0, "column": 5 },
- *   "value": 3.14
+ *   "value": "3.14"
  * }
  * ```
  *
@@ -249,9 +249,9 @@ export interface FloatNode extends ASTNode {
 
     /**
      * @summary 浮点数值
-     * @desc 十进制浮点数
+     * @desc 十进制浮点数的**字面写法**（字符串，与源码写法一致）
      */
-    readonly value: number;
+    readonly value: string;
 }
 
 
@@ -266,7 +266,7 @@ export interface FloatNode extends ASTNode {
  * ```typescript
  * // JSON 表示
  * {
- *   "type": "HexNumber",
+ *   "nodeName": "HexNumber",
  *   "position": { "line": 0, "column": 5 },
  *   "value": "0xFF"
  * }
@@ -296,7 +296,7 @@ export interface HexNumberNode extends ASTNode {
  * ```typescript
  * // JSON 表示
  * {
- *   "type": "BinaryNumber",
+ *   "nodeName": "BinaryNumber",
  *   "position": { "line": 0, "column": 5 },
  *   "value": "0b1010"
  * }
@@ -349,7 +349,7 @@ export type Number = Errorable<IntegerNode | FloatNode | HexNumberNode | BinaryN
  * ```typescript
  * // JSON 表示
  * {
- *   "type": "Identifier",
+ *   "nodeName": "Identifier",
  *   "position": { "line": 0, "column": 0 },
  *   "value": "myVariable"
  * }
@@ -378,7 +378,7 @@ export interface IdentifierNode extends ASTNode {
  * ```typescript
  * // JSON 表示
  * {
- *   "type": "String",
+ *   "nodeName": "String",
  *   "position": { "line": 0, "column": 0 },
  *   "value": "\"Hello, World!\""
  * }
@@ -520,10 +520,10 @@ export interface EnumNode extends ASTNode {
  * ```typescript
  * // JSON 表示
  * {
- *   "type": "HashCall",
+ *   "nodeName": "HashMacro",
  *   "position": { "line": 0, "column": 0 },
  *   "value": {
- *     "type": "String",
+ *     "nodeName": "String",
  *     "position": { "line": 0, "column": 6 },
  *     "value": "\"Example\""
  *   }
@@ -553,10 +553,10 @@ export interface HashMacroNode extends ASTNode {
  * ```typescript
  * // JSON 表示
  * {
- *   "type": "StrCall",
+ *   "nodeName": "StrMacro",
  *   "position": { "line": 0, "column": 0 },
  *   "value": {
- *     "type": "String",
+ *     "nodeName": "String",
  *     "position": { "line": 0, "column": 4 },
  *     "value": "\"Example\""
  *   }
@@ -590,7 +590,7 @@ export interface StrMacroNode extends ASTNode {
  * ```typescript
  * // JSON 表示
  * {
- *   "type": "Error",
+ *   "nodeName": "Error",
  *   "position": { "line": 0, "column": 0 },
  *   "token": { ... },
  *   "message": "Unexpected token"
@@ -599,14 +599,34 @@ export interface StrMacroNode extends ASTNode {
  *
  * @public
  */
+/**
+ * @summary 错误节点里内嵌的 Token
+ *
+ * @desc 对应 C++ `Token::toJSON()` 的输出——是普通 JSON 对象，而不是绑定层的 `Token` 类
+ *       （那个类只暴露 `toJSON(): string`）。
+ */
+export interface TokenData {
+    /** `TokenType` 的数值 */
+    readonly type: number;
+
+    /** Token 起始位置 */
+    readonly pos: Position;
+
+    /** 源码里的原始拼写 */
+    readonly lexeme: string;
+
+    /** `TokenCategory` 的数值 */
+    readonly category: number;
+}
+
 export interface ErrorNode extends ASTNode {
     readonly nodeName: "Error";
 
     /**
      * @summary 导致错误的 Token
-     * @desc 触发错误的源 Token，用于定位错误位置
+     * @desc 触发错误的源 Token（`Token::toJSON()` 的输出），用于定位错误位置
      */
-    readonly token: Token;
+    readonly token: TokenData;
 
     /**
      * @summary 错误消息
@@ -683,19 +703,19 @@ export type DeviceRefStrict = Errorable<Device>;
 export type LogicProp = Errorable<IdentifierNode | Number>;
 
 /** 逻辑槽属性（兼容旧语法允许数字） */
-export type LogicSlotProp = Errorable<Number | Register | IdentifierNode | EnumNode>;
+export type LogicSlotProp = Errorable<Number | IdentifierNode>;
 
 /** 批处理模式 */
 export type AggMode = Errorable<Number | IdentifierNode | EnumNode>;
 
 /** 试剂模式 */
-export type ReagentMode = Errorable<Number | Register | IdentifierNode | EnumNode>;
+export type ReagentMode = Errorable<Number | IdentifierNode | EnumNode>;
 
-/** 设备哈希（允许 HASH 宏） */
-export type DeviceHash = Errorable<Number | IdentifierNode | HashMacroNode>;
+/** 设备哈希（允许寄存器与 HASH 宏） */
+export type DeviceHash = Errorable<Number | Register | IdentifierNode | HashMacroNode>;
 
-/** 名称哈希（允许 STR 宏） */
-export type NameHash = Errorable<Number | IdentifierNode | StrMacroNode>;
+/** 名称哈希（同样允许寄存器与 HASH 宏） */
+export type NameHash = Errorable<Number | Register | IdentifierNode | HashMacroNode>;
 
 /** 别名定义（用于预处理指令） */
 export type AliasDef = Errorable<IdentifierNode>;
@@ -778,6 +798,8 @@ export type Description = Errorable<StringNode | LinkNode>;
  * `@default <值>`，此时 `category` 与 `name` 都为空。同一分组下的同一字段只允许出现一次。
  */
 export interface TypeHintDefaultNode extends ASTNode {
+    readonly nodeName: "TypeHintDefault";
+
     /** 分组：`logic` / `logic-slot` / `slot`；寄存器默认值为空 */
     readonly category: IC10Utils.Optional<string>;
 
@@ -795,6 +817,8 @@ export interface TypeHintDefaultNode extends ASTNode {
  * 对应 C++ `ic10::TypeHint`。
  */
 export interface TypeHintNode extends ASTNode {
+    readonly nodeName: "TypeHint";
+
     /**
      * @summary 类型名（可选）
      * @desc 由 @type 注解指定的类型名
@@ -865,10 +889,10 @@ export interface AliasDirectiveNode extends ASTNode {
  *
  * // JSON 表示
  * {
- *   "type": "DefineDirective",
+ *   "nodeName": "DefineDirective",
  *   "position": { "line": 0, "column": 0 },
- *   "identifier": { "type": "Identifier", "value": "MAX_VAL", ... },
- *   "number": { "type": "Integer", "value": 100, ... }
+ *   "identifier": { "nodeName": "Identifier", "value": "MAX_VAL", ... },
+ *   "operand": { "nodeName": "Integer", "value": "100", ... }
  * }
  * ```
  *
@@ -930,9 +954,9 @@ export type PreprocessorDirective = Errorable<
  *
  * // JSON 表示
  * {
- *   "type": "LabelDef",
+ *   "nodeName": "LabelDef",
  *   "position": { "line": 0, "column": 0 },
- *   "identifier": { "type": "Identifier", "value": "main", ... }
+ *   "identifier": { "nodeName": "Identifier", "value": "main", ... }
  * }
  * ```
  *
@@ -945,9 +969,9 @@ export interface LabelDefNode extends ASTNode {
     readonly nodeName: "LabelDef";
     /**
      * @summary 标签标识符
-     * @desc 标签的名称，用于作为跳转目标
+     * @desc 标签的名称，用于作为跳转目标（解析失败时是 `Error` 节点）
      */
-    readonly identifier: IdentifierNode;
+    readonly identifier: Errorable<IdentifierNode>;
 }
 
 
@@ -1077,8 +1101,6 @@ export interface EnumAnnotation extends ASTNode {
 interface TypeAnnotationValueBase<N extends string, T extends string> extends ASTNode {
     readonly nodeName: N;
 
-    readonly tag: T;
-
     /** 取值（以字符串保存） */
     readonly value: string;
 }
@@ -1106,8 +1128,6 @@ export type Access = "r" | "w" | "rw";
  */
 interface TypeAnnotationLineBase<N extends string, T extends string> extends ASTNode {
     readonly nodeName: N;
-
-    readonly tag: T;
 
     /** 属性名（如逻辑属性名 `Pressure`） */
     readonly name: string;
@@ -1192,7 +1212,7 @@ export interface DeviceAnnotation extends ASTNode {
     readonly slots: DeviceAnnotationSlot[];
 
     /** 试剂哈希行（可多条） */
-    readonly reagentHash: DeviceAnnotationReagentHash[];
+    readonly reagentHashes: DeviceAnnotationReagentHash[];
 }
 
 /** @summary 类型注解：设备注解或枚举注解，失败时为 `ErrorNode` */

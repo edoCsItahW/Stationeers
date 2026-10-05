@@ -6,8 +6,8 @@ package io.github.stationeers.ic10.ast;
 
 /**
  * Marker interface for AST nodes that carry a scalar value.
- * Includes literal nodes (Integer, Float, Register, Device, etc.)
- * and ConstantNode.
+ * Includes the literal nodes (Integer, Float, String, ...), the statically spelled registers and
+ * device ports, and the value-only annotation lines.
  *
  * @author edocsitahw
  * @since 1.1.0
