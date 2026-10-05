@@ -32,6 +32,7 @@
         "ArtifactPath": "build/IC10/backend/compiler/exports/node/Release/ic10c-node.node",
         "PublishDir":  "IC10/backend/compiler/publish/node/src",
         "StdLibPath":  "IC10/assets/ic/stdLib.ic",
+        "StdLibDir":   "IC10/backend/compiler/publish/node/src",
         "TestDir": "IC10/backend/compiler"
     },
     "IC10_Compiler_Python": {
@@ -58,6 +59,8 @@
             "linux": "libic10c_java.so"
         },
         "PublishDir":  "IC10/backend/compiler/publish/java/src/main/resources/native",
+        "StdLibPath":  "IC10/assets/ic/stdLib.ic",
+        "StdLibDir":   "IC10/backend/compiler/publish/java/src/main/resources",
         "TestDir": "IC10/backend/compiler/tests/java",
         "TestScript": {
             "windows": "gradlew.bat",
