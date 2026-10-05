@@ -1,4 +1,4 @@
-﻿@{
+@{
     Build = @{
         Configure = @{
             Head = "配置 CMake"
@@ -17,6 +17,13 @@
             SourceNotFound = "找不到源文件'{0}'"
             Error = "复制文件失败，退出码 {0}"
             Success = "已将 '{0}' 复制到 '{1}'"
+        }
+        StdLib = @{
+            Head = "同步标准库"
+            SourceNotFound = "找不到标准库源文件'{0}'"
+            NoMarker = "标准库缺少日期标志（首行应为 '# stdLib.ic YYYY-MM-DD'）：'{0}'"
+            Stale = "标准库副本与源不同步：源日期'{0}'，副本日期'{1}'"
+            Synced = "标准库已同步（日期 {0} → {1}）"
         }
     }
     Node = @{
