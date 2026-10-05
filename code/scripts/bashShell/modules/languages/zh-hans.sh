@@ -24,7 +24,8 @@ export TRANSLATIONS='{
       "SourceNotFound": "找不到标准库源文件 {0}",
       "NoMarker": "标准库缺少日期标志（首行应为 '# stdLib.ic YYYY-MM-DD'）：{0}",
       "Stale": "标准库副本与源不同步：源日期 {0}，副本日期 {1}",
-      "Synced": "标准库已同步（日期 {0} → {1}）"
+      "Synced": "标准库已同步（日期 {0} → {1}）",
+      "Skipped": "该目标不发布标准库，跳过同步（目标 {0}）"
     },
     "Test": {
       "Head": "运行测试"

@@ -37,3 +37,4 @@ code/artifacts/
 *.vsix
 /docs/compiler/
 /docs/exports/
+/code/package.json

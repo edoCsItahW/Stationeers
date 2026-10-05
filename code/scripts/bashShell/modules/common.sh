@@ -113,8 +113,9 @@ stdlib_marker() {
 
 # 把标准库从 assets 同步到发布目录，并比对日期标志——
 # 复制后再比对，既完成同步，也防止"复制没生效/副本是旧的"却照样发布。
+# 目标是目录：node 放在包的 src/，java 放在 jar 的 resources 根（见 build-info.json 的 StdLibDir）。
 sync_stdlib() {
-    local src="$1" publish_dir="$2"
+    local src="$1" dest_dir="$2"
 
     [[ -f "$src" ]] || { write_st_error "$(get_text "Build.StdLib.SourceNotFound" "$src")"; exit 1; }
 
@@ -123,9 +124,9 @@ sync_stdlib() {
 
     [[ -n "$src_marker" ]] || { write_st_error "$(get_text "Build.StdLib.NoMarker" "$src")"; exit 1; }
 
-    copy_artifact "$src" "$publish_dir"
+    copy_artifact "$src" "$dest_dir"
 
-    local copied="$publish_dir/$(basename "$src")"
+    local copied="$dest_dir/$(basename "$src")"
     local copied_marker
     copied_marker=$(stdlib_marker "$copied" || true)
 
