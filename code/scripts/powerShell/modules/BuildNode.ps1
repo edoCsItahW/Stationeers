@@ -19,6 +19,10 @@ try {
     $resolved = Resolve-ArtifactPath $Config.ArtifactPath
     Copy-Artifact -Source $resolved -Destination $Config.PublishDir
 
+    Write-ST-Phase (__ "Build.StdLib.Head")
+
+    Sync-StdLib -Source $Config.StdLibPath -PublishDir $Config.PublishDir
+
     Write-ST-Phase (__ "Node.Test")
 
     Set-Location $Config.TestDir

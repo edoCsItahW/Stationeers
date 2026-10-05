@@ -19,6 +19,13 @@ export TRANSLATIONS='{
       "Error": "Failed to copy file with exit code {0}",
       "Success": "Copied {0} to {1}"
     },
+    "StdLib": {
+      "Head": "Syncing standard library",
+      "SourceNotFound": "Standard library source {0} not found",
+      "NoMarker": "Standard library has no date marker (first line should be '# stdLib.ic YYYY-MM-DD'): {0}",
+      "Stale": "Standard library copy is out of sync: source date {0}, copy date {1}",
+      "Synced": "Standard library synced (date {0} -> {1})"
+    },
     "Test": {
       "Head": "Running tests"
     },
