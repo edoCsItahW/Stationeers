@@ -4,7 +4,7 @@
  * (Creative Commons Attribution-NonCommercial-NoDerivatives) License, By Xiao Songtao.
  * This software is protected by copyright law. Reproduction, distribution, or use for commercial
  * purposes is prohibited without the author's permission. If you have any questions or require
- * permission, please contact the author: 2207150234@st.sziit.edu.cn
+ * permission, please contact the author: edocsitahw@qq.com
  */
 
 /**
@@ -15,7 +15,7 @@
  * IC10 是一种用于 Stationeers 游戏的汇编式编程语言，用于控制游戏中的计算机和设备。
  *
  * API 分为两个主要层次：
- * 1. **运行时绑定**：通过 `ObjectWrap` 包装的 C++ 类（如 {@link IC10Local}、{@link Pos}、{@link Token}、{@link Lexer}、{@link Parser}、{@link Program}、{@link Analyser} 等）
+ * 1. **运行时绑定**：通过 `ObjectWrap` 包装的 C++ 类（如 {@link IC10CompilerLocal}、{@link Pos}、{@link Token}、{@link Lexer}、{@link Parser}、{@link Program}、{@link Analyser}、{@link Linker} 等）
  * 2. **数据序列化**：通过 `toJSON()` 序列化的 AST 节点对象（如各种 {@link ASTNode} 子接口）
  *
  * AST 节点（如指令、表达式）通过 `toJSON()` 方法序列化为普通的 JavaScript 对象，
@@ -48,6 +48,15 @@ export * from "./locale";
 export * from "./lexer";
 
 
+/**
+ * @summary 标准库数据
+ *
+ * @desc 描述随包分发的 IC10 标准库（`src/stdLib.ic`）：`content` 为标准库源码文本。
+ *       该接口目前只用于描述数据形状，运行时的导出表里没有对应成员。
+ *
+ * @public
+ */
 export interface StdLibData {
+    /** 标准库源码内容 */
     content: string;
 }

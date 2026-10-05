@@ -39,6 +39,8 @@ namespace stationeers::ic10 {
              InstanceMethod<&DeviceAdapter::getTypeHash>("getTypeHash"),
              InstanceMethod<&DeviceAdapter::getNameHash>("getNameHash"),
              InstanceMethod<&DeviceAdapter::clearStack>("clearStack"),
+             InstanceMethod<&DeviceAdapter::typeName>("typeName"),
+             InstanceMethod<&DeviceAdapter::snapshot>("snapshot"),
              InstanceMethod<&DeviceAdapter::tick>("tick")}
         );
 
@@ -161,6 +163,44 @@ namespace stationeers::ic10 {
     }
 
     void DeviceAdapter::clearStack(const node::CallbackInfo& info) { device_->clearStack(); }
+
+    node::Value DeviceAdapter::typeName(const node::CallbackInfo& info) {
+        return node::String::New(info.Env(), device_->typeName());
+    }
+
+    node::Value DeviceAdapter::snapshot(const node::CallbackInfo& info) {
+        const auto views = device_->snapshot();
+
+        auto result = node::Array::New(info.Env(), views.size());
+
+        for (std::size_t i = 0; i < views.size(); i++) {
+            const auto& view = views[i];
+
+            auto item = node::Object::New(info.Env());
+
+            item.Set("name", node::String::New(info.Env(), view.name));
+
+            item.Set("kind", node::String::New(info.Env(), view.kind));
+
+            item.Set("declaredValue", node::String::New(info.Env(), view.declaredValue));
+
+            // 注解声明的默认值：没声明就是 null，与"默认值为 0"区分开
+            if (view.defaultValue) item.Set("defaultValue", node::Number::New(info.Env(), *view.defaultValue));
+            else item.Set("defaultValue", info.Env().Null());
+
+            // 未赋过值的成员没有值，用 null 与"赋值为 0"区分开
+            if (view.value) item.Set("value", node::Number::New(info.Env(), *view.value));
+            else item.Set("value", info.Env().Null());
+
+            item.Set("isDeclared", node::Boolean::New(info.Env(), view.isDeclared));
+
+            item.Set("assigned", node::Boolean::New(info.Env(), view.assigned));
+
+            result[i] = item;
+        }
+
+        return result;
+    }
 
     void DeviceAdapter::tick(const node::CallbackInfo& info) { device_->tick(); }
 

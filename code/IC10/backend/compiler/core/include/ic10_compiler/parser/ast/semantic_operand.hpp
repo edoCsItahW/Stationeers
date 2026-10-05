@@ -113,8 +113,8 @@ namespace stationeers::ic10 {
      *          | `LOGIC_SLOT_PROP` | `LogicSlotProp` | 同 `LogicProp`（槽位逻辑属性） |
      *          | `AGG_MODE` | `AggMode` | `Errorable`：`Number`、`Identifier`、`Enum`（聚合模式） |
      *          | `REAGENT_MODE` | `ReagentMode` | 同 `AggMode`（试剂模式） |
-     *          | `DEVICE_HASH` | `DeviceHash` | `Errorable`：`Number`、`Identifier`、`HashMacro` |
-     *          | `NAME_HASH` | `NameHash` | `Errorable`：`Number`、`Identifier`、`StrMacro` |
+     *          | `DEVICE_HASH` | `DeviceHash` | `Errorable`：`Number`、`Register`、`Identifier`、`HashMacro` |
+     *          | `NAME_HASH` | `NameHash` | `Errorable`：`Number`、`Register`、`Identifier`、`HashMacro` |
      *          | `CONST_NUM` | `ConstNum` | `Errorable`：`Number`、`Macro`（`define` 的常量值） |
      *
      *          @note 「同 `NumValue`」的四类取值**解析结果形态一致**，差别体现在语义阶段对该位置
@@ -145,8 +145,8 @@ namespace stationeers::ic10 {
      *          | `LOGIC_SLOT_PROP` | `LogicSlotProp` | same as `LogicProp` (slot logic property) |
      *          | `AGG_MODE` | `AggMode` | `Errorable`: `Number`, `Identifier`, `Enum` (aggregate mode) |
      *          | `REAGENT_MODE` | `ReagentMode` | same as `AggMode` (reagent mode) |
-     *          | `DEVICE_HASH` | `DeviceHash` | `Errorable`: `Number`, `Identifier`, `HashMacro` |
-     *          | `NAME_HASH` | `NameHash` | `Errorable`: `Number`, `Identifier`, `StrMacro` |
+     *          | `DEVICE_HASH` | `DeviceHash` | `Errorable`: `Number`, `Register`, `Identifier`, `HashMacro` |
+     *          | `NAME_HASH` | `NameHash` | `Errorable`: `Number`, `Register`, `Identifier`, `HashMacro` |
      *          | `CONST_NUM` | `ConstNum` | `Errorable`: `Number`, `Macro` (the value of a `define`) |
      *
      *          @note The four "same as `NumValue`" enumerators **parse identically**; their difference

@@ -2,6 +2,18 @@
 
 [中文](CHANGELOG.zh.md)
 
+## 2026/09/26
+
+- feat: Relax the IC10 grammar operand rules
+- feat: Update the IC10 VS Code plugin for the IC10 v3 package
+- feat: Publish the IC10 VS Code plugin v2 (client and server bundled with esbuild, packaging reworked)
+
+## 2026/09/25
+
+- feat: Publish the ic10c-node v3 package
+- feat: Update the IC10 VS Code plugin for the IC10 v3 package
+- fix: Fix the v3.0.0 release CI (artifact naming, duplicate assets and release permissions)
+
 ## 2026/09/24
 
 - refactor: Refactor IC10 metadata (split into the `@ic10/metadata` package)

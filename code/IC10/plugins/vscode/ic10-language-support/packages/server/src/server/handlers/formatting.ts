@@ -39,7 +39,7 @@ import {
     Statement,
     ErrorNode,
     Operand
-} from "ic10c-node";
+} from "@ic10/compiler";
 
 import { AST, operandToString } from "../../utils";
 import { DocumentCache } from "../cache";

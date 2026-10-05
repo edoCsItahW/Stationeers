@@ -39,6 +39,8 @@ namespace stationeers::ic10 {
     std::string TypeAnnotationLineBase<Name, Tag>::toString() const {
         auto result = std::format("@{} {} {}", std::string(Tag), name, value);
 
+        if (defaultValue) result += " " + *defaultValue;
+
         if (desc)
             result += " " + call(*desc, [](auto&& d) { return d.toString(); });
 
@@ -47,7 +49,10 @@ namespace stationeers::ic10 {
 
     template<FString Name, FString Tag>
     std::string TypeAnnotationLineBase<Name, Tag>::toJSON() const {
-        return AST<TypeAnnotationLineBase>::template jsonBase<"name", "value", "desc">(name, value, desc ? std::optional(call(*desc, [](auto&& d) { return d.toJSON(); })) : std::nullopt);
+        return AST<TypeAnnotationLineBase>::template jsonBase<"name", "value", "defaultValue", "desc">(
+            name, value, defaultValue ? defaultValue : std::nullopt,
+            desc ? std::optional(call(*desc, [](auto&& d) { return d.toJSON(); })) : std::nullopt
+        );
     }
 
 }  // namespace stationeers::ic10

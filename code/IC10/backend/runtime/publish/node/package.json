@@ -1,6 +1,6 @@
 {
-    "name": "ic10r-node",
-    "version": "1.0.5",
+    "name": "@ic10/runtime",
+    "version": "2.2.0",
     "description": "IC10 Runtime Node.js Native Bindings - IC10 program execution engine | IC10 运行时 Node.js 原生绑定 - IC10 程序执行引擎",
     "main": "src/ic10r-node.node",
     "types": "types/index.d.ts",
@@ -8,13 +8,14 @@
         "src/",
         "types/",
         "tsconfig.json",
-        "CHANGELOG.md"
+        "CHANGELOG.md",
+        "CHANGELOG.zh.md"
     ],
+    "publishConfig": {
+        "access": "public"
+    },
     "engines": {
         "node": ">=16.0.0"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [
         "ic10",

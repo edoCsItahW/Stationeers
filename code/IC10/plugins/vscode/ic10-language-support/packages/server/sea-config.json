@@ -2,7 +2,7 @@
     "main": "./bundle.js",
     "output": "ic10-lsp.exe",
     "assets": {
-        "ic10c-node.node": "./node_modules/ic10c-node/src/ic10c-node.node",
-        "stdLib.ic.json": "./node_modules/ic10c-node/static/stdLib.ic.json"
+        "ic10c-node.node": "./node_modules/@ic10/compiler/src/ic10c-node.node",
+        "stdLib.ic": "./node_modules/@ic10/compiler/src/stdLib.ic"
     }
 }

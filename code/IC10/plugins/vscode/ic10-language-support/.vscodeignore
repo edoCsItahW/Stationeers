@@ -3,29 +3,39 @@
 .vscode/**
 .vscode-test/**
 
-# Common: exclude source & build config, keep out/
-common/src/**
-common/node_modules/**
-common/tsconfig.json
-common/pnpm-lock.yaml
-common/package-lock.json
+# Packages: 只保留 bundle 后的 dist，排除源码与 tsc 输出
+# Packages: keep only the bundled dist, drop sources and tsc output
+packages/*/src/**
+packages/*/out/**
+packages/*/testFixture/**
+packages/*/package.json
+packages/*/tsconfig.json
+packages/*/sea-config.json
+packages/*/README.md
+packages/*/pnpm-lock.yaml
+packages/*/pnpm-workspace.yaml
+packages/*/package-lock.json
+packages/*/tsconfig.tsbuildinfo
+packages/*/.tsbuildinfo
 
-# Client: exclude source & build config, keep out/
-client/src/**
-client/testFixture/**
-client/tsconfig.json
-client/pnpm-lock.yaml
-client/package-lock.json
-client/tsconfig.tsbuildinfo
+# sourcemap 指向已被排除的 src，留在包里只是死重量（约 3.5 MB）
+# Sourcemaps point at the excluded src, so they are dead weight in the package (~3.5 MB)
+packages/*/dist/*.map
 
-# Server: exclude source & build config, keep out/
-server/src/**
-server/tsconfig.json
-server/pnpm-lock.yaml
-server/package-lock.json
-server/pnpm-workspace.yaml
+# 仅保留根 node_modules 中随包发布的运行时依赖（@ic10/compiler、ic10r-node）
+# Keep only the runtime dependencies shipped under the root node_modules
+packages/*/node_modules/**
+node_modules/@types/**
+node_modules/.pnpm/**
+node_modules/.bin/**
+node_modules/.modules.yaml
+node_modules/.package-lock.json
+node_modules/.package-map.json
+node_modules/.pnpm-workspace-state-v1.json
 
 # Misc
+tsconfig.json
+tsconfig.base.json
 .gitignore
 .git 
 *.vsix
@@ -37,6 +47,4 @@ pnpm-workspace.yaml
 tsconfig.tsbuildinfo
 scripts/**
 static/**
-node_modules/.package-map.json
-node_modules/.pnpm-workspace-state-v1.json
 .prettierrc.json

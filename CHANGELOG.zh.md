@@ -1,5 +1,17 @@
 # 变更日志
 
+## 2026/09/26
+
+- feat: 放宽 IC10 语法的操作数规则
+- feat: 适配 IC10 v3 更新 VS Code 插件
+- feat: 发布 IC10 VS Code 插件 v2（client 与 server 改用 esbuild 打包，重构打包流程）
+
+## 2026/09/25
+
+- feat: 发布 ic10c-node v3
+- feat: 适配 IC10 v3 更新 VS Code 插件
+- fix: 修复 v3.0.0 发布 CI（产物命名、重复产物与发布权限）
+
 ## 2026/09/24
 
 - refactor: 重构 IC10 元数据（独立为 `@ic10/metadata` 包）

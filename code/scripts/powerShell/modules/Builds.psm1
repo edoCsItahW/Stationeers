@@ -101,10 +101,22 @@ function Copy-Artifact {
         throw (__ "Build.Copy.SourceNotFound" -Arguments $Source)
     }
 
+    $isSourceDir = Test-Path $Source -PathType Container
+
+    if ($isSourceDir) {
+        # 目录：把源目录的“内容”复制到目标目录
+        if (-not (Test-Path $Destination)) {
+            New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+        }
+        Copy-Item -Path (Join-Path $Source '*') -Destination $Destination -Recurse -Force:$Force
+
+        Write-ST-Info (__ "Build.Copy.Success" -Arguments $Source, $Destination)
+        return
+    }
+
+    # 单文件：保持原有逻辑
     $isDir = $Destination.EndsWith('\') -or $Destination.EndsWith('/') -or (Test-Path -Path $Destination -PathType Container)
 
-    # If source is a file and destination doesn't exist yet, treat as directory
-    # so the file is copied INTO it (e.g. .../native/).
     if (-not $isDir -and (Test-Path $Source -PathType Leaf) -and -not (Test-Path $Destination)) {
         $isDir = $true
     }

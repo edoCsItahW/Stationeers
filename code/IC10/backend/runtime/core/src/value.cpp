@@ -15,6 +15,7 @@
  * */
 #include "ic10_runtime/value/value.hpp"
 #include <limits>
+#include <cstdlib>
 
 namespace stationeers::ic10 {
 
@@ -84,35 +85,23 @@ namespace stationeers::ic10 {
         }, macroCall);
     }
 
-    std::optional<double> directionValue(const Operand& operand) {
-        return std::visit([&]<typename T, typename U = std::decay_t<T>>(const T& arg) -> std::optional<double> {
-            if constexpr (std::is_same_v<T, Integer> || std::is_same_v<T, Float>)
-                return std::stod(arg.value);
+    std::optional<double> numericText(const std::string& text) noexcept {
+        if (text.empty()) return std::nullopt;
 
-            else if constexpr (std::is_same_v<U, HexNumber>) {
-                auto hex = arg.value;
-                if (auto pos = hex.find('$'); pos != std::string::npos) hex.erase(pos, 1);
+        auto digits = text.substr(1);
 
-                return std::stoll(hex, nullptr, 16);
-            }
+        if (text.front() == '$')
+            return static_cast<double>(std::strtoll(digits.c_str(), nullptr, 16));
 
-            else if constexpr (std::is_same_v<U, BinaryNumber>) {
-                auto bin = arg.value;
-                if (auto pos = bin.find('%'); pos != std::string::npos) bin.erase(pos, 1);
+        if (text.front() == '%')
+            return static_cast<double>(std::strtoll(digits.c_str(), nullptr, 2));
 
-                return std::stoll(bin, nullptr, 2);
-            }
-
-            else if constexpr (std::is_same_v<U, Constant>)
-                return constantValue(arg.keyword);
-
-            else if constexpr (std::is_same_v<U, HashMacro> || std::is_same_v<U, StrMacro>)
-                return macroCall(arg);
-            else
-                return std::nullopt;
-
+        try {
+            return std::stod(text);
+        } catch (const std::exception&) {
+            // 文本非法（如缺失小数部分）：交由调用方上报无法求值，不在解析层抛出
             return std::nullopt;
-        }, operand);
+        }
     }
 
 }  // namespace stationeers::ic10

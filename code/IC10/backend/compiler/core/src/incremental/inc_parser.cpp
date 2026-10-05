@@ -35,10 +35,18 @@ namespace stationeers::ic10 {
     // 首次编译或缓存失效时调用。
     // ========================================================================
     IncParserResult IncParser::parseFull(const std::vector<std::shared_ptr<Token>>& tokens) {
-        astCached_ = Parser::parsing(tokens);
+        // 用实例而非 Parser::parsing：静态形式会把诊断一起丢弃
+        Parser parser{tokens};
+
+        astCached_ = parser.parse();
+
+        // 全量解析后，整个程序的语法诊断即为本次解析的结果
+        diagnostics_.clear();
+        diagnostics_.insert_range(diagnostics_.end(), parser.getDiagnostics());
 
         return {
             .ast               = astCached_.value(),
+            .diagnostics       = diagnostics_,
             .incremental       = false,
             .reparsedStmts     = astCached_.value().statements.size(),
             .affectedStmtStart = 0
@@ -73,10 +81,12 @@ namespace stationeers::ic10 {
 
         // 截取变化行及之后的所有Token，重新解析
         // 使用 drop_while 跳过变化行之前的Token
+        std::vector<Diagnostic> suffixDiagnostics;
+
         auto subProgram =
             parseTokenRange(tokens | std::views::drop_while([changedStartLine](const auto& token) {
                                 return token->pos.line() < changedStartLine;
-                            }));
+                            }), suffixDiagnostics);
 
         // 构造新AST：前缀复用 + 后缀重解析
         Program newProgram = *astCached_;
@@ -97,8 +107,17 @@ namespace stationeers::ic10 {
         // 更新缓存
         astCached_ = newProgram;
 
+        // 语法诊断：前缀语句被复用，其诊断同样复用（它们位于变化行之前，位置不会移动）；
+        // 无位置的诊断无从归属，直接丢弃，若仍然成立本次重解析会重新报告
+        std::erase_if(diagnostics_, [changedStartLine](const Diagnostic& diagnostic) {
+            return !diagnostic.start || diagnostic.start->line() >= changedStartLine;
+        });
+
+        diagnostics_.insert_range(diagnostics_.end(), suffixDiagnostics);
+
         return {
             .ast               = std::move(newProgram),
+            .diagnostics       = diagnostics_,
             .incremental       = true,
             .reparsedStmts     = subProgram.statements.size(),
             .affectedStmtStart = firstStmtIdx

@@ -15,7 +15,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic, Statement } from "ic10c-node";
+import { Lexer, Parser, Linker, IncLexer, IncParser, Diagnostic } from "@ic10/compiler";
 import { Console, debug } from "@ic10/common";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -24,38 +24,7 @@ import { DocCacheValue } from "../cache";
 import { t } from "../../locals";
 
 
-const STAND_LIB = readFileSync(require.resolve("ic10c-node/src/stdLib.ic"), "utf-8");
-
-/** 会改变符号表的声明式语句类型集合 */
-const DECLARATIVE_TYPES = new Set(["AliasDirective", "DefineDirective", "LabelDef"]);
-
-/**
- * @summary 检查语句范围内是否包含声明式节点
- *
- * @summary Check if statement range contains declarative nodes
- *
- * @desc 遍历指定范围内的语句，检测是否存在会改变符号表的声明式节点
- * （AliasDirective / DefineDirective / LabelDef）。
- * 若不存在声明式节点，则可跳过 Linker 并复用缓存的符号表和类型表。
- *
- * @desc Scans statements in the given range to detect declarative nodes
- * (AliasDirective / DefineDirective / LabelDef) that modify the symbol table.
- * If no declarative nodes found, the Linker can be skipped and cached symbol/type
- * tables can be reused.
- *
- * @param statements - 语句列表
- * @param statements - Statement list
- * @param startIdx - 检查起始索引
- * @param startIdx - Start index for checking
- * @returns 若包含声明式节点返回 true
- * @returns true if declarative nodes are present
- */
-function hasDeclarativeChanges(statements: Statement[], startIdx: number): boolean {
-    for (let i = startIdx; i < statements.length; i++) {
-        if (DECLARATIVE_TYPES.has(statements[i].nodeName)) return true;
-    }
-    return false;
-}
+const STAND_LIB = readFileSync(require.resolve("@ic10/compiler/src/stdLib.ic"), "utf-8");
 
 /**
  * @summary 解析结果，继承缓存值并附加变更标记
@@ -187,17 +156,17 @@ export class ParserPipline {
      *
      * @summary Incremental parse of IC10 source code
      *
-     * @desc 优先使用增量解析管线（IncLexer → IncParser → Linker），仅对自上次
-     * 解析以来发生变化的代码区域重新分析。当内部增量缓存失效时（如首次调用），
-     * 自动回退到全量解析以建立基准。内置 MD5 缓存检查与 `parse` 一致。
+     * @desc 优先使用增量解析管线（IncLexer → IncParser → Linker）：词法与语法阶段只重新分析
+     * 变化的行与语句，语义阶段（Linker）不支持增量，始终全量执行。当内部增量缓存失效时
+     * （如首次调用），自动回退到全量解析以建立基准。内置 MD5 缓存检查与 `parse` 一致。
      * 适用于用户在编辑器中连续编辑大文件的场景，可大幅减少 CPU 开销。
      *
      * @desc Preferentially uses the incremental parsing pipeline
-     * (IncLexer → IncParser → Linker), re-analyzing only the code regions that
-     * have changed since the last parse. When internal incremental caches are
-     * invalid (e.g., first call), automatically falls back to full parse to
-     * establish a baseline. MD5 cache check is consistent with `parse`.
-     * Ideal for continuous editing of large files in the editor, significantly
+     * (IncLexer → IncParser → Linker): the lexical and syntactic phases re-analyze only the changed
+     * lines and statements, while the semantic phase (Linker) does not support incremental operation
+     * and always runs in full. When internal incremental caches are invalid (e.g., first call), it
+     * automatically falls back to full parse to establish a baseline. MD5 cache check is consistent
+     * with `parse`. Ideal for continuous editing of large files in the editor, significantly
      * reducing CPU overhead.
      *
      * @param code - 待解析的完整（可能局部变更的）IC10 源代码
@@ -210,6 +179,14 @@ export class ParserPipline {
      * @throws 解析错误由 @debug 装饰器捕获并记录，不会向上层抛出
      * @throws Parse errors are caught and logged by the @debug decorator, not thrown upward
      *
+     * @note 诊断由词法、语法（均来自增量结果的缓存汇总）与语义（每次全量链接产生）三段构成，
+     *       三者都覆盖整份源码，因此编辑任意一行都会刷新该行的全部诊断——包括语义诊断
+     *       （如把 `Setting` 改成不存在的逻辑属性后应立即报 IWA15_1）。
+     * @note Diagnostics consist of three parts — lexical and syntactic (aggregated from the
+     *       incremental caches) plus semantic (produced by a full link on every call) — all of which
+     *       cover the whole source. Editing any line therefore refreshes every diagnostic of that
+     *       line, semantic ones included (e.g. replacing `Setting` with a nonexistent logic property
+     *       must report IWA15_1 immediately).
      * @note Linker 不支持增量操作，因此链接阶段仍需全量执行。
      * @note The Linker does not support incremental operation, so the linking phase always runs in full.
      */
@@ -242,6 +219,11 @@ export class ParserPipline {
             const lexResult = this.incLexer.tokenizeFull(code);
             const parseResult = this.incParser.parseFull(lexResult.tokens);
 
+            this.assertIncrementalDiagnostics(lexResult, parseResult);
+
+            // 词法与语法诊断随增量结果一并给出，且已覆盖整份源码
+            diagnostics.push(...lexResult.diagnostics, ...parseResult.diagnostics);
+
             const linker = new Linker();
             linker.addUnit(STAND_LIB);
             linker.addUnit(parseResult.ast);
@@ -249,6 +231,7 @@ export class ParserPipline {
             const table = linker.link();
             const typesJson = linker.typeTable.toJSON();
 
+            // 语义诊断由 Linker 产生（Linker 只支持全量分析）
             diagnostics.push(...linker.diagnostics);
 
             return {
@@ -270,41 +253,55 @@ export class ParserPipline {
         // 增量语法分析
         const parseResult = this.incParser.parseInc(lexResult.tokens, lexResult.changedStartLine);
 
-        // 检测受影响范围内是否包含声明式语句（AliasDirective / DefineDirective / LabelDef）
-        // 若没有声明式变更，可以跳过 Linker 和 JSON 序列化/反序列化，复用缓存的符号表和类型表
-        const canSkipLinker =
-            cache?.symbols != null &&
-            cache?.types != null &&
-            !hasDeclarativeChanges(parseResult.ast.statements, parseResult.affectedStmtStart);
+        this.assertIncrementalDiagnostics(lexResult, parseResult);
 
-        const result: ParseResult = {
+        // 词法与语法诊断随增量结果一并给出：未变化的行沿用其缓存时的诊断，
+        // 变化的行用本次诊断，因此无需再复用上一次的 diagnostics
+        diagnostics.push(...lexResult.diagnostics, ...parseResult.diagnostics);
+
+        // 链接器：Linker 不支持增量操作，且语义诊断（未定义标识符、操作数类型、
+        // 标准库枚举属性等）只能由它产生。跳过它只能复用陈旧的诊断，编辑器会因此
+        // 停留在旧文本的错误上（例如把合法属性改成不存在的属性后没有任何提示），
+        // 所以这里始终全量执行。
+        const linker = new Linker();
+
+        linker.addUnit(STAND_LIB);
+        linker.addUnit(parseResult.ast);
+
+        const table = linker.link();
+
+        diagnostics.push(...linker.diagnostics);
+
+        return {
             changed: true,
             source: code,
             ast: parseResult.ast,
             tokens: lexResult.tokens,
-            symbols: cache?.symbols,
-            symbolTable: cache?.symbolTable,
+            symbols: JSON.parse(table.toJSON()),
+            symbolTable: table,
             diagnostics,
+            types: JSON.parse(linker.typeTable.toJSON()),
             hash
         };
+    }
 
-        if (canSkipLinker)
-            // 跳过 Linker，复用缓存的符号表、类型表和诊断信息
-            result.diagnostics.push(...(cache?.diagnostics ?? []));
-        else {
-            // 链接器（全量执行，Linker 不支持增量）
-            const linker = new Linker();
-
-            linker.addUnit(STAND_LIB);
-            linker.addUnit(parseResult.ast);
-
-            result.symbolTable = linker.link();
-            result.symbols = JSON.parse(result.symbolTable.toJSON());
-            result.types = JSON.parse(linker.typeTable.toJSON());
-
-            result.diagnostics.push(...linker.diagnostics);
-        }
-
-        return result;
+    /**
+     * @internal 校验增量结果携带了诊断
+     *
+     * @desc 增量结果上的 `diagnostics` 是新增的编译器能力：原生模块缺失该字段说明
+     * node_modules 里的 `@ic10/compiler` 比类型声明旧（常见的「本地编译好了但没更新依赖」）。
+     * 此时若继续展开只会抛出难懂的 `undefined is not iterable`，因此显式抛错：调用方会回退到
+     * 全量解析（诊断依然正确），并打印一条可定位的日志。
+     *
+     * @internal Check that incremental results carry diagnostics
+     *
+     * @desc `diagnostics` on incremental results is a newer compiler capability: a missing field means
+     * the `@ic10/compiler` native module in node_modules is older than its type declarations (the usual
+     * "built locally but never updated the dependency"). Spreading it would only raise an obscure
+     * `undefined is not iterable`, so fail explicitly instead: the caller falls back to a full parse
+     * (diagnostics stay correct) and logs something actionable.
+     * */
+    private assertIncrementalDiagnostics(...results: { diagnostics?: Diagnostic[] }[]) {
+        if (results.some(result => !result.diagnostics)) throw new Error(t("server.parser.info.LIE3"));
     }
 }

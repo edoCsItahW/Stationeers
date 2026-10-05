@@ -8,9 +8,9 @@
 /**
  * @file semantic.d.ts
  * @author edocsitahw
- * @version 1.1
- * @date 2026/07/22 17:13
- * @desc
+ * @version 1.2
+ * @date 2026/09/24
+ * @desc 符号表 {@link SymbolTable} 与符号 {@link Symbol} 的类型声明。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 import {BasicType, TypeCategory} from "./types";
@@ -23,16 +23,15 @@ import {Description} from "../parser";
  * @desc 存储 IC10 程序中的符号信息（如标签、别名定义等）。
  * 用于静态分析和代码验证。
  *
- * @elseif en
- * @summary Symbol table class
- *
- * @desc Stores symbol information in IC10 programs (such as labels, alias definitions, etc.).
- * Used for static analysis and code validation.
+ * @remarks
+ * **English:** stores the symbols of an IC10 program (labels, alias and constant definitions, …) and is
+ * the basis of static analysis and validation.
  *
  * @example
  * ```typescript
- * // 执行静态分析
- * ic10.Analyser.analyse(program);
+ * // 执行静态分析（visit 是异步的，必须 await）
+ * const analyser = new ic10.Analyser();
+ * await analyser.visit(program);
  *
  * // 获取符号表
  * const symbolTable = analyser.symbolTable;
@@ -69,18 +68,29 @@ export interface Symbol {
     category: TypeCategory;
     /** 类型名称（可选，如设备类型名） */
     typeName?: string;
-    /** 符号值（可选） */
+    /** 符号值（可选；标签为行号，别名为其目标，常量为字面量） */
     value?: string;
-    /** 描述信息（可选，链接或文本） */
+    /** 描述信息（可选，来自 `#: @desc` 类型提示，链接或文本） */
     desc?: Description;
+    /** 是否由 `#: @builtin` 类型提示标记为内建常量 */
     builtin: boolean;
 }
 
 
+/**
+ * @summary 符号表 JSON 结构
+ *
+ * @desc {@link SymbolTable.toJSON} 的输出形状：用户符号与内建符号分开存放。
+ *       内建符号目前是设备端口 `d0`-`d5`。
+ *
+ * @public
+ */
 export interface SymbolMap {
+    /** 源码中定义的符号，以符号名为键 */
     symbols: {
         [key: string]: Symbol;
     };
+    /** 编译器内建符号（如 `d0`-`d5`），以名称为键 */
     builtinSymbols: {
         [key: string]: Symbol;
     };

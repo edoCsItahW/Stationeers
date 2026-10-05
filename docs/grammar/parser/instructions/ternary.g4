@@ -47,9 +47,9 @@ ternaryInstruction : KeywordAdd    regTarget numValue numValue
                     | KeywordRmap   regTarget deviceRefStrict reagentHash
                     | KeywordRol    regTarget numValue numValue
                     | KeywordRor    regTarget numValue numValue
-                    | KeywordS      deviceRef logicProp regTarget
+                    | KeywordS      deviceRef logicProp numValue
                     | KeywordSapz   regTarget numValue numValue
-                    | KeywordSb     deviceHash logicProp regTarget
+                    | KeywordSb     deviceHash logicProp numValue
                     | KeywordSeq    regTarget numValue numValue
                     | KeywordSge    regTarget numValue numValue
                     | KeywordSgt    regTarget numValue numValue

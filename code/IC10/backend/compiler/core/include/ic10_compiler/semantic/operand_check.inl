@@ -456,20 +456,22 @@ namespace stationeers::ic10 {
         return false;
     }
 
-    // Device Hash - Number（lb/lbn/lbs/lbns/sb/sbn/sbs 的设备类型哈希）
+    // Device Hash - Number | Register（lb/lbn/lbs/lbns/sb/sbn/sbs 的设备类型哈希）
     bool Analyser::IdentifierChecker<OperandType::DEVICE_HASH>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
-        // deviceHash : 设备类型哈希值（支持字面量、常量别名、枚举、HASH 宏）
-        return self->checkOperandType<ICMsgId::IWA22_1, TypeCategory::NUMBER>(symbol, arg);
+        // deviceHash : 设备类型哈希值（支持字面量、常量别名、寄存器、HASH 宏）
+        return self->checkOperandType<
+            ICMsgId::IWA22_1, BasicType::REGISTER, TypeCategory::NUMBER>(symbol, arg);
     }
 
-    // Name Hash - Number（lbn/lbns/sbn 的设备名称哈希）
+    // Name Hash - Number | Register（lbn/lbns/sbn 的设备名称哈希）
     bool Analyser::IdentifierChecker<OperandType::NAME_HASH>::check(
         const Analyser* self, const std::shared_ptr<Symbol>& symbol, auto&& arg
     ) {
-        // nameHash : 设备名称哈希值
-        return self->checkOperandType<ICMsgId::IWA23_1, TypeCategory::NUMBER>(symbol, arg);
+        // nameHash : 设备名称哈希值（同deviceHash，可为寄存器）
+        return self->checkOperandType<
+            ICMsgId::IWA23_1, BasicType::REGISTER, TypeCategory::NUMBER>(symbol, arg);
     }
 
 }  // namespace stationeers::ic10

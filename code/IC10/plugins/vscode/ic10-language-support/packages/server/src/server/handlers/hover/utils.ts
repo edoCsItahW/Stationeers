@@ -17,8 +17,8 @@
  * */
 
 import { lowerBound, getEnumName, type Nullable, type Optional } from "@ic10/common";
-import type { IdentifierNode, SymbolMap, Statement } from "ic10c-node";
-import { BasicType } from "ic10c-node";
+import type { IdentifierNode, SymbolMap, Statement } from "@ic10/compiler";
+import { BasicType } from "@ic10/compiler";
 
 
 

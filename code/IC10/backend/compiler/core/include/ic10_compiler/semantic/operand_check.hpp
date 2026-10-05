@@ -55,8 +55,8 @@
  *          | `LOGIC_SLOT_PROP` | 设备注解的 `logicSlots` 命中；否则枚举 `LogicSlotType`；再否则类别 `NUMBER` | IWA11_2 / IWA12_1 / IWA5_1 |
  *          | `AGG_MODE` | 枚举 `BatchMode` 命中；否则类别 `NUMBER` | IWA17_1 / IWA10_1 |
  *          | `REAGENT_MODE` | 枚举 `ReagentMode` 命中；否则类别 `NUMBER` | IWA13_1 / IWA6_1 |
- *          | `DEVICE_HASH` | 类别 `NUMBER` | IWA22_1 |
- *          | `NAME_HASH` | 类别 `NUMBER` | IWA23_1 |
+ *          | `DEVICE_HASH` | `REGISTER` 或类别 `NUMBER` | IWA22_1 |
+ *          | `NAME_HASH` | `REGISTER` 或类别 `NUMBER` | IWA23_1 |
  *          | `REG_OR_DEV` | **无特化**：`alias` 专用，标识符在该位置已由别处处理 | — |
  *
  *          @par 数据来源
@@ -130,8 +130,8 @@
  *          | `LOGIC_SLOT_PROP` | hit in `logicSlots`; else `LogicSlotType`; else category `NUMBER` | IWA11_2 / IWA12_1 / IWA5_1 |
  *          | `AGG_MODE` | hit in the `BatchMode` enum; else category `NUMBER` | IWA17_1 / IWA10_1 |
  *          | `REAGENT_MODE` | hit in the `ReagentMode` enum; else category `NUMBER` | IWA13_1 / IWA6_1 |
- *          | `DEVICE_HASH` | category `NUMBER` | IWA22_1 |
- *          | `NAME_HASH` | category `NUMBER` | IWA23_1 |
+ *          | `DEVICE_HASH` | `REGISTER` or category `NUMBER` | IWA22_1 |
+ *          | `NAME_HASH` | `REGISTER` or category `NUMBER` | IWA23_1 |
  *          | `REG_OR_DEV` | **no specialization**: `alias`-only; identifiers there are handled elsewhere | — |
  *
  *          @par Where the data comes from
@@ -361,9 +361,9 @@ namespace stationeers::ic10 {
 
     /**
      * @if zh
-     * @brief `DEVICE_HASH`：设备类型哈希（`lb`/`sb` 系列），类别须为 `NUMBER`
+     * @brief `DEVICE_HASH`：设备类型哈希（`lb`/`sb` 系列），寄存器或类别 `NUMBER`
      * @elseif en
-     * @brief `DEVICE_HASH`: the device type hash (`lb`/`sb` family); category must be `NUMBER`
+     * @brief `DEVICE_HASH`: the device type hash (`lb`/`sb` family); a register or category `NUMBER`
      * @endif
      */
     template<>
@@ -373,9 +373,9 @@ namespace stationeers::ic10 {
 
     /**
      * @if zh
-     * @brief `NAME_HASH`：设备名称哈希（`lbn`/`sbn` 系列），类别须为 `NUMBER`
+     * @brief `NAME_HASH`：设备名称哈希（`lbn`/`sbn` 系列），寄存器或类别 `NUMBER`
      * @elseif en
-     * @brief `NAME_HASH`: the device name hash (`lbn`/`sbn` family); category must be `NUMBER`
+     * @brief `NAME_HASH`: the device name hash (`lbn`/`sbn` family); a register or category `NUMBER`
      * @endif
      */
     template<>

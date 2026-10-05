@@ -14,9 +14,21 @@
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 #include "ic10_runtime/manager.hpp"
+#include <algorithm>
+#include <cctype>
 #include <ranges>
+#include <utility>
 
 namespace stationeers::ic10 {
+
+    bool isStaticPort(const std::string& name) noexcept {
+        if (name == "db") return true;
+
+        // d0-d5（可带引脚 d0:1）；dr0 / drr0 之类的动态端口在运行期换算后才落到具体端口
+        if (name.size() < 2 || name.front() != 'd') return false;
+
+        return std::isdigit(static_cast<unsigned char>(name[1])) != 0;
+    }
 
     Manager::Manager()
         : chip_(std::make_unique<VirtualDevice>()) {}
@@ -37,6 +49,38 @@ namespace stationeers::ic10 {
 
     void Manager::setChipDevice(std::unique_ptr<IDevice> device) noexcept {
         chip_ = std::move(device);
+    }
+
+    void Manager::setRegistry(DeviceRegistry registry) { registry_ = std::move(registry); }
+
+    const DeviceRegistry& Manager::registry() const noexcept { return registry_; }
+
+    IDevice* Manager::bindTyped(const std::string& name, const std::string& typeName) {
+        // 型号表里没有该型号（例如注解缺失或名字写错）时退化为无型号设备：不改变执行语义
+        const DeviceType* type = registry_.find(typeName);
+
+        auto device = std::make_unique<SimDevice>(type ? *type : DeviceType{}, typeName);
+
+        IDevice* raw = device.get();
+
+        // 自引用设备由芯片设备承载，getDevice("db") 不会走 devices_ 表
+        if (name == "db") chip_ = std::move(device);
+        else devices_[name] = std::move(device);
+
+        return raw;
+    }
+
+    std::vector<std::string> Manager::ports() const {
+        std::vector<std::string> names;
+
+        names.reserve(devices_.size());
+
+        for (const auto& name : devices_ | std::views::keys)
+            names.push_back(name);
+
+        std::ranges::sort(names);
+
+        return names;
     }
 
     IDevice* Manager::findDeviceByType(const int64_t typeHash) const {

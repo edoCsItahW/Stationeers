@@ -29,7 +29,30 @@ namespace stationeers::ic10 {
 
     class Context {
     public:
-        Context(const Program& program, const SymbolTable& symbols, const Config& config);
+        /**
+         * @if zh
+         * @brief 构造执行上下文
+         * @param program 已解析的程序
+         * @param symbols 语义分析产出的符号表（别名、常量、标签）
+         * @param config 运行时配置
+         * @param types 语义分析产出的类型表（设备/枚举注解）；枚举常量操作数（如 `Color.Green`）
+         *              的求值依赖它，缺失时枚举操作数无法求值
+         *
+         * @else
+         * @brief Construct the execution context
+         * @param program The parsed program
+         * @param symbols The symbol table produced by semantic analysis (aliases, constants, labels)
+         * @param config Runtime configuration
+         * @param types The type table produced by semantic analysis (device/enum annotations);
+         *              evaluating enum operands such as `Color.Green` depends on it, and without it
+         *              enum operands cannot be evaluated
+         *
+         * @endif
+         */
+        Context(
+            const Program& program, const SymbolTable& symbols, const Config& config = {},
+            const TypeTable& types = {}
+        );
 
         Context(Context&&) noexcept = default;
         Context& operator=(Context&&) noexcept = default;
@@ -78,6 +101,9 @@ namespace stationeers::ic10 {
 
         Config cfg;
 
+        /// @brief 类型表（设备/枚举注解），枚举常量操作数的求值来源
+        TypeTable types;
+
     private:
         std::size_t currentTick_ = 0;
 
@@ -92,6 +118,56 @@ namespace stationeers::ic10 {
         bool halted_;
 
         void buildAddrs();
+
+        /**
+         * @if zh
+         * @brief 初始化设备：构建型号表并按源码声明的型号绑定端口
+         * @else
+         * @brief Initialise devices: build the device type table and bind declared ports
+         * @endif
+         */
+        void initDevices();
+
+        /**
+         * @if zh
+         * @brief 应用类型提示上的默认值
+         *
+         * @details 处理 `alias ... #: @default ...`：设备形式（`@default 分组 字段 值`）覆写该端口
+         *          设备上对应成员声明的默认值；寄存器形式（`@default 值`）把该值作为寄存器初值写入
+         *          （未写过时读到的就是它，而不是 0）。
+         *
+         * @note 只对**已经按型号绑定**的端口生效（见 @ref initDevices）：没有声明型号的端口上不存在
+         *       成员范围，也就没有可覆写的默认值；动态端口与动态寄存器（`dr0` / `rr0`）在构造期无法
+         *       确定目标，同样跳过。
+         *
+         * @else
+         *
+         * @brief Apply the defaults declared by type hints
+         *
+         * @details Handles `alias ... #: @default ...`: the device form (`@default category field value`)
+         *          overrides the default that member declares on the port's device, while the register
+         *          form (`@default value`) seeds the register (an unwritten register then reads that
+         *          value instead of 0).
+         *
+         * @note Only ports **already bound to a type** are affected (see @ref initDevices): a port
+         *       without a declared type has no member range to override. Dynamic ports and dynamic
+         *       registers (`dr0` / `rr0`) are skipped as well, since their target is unknowable at
+         *       construction time.
+         *
+         * @endif
+         */
+        void initHintDefaults();
+
+        /**
+         * @if zh
+         * @brief 收集声明了型号的设备符号
+         * @return 符号指针列表（生命周期由符号表保证）
+         * @else
+         * @brief Collect the device symbols that declare a type
+         * @return Symbol pointers (their lifetime is owned by the symbol table)
+         * @endif
+         */
+        [[nodiscard]] std::vector<const Symbol*> deviceSymbols() const;
     };
 
 }  // namespace stationeers::ic10

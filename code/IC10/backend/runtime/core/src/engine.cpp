@@ -18,8 +18,11 @@
 
 namespace stationeers::ic10 {
 
-    Engine::Engine(const Program& program, const SymbolTable& symbols, const Config& config)
-        : context_(program, symbols, config)
+    Engine::Engine(
+        const Program& program, const SymbolTable& symbols, const Config& config,
+        const TypeTable& types
+    )
+        : context_(program, symbols, config, types)
         , executor_(context_)
         , cfg_(config) {
         context_.setReporter(&reporter_);

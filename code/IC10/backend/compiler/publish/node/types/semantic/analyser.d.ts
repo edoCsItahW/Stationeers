@@ -8,16 +8,16 @@
 /**
  * @file analyser.d.ts
  * @author edocsitahw
- * @version 1.1
- * @date 2026/07/22 16:01
- * @desc
+ * @version 1.2
+ * @date 2026/09/24
+ * @desc 语义分析器 {@link Analyser} 的类型声明：把 AST 走一遍，产出符号表、类型表与诊断。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
 
+import {SymbolTable} from "./semantic";
+import {TypeTable} from "./types";
 import {Diagnostic} from "../common";
 import {Program} from "../parser";
-import {SymbolTable} from "./semantic";
-import {TypeTable} from "./type_table";
 
 
 /**
@@ -29,28 +29,24 @@ import {TypeTable} from "./type_table";
  * - 类型检查
  * - 错误检测
  *
- * @elseif en
- * @summary Static analyser class
- *
- * @desc Performs static analysis of IC10 programs, including:
- * - Symbol table construction
- * - Semantic checking
- * - Type checking
- * - Error detection
+ * @remarks
+ * **English:** performs static analysis of an IC10 program — symbol table construction, semantic and
+ * type checking, and error detection.
  *
  * @example
  * ```typescript
- * // 创建分析器并分析程序
+ * // 创建分析器并分析程序（visit 是异步的，必须 await）
  * const analyser = new ic10.Analyser();
- * analyser.visit(program);
+ * await analyser.visit(program);
  *
  * // 检查是否有诊断信息
  * if (analyser.diagnostics.length > 0) {
  *     console.log('诊断信息:', analyser.diagnostics);
  * }
  *
- * // 获取符号表
+ * // 获取符号表与类型表
  * const symbolTable = analyser.symbolTable;
+ * const typeTable = analyser.typeTable;
  * ```
  *
  * @public
@@ -82,17 +78,30 @@ export class Analyser {
      * @summary 静态方法：分析程序
      *
      * @param program - 要分析的 Program 节点
+     * @returns 分析完成后 resolve 的 Promise（**不返回分析结果**）
      *
      * @desc 便捷方法，直接分析程序而不需要创建 Analyser 实例。
+     *
+     * @warning 它内部创建的分析器实例在返回时即被丢弃，因此**拿不到符号表、类型表与诊断** ——
+     *          需要结果时请改用 `new Analyser()` + `await analyser.visit(program)`。
+     *
+     * @example
+     * ```typescript
+     * await ic10.Analyser.analyse(program);   // 只跑分析，不要结果
+     * ```
      */
-    static analyse(program: Program): void;
+    static analyse(program: Program): Promise<void>;
 
     /**
      * @summary 访问程序节点
      *
      * @param program - 要访问的 Program 节点
+     * @returns 分析完成后 resolve 的 Promise
      *
-     * @desc 执行实际的静态分析，更新符号表和诊断列表。
+     * @desc 执行实际的静态分析，更新符号表、类型表与诊断列表。
+     *
+     * @note **必须 `await`**：符号前向引用会让分析在内部挂起、稍后恢复，
+     *       不等待就读取 `symbolTable` / `diagnostics` 会拿到尚未填充的结果。
      */
     visit(program: Program): Promise<void>;
 }

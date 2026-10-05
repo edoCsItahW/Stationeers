@@ -13,7 +13,7 @@
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
-import { OperandType, Statement, SymbolMap, TypeTableMap } from "ic10c-node";
+import { OperandType, Statement, SymbolMap, TypeTableMap } from "@ic10/compiler";
 import { CompletionItem } from "vscode-languageserver";
 import type { Optional } from "@ic10/common";
 
@@ -24,6 +24,8 @@ export interface CompletionProviderContext {
     stmt: Optional<Statement>;
     symbols: Optional<SymbolMap>;
     types: Optional<TypeTableMap>;
+    isDefine: boolean;
+    symbolMap?: Record<string, string>;
     getLocale(): ReturnType<typeof locale.getLocale>;
 }
 

@@ -1,6 +1,6 @@
 {
     "name": "@ic10/metadata",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "description": "IC10 language related metadata | IC10语言相关元数据",
     "type": "module",
     "files": [
@@ -25,7 +25,9 @@
         },
         "./locals/*": {
             "types": "./dist/locals/*.d.ts",
-            "import": "./dist/locals/*.js"
+            "import": "./dist/locals/*.js",
+            "default": "./dist/locals/*.js",
+            "require": "./dist/locals/*.js"
         },
         "./std": {
             "types": "./dist/std/index.d.ts",
@@ -35,7 +37,9 @@
         },
         "./std/*": {
             "types": "./dist/std/*.d.ts",
-            "import": "./dist/std/*.js"
+            "import": "./dist/std/*.js",
+            "default": "./dist/std/*.js",
+            "require": "./dist/std/*.js"
         },
         "./stationpedia/CN": {
             "types": "./dist/stationpedia/CN/index.d.ts",

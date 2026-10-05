@@ -21,8 +21,8 @@
  *        - REG_TARGET DEVICE_REF_STRICT REAGENT_HASH : rmap
  *        - DEVICE_REF ADDRESS NUM_VALUE  : put
  *        - REG_TARGET DEVICE_REF LOGIC_PROP : l
- *        - DEVICE_REF LOGIC_PROP REG_TARGET : s
- *        - DEVICE_HASH LOGIC_PROP REG_TARGET : sb
+ *        - DEVICE_REF LOGIC_PROP NUM_VALUE : s
+ *        - DEVICE_HASH LOGIC_PROP NUM_VALUE : sb
  *        - DEVICE_REF LOGIC_PROP JUMP_LINE : bdnvl、bdnvs
  *        - NUM_VALUE NUM_VALUE JUMP_LINE  : beq、beqal、bne、bneal、bge、bgeal、bgt、bgtal、
  *          ble、bleal、blt、bltal、bapz、bapzal、bnaz、bnazal、breq、brne、brge、brgt、brle、
@@ -40,8 +40,8 @@
  *        - REG_TARGET DEVICE_REF_STRICT REAGENT_HASH : rmap
  *        - DEVICE_REF ADDRESS NUM_VALUE  : put
  *        - REG_TARGET DEVICE_REF LOGIC_PROP : l
- *        - DEVICE_REF LOGIC_PROP REG_TARGET : s
- *        - DEVICE_HASH LOGIC_PROP REG_TARGET : sb
+ *        - DEVICE_REF LOGIC_PROP NUM_VALUE : s
+ *        - DEVICE_HASH LOGIC_PROP NUM_VALUE : sb
  *        - DEVICE_REF LOGIC_PROP JUMP_LINE : bdnvl, bdnvs
  *        - NUM_VALUE NUM_VALUE JUMP_LINE  : beq, beqal, bne, bneal, bge, bgeal, bgt, bgtal,
  *          ble, bleal, blt, bltal, bapz, bapzal, bnaz, bnazal, breq, brne, brge, brgt, brle,
@@ -220,16 +220,17 @@ namespace stationeers::ic10 {
         l, L, L, OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::LOGIC_PROP
     )
 
-    // ---------- DEVICE_REF LOGIC_PROP REG_TARGET ----------
+    // ---------- DEVICE_REF LOGIC_PROP NUM_VALUE ----------
 
+    // s 的第三个操作数是写入设备的「值」，非目标寄存器：数字字面量/常量别名/枚举常量均合法
     DEFINE_TERNARY_INSTRUCTION(
-        s, S, S, OperandType::DEVICE_REF, OperandType::LOGIC_PROP, OperandType::REG_TARGET
+        s, S, S, OperandType::DEVICE_REF, OperandType::LOGIC_PROP, OperandType::NUM_VALUE
     )
 
-    // ---------- DEVICE_HASH LOGIC_PROP REG_TARGET ----------
+    // ---------- DEVICE_HASH LOGIC_PROP NUM_VALUE ----------
 
     DEFINE_TERNARY_INSTRUCTION(
-        sb, Sb, SB, OperandType::DEVICE_HASH, OperandType::LOGIC_PROP, OperandType::REG_TARGET
+        sb, Sb, SB, OperandType::DEVICE_HASH, OperandType::LOGIC_PROP, OperandType::NUM_VALUE
     )
 
     // ---------- DEVICE_REF LOGIC_PROP JUMP_LINE ----------

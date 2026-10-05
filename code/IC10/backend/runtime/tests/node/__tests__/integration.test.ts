@@ -29,7 +29,7 @@ async function runAndGetReg(source: string, regName: string): Promise<number> {
     const program = parser.parse();
     const analyser = new Analyser();
     await analyser.visit(program);
-    const engine = new Engine(program, analyser.symbolTable);
+    const engine = new Engine(program, analyser.symbolTable, undefined, analyser.typeTable);
     engine.runFull();
     return engine.context.memory.getReg(regName);
 }
@@ -46,12 +46,42 @@ async function compile(source: string): Promise<{
     const program = parser.parse();
     const analyser = new Analyser();
     await analyser.visit(program);
-    const engine = new Engine(program, analyser.symbolTable);
+    const engine = new Engine(program, analyser.symbolTable, undefined, analyser.typeTable);
     return {
         engine,
         reg: (name: string) => engine.context.memory.getReg(name)
     };
 }
+
+/**
+ * 注册一个外部设备并返回其 JS 包装对象（读取写入结果用）。
+ */
+function registerDevice(engine: InstanceType<typeof Engine>, name: string) {
+    const manager = engine.context.manager;
+    manager.setExternalDevice(name, undefined as never);
+
+    const device = manager.getDevice(name);
+    if (!device) throw new Error(`port '${name}' should have a registered device`);
+
+    return device;
+}
+
+/**
+ * 最小标准库片段：逻辑属性名需命中 LogicType 枚举才算合法。
+ */
+const LOGIC_TYPES =
+    '#> @enum\n' +
+    '#> @name LogicType\n' +
+    '#> @value Setting 12\n' +
+    '#> @value On 28\n' +
+    '#> @value Color 3\n' +
+    '#> @value Pressure 5\n' +
+    '#> @end-enum\n' +
+    '#> @enum\n' +
+    '#> @name BatchMode\n' +
+    '#> @value Average 0\n' +
+    '#> @value Sum 1\n' +
+    '#> @end-enum\n';
 
 // ============================================================
 // 算术和算法
@@ -278,8 +308,143 @@ describe('Compilation pipeline integration', () => {
         const program = parser.parse();
         const analyser = new Analyser();
         await analyser.visit(program);
-        const engine = new Engine(program, analyser.symbolTable);
+        const engine = new Engine(program, analyser.symbolTable, undefined, analyser.typeTable);
         engine.runFull();
         expect(engine.context.memory.getReg('r0')).toBe(42);
+    });
+});
+
+// ============================================================
+// v3 放宽语法：别名写入目标、设备引用、写入值形态
+// ============================================================
+
+describe('v3 relaxed syntax', () => {
+    it('should write through an alias target', async () => {
+        const {engine, reg} = await compile(
+            'alias tmp r3\n' +
+            'move tmp 7\n' +
+            'move r4 tmp\n' +
+            'hcf\n'
+        );
+        engine.runFull();
+        expect(reg('r3')).toBe(7);
+        expect(reg('r4')).toBe(7);
+    });
+
+    it('should accept constant, literal and register write values', async () => {
+        const {engine, reg} = await compile(
+            LOGIC_TYPES +
+            'alias led d0\n' +
+            'define Level 3\n' +
+            'move r1 5\n' +
+            's led Setting Level\n' +
+            's led On r1\n' +
+            's led Color 7\n' +
+            'l r0 led Setting\n' +
+            'hcf\n'
+        );
+        const device = registerDevice(engine, 'd0');
+
+        engine.runFull();
+
+        expect(device.readLogic('Setting')).toBe(3);
+        expect(device.readLogic('On')).toBe(5);
+        expect(device.readLogic('Color')).toBe(7);
+        expect(reg('r0')).toBe(3);
+    });
+
+    it('should resolve a dynamic device port from its register', async () => {
+        const {engine} = await compile(
+            LOGIC_TYPES +
+            'move r0 1\n' +
+            's dr0 Setting 9\n' +
+            'hcf\n'
+        );
+        const device = registerDevice(engine, 'd1');
+
+        engine.runFull();
+
+        expect(device.readLogic('Setting')).toBe(9);
+    });
+
+    it('should report an error for an out-of-range dynamic port', async () => {
+        const {engine} = await compile(
+            LOGIC_TYPES +
+            'move r0 9\n' +
+            's dr0 Setting 1\n' +
+            'hcf\n'
+        );
+        engine.runFull();
+
+        expect(engine.diagnostics.length).toBeGreaterThan(0);
+    });
+
+    it('should evaluate an enum constant as a write value', async () => {
+        const {engine} = await compile(
+            LOGIC_TYPES +
+            '#> @enum\n' +
+            '#> @name Color\n' +
+            '#> @value Green 2\n' +
+            '#> @end-enum\n' +
+            'alias led d0\n' +
+            's led Color Color.Green\n' +
+            'hcf\n'
+        );
+        const device = registerDevice(engine, 'd0');
+
+        engine.runFull();
+
+        expect(device.readLogic('Color')).toBe(2);
+    });
+
+    it('should take a device hash from a register', async () => {
+        const {engine} = await compile(
+            LOGIC_TYPES +
+            'alias Hash r2\n' +
+            'move Hash 0\n' +
+            'sb Hash Setting 4\n' +
+            'hcf\n'
+        );
+        const device = registerDevice(engine, 'd0');
+
+        engine.runFull();
+
+        expect(device.readLogic('Setting')).toBe(4);
+    });
+
+    it('should pass a legacy numeric logic prop as its decimal text', async () => {
+        const {engine} = await compile(
+            LOGIC_TYPES +
+            'alias led d0\n' +
+            's led 3 8\n' +
+            'hcf\n'
+        );
+        const device = registerDevice(engine, 'd0');
+
+        engine.runFull();
+
+        expect(device.readLogic('3')).toBe(8);
+    });
+
+    it('should resolve a bare aggregate mode member name', async () => {
+        const {engine, reg} = await compile(
+            LOGIC_TYPES +
+            'define DevType 0\n' +
+            'lb r0 DevType Pressure Average\n' +
+            'hcf\n'
+        );
+        const first = registerDevice(engine, 'd0');
+        const second = registerDevice(engine, 'd1');
+        first.writeLogic('Pressure', 6);
+        second.writeLogic('Pressure', 12);
+        // 芯片自身也是类型哈希为 0 的设备，lb 的设备集合包含它
+        const chip = engine.context.manager.getDevice('db');
+        if (!chip) throw new Error("the chip device 'db' should exist");
+        chip.writeLogic('Pressure', 3);
+
+        engine.runFull();
+
+        // Average = (6 + 12 + 3) / 3
+        expect(reg('r0')).toBe(7);
     });
 });

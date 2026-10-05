@@ -14,9 +14,11 @@
 #include "ic10_compiler/locals/languages/zh_hans.hpp"
 #include "ic10_compiler/parser/parser.hpp"
 #include "ic10_compiler/lexer/lexer.hpp"
+#include <algorithm>
 #include <gtest/gtest.h>
 
 using namespace stationeers::ic10;
+using stationeers::Diagnostic;
 
 namespace {
 
@@ -85,6 +87,42 @@ void expectProgramsMatch(const Program& actual, const Program& expected) {
         EXPECT_EQ(aCol, eCol);
         EXPECT_EQ(aOff, eOff);
     }
+}
+
+// 辅助：诊断列表中是否存在指定 id 的诊断
+bool hasDiagnostic(const std::vector<Diagnostic>& diagnostics, std::string_view id) {
+    return std::ranges::any_of(diagnostics, [&](const Diagnostic& d) { return d.id == id; });
+}
+
+// 辅助：统计指定 id 的诊断条数（增量路径复用前缀诊断时用于确认没有重复报告）
+std::size_t countDiagnostic(const std::vector<Diagnostic>& diagnostics, std::string_view id) {
+    return static_cast<std::size_t>(std::ranges::count_if(
+        diagnostics, [&](const Diagnostic& d) { return d.id == id; }
+    ));
+}
+
+// 辅助：诊断列表中是否存在指定 id 且起始行等于 line 的诊断（增量路径下验证位置平移）
+bool hasDiagnosticAtLine(const std::vector<Diagnostic>& diagnostics, std::string_view id, int line) {
+    return std::ranges::any_of(diagnostics, [&](const Diagnostic& d) {
+        return d.id == id && d.start.has_value() && d.start->line() == line;
+    });
+}
+
+// 辅助：把诊断压成 "id@line:col" 列表，断言失败时便于排查
+std::string formatDiagnostics(const std::vector<Diagnostic>& diagnostics) {
+    std::string result;
+
+    for (const auto& diagnostic : diagnostics) {
+        if (!result.empty()) result += ", ";
+
+        result += diagnostic.id;
+
+        if (diagnostic.start)
+            result += "@" + std::to_string(diagnostic.start->line()) + ":"
+                    + std::to_string(diagnostic.start->column());
+    }
+
+    return result.empty() ? "<empty>" : result;
 }
 
 }  // namespace
@@ -341,18 +379,101 @@ TEST(IncrementalCompilerTest, IncrementalInsertMatchesFull) {
     expectProgramsMatch(result.ast, fullResult.ast);
 }
 
-TEST(IncrementalCompilerTest, IncrementalDeleteMatchesFull) {
+// ============================================================
+// 增量诊断传递测试
+//
+// 增量路径下的 diagnostics 必须覆盖整份源码：未变化的行/语句沿用缓存时的诊断，
+// 变化的行/语句用本次诊断，后缀位置平移后诊断也要跟着平移。否则编辑器在编辑
+// 期间会停留在旧文本的错误上（这正是 LSP 端曾出现「改了属性却没有任何提示」的原因）。
+// ============================================================
+
+TEST(IncrementalDiagnosticsTest, LexerDiagnosticsCoverWholeSourceOnFullLex) {
     ICLoc::registerLanguage<ZhHans>("zh-hans");
     ICLoc::setLanguage("zh-hans");
-    std::string src = "add r0 r1 1\ndiv r2 r3 2\nmul r4 r5 3";
+    IncLexer lexer;
+
+    // 等价类：全量 + 无错
+    auto clean = lexer.tokenizeFull("add r0 r1 42\nsub r2 r3 100");
+    EXPECT_TRUE(clean.diagnostics.empty())
+        << "合法源码不应有词法诊断，实际: " << formatDiagnostics(clean.diagnostics);
+
+    // 等价类：全量 + 有错（IEL3_1：令牌后缺少空白分隔，如 `100` 与 `abc` 粘连），错误不在首行也要报出
+    auto dirty = lexer.tokenizeFull("add r0 r1 42\n100abc");
+    EXPECT_TRUE(hasDiagnosticAtLine(dirty.diagnostics, "IEL3_1", 2))
+        << "第 2 行的词法错误应报出，实际: " << formatDiagnostics(dirty.diagnostics);
+}
+
+TEST(IncrementalDiagnosticsTest, IncrementalLexRefreshesChangedLine) {
+    ICLoc::registerLanguage<ZhHans>("zh-hans");
+    ICLoc::setLanguage("zh-hans");
+    IncLexer lexer;
+    lexer.tokenizeFull("add r0 r1 42\nsub r2 r3 100");
+
+    // 只改动第 2 行：错误必须立即出现，而不能停留在上一次的诊断上
+    auto broken = lexer.tokenizeInc("add r0 r1 42\n100abc");
+    EXPECT_TRUE(broken.incremental);
+    EXPECT_TRUE(hasDiagnosticAtLine(broken.diagnostics, "IEL3_1", 2))
+        << "改动后的词法错误应立即出现，实际: " << formatDiagnostics(broken.diagnostics);
+
+    // 再改回合法内容：诊断必须随之消失
+    auto fixed = lexer.tokenizeInc("add r0 r1 42\nsub r2 r3 100");
+    EXPECT_TRUE(fixed.diagnostics.empty())
+        << "改回合法内容后诊断应消失，实际: " << formatDiagnostics(fixed.diagnostics);
+}
+
+TEST(IncrementalDiagnosticsTest, InsertedLineShiftsCachedDiagnostics) {
+    ICLoc::registerLanguage<ZhHans>("zh-hans");
+    ICLoc::setLanguage("zh-hans");
+    IncLexer lexer;
+
+    auto full = lexer.tokenizeFull("add r0 r1 42\n100abc");
+    ASSERT_TRUE(hasDiagnosticAtLine(full.diagnostics, "IEL3_1", 2));
+
+    // 边界：在错误行之前插入一行 —— 该行本身未被重新词法分析，其诊断来自缓存，
+    // 必须随行号/偏移差值一起平移
+    auto shifted = lexer.tokenizeInc("add r0 r1 42\nmul r4 r5 3\n100abc");
+    EXPECT_TRUE(shifted.incremental);
+    EXPECT_TRUE(hasDiagnosticAtLine(shifted.diagnostics, "IEL3_1", 3))
+        << "插入行后缓存诊断应平移到第 3 行，实际: " << formatDiagnostics(shifted.diagnostics);
+}
+
+TEST(IncrementalDiagnosticsTest, ParserDiagnosticsCarriedForPrefixAndRefreshedForSuffix) {
+    ICLoc::registerLanguage<ZhHans>("zh-hans");
+    ICLoc::setLanguage("zh-hans");
+    IncParser parser;
+
+    auto full = parser.parseFull(Lexer::tokenize("hcf yield\nhcf\nhcf\n"));
+    ASSERT_TRUE(hasDiagnosticAtLine(full.diagnostics, "IEP26", 1))
+        << "第 1 行缺少换行分隔应报 IEP26，实际: " << formatDiagnostics(full.diagnostics);
+
+    // 边界：变化行在第 4 行 —— 第 1 行属于复用的前缀语句，其诊断应保留且不重复
+    auto carried = parser.parseInc(Lexer::tokenize("hcf yield\nhcf\nhcf\nyield\n"), 4);
+    EXPECT_TRUE(carried.incremental);
+    EXPECT_TRUE(hasDiagnosticAtLine(carried.diagnostics, "IEP26", 1))
+        << "复用前缀的语法诊断应保留，实际: " << formatDiagnostics(carried.diagnostics);
+    EXPECT_EQ(countDiagnostic(carried.diagnostics, "IEP26"), 1u)
+        << "复用前缀的诊断不应重复，实际: " << formatDiagnostics(carried.diagnostics);
+
+    // 修好出错的第 1 行：变化行即错误行，陈旧诊断必须被整体替换
+    auto fixed = parser.parseInc(Lexer::tokenize("hcf\nyield\nhcf\nhcf\nyield\n"), 1);
+    EXPECT_TRUE(fixed.diagnostics.empty())
+        << "修好错误行后诊断应消失，实际: " << formatDiagnostics(fixed.diagnostics);
+}
+
+TEST(IncrementalDiagnosticsTest, CompileResultCombinesLexicalAndSyntax) {
+    ICLoc::registerLanguage<ZhHans>("zh-hans");
+    ICLoc::setLanguage("zh-hans");
     IncCompiler compiler;
-    compiler.compileFull(src);
 
-    std::string newSrc = "add r0 r1 1\nmul r4 r5 3";
-    auto result = compiler.compileInc(newSrc);
-    EXPECT_TRUE(result.incremental);
+    // 第 1 行是词法错误，第 2 行是语法错误，二者都应出现在结果里
+    auto result = compiler.compileFull("100abc\nhcf yield\n");
+    EXPECT_TRUE(hasDiagnosticAtLine(result.diagnostics, "IEL3_1", 1))
+        << "结果应含词法诊断，实际: " << formatDiagnostics(result.diagnostics);
+    EXPECT_TRUE(hasDiagnosticAtLine(result.diagnostics, "IEP26", 2))
+        << "结果应含语法诊断，实际: " << formatDiagnostics(result.diagnostics);
 
-    IncCompiler compiler2;
-    auto fullResult = compiler2.compileFull(newSrc);
-    expectProgramsMatch(result.ast, fullResult.ast);
+    // 语义诊断不属于增量结果（需要另行执行 Linker），未定义标识符不应在此报出
+    auto semanticOnly = compiler.compileFull("move r0 notDefined\n");
+    EXPECT_FALSE(hasDiagnostic(semanticOnly.diagnostics, "IEA3_1"))
+        << "增量结果不应包含语义诊断，实际: " << formatDiagnostics(semanticOnly.diagnostics);
 }

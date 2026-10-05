@@ -28,7 +28,28 @@ namespace stationeers::ic10 {
 
     class Engine {
     public:
-        Engine(const Program& program, const SymbolTable& symbols, const Config& config);
+        /**
+         * @if zh
+         * @brief 构造执行引擎
+         * @param program 已解析的程序
+         * @param symbols 语义分析产出的符号表
+         * @param config 运行时配置
+         * @param types 语义分析产出的类型表；枚举常量操作数（如 `Color.Green`）的求值依赖它
+         *
+         * @else
+         * @brief Construct the execution engine
+         * @param program The parsed program
+         * @param symbols The symbol table produced by semantic analysis
+         * @param config Runtime configuration
+         * @param types The type table produced by semantic analysis; evaluating enum operands such
+         *              as `Color.Green` depends on it
+         *
+         * @endif
+         */
+        Engine(
+            const Program& program, const SymbolTable& symbols, const Config& config = {},
+            const TypeTable& types = {}
+        );
 
         void runTick();
 

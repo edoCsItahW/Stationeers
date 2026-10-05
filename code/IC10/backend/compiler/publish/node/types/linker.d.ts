@@ -8,15 +8,14 @@
 /**
  * @file linker.d.ts
  * @author edocsitahw
- * @version 1.1
- * @date 2026/07/22 17:12
- * @desc
+ * @version 1.2
+ * @date 2026/09/24
+ * @desc 链接器 {@link Linker} 与编译单元信息 {@link UnitInfo} 的类型声明：合并多个编译单元的符号表与诊断。
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
+import { SymbolTable, TypeTable } from "./semantic";
 import { Diagnostic } from "./common";
 import { Program } from "./parser";
-import { SymbolTable } from "./semantic";
-import { TypeTable } from "./semantic/type_table";
 
 
 /**
@@ -44,11 +43,9 @@ export interface UnitInfo {
  *
  * @desc 用于链接多个 IC10 编译单元，合并它们的符号表并收集所有诊断信息。
  *
- * @elseif en
- * @summary Linker class
- *
- * @desc Used to link multiple IC10 compilation units, merge their symbol tables,
- *       and collect all diagnostics.
+ * @remarks
+ * **English:** links several IC10 compilation units, merges their symbol tables and collects every unit's
+ * diagnostics.
  *
  * @example
  * ```typescript

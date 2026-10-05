@@ -228,8 +228,8 @@ namespace stationeers::ic10 {
     )
     __3IMP__("put", OperandType::DEVICE_REF, OperandType::ADDRESS, OperandType::NUM_VALUE)
     __3IMP__("l", OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::LOGIC_PROP)
-    __3IMP__("s", OperandType::DEVICE_REF, OperandType::LOGIC_PROP, OperandType::REG_TARGET)
-    __3IMP__("sb", OperandType::DEVICE_HASH, OperandType::LOGIC_PROP, OperandType::REG_TARGET)
+    __3IMP__("s", OperandType::DEVICE_REF, OperandType::LOGIC_PROP, OperandType::NUM_VALUE)
+    __3IMP__("sb", OperandType::DEVICE_HASH, OperandType::LOGIC_PROP, OperandType::NUM_VALUE)
     __3IMP__("bdnvl", OperandType::DEVICE_REF, OperandType::LOGIC_PROP, OperandType::JUMP_LINE)
     __3IMP__("bdnvs", OperandType::DEVICE_REF, OperandType::LOGIC_PROP, OperandType::JUMP_LINE)
     __3IMP__("beq", OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE)
@@ -291,7 +291,7 @@ namespace stationeers::ic10 {
     )
     __4IMP__(
         "ss", OperandType::DEVICE_REF, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT_PROP,
-        OperandType::REG_TARGET
+        OperandType::NUM_VALUE
     )
     __4IMP__(
         "lb", OperandType::REG_TARGET, OperandType::DEVICE_HASH, OperandType::LOGIC_PROP,
@@ -299,11 +299,11 @@ namespace stationeers::ic10 {
     )
     __4IMP__(
         "sbn", OperandType::DEVICE_HASH, OperandType::NAME_HASH, OperandType::LOGIC_PROP,
-        OperandType::REG_TARGET
+        OperandType::NUM_VALUE
     )
     __4IMP__(
         "sbs", OperandType::DEVICE_HASH, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT_PROP,
-        OperandType::REG_TARGET
+        OperandType::NUM_VALUE
     )
     __4IMP__(
         "bap", OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,

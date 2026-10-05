@@ -30,20 +30,20 @@ namespace stationeers::ic10 {
         auto devices = ctx_.manager.findDevicesByTypeAndName(
             static_cast<int64_t>(*typeHash), static_cast<int64_t>(*nameHash));
         if (devices.empty()) {
-            ctx_.memory.setReg(getValue<Register>(ins.operand1).value, 0.0);
+            assignRegister(ins.operand1, 0.0);
             return;
         }
 
         auto idx     = operandValue(ins.operand4);
-        auto slot    = getValue<Identifier>(ins.operand5).value;
+        auto slot    = propName(ins.operand5);
         auto modeVal = operandValue(ins.operand6);
-        if (!idx || !modeVal) return;
+        if (!idx || !slot || !modeVal) return;
 
         int mode = static_cast<int>(*modeVal);
         double result = 0.0;
         bool first = true;
         for (auto* dev : devices) {
-            double val = dev->readSlot(static_cast<std::size_t>(*idx), slot);
+            double val = dev->readSlot(static_cast<std::size_t>(*idx), *slot);
             switch (mode) {
                 case 0:
                 case 1: result += val; break;
@@ -53,7 +53,7 @@ namespace stationeers::ic10 {
             first = false;
         }
         if (mode == 0) result /= static_cast<double>(devices.size());
-        ctx_.memory.setReg(getValue<Register>(ins.operand1).value, result);
+        assignRegister(ins.operand1, result);
     }
 
 

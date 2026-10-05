@@ -36,6 +36,13 @@ namespace stationeers::ic10 {
         static TypeHint parse(Parser& p) noexcept;
     };
 
+    // TypeHintDefault
+
+    template<>
+    struct NodeParser<TypeHintDefault> {
+        static TypeHintDefault parse(Parser& p);
+    };
+
     // EnumAnnotationValue
 
     template<>

@@ -2,5 +2,3 @@ packages:
   - "packages/*"
 allowBuilds:
   esbuild: true
-minimumReleaseAgeExclude:
-  - '@ic10/metadata@0.2.0'

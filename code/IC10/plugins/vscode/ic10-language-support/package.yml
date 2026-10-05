@@ -40,8 +40,8 @@ engines:
 # 激活事件（空数组表示由主入口文件自行控制激活时机）
 activationEvents: [ ]
 
-# 扩展的主入口文件（相对于项目根目录）
-main: ./client/out/extension
+# 扩展的主入口文件（相对于项目根目录，由 scripts/bundle.mjs 产出）
+main: ./packages/client/dist/extension.js
 
 # 扩展图标文件
 icon: icon.png
@@ -256,15 +256,17 @@ contributes:
 
 # 脚本（npm 生命周期钩子和自定义脚本）
 scripts:
-    vscode:prepublish: npm run compile && cd client && npm install --production --ignore-scripts --no-package-lock && cd ../server && npm install --production --ignore-scripts --no-package-lock && cd .. && node -e "const{rmSync,cpSync}=require('fs');for(const d of['client','server']){const m=d+'/node_modules/common';rmSync(m,{recursive:true,force:true});cpSync('common',m,{recursive:true,filter:s=>!s.includes('node_modules')})}"  # 发布前自动执行的编译命令
-    compile: tsc -b                     # 编译 TypeScript
-    watch: tsc -b -w                    # 监视模式编译
+    vscode:prepublish: npm run compile && npm run bundle  # 发布前：类型检查 + esbuild 打包（运行时依赖以真实目录随包发布，切勿再跑 npm install）
+    compile: tsc -b                     # 编译 TypeScript（类型检查与 d.ts）
+    bundle: node scripts/bundle.mjs     # esbuild 打包 client / server 为单文件
+    watch: node scripts/watch.mjs       # 监视模式：tsc 与 esbuild 并行
     lint: eslint                        # 运行 ESLint 检查
     test: sh ./scripts/e2e.sh           # 运行端到端测试
-    install:all: pnpm i && cd common && pnpm i && cd ../client && pnpm i && cd ../server && pnpm i
-    install:npm: npm i && cd ./common && npm i && cd ../client && npm i && cd ../server && npm i
+    install:all: pnpm install           # pnpm workspace 一次装齐全部子包
 
 # 开发依赖（仅在开发时使用）
 devDependencies:
     '@types/node': ^26.0.1
+    esbuild: ^0.28.1
     prettier: ^3.9.6
+    typescript: ^6.0.3

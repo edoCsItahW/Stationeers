@@ -61,7 +61,29 @@ const REGISTERS = [...ADDRESSABLE_REGISTERS, STACK_POINTER_REGISTER];
 
 export const provideRegister: OperandProvider = (ctx, opType, prefix) => {
     // 内置寄存器
-    const items = REGISTERS.filter(r => r.value.startsWith(prefix)).map(registerItem);
+    const items = REGISTERS.filter(r => {
+        if (!r.value.startsWith(prefix)) return false;
+
+        // 定义模式：已有别名 → 不显示
+        return !(ctx.isDefine && ctx.symbolMap?.[r.value]);
+    }).map(r => {
+        const res = registerItem(r);
+        // 使用模式：已有别名 → 沉底，让别名优先
+        if (!ctx.isDefine) {
+            const alias = ctx.symbolMap?.[r.value];
+            // 两档都带前缀，确保排在别名之后
+            // 有别名 → z1 沉底；无别名 → z0 靠前
+            res.sortText = alias ? `z1_${r.sort}` : `z0_${r.sort}`;
+
+            if (alias)
+                res.labelDetails = {
+                    detail: ` = ${alias}`,
+                    description: t("hover.operandType.register")
+                };
+        }
+
+        return res;
+    });
 
     // 动态寻址寄存器
     if (prefix && /^rr+$/.test(prefix)) {

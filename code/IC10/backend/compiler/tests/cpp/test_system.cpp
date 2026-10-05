@@ -192,7 +192,7 @@ TEST_F(SystemTestFixture, CountingLoopProgram) {
 
 TEST_F(SystemTestFixture, AirlockControlProgram) {
     // 气闸控制程序
-    // NOTE: s指令的第三个操作数必须是registerOrIdentifier，不能用数字字面量
+    // NOTE: s指令的第三个操作数是写入值，可为寄存器、数字字面量、常量别名或枚举常量
     std::string source =
         "alias door d0\n"
         "alias sensor d1\n"
@@ -236,7 +236,7 @@ TEST_F(SystemTestFixture, AirlockControlProgram) {
 
 TEST_F(SystemTestFixture, GasFilterProgram) {
     // 气体过滤器程序（简化版）
-    // NOTE: s指令的第三个操作数必须是registerOrIdentifier，不能用数字字面量
+    // NOTE: s指令的第三个操作数是写入值，可为寄存器、数字字面量、常量别名或枚举常量
     std::string source =
         "alias filter d0\n"
         "alias analyzer d1\n"
@@ -273,7 +273,7 @@ TEST_F(SystemTestFixture, GasFilterProgram) {
 
 TEST_F(SystemTestFixture, AllInstructionArities) {
     // 程序包含0-6元指令
-    // NOTE: lbn/lbns的deviceHash/nameHash需为registerOrNumber(r?|num)，不能用device
+    // NOTE: lbn/lbns的deviceHash/nameHash需为registerOrNumber(r?|num)或HASH("...")，不能用device
     //       logicType/batchMode需为identifier|number，不能用register
     std::string source =
         "# 零元\n"
