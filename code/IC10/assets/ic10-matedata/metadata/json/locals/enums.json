@@ -1118,6 +1118,15 @@
                     "zh-hans": "自设备上次进行ClearMemory操作时至今输出的物品总数"
                 }
             },
+            "ExportQuantity": {
+                "desc": null
+            },
+            "ExportSlotHash": {
+                "desc": null
+            },
+            "ExportSlotOccupant": {
+                "desc": null
+            },
             "Extended": {
                 "desc": {
                     "en-us": "Extended",
@@ -1213,6 +1222,15 @@
                     "en-us": "Total number of items imported since the last ClearMemory operation on the device",
                     "zh-hans": "自设备上次进行ClearMemory操作时至今输入的物品总数"
                 }
+            },
+            "ImportQuantity": {
+                "desc": null
+            },
+            "ImportSlotHash": {
+                "desc": null
+            },
+            "ImportSlotOccupant": {
+                "desc": null
             },
             "Inclination": {
                 "desc": {
@@ -1334,7 +1352,7 @@
                     "zh-hans": "以一个32位整数形式提供下一个天气事件名称的哈希值."
                 }
             },
-            "true": {
+            "On": {
                 "desc": {
                     "en-us": "Power state of the device. 0 for off, 1 for on.",
                     "zh-hans": "设备的启动状态, 0为关闭, 1为开启"
@@ -2354,6 +2372,12 @@
                     "zh-hans": "设备输出口2连接的管道网水的比例"
                 }
             },
+            "ReEntryAltitude": {
+                "desc": {
+                    "en-us": "Altitude at which the rocket begins deceleration during landing, must be between 25km and 120km",
+                    "zh-hans": "火箭着陆时开始减速的高度, 范围必须位于25km至120km之间"
+                }
+            },
             "Reagents": {
                 "desc": {
                     "en-us": "Total number of reagents inside the device",
@@ -2364,12 +2388,6 @@
                 "desc": {
                     "en-us": "Hash value of the recipe item the device is currently producing",
                     "zh-hans": "设备当前生产的配方物品的哈希值"
-                }
-            },
-            "ReEntryAltitude": {
-                "desc": {
-                    "en-us": "Altitude at which the rocket begins deceleration during landing, must be between 25km and 120km",
-                    "zh-hans": "火箭着陆时开始减速的高度, 范围必须位于25km至120km之间"
                 }
             },
             "ReferenceId": {
@@ -2773,27 +2791,6 @@
                     "en-us": "Working efficiency impact of the medium gas reported by the device, a float value between 0 and 1",
                     "zh-hans": "设备反馈的媒介气体工作效率的影响，是取值范围介于0和1的浮点数"
                 }
-            },
-            "ExportQuantity": {
-                "desc": null
-            },
-            "ExportSlotHash": {
-                "desc": null
-            },
-            "ExportSlotOccupant": {
-                "desc": null
-            },
-            "ImportQuantity": {
-                "desc": null
-            },
-            "ImportSlotHash": {
-                "desc": null
-            },
-            "ImportSlotOccupant": {
-                "desc": null
-            },
-            "On": {
-                "desc": null
             }
         }
     },

@@ -161,4 +161,55 @@ function Resolve-ArtifactPath {
 }
 
 
-Export-ModuleMember -Function Invoke-CMakeConfigure, Invoke-CMakeBuild, Copy-Artifact, Resolve-ArtifactPath, Get-OSKey
+# 读标准库的文件头日期标志（`# stdLib.ic YYYY-MM-DD`）。
+# 标准库以 assets/ic/stdLib.ic 为**唯一来源**（见 script/genStdLib.py 的文件头说明），
+# 发布副本是构建产物（见 publish/node/.gitignore），因此用这一行确认副本与源是同一份。
+function Get-StdLibMarker {
+    param([string]$Path)
+
+    if ([string]::IsNullOrEmpty($Path) -or -not (Test-Path $Path -PathType Leaf)) {
+        return $null
+    }
+
+    $first = Get-Content -Path $Path -TotalCount 1
+
+    if ($first -match '\d{4}-\d{2}-\d{2}') {
+        return $Matches[0]
+    }
+
+    return $null
+}
+
+
+# 把标准库从 assets 同步到发布目录，并比对日期标志——
+# 复制后再比对，既完成同步，也防止"复制没生效/副本是旧的"却照样发布。
+function Sync-StdLib {
+    param(
+        [string]$Source,
+        [string]$PublishDir
+    )
+
+    if ([string]::IsNullOrEmpty($Source) -or -not (Test-Path $Source -PathType Leaf)) {
+        throw (__ "Build.StdLib.SourceNotFound" -Arguments $Source)
+    }
+
+    $sourceMarker = Get-StdLibMarker $Source
+
+    if (-not $sourceMarker) {
+        throw (__ "Build.StdLib.NoMarker" -Arguments $Source)
+    }
+
+    Copy-Artifact -Source $Source -Destination $PublishDir -Force
+
+    $copied = Join-Path $PublishDir (Split-Path $Source -Leaf)
+    $copiedMarker = Get-StdLibMarker $copied
+
+    if ($copiedMarker -ne $sourceMarker) {
+        throw (__ "Build.StdLib.Stale" -Arguments $sourceMarker, "$copiedMarker")
+    }
+
+    Write-ST-Info (__ "Build.StdLib.Synced" -Arguments $sourceMarker, $copied)
+}
+
+
+Export-ModuleMember -Function Invoke-CMakeConfigure, Invoke-CMakeBuild, Copy-Artifact, Resolve-ArtifactPath, Get-OSKey, Get-StdLibMarker, Sync-StdLib
