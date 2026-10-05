@@ -8,10 +8,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
-
 /**
- * Enum doc comment node ("EnumDocComment") — "#> @enum ... #> @end-enum".
+ * Statically spelled device node ("StaticDevice") — a device port such as {@code d0} or the
+ * self-reference device {@code db}, optionally with a pin ({@code d0:1}).
  *
  * @author edocsitahw
  * @since 1.1.0
@@ -19,16 +18,10 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class EnumDocCommentNode extends ASTNode {
-    private String name;
-    private String desc;        // optional
-    private List<ValueEntry> values;
+public class StaticDeviceNode extends ASTNode {
+    /** The port itself ({@link StaticDevicePortNode}). */
+    private ASTNode device;
 
-    @Data
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ValueEntry {
-        private String name;
-        private String value;
-        private String desc;  // optional
-    }
+    /** Optional pin number ({@code 1} in {@code d0:1}). */
+    private ASTNode pin;
 }

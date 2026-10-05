@@ -8,13 +8,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * Hash macro call node ("HashCall") — HASH("...").
+ * STR macro node ("StrMacro") — {@code STR("...")}.
  *
  * @author edocsitahw
  * @since 1.1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HashCallNode extends ASTNode {
-    private ASTNode value;  // StringNode or ErrorNode
+public class StrMacroNode extends ASTNode {
+    /** The measured string ({@link StringNode} or {@link ErrorNode}). */
+    private ASTNode value;
 }
