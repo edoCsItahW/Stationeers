@@ -17,6 +17,7 @@
 #define IC10_COMPILER_CORE_EXPAND_NODE_HPP
 #pragma once
 
+#include "semantic_operand.hpp"
 #include "node.hpp"
 
 namespace stationeers::ic10 {
@@ -126,6 +127,42 @@ namespace stationeers::ic10 {
         std::string name;
 
         std::string value;
+
+        /**
+         * @if zh
+         * @brief 读写权限（可选，写在取值之后、默认值之前）
+         * @details 形如 `@logic Setting 12 rw`。只有逻辑属性行（tag 为 `logic`）接受它：槽位逻辑属性
+         *          的可选信息是「适用槽位序号」，槽位行的第二个字段本身就是槽位序号，都与读写权限无关。
+         *          不写即 `std::nullopt`，表示**没有声明**（而非"不可读写"）。
+         *
+         * @elseif en
+         * @brief Read/write access (optional, written after the value and before the default)
+         * @details Written as `@logic Setting 12 rw`. Only logic-property lines (tag `logic`) accept
+         *          it: a slot-logic line's optional information is the set of applicable slot indices,
+         *          and a slot line's second field is the slot index itself — neither is a read/write
+         *          access. Omitting it means **not declared** (not "neither readable nor writable").
+         *
+         * @endif
+         * */
+        std::optional<Access> access;
+
+        /**
+         * @if zh
+         * @brief 适用槽位序号列表（可选，写在权限之后、默认值之前）
+         * @details 形如 `@logic-slot Quantity 3 (0 1 2 3)`：该槽位逻辑属性适用于哪些槽位序号。
+         *          只有槽位逻辑属性行（tag 为 `logic-slot`）接受它。**不写**（`std::nullopt`）表示
+         *          「未声明」，与写 `()`（空集合，表示哪个槽位都不适用）是两回事。
+         *
+         * @elseif en
+         * @brief List of applicable slot indices (optional, after the access and before the default)
+         * @details Written as `@logic-slot Quantity 3 (0 1 2 3)`: which slot indices this slot-logic
+         *          property applies to. Only slot-logic lines (tag `logic-slot`) accept it.
+         *          **Omitting** it (`std::nullopt`) means "not declared" and differs from `()` (the
+         *          empty set, meaning the property applies to no slot at all).
+         *
+         * @endif
+         * */
+        std::optional<std::vector<int>> slotIndices;
 
         /**
          * @if zh

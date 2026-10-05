@@ -69,6 +69,8 @@
 #pragma once
 
 #include "ic10_compiler/locals/local.hpp"
+#include "ic10_compiler/parser/ast/instructions.hpp"
+#include <algorithm>
 
 namespace stationeers::ic10 {
 
@@ -104,14 +106,17 @@ namespace stationeers::ic10 {
         // 无捕获闭包不含数据，所需状态（*this）改为按参数传入，参数直接存放在折叠协程自己的帧中。
         // 折叠协程仍必须被持有（detachedTasks_）：丢弃 Task 会让其帧存储被复用。
         detachedTasks_.push_back(std::apply(
-            [](Analyser& self, const auto&... args) -> Task<> {
-                // 每条指令开始前重置设备上下文，避免上一条指令的残留影响当前指令
+            [](Analyser& self, const auto& instruction, const auto&... args) -> Task<> {
+                // 每条指令开始前重置设备上下文与待决状态，避免上一条指令的残留影响当前指令
                 self.pendingDeviceSymbol_.reset();
+                self.pendingSlotIndex_.reset();
+                // 记下本指令对逻辑属性的读写方向，供设备注解成员的权限校验使用
+                self.currentAccess_ = instruction_access<std::decay_t<decltype(instruction)>>::value;
                 // 折叠表达式依次处理指令的所有操作数
                 (((void)co_await self.process<Vs>(args)), ...);
                 co_return;
             },
-            std::tuple_cat(std::tie(*this), ins.args())
+            std::tuple_cat(std::tie(*this), std::tie(ins), ins.args())
         ));
 
         co_return;
@@ -250,18 +255,34 @@ namespace stationeers::ic10 {
                 const auto& dt = std::get<DeviceAnnotation>(*ct);
                 Type == OperandType::LOGIC_SLOT_PROP
             ) {
-                if (!std::ranges::contains(
-                        dt.logicSlots | std::views::transform(&DeviceAnnotationLogicSlot::name),
-                        currentSym.name
-                    ))
+                if (auto it = std::ranges::find_if(
+                        dt.logicSlots, [&](const auto& logicSlot) { return logicSlot.name == currentSym.name; }
+                    );
+                    it == dt.logicSlots.end())
                     reporter_->errorWith<ICMsgId::IWA11_2>(start, end, currentSym.name, *typeName);
 
+                // 注解声明了适用槽位、且本次的槽位序号在编译期已知时才校验
+                else if (it->slotIndices && pendingSlotIndex_
+                         && !std::ranges::contains(*it->slotIndices, *pendingSlotIndex_))
+                    reporter_->errorWith<ICMsgId::IWA26_3>(
+                        start, end, currentSym.name, *typeName, std::to_string(*pendingSlotIndex_)
+                    );
+
             } else if constexpr (Type == OperandType::LOGIC_PROP) {
-                if (!std::ranges::contains(
-                        dt.logics | std::views::transform(&DeviceAnnotationLogic::name),
-                        currentSym.name
-                    ))
+                if (auto it = std::ranges::find_if(
+                        dt.logics, [&](const auto& logic) { return logic.name == currentSym.name; }
+                    );
+                    it == dt.logics.end())
                     reporter_->errorWith<ICMsgId::IWA14_2>(start, end, currentSym.name, *typeName);
+
+                // 注解声明了权限时才校验：指令的方向必须被该权限覆盖（例如 `r` 满足不了需要写入的指令）
+                else if (it->access && currentAccess_ != Access::None
+                         && (static_cast<int>(*it->access) & static_cast<int>(currentAccess_))
+                                != static_cast<int>(currentAccess_))
+                    reporter_->errorWith<ICMsgId::IWA25_3>(
+                        start, end, currentSym.name, access_literal(*it->access),
+                        access_literal(currentAccess_)
+                    );
 
             } else if constexpr (Type == OperandType::SLOT_IDX) {
                 if (currentSym.value) {
@@ -336,6 +357,16 @@ namespace stationeers::ic10 {
     bool Analyser::checkSlotIndexWithDevice(
         const auto& number, const std::shared_ptr<Symbol>& devSym
     ) {
+        // 记下编译期已知的字面量序号：随后的槽位逻辑属性要据此校验「该属性是否适用于此槽位」
+        if constexpr (std::is_same_v<std::decay_t<decltype(number)>, Integer>)
+            pendingSlotIndex_ = std::stoi(number.value);
+        else if constexpr (std::is_same_v<std::decay_t<decltype(number)>, HexNumber>)
+            pendingSlotIndex_ = std::stoi(number.value.substr(1), nullptr, 16);
+        else if constexpr (std::is_same_v<std::decay_t<decltype(number)>, BinaryNumber>)
+            pendingSlotIndex_ = std::stoi(number.value.substr(1), nullptr, 2);
+        else
+            pendingSlotIndex_.reset();  // 浮点等推不出整数序号
+
         auto typeName = devSym->type.typeName;
         // 没有类型提示的设备，即未知类型，无法检查
         if (!typeName) return false;
@@ -347,6 +378,8 @@ namespace stationeers::ic10 {
 
             const std::string& idxStr = number.value;
 
+            // TODO: 槽位比较应按数值解析：这里用字面文本比较，`$2` / `%10` 与槽位表里的 "2"
+            //       /"10" 不相等，十六进制与二进制字面量会被误判为不在设备槽位表中
             // 在设备槽信息中查找该数字是否存在
             bool found = std::ranges::contains(
                 dt.slots | std::views::transform(&DeviceAnnotationSlot::value), idxStr

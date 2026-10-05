@@ -293,6 +293,14 @@ namespace stationeers::ic10 {
         ///< @else Deprecated syntax - semantic analysis. @endif
         IWA24,
 
+        ///< @if zh @brief '{}'的权限是'{}'，不满足指令需要的'{}' - 语义分析。
+        ///< @else '{}' is '{}', but the instruction needs '{}' - semantic analysis. @endif
+        IWA25_3,
+
+        ///< @if zh @brief '{}'不适用于设备'{}'的槽位'{}' - 语义分析。
+        ///< @else '{}' is not applicable to device '{}' slot '{}' - semantic analysis. @endif
+        IWA26_3,
+
         ///< @if zh @brief 期望'{}'，结果找到'{}' - 语义分析。
         ///< @else '{}' expected, but found '{}' - semantic analysis. @endif
         IEA1_2,

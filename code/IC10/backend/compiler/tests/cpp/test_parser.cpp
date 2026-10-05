@@ -280,6 +280,74 @@ TEST_F(ParserTestFixture, DeviceDocWithLogicSlots) {
     EXPECT_EQ(doc.logicSlots[1].value, "10");
 }
 
+TEST_F(ParserTestFixture, DeviceDocWithLogicAccess) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name Sensor\n"
+        "#> @logic Pressure 5 r\n"
+        "#> @logic Setting 12 rw 1\n"
+        "#> @logic On 28 w\n"
+        "#> @logic Charge 11 wr\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt.raw()));
+    auto& doc = std::get<DeviceAnnotation>(stmt.raw());
+    ASSERT_EQ(doc.logics.size(), 4u);
+    // 权限写在默认值之前；只读成员没有默认值
+    ASSERT_TRUE(doc.logics[0].access.has_value());
+    EXPECT_EQ(*doc.logics[0].access, Access::Read);
+    EXPECT_FALSE(doc.logics[0].defaultValue.has_value());
+    // 带权限又带默认值：两者可同时出现，且互不干扰
+    ASSERT_TRUE(doc.logics[1].access.has_value());
+    EXPECT_EQ(*doc.logics[1].access, Access::ReadWrite);
+    EXPECT_EQ(doc.logics[1].defaultValue.value_or(""), "1");
+    ASSERT_TRUE(doc.logics[2].access.has_value());
+    EXPECT_EQ(*doc.logics[2].access, Access::Write);
+    // `wr` 与 `rw` 等价
+    ASSERT_TRUE(doc.logics[3].access.has_value());
+    EXPECT_EQ(*doc.logics[3].access, Access::ReadWrite);
+    // 导出：access 是带引号的字面写法
+    auto json = doc.logics[1].toJSON();
+    EXPECT_NE(json.find("\"access\""), std::string::npos);
+    EXPECT_NE(json.find("rw"), std::string::npos);
+}
+
+TEST_F(ParserTestFixture, DeviceDocWithSlotIndices) {
+    auto ast = parse(
+        "#> @device\n"
+        "#> @name IC10\n"
+        "#> @logic-slot Quantity 3 (0 1 2 3)\n"
+        "#> @logic-slot Charge 10 ()\n"
+        "#> @logic-slot Damage 4\n"
+        "#> @end-device\n"
+    );
+    EXPECT_EQ(ast.statements.size(), 1u);
+    auto& stmt = ast.statements[0];
+    ASSERT_TRUE(std::holds_alternative<DeviceAnnotation>(stmt.raw()));
+    auto& doc = std::get<DeviceAnnotation>(stmt.raw());
+    ASSERT_EQ(doc.logicSlots.size(), 3u);
+    // 适用槽位序号列表
+    ASSERT_TRUE(doc.logicSlots[0].slotIndices.has_value());
+    ASSERT_EQ(doc.logicSlots[0].slotIndices->size(), 4u);
+    EXPECT_EQ((*doc.logicSlots[0].slotIndices)[0], 0);
+    EXPECT_EQ((*doc.logicSlots[0].slotIndices)[3], 3);
+    // `()` 是空集合，与"不写"（nullopt）语义不同
+    ASSERT_TRUE(doc.logicSlots[1].slotIndices.has_value());
+    EXPECT_TRUE(doc.logicSlots[1].slotIndices->empty());
+    EXPECT_FALSE(doc.logicSlots[2].slotIndices.has_value());
+    // 导出：有值即为数组（空集合是 []）；未声明则整个键都不出现
+    EXPECT_NE(doc.logicSlots[0].toJSON().find("\"slotIndices\""), std::string::npos);
+    // 权限只属于逻辑属性行：槽位逻辑属性行不该带 access
+    EXPECT_FALSE(doc.logicSlots[0].access.has_value());
+    // 未声明的可选字段一律不导出该键（access 不是空串、slotIndices 不是 null）
+    EXPECT_EQ(doc.logicSlots[0].toJSON().find("\"access\""), std::string::npos)
+        << "未声明的权限不应导出 access 字段";
+    EXPECT_EQ(doc.logicSlots[2].toJSON().find("\"slotIndices\""), std::string::npos)
+        << "未声明的适用槽位不应导出 slotIndices 字段（与 `()` 导出的 [] 区分）";
+}
+
 TEST_F(ParserTestFixture, EnumValueWithLinkDesc) {
     auto ast = parse(
         "#> @enum\n"

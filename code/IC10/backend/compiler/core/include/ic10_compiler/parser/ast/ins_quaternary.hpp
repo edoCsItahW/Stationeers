@@ -49,7 +49,7 @@
 namespace stationeers::ic10 {
 
     /**
-     * @def DEFINE_QUATERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)
+     * @def DEFINE_QUATERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)
      * @if zh
      *
      * @brief 定义四元指令
@@ -57,6 +57,7 @@ namespace stationeers::ic10 {
      * @param lowerCase 指令小写名
      * @param pascalCase 指令PascalCase名
      * @param upperCase 指令大写下划线名(对应InstructionKeyword枚举值)
+     * @param memberAccess 该指令对逻辑属性的读写方向(@ref Access；不涉及逻辑属性时为 @ref Access::None)
      * @param ... 可变参数(操作数类型)
      *
      * @elseif en
@@ -67,49 +68,52 @@ namespace stationeers::ic10 {
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name (InstructionKeyword enum value)
+     * @param memberAccess Read/write direction needed for a logic property (@ref Access; @ref Access::None if none)
      * @param ... Variadic parameters (operand types)
      *
      * @endif
      */
-#define DEFINE_QUATERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)                       \
-    DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, QuaternaryInstructionBase, __VA_ARGS__)
+#define DEFINE_QUATERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)         \
+    DEFINE_INSTRUCTION(                                                                            \
+        lowerCase, pascalCase, upperCase, memberAccess, QuaternaryInstructionBase, __VA_ARGS__      \
+    )
 
     // ---------- REG_TARGET NUM_VALUE NUM_VALUE NUM_VALUE ----------
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        clamp, Clamp, CLAMP, OperandType::REG_TARGET, OperandType::NUM_VALUE,
+        clamp, Clamp, CLAMP, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE,
         OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
 #ifndef STATIONEERS_SIMPLE_DEBUG_MODE
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        lerp, Lerp, LERP, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        lerp, Lerp, LERP, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::NUM_VALUE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        ext, Ext, EXT, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        ext, Ext, EXT, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::NUM_VALUE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        ins, Ins, INS, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        ins, Ins, INS, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::NUM_VALUE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        sap, Sap, SAP, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        sap, Sap, SAP, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::NUM_VALUE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        sna, Sna, SNA, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        sna, Sna, SNA, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::NUM_VALUE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        select, Select, SELECT, OperandType::REG_TARGET, OperandType::NUM_VALUE,
+        select, Select, SELECT, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE,
         OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
@@ -117,14 +121,14 @@ namespace stationeers::ic10 {
 
     // 第四个操作数是写入槽位的「值」，非目标寄存器
     DEFINE_QUATERNARY_INSTRUCTION(
-        ss, Ss, SS, OperandType::DEVICE_REF, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT_PROP,
+        ss, Ss, SS, Access::Write, OperandType::DEVICE_REF, OperandType::SLOT_IDX, OperandType::LOGIC_SLOT_PROP,
         OperandType::NUM_VALUE
     )
 
     // ---------- REG_TARGET DEVICE_HASH LOGIC_PROP AGG_MODE ----------
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        lb, Lb, LB, OperandType::REG_TARGET, OperandType::DEVICE_HASH, OperandType::LOGIC_PROP,
+        lb, Lb, LB, Access::Read, OperandType::REG_TARGET, OperandType::DEVICE_HASH, OperandType::LOGIC_PROP,
         OperandType::AGG_MODE
     )
 
@@ -132,60 +136,60 @@ namespace stationeers::ic10 {
 
     // 第四个操作数是写入设备的「值」，非目标寄存器
     DEFINE_QUATERNARY_INSTRUCTION(
-        sbn, Sbn, SBN, OperandType::DEVICE_HASH, OperandType::NAME_HASH, OperandType::LOGIC_PROP,
+        sbn, Sbn, SBN, Access::Write, OperandType::DEVICE_HASH, OperandType::NAME_HASH, OperandType::LOGIC_PROP,
         OperandType::NUM_VALUE
     )
 
     // ---------- DEVICE_HASH SLOT_IDX LOGIC_SLOT_PROP NUM_VALUE ----------
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        sbs, Sbs, SBS, OperandType::DEVICE_HASH, OperandType::SLOT_IDX,
+        sbs, Sbs, SBS, Access::Write, OperandType::DEVICE_HASH, OperandType::SLOT_IDX,
         OperandType::LOGIC_SLOT_PROP, OperandType::NUM_VALUE
     )
 
     // ---------- NUM_VALUE NUM_VALUE NUM_VALUE JUMP_LINE ----------
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        bap, Bap, BAP, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        bap, Bap, BAP, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::JUMP_LINE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        bapal, Bapal, BAPAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        bapal, Bapal, BAPAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::JUMP_LINE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        bna, Bna, BNA, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        bna, Bna, BNA, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::JUMP_LINE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        bnaal, Bnaal, BNAAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        bnaal, Bnaal, BNAAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::JUMP_LINE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        brap, Brap, BRAP, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        brap, Brap, BRAP, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::JUMP_LINE
     )
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        brna, Brna, BRNA, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        brna, Brna, BRNA, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::JUMP_LINE
     )
 
     // ---------- REG_TARGET DEVICE_REF SLOT_IDX LOGIC_SLOT_PROP ----------
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        ls, Ls, LS, OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::SLOT_IDX,
+        ls, Ls, LS, Access::Read, OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::SLOT_IDX,
         OperandType::LOGIC_SLOT_PROP
     )
 
     // ---------- REG_TARGET DEVICE_REF REAGENT_MODE NUM_VALUE ----------
 
     DEFINE_QUATERNARY_INSTRUCTION(
-        lr, Lr, LR, OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::REAGENT_MODE,
+        lr, Lr, LR, Access::None, OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::REAGENT_MODE,
         OperandType::NUM_VALUE
     )
 
