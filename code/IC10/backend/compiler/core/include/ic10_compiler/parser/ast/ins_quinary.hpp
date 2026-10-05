@@ -37,7 +37,7 @@
 namespace stationeers::ic10 {
 
     /**
-     * @def DEFINE_QUINARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)
+     * @def DEFINE_QUINARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)
      * @if zh
      *
      * @brief 定义五元指令
@@ -45,6 +45,7 @@ namespace stationeers::ic10 {
      * @param lowerCase 指令小写名
      * @param pascalCase 指令PascalCase名
      * @param upperCase 指令大写下划线名(对应InstructionKeyword枚举值)
+     * @param memberAccess 该指令对逻辑属性的读写方向(@ref Access；不涉及逻辑属性时为 @ref Access::None)
      * @param ... 可变参数(操作数类型)
      *
      * @elseif en
@@ -55,17 +56,18 @@ namespace stationeers::ic10 {
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name (InstructionKeyword enum value)
+     * @param memberAccess Read/write direction needed for a logic property (@ref Access; @ref Access::None if none)
      * @param ... Variadic parameters (operand types)
      *
      * @endif
      */
-#define DEFINE_QUINARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)                          \
-    DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, QuinaryInstructionBase, __VA_ARGS__)
+#define DEFINE_QUINARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)     \
+    DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, QuinaryInstructionBase, __VA_ARGS__)
 
     // ---------- REG_TARGET DEVICE_HASH NAME_HASH LOGIC_PROP AGG_MODE ----------
 
     DEFINE_QUINARY_INSTRUCTION(
-        lbn, Lbn, LBN, OperandType::REG_TARGET, OperandType::DEVICE_HASH, OperandType::NAME_HASH,
+        lbn, Lbn, LBN, Access::Read, OperandType::REG_TARGET, OperandType::DEVICE_HASH, OperandType::NAME_HASH,
         OperandType::LOGIC_PROP, OperandType::AGG_MODE
     )
 
@@ -74,7 +76,7 @@ namespace stationeers::ic10 {
     // ---------- REG_TARGET DEVICE_HASH SLOT_IDX LOGIC_SLOT_PROP AGG_MODE ----------
 
     DEFINE_QUINARY_INSTRUCTION(
-        lbs, Lbs, LBS, OperandType::REG_TARGET, OperandType::DEVICE_HASH, OperandType::SLOT_IDX,
+        lbs, Lbs, LBS, Access::Read, OperandType::REG_TARGET, OperandType::DEVICE_HASH, OperandType::SLOT_IDX,
         OperandType::LOGIC_SLOT_PROP, OperandType::AGG_MODE
     )
 

@@ -34,7 +34,7 @@
 namespace stationeers::ic10 {
 
     /**
-     * @def DEFINE_NULLARY_INSTRUCTION(upperCase, pascalCase, lowerCase)
+     * @def DEFINE_NULLARY_INSTRUCTION(upperCase, pascalCase, lowerCase, memberAccess)
      * @if zh
      *
      * @brief 定义零元指令
@@ -42,6 +42,7 @@ namespace stationeers::ic10 {
      * @param upperCase 指令大写下划线名
      * @param pascalCase 指令PascalCase名
      * @param lowerCase 指令小写名
+     * @param memberAccess 该指令对逻辑属性的读写方向(@ref Access；不涉及逻辑属性时为 @ref Access::None)
      *
      * @elseif en
      *
@@ -51,17 +52,18 @@ namespace stationeers::ic10 {
      * @param upperCase Instruction uppercase underscore name
      * @param pascalCase Instruction PascalCase name
      * @param lowerCase Instruction lowercase name
+     * @param memberAccess Read/write direction needed for a logic property (@ref Access; @ref Access::None if none)
      *
      * @endif
      */
-#define DEFINE_NULLARY_INSTRUCTION(upperCase, pascalCase, lowerCase)                               \
-    DEFINE_INSTRUCTION(upperCase, pascalCase, lowerCase, ic10::NullaryInstructionBase)
+#define DEFINE_NULLARY_INSTRUCTION(upperCase, pascalCase, lowerCase, memberAccess)          \
+    DEFINE_INSTRUCTION(upperCase, pascalCase, lowerCase, memberAccess, ic10::NullaryInstructionBase)
 
-    DEFINE_NULLARY_INSTRUCTION(hcf, Hcf, HCF)
+    DEFINE_NULLARY_INSTRUCTION(hcf, Hcf, HCF, Access::None)
 
 #ifndef STATIONEERS_SIMPLE_DEBUG_MODE
 
-    DEFINE_NULLARY_INSTRUCTION(yield, Yield, YIELD)
+    DEFINE_NULLARY_INSTRUCTION(yield, Yield, YIELD, Access::None)
 
 #endif
 

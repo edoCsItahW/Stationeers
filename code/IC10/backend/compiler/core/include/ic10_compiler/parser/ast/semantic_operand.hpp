@@ -179,6 +179,52 @@ namespace stationeers::ic10 {
 
     /**
      * @if zh
+     * @brief 设备成员的读写权限
+     * @details 枚举值即数字（1=读、2=写、3=读写，可直接按位判断方向）：注解里写作 `r`/`w`/`rw`
+     *          （`wr` 等价），导出 JSON 时统一写成 `"r"`/`"w"`/`"rw"`。
+     *          `None` 表示**没有声明**：注解行里就是没写这一项；指令元信息里表示「与逻辑属性无关」。
+     *
+     * @elseif en
+     * @brief Read/write access of a device member
+     * @details The enumerator value doubles as a bit (1 = read, 2 = write, 3 = read-write, so a
+     *          direction test is a bitwise and): annotations spell it `r`/`w`/`rw` (`wr` is
+     *          equivalent) and JSON always exports `"r"`/`"w"`/`"rw"`.
+     *          `None` means **not declared**: a member line simply omits it, and instruction metadata
+     *          uses it for "unrelated to logic properties".
+     *
+     * @endif
+     * */
+    enum class Access {
+        None = 0,
+        Read = 1,
+        Write = 2,
+        ReadWrite = 3
+    };
+
+    /**
+     * @if zh
+     * @brief 权限的字面写法（`None` 没有字面写法，返回空串）
+     * @param access 待转换的权限
+     * @return `"r"` / `"w"` / `"rw"`，`None` 为空串
+     *
+     * @elseif en
+     * @brief The literal spelling of an access (`None` has none and yields an empty string)
+     * @param access Access to convert
+     * @return `"r"` / `"w"` / `"rw"`; an empty string for `None`
+     *
+     * @endif
+     * */
+    constexpr const char* access_literal(Access access) noexcept {
+        switch (access) {
+            case Access::Read:      return "r";
+            case Access::Write:     return "w";
+            case Access::ReadWrite: return "rw";
+            default:                return "";
+        }
+    }
+
+    /**
+     * @if zh
      * @brief 操作数语义类型到候选变体别名的映射（**主模板故意无定义**）
      * @details 本模板只在具化时给出 `type`；缺少对应特化即编译失败，从而保证「枚举取值」与
      *          「候选集合」不会失去同步（见文件头的完整性约束）。

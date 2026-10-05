@@ -60,7 +60,7 @@ namespace stationeers::ic10 {
 
 
     /**
-     * @def DEFINE_TERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)
+     * @def DEFINE_TERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)
      * @if zh
      *
      * @brief 定义三元指令
@@ -68,6 +68,7 @@ namespace stationeers::ic10 {
      * @param lowerCase 指令小写名
      * @param pascalCase 指令PascalCase名
      * @param upperCase 指令大写下划线名(对应InstructionKeyword枚举值)
+     * @param memberAccess 该指令对逻辑属性的读写方向(@ref Access；不涉及逻辑属性时为 @ref Access::None)
      * @param ... 可变参数(操作数类型)
      *
      * @elseif en
@@ -78,271 +79,272 @@ namespace stationeers::ic10 {
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name (InstructionKeyword enum value)
+     * @param memberAccess Read/write direction needed for a logic property (@ref Access; @ref Access::None if none)
      * @param ... Variadic parameters (operand types)
      *
      * @endif
      */
-#define DEFINE_TERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, ...)                          \
-    DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, TernaryInstructionBase, __VA_ARGS__)
+#define DEFINE_TERNARY_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, ...)     \
+    DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, TernaryInstructionBase, __VA_ARGS__)
 
     // ---------- REG_TARGET NUM_VALUE NUM_VALUE ----------
 
     DEFINE_TERNARY_INSTRUCTION(
-        add, Add, ADD, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        add, Add, ADD, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
 #ifndef STATIONEERS_SIMPLE_DEBUG_MODE
 
     DEFINE_TERNARY_INSTRUCTION(
-        atan2, Atan2, ATAN2, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        atan2, Atan2, ATAN2, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        div, Div, DIV, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        div, Div, DIV, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        max, Max, MAX, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        max, Max, MAX, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        min, Min, MIN, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        min, Min, MIN, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        mod, Mod, MOD, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        mod, Mod, MOD, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        mul, Mul, MUL, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        mul, Mul, MUL, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        pow, Pow, POW, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        pow, Pow, POW, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        sub, Sub, SUB, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        sub, Sub, SUB, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        rol, Rol, ROL, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        rol, Rol, ROL, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        ror, Ror, ROR, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        ror, Ror, ROR, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
-    DEFINE_TERNARY_INSTRUCTION(and, And, AND, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE)
+    DEFINE_TERNARY_INSTRUCTION(and, And, AND, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE)
 
     DEFINE_TERNARY_INSTRUCTION(
-        nor, Nor, NOR, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
-    )
-
-    DEFINE_TERNARY_INSTRUCTION(
-        or, Or, OR, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        nor, Nor, NOR, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        sla, Sla, SLA, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        or, Or, OR, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        sll, Sll, SLL, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        sla, Sla, SLA, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        sra, Sra, SRA, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        sll, Sll, SLL, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        srl, Srl, SRL, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        sra, Sra, SRA, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        xor, Xor, XOR, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        srl, Srl, SRL, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        sapz, Sapz, SAPZ, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        xor, Xor, XOR, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        snaz, Snaz, SNAZ, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        sapz, Sapz, SAPZ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        seq, Seq, SEQ, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        snaz, Snaz, SNAZ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        sne, Sne, SNE, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        seq, Seq, SEQ, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        sge, Sge, SGE, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        sne, Sne, SNE, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        sgt, Sgt, SGT, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        sge, Sge, SGE, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        sle, Sle, SLE, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        sgt, Sgt, SGT, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        slt, Slt, SLT, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+        sle, Sle, SLE, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
+    )
+
+    DEFINE_TERNARY_INSTRUCTION(
+        slt, Slt, SLT, Access::None, OperandType::REG_TARGET, OperandType::NUM_VALUE, OperandType::NUM_VALUE
     )
 
     // ---------- REG_TARGET DEVICE_REF ADDRESS ----------
 
     DEFINE_TERNARY_INSTRUCTION(
-        get, Get, GET, OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::ADDRESS
+        get, Get, GET, Access::None, OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::ADDRESS
     )
 
     // ---------- REG_TARGET DEVICE_REF_STRICT REAGENT_HASH ----------
 
     DEFINE_TERNARY_INSTRUCTION(
-        rmap, Rmap, RMAP, OperandType::REG_TARGET, OperandType::DEVICE_REF_STRICT,
+        rmap, Rmap, RMAP, Access::None, OperandType::REG_TARGET, OperandType::DEVICE_REF_STRICT,
         OperandType::REAGENT_HASH
     )
 
     // ---------- DEVICE_REF ADDRESS NUM_VALUE ----------
 
     DEFINE_TERNARY_INSTRUCTION(
-        put, Put, PUT, OperandType::DEVICE_REF, OperandType::ADDRESS, OperandType::NUM_VALUE
+        put, Put, PUT, Access::None, OperandType::DEVICE_REF, OperandType::ADDRESS, OperandType::NUM_VALUE
     )
 
     // ---------- REG_TARGET DEVICE_REF LOGIC_PROP ----------
 
     DEFINE_TERNARY_INSTRUCTION(
-        l, L, L, OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::LOGIC_PROP
+        l, L, L, Access::Read, OperandType::REG_TARGET, OperandType::DEVICE_REF, OperandType::LOGIC_PROP
     )
 
     // ---------- DEVICE_REF LOGIC_PROP NUM_VALUE ----------
 
     // s 的第三个操作数是写入设备的「值」，非目标寄存器：数字字面量/常量别名/枚举常量均合法
     DEFINE_TERNARY_INSTRUCTION(
-        s, S, S, OperandType::DEVICE_REF, OperandType::LOGIC_PROP, OperandType::NUM_VALUE
+        s, S, S, Access::Write, OperandType::DEVICE_REF, OperandType::LOGIC_PROP, OperandType::NUM_VALUE
     )
 
     // ---------- DEVICE_HASH LOGIC_PROP NUM_VALUE ----------
 
     DEFINE_TERNARY_INSTRUCTION(
-        sb, Sb, SB, OperandType::DEVICE_HASH, OperandType::LOGIC_PROP, OperandType::NUM_VALUE
+        sb, Sb, SB, Access::Write, OperandType::DEVICE_HASH, OperandType::LOGIC_PROP, OperandType::NUM_VALUE
     )
 
     // ---------- DEVICE_REF LOGIC_PROP JUMP_LINE ----------
 
     DEFINE_TERNARY_INSTRUCTION(
-        bdnvl, Bdnvl, BDNVL, OperandType::DEVICE_REF, OperandType::LOGIC_PROP,
+        bdnvl, Bdnvl, BDNVL, Access::Read, OperandType::DEVICE_REF, OperandType::LOGIC_PROP,
         OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bdnvs, Bdnvs, BDNVS, OperandType::DEVICE_REF, OperandType::LOGIC_PROP,
+        bdnvs, Bdnvs, BDNVS, Access::Read, OperandType::DEVICE_REF, OperandType::LOGIC_PROP,
         OperandType::JUMP_LINE
     )
 
     // ---------- NUM_VALUE NUM_VALUE JUMP_LINE ----------
 
     DEFINE_TERNARY_INSTRUCTION(
-        beq, Beq, BEQ, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        beq, Beq, BEQ, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        beqal, Beqal, BEQAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        beqal, Beqal, BEQAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bne, Bne, BNE, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bne, Bne, BNE, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bneal, Bneal, BNEAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bneal, Bneal, BNEAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bge, Bge, BGE, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bge, Bge, BGE, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bgeal, Bgeal, BGEAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bgeal, Bgeal, BGEAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bgt, Bgt, BGT, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bgt, Bgt, BGT, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bgtal, Bgtal, BGTAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bgtal, Bgtal, BGTAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        ble, Ble, BLE, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        ble, Ble, BLE, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bleal, Bleal, BLEAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bleal, Bleal, BLEAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        blt, Blt, BLT, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        blt, Blt, BLT, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bltal, Bltal, BLTAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bltal, Bltal, BLTAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bapz, Bapz, BAPZ, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bapz, Bapz, BAPZ, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bapzal, Bapzal, BAPZAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        bapzal, Bapzal, BAPZAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bnaz, Bnaz, BNAZ, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        bnaz, Bnaz, BNAZ, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        bnazal, Bnazal, BNAZAL, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
+        bnazal, Bnazal, BNAZAL, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE,
         OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        breq, Breq, BREQ, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        breq, Breq, BREQ, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        brne, Brne, BRNE, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        brne, Brne, BRNE, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        brge, Brge, BRGE, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        brge, Brge, BRGE, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        brgt, Brgt, BRGT, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        brgt, Brgt, BRGT, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        brle, Brle, BRLE, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        brle, Brle, BRLE, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        brlt, Brlt, BRLT, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        brlt, Brlt, BRLT, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        brapz, Brapz, BRAPZ, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        brapz, Brapz, BRAPZ, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
     DEFINE_TERNARY_INSTRUCTION(
-        brnaz, Brnaz, BRNAZ, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
+        brnaz, Brnaz, BRNAZ, Access::None, OperandType::NUM_VALUE, OperandType::NUM_VALUE, OperandType::JUMP_LINE
     )
 
 #endif
