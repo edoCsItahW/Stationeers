@@ -8,13 +8,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * Device reference node (e.g. "d0", "Device").
+ * Dynamically addressed device node ("DynamicDevice") — the port is held by a register
+ * ({@code d r0} style indirection).
  *
  * @author edocsitahw
  * @since 1.1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class DeviceNode extends ASTNode implements ValueNode {
-    private String value;
+public class DynamicDeviceNode extends ASTNode {
+    /** Operand holding the device port ({@link DynamicRegisterNode}, a static register or an error). */
+    private ASTNode register;
 }

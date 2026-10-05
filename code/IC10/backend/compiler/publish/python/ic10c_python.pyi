@@ -12,6 +12,9 @@ IC10 compiler Python bindings - type stubs
 @brief Type stubs for the ic10c_python extension module (pybind11)
 @details Provides type hints for all exported classes, enums, and functions
          from the IC10 compiler C++ core.
+@note JSON keys typed ``Optional[...]`` are OMITTED from the emitted JSON when they
+      are unset - the C++ ``toJson`` helper drops empty ``std::optional`` values, so
+      such a key is absent rather than present with a ``null`` value.
 """
 
 import enum
@@ -28,60 +31,201 @@ class TypeTable:
 # Type Table JSON Interfaces
 # ============================================================================
 
-class DescValue(TypedDict):
-    """Description value (text or link)."""
-    kind: str
+class PosJSON(TypedDict):
+    """Source position, as emitted by ``Pos::toJSON()``."""
+    line: int
+    column: int
+    offset: int
+
+
+class StringNodeJSON(TypedDict):
+    """JSON of the ``String`` AST leaf node."""
+    nodeName: Literal["String"]
+    position: PosJSON
+    end: PosJSON
     value: str
 
-class DeviceSlot(TypedDict):
-    """Device slot entry."""
-    index: str
-    direction: str
-    desc: Optional[DescValue]
 
-class DeviceLogic(TypedDict):
-    """Device logic entry."""
-    name: str
-    access: str
+class LinkNodeJSON(TypedDict):
+    """JSON of the ``Link`` AST node (``.path.to.field``)."""
+    nodeName: Literal["Link"]
+    position: PosJSON
+    end: PosJSON
+    paths: List[str]
+    fields: List[str]
 
-class DeviceMode(TypedDict):
-    """Device mode entry."""
-    index: str
-    desc: Optional[DescValue]
 
-class DeviceConnect(TypedDict):
-    """Device connect entry."""
-    index: str
-    desc: Optional[DescValue]
+class TokenJSON(TypedDict):
+    """JSON of a ``Token`` (as embedded by ``ErrorNode``)."""
+    type: int
+    """Token type (TokenType numeric value)."""
+    pos: PosJSON
+    lexeme: str
+    category: int
+    """Token category (TokenCategory numeric value)."""
 
-class DeviceTypeJSON(TypedDict):
-    """Device type (from toJSON())."""
-    type: Literal["device"]
-    name: str
-    desc: Optional[DescValue]
-    slots: List[DeviceSlot]
-    logics: List[DeviceLogic]
-    modes: List[DeviceMode]
-    logicSlots: List[str]
-    connects: List[DeviceConnect]
 
-class EnumValueEntry(TypedDict):
-    """Enum value entry."""
+class ErrorNodeJSON(TypedDict):
+    """JSON of the ``Error`` AST node."""
+    nodeName: Literal["Error"]
+    position: PosJSON
+    end: PosJSON
+    token: TokenJSON
+    message: str
+
+
+DescriptionJSON = Union[StringNodeJSON, LinkNodeJSON, ErrorNodeJSON]
+"""A ``desc`` value: a NESTED node object, never a plain string.
+
+Use ``nodeName`` to discriminate the variant. There is no ``kind`` key.
+"""
+
+
+class DeviceAnnotationLogic(TypedDict):
+    """JSON of one ``@logic`` line.
+
+    @note Optional keys are absent from the JSON when the line does not declare
+          them; ``slotIndices`` is ``[]`` only when declared as ``()``.
+    """
+    nodeName: Literal["DeviceAnnotationLogic"]
+    position: PosJSON
+    end: PosJSON
     name: str
     value: str
-    desc: Optional[DescValue]
+    access: Optional[Literal["r", "w", "rw"]]
+    """Read/write access; absent when not declared."""
+    slotIndices: Optional[List[int]]
+    """Applicable slot indices; absent when not declared."""
+    defaultValue: Optional[str]
+    """Default value; absent when not declared."""
+    desc: Optional[DescriptionJSON]
+    """Description; absent when not declared."""
 
-class EnumTypeJSON(TypedDict):
-    """Enum type (from toJSON())."""
-    type: Literal["enum"]
+
+class DeviceAnnotationLogicSlot(TypedDict):
+    """JSON of one ``@logic-slot`` line.
+
+    @note Optional keys are absent from the JSON when the line does not declare
+          them; ``slotIndices`` is ``[]`` only when declared as ``()``.
+    """
+    nodeName: Literal["DeviceAnnotationLogicSlot"]
+    position: PosJSON
+    end: PosJSON
     name: str
-    desc: Optional[DescValue]
-    values: List[EnumValueEntry]
+    value: str
+    access: Optional[Literal["r", "w", "rw"]]
+    """Read/write access; absent when not declared."""
+    slotIndices: Optional[List[int]]
+    """Applicable slot indices; absent when not declared."""
+    defaultValue: Optional[str]
+    """Default value; absent when not declared."""
+    desc: Optional[DescriptionJSON]
+    """Description; absent when not declared."""
 
-CustomTypeJSON = Union[DeviceTypeJSON, EnumTypeJSON]
 
-TypeTableMap = Dict[str, CustomTypeJSON]
-"""Type table JSON dictionary."""
+class DeviceAnnotationSlot(TypedDict):
+    """JSON of one ``@slot`` line.
+
+    @note Optional keys are absent from the JSON when the line does not declare
+          them; ``slotIndices`` is ``[]`` only when declared as ``()``.
+    """
+    nodeName: Literal["DeviceAnnotationSlot"]
+    position: PosJSON
+    end: PosJSON
+    name: str
+    value: str
+    access: Optional[Literal["r", "w", "rw"]]
+    """Read/write access; absent when not declared."""
+    slotIndices: Optional[List[int]]
+    """Applicable slot indices; absent when not declared."""
+    defaultValue: Optional[str]
+    """Default value; absent when not declared."""
+    desc: Optional[DescriptionJSON]
+    """Description; absent when not declared."""
+
+
+class DeviceAnnotationDeviceHash(TypedDict):
+    """JSON of an ``@device-hash`` entry (value-only)."""
+    nodeName: Literal["DeviceAnnotationDeviceHash"]
+    position: PosJSON
+    end: PosJSON
+    value: str
+
+
+class DeviceAnnotationNameHash(TypedDict):
+    """JSON of a ``@name-hash`` entry (value-only)."""
+    nodeName: Literal["DeviceAnnotationNameHash"]
+    position: PosJSON
+    end: PosJSON
+    value: str
+
+
+class DeviceAnnotationReagentHash(TypedDict):
+    """JSON of a ``@reagent-hash`` entry (value-only)."""
+    nodeName: Literal["DeviceAnnotationReagentHash"]
+    position: PosJSON
+    end: PosJSON
+    value: str
+
+
+class DeviceAnnotationJSON(TypedDict):
+    """JSON of a ``@device`` type annotation.
+
+    @note Optional keys are absent from the JSON when not declared; the four
+          array keys are always present and are ``[]`` when empty.
+    """
+    nodeName: Literal["DeviceAnnotation"]
+    position: PosJSON
+    end: PosJSON
+    name: str
+    desc: Optional[DescriptionJSON]
+    """Description; absent when not declared."""
+    deviceHash: Optional[DeviceAnnotationDeviceHash]
+    """Device hash; absent when not declared."""
+    nameHash: Optional[DeviceAnnotationNameHash]
+    """Name hash; absent when not declared."""
+    logics: List[DeviceAnnotationLogic]
+    logicSlots: List[DeviceAnnotationLogicSlot]
+    reagentHashes: List[DeviceAnnotationReagentHash]
+    slots: List[DeviceAnnotationSlot]
+
+
+class EnumAnnotationValueJSON(TypedDict):
+    """JSON of one ``@value`` line of an ``@enum`` annotation."""
+    nodeName: Literal["EnumAnnotationValue"]
+    position: PosJSON
+    end: PosJSON
+    name: str
+    value: str
+    desc: Optional[DescriptionJSON]
+    """Description; absent when not declared."""
+    tag: Literal["value"]
+
+
+class EnumAnnotationJSON(TypedDict):
+    """JSON of an ``@enum`` type annotation.
+
+    @note ``desc`` is absent from the JSON when not declared.
+    """
+    nodeName: Literal["EnumAnnotation"]
+    position: PosJSON
+    end: PosJSON
+    name: str
+    desc: Optional[DescriptionJSON]
+    values: List[EnumAnnotationValueJSON]
+
+
+TypeTableMap = Dict[str, Union[DeviceAnnotationJSON, EnumAnnotationJSON]]
+"""Type table JSON dictionary.
+
+``TypeTable.toJSON()`` is this flat map itself: annotation name -> annotation node.
+"""
+
+
+class SymbolTableJSON(TypedDict):
+    """Two-key envelope emitted by ``SymbolTable.toJSON()``."""
+    symbols: Dict[str, "Symbol"]
+    builtinSymbols: Dict[str, "Symbol"]
 
 
 # ============================================================================
@@ -118,6 +262,9 @@ class TokenType(enum.IntEnum):
 
     Auto-synced with C++ ``ic10::TokenType`` via pybind11 ``py::enum_``.
     Values are contiguous starting from 0.
+
+    @note Instruction keywords are no longer members of this enumeration; they are
+          provided separately by :class:`InstructionKeyword`.
     """
     # 数字
     INTEGER = 0
@@ -134,188 +281,194 @@ class TokenType(enum.IntEnum):
     LPAREN
     RPAREN
     COLON
+    DOT
+    SUB
+    DIV
     # 注释
     HEX_COMMENT
     SLASH_COMMENT
-    # 注解
-    DOC_COMMENT
-    TYPE_HINT
     # 换行
     NEWLINE
-    # 关键字 - 宏与函数
+    # 关键字
+    KEYWORD
     KEYWORD_HASH
     KEYWORD_STR
-    # 关键字 - 常量
-    KEYWORD_NAN
-    KEYWORD_PINF
-    KEYWORD_NINF
-    KEYWORD_PI
-    KEYWORD_TAU
-    KEYWORD_DEG2RAD
-    KEYWORD_RAD2DEG
-    KEYWORD_EPSILON
-    KEYWORD_RGAS
+    KEYWORD_ALIAS
+    KEYWORD_DEFINE
     # 文件结束标记
     END
     # 未知标记
     UNKNOWN
-    # 关键字 - 空指令
-    KEYWORD_HCF
-    KEYWORD_YIELD
-    # 关键字 - 预处理指令
-    KEYWORD_ALIAS
-    KEYWORD_DEFINE
-    # 关键字 - 一元指令
-    KEYWORD_PEEK
-    KEYWORD_POP
-    KEYWORD_PUSH
-    KEYWORD_CLR
-    KEYWORD_J
-    KEYWORD_JAL
-    KEYWORD_JR
-    KEYWORD_RAND
-    KEYWORD_SLEEP
-    KEYWORD_CLRD
-    # 关键字 - 二元指令
-    KEYWORD_ABS
-    KEYWORD_ACOS
-    KEYWORD_ADD
-    KEYWORD_ASIN
-    KEYWORD_ATAN
-    KEYWORD_ATAN2
-    KEYWORD_CEIL
-    KEYWORD_COS
-    KEYWORD_DIV
-    KEYWORD_EXP
-    KEYWORD_FLOOR
-    KEYWORD_LOG
-    KEYWORD_MAX
-    KEYWORD_MIN
-    KEYWORD_MOD
-    KEYWORD_MUL
-    KEYWORD_POW
-    KEYWORD_ROUND
-    KEYWORD_SIN
-    KEYWORD_SQRT
-    KEYWORD_SGN
-    KEYWORD_SUB
-    KEYWORD_TAN
-    KEYWORD_TRUNC
-    KEYWORD_NOT
-    KEYWORD_MOVE
-    KEYWORD_POKE
-    KEYWORD_BEQZ
-    KEYWORD_BEQZAL
-    KEYWORD_BNEZ
-    KEYWORD_BNEZAL
-    KEYWORD_BGEZ
-    KEYWORD_BGEZAL
-    KEYWORD_BGTZ
-    KEYWORD_BGTZAL
-    KEYWORD_BLEZ
-    KEYWORD_BLEZAL
-    KEYWORD_BLTZ
-    KEYWORD_BLTZAL
-    KEYWORD_BNAN
-    KEYWORD_BDNS
-    KEYWORD_BDNSAL
-    KEYWORD_BDSE
-    KEYWORD_BDSEAL
-    KEYWORD_BREQZ
-    KEYWORD_BRNEZ
-    KEYWORD_BRGEZ
-    KEYWORD_BRGTZ
-    KEYWORD_BRLEZ
-    KEYWORD_BRLTZ
-    KEYWORD_BRNAN
-    KEYWORD_BRDNS
-    KEYWORD_BRDSE
-    KEYWORD_SEQZ
-    KEYWORD_SNEZ
-    KEYWORD_SGEZ
-    KEYWORD_SGTZ
-    KEYWORD_SLEZ
-    KEYWORD_SLTZ
-    KEYWORD_SNAN
-    KEYWORD_SNANZ
-    KEYWORD_SDNS
-    KEYWORD_SDSE
-    # 关键字 - 三元指令
-    KEYWORD_AND
-    KEYWORD_NOR
-    KEYWORD_OR
-    KEYWORD_SLA
-    KEYWORD_SLL
-    KEYWORD_SRA
-    KEYWORD_SRL
-    KEYWORD_XOR
-    KEYWORD_GET
-    KEYWORD_PUT
-    KEYWORD_L
-    KEYWORD_LS
-    KEYWORD_LR
-    KEYWORD_S
-    KEYWORD_SB
-    KEYWORD_ROL
-    KEYWORD_ROR
-    KEYWORD_RMAP
-    KEYWORD_BEQ
-    KEYWORD_BEQAL
-    KEYWORD_BNE
-    KEYWORD_BNEAL
-    KEYWORD_BGE
-    KEYWORD_BGEAL
-    KEYWORD_BGT
-    KEYWORD_BGTAL
-    KEYWORD_BLE
-    KEYWORD_BLEAL
-    KEYWORD_BLT
-    KEYWORD_BLTAL
-    KEYWORD_BAPZ
-    KEYWORD_BAPZAL
-    KEYWORD_BNAZ
-    KEYWORD_BNAZAL
-    KEYWORD_BDNVL
-    KEYWORD_BDNVS
-    KEYWORD_BREQ
-    KEYWORD_BRNE
-    KEYWORD_BRGE
-    KEYWORD_BRGT
-    KEYWORD_BRLE
-    KEYWORD_BRLT
-    KEYWORD_BRAPZ
-    KEYWORD_BRNAZ
-    KEYWORD_SAPZ
-    KEYWORD_SNAZ
-    KEYWORD_SEQ
-    KEYWORD_SNE
-    KEYWORD_SGE
-    KEYWORD_SGT
-    KEYWORD_SLE
-    KEYWORD_SLT
-    # 关键字 - 四元指令
-    KEYWORD_LERP
-    KEYWORD_CLAMP
-    KEYWORD_EXT
-    KEYWORD_INS
-    KEYWORD_SS
-    KEYWORD_LB
-    KEYWORD_SBN
-    KEYWORD_SBS
-    KEYWORD_BAP
-    KEYWORD_BAPAL
-    KEYWORD_BNA
-    KEYWORD_BNAAL
-    KEYWORD_BRAP
-    KEYWORD_BRNA
-    KEYWORD_SAP
-    KEYWORD_SNA
-    KEYWORD_SELECT
-    # 关键字 - 五元指令
-    KEYWORD_LBN
-    KEYWORD_LBS
-    # 关键字 - 六元指令
-    KEYWORD_LBNS
+    # 类型注解前缀与标签
+    TYPE_HINT_PREFIX
+    TYPE_ANNOTATION_PREFIX
+    TAG
+
+
+class InstructionKeyword(enum.IntEnum):
+    """IC10 instruction keyword enumeration.
+
+    Auto-synced with C++ ``ic10::InstructionKeyword`` via pybind11 ``py::enum_``.
+    Values are contiguous 0..146 in declaration order.
+
+    @note The C++ declaration guards some members with
+          ``#ifndef STATIONEERS_SIMPLE_DEBUG_MODE``; that macro is defined nowhere in
+          the tree, so every member below is exported.
+    """
+    # 空指令
+    HCF = 0
+    YIELD
+    # 一元指令
+    PEEK
+    POP
+    PUSH
+    CLR
+    J
+    JAL
+    JR
+    RAND
+    SLEEP
+    CLRD
+    # 二元指令
+    ABS
+    ACOS
+    ASIN
+    ATAN
+    ATAN2
+    CEIL
+    COS
+    DIV
+    EXP
+    FLOOR
+    LOG
+    MAX
+    MIN
+    MOD
+    MUL
+    POW
+    ROUND
+    SIN
+    SQRT
+    SGN
+    SUB
+    TAN
+    TRUNC
+    NOT
+    MOVE
+    POKE
+    BEQZ
+    BEQZAL
+    BNEZ
+    BNEZAL
+    BGEZ
+    BGEZAL
+    BGTZ
+    BGTZAL
+    BLEZ
+    BLEZAL
+    BLTZ
+    BLTZAL
+    BNAN
+    BDNS
+    BDNSAL
+    BDSE
+    BDSEAL
+    BREQZ
+    BRGEZ
+    BRGTZ
+    BRLEZ
+    BRLTZ
+    BRNAN
+    BRNEZ
+    BRDNS
+    BRDSE
+    SEQZ
+    SNEZ
+    SGEZ
+    SGTZ
+    SLEZ
+    SLTZ
+    SNAN
+    SNANZ
+    SDNS
+    SDSE
+    # 三元指令
+    ADD
+    AND
+    NOR
+    OR
+    SLA
+    SLL
+    SRA
+    SRL
+    XOR
+    GET
+    PUT
+    L
+    LS
+    LR
+    S
+    SB
+    ROL
+    ROR
+    RMAP
+    BEQ
+    BEQAL
+    BNE
+    BNEAL
+    BGE
+    BGEAL
+    BGT
+    BGTAL
+    BLE
+    BLEAL
+    BLT
+    BLTAL
+    BAPZ
+    BAPZAL
+    BNAZ
+    BNAZAL
+    BDNVL
+    BDNVS
+    BREQ
+    BRNE
+    BRGE
+    BRGT
+    BRLE
+    BRLT
+    BRAPZ
+    BRNAZ
+    SAPZ
+    SNAZ
+    SEQ
+    SNE
+    SGE
+    SGT
+    SLE
+    SLT
+    # 四元指令
+    CLAMP
+    LERP
+    EXT
+    INS
+    SS
+    LB
+    SBN
+    SBS
+    BAP
+    BAPAL
+    BNA
+    BNAAL
+    BRAP
+    BRNA
+    SAP
+    SNA
+    SELECT
+    # 五元指令
+    LBN
+    LBS
+    # 六元指令
+    LBNS
 
 
 class TokenCategory(enum.IntEnum):
@@ -355,26 +508,40 @@ class OperandType(enum.IntEnum):
     Auto-synced with C++ ``ic10::OperandType`` via pybind11 ``py::enum_``.
     Used in AST JSON serialization for type1/type2/... fields as numeric values.
     """
-    REG_IDENT = 0
-    """Register or identifier."""
-    DEV_ALIAS
-    """Device alias reference."""
-    REG_NUM
-    """Register or number."""
-    DEV_REF
-    """Device reference."""
-    LOGIC_SLOT
-    """Logic slot type."""
+    REG_TARGET = 0
+    """Register or identifier (the target of an operation)."""
+    REG_OR_DEV
+    """Register or device (``alias`` directive only)."""
+    NUM_VALUE
+    """Number, register, identifier, or enum."""
+    JUMP_LINE
+    """Jump target: number, register, or label."""
+    ADDRESS
+    """Memory address (same candidate set as ``NUM_VALUE``)."""
+    SLOT_IDX
+    """Slot index (same candidate set as ``NUM_VALUE``)."""
+    HARDWARE_ID
+    """Hardware/device hash (same candidate set as ``NUM_VALUE``)."""
+    REAGENT_HASH
+    """Reagent hash (same candidate set as ``NUM_VALUE``)."""
+    DEVICE_REF
+    """Device or alias reference."""
+    DEVICE_REF_STRICT
+    """Device reference without alias."""
+    LOGIC_PROP
+    """Logic property name or hash."""
+    LOGIC_SLOT_PROP
+    """Slot logic property name or hash."""
+    AGG_MODE
+    """Aggregate mode."""
     REAGENT_MODE
     """Reagent mode."""
-    JUMP_TARGET
-    """Jump target."""
-    LOGIC_TYPE
-    """Logic type."""
-    SLOT_IDX
-    """Slot index."""
-    BATCH_MODE
-    """Batch mode."""
+    DEVICE_HASH
+    """Device hash (number, register, identifier, or HASH macro)."""
+    NAME_HASH
+    """Device name hash (number, register, identifier, or HASH macro)."""
+    CONST_NUM
+    """Constant value of a ``define`` directive."""
 
 
 class BasicType(enum.IntEnum):
@@ -420,7 +587,11 @@ class TypeCategory(enum.IntEnum):
 
 
 class Symbol(TypedDict):
-    """Symbol information from SymbolTable.toJSON()."""
+    """Symbol information from SymbolTable.toJSON().
+
+    @note ``typeName``, ``value`` and ``desc`` are absent when unset;
+          ``builtin`` is always present.
+    """
 
     name: str
     """Symbol name."""
@@ -432,8 +603,10 @@ class Symbol(TypedDict):
     """Optional type name (e.g. device type name)."""
     value: Optional[str]
     """Optional symbol value."""
-    desc: Optional[str]
-    """Optional description."""
+    desc: Optional[DescriptionJSON]
+    """Optional description, as a nested AST node object."""
+    builtin: bool
+    """Whether the symbol is a built-in symbol."""
 
 
 # ============================================================================
@@ -441,13 +614,16 @@ class Symbol(TypedDict):
 # ============================================================================
 
 class IC10CompilerLocal:
-    """IC10 compiler localization settings."""
+    """IC10 compiler localization settings.
+
+    @note Not constructible from Python (the binding registers no ``py::init``).
+    """
 
     @staticmethod
-    def setLanguage(language: str) -> None:
+    def setLanguage(code: str) -> None:
         """Set the compiler language locale.
 
-        @param language: Language code (e.g. 'en', 'zh-hans')
+        @param code: Language code, either 'en-us' or 'zh-hans'
         """
         ...
 
@@ -457,28 +633,48 @@ class IC10CompilerLocal:
 # ============================================================================
 
 class Pos:
-    """Position in source code (line, column, offset)."""
+    """Position in source code (line, column, offset).
 
-    line: int
-    column: int
-    offset: int
+    @note ``line``, ``column`` and ``offset`` are read-only in the binding.
+    """
+
+    @property
+    def line(self) -> int:
+        """Line number (read-only, 1-based)."""
+        ...
+
+    @property
+    def column(self) -> int:
+        """Column number (read-only, 1-based)."""
+        ...
+
+    @property
+    def offset(self) -> int:
+        """Byte offset (read-only, 0-based)."""
+        ...
 
     def __init__(self) -> None: ...
 
     def newline(self) -> None:
-        """Advance to the next line (line++, column=0)."""
+        """Advance to the next line (line++, column=1, offset++)."""
         ...
 
-    def next(self) -> None:
-        """Advance to the next character (column++, offset++)."""
-        ...
+    def next(self, byte: int = ...) -> None:
+        """Advance one byte; the column grows only for UTF-8 leading bytes.
 
-    def move(self, index: int) -> None:
-        """Move to a specific byte offset.
-
-        @param index: Target byte offset
+        @param byte: Current byte value (default 0x00, i.e. ASCII)
         """
         ...
+
+    def move(self, charOffset: int, byteOffset: int) -> None:
+        """Move by the given character and byte distances.
+
+        @param charOffset: Character distance added to the column
+        @param byteOffset: Byte distance added to the offset
+        """
+        ...
+
+    def __repr__(self) -> str: ...
 
 
 # ============================================================================
@@ -493,13 +689,34 @@ class Token:
     lexeme: str
     category: TokenCategory
 
+    def __init__(self) -> None:
+        """Create a default token (type ``UNKNOWN``, category ``INVALID``)."""
+        ...
+
     def __init__(
         self,
         type: TokenType,
         pos: Pos,
-        lexeme: str = ...,
-        category: TokenCategory = ...,
-    ) -> None: ...
+        lexeme: Optional[str] = ...,
+        category: Optional[TokenCategory] = ...,
+    ) -> None:
+        """Create a token from the given parts.
+
+        @param type: Token type
+        @param pos: Token start position
+        @param lexeme: Raw token text (default: empty string)
+        @param category: Token category (default: ``INVALID``)
+        """
+        ...
+
+    @property
+    def keyword(self) -> Optional[int]:
+        """Instruction keyword as a plain ``int``, or None when not a keyword.
+
+        @note The binding casts the raw ``InstructionKeyword`` value to ``int``
+              rather than returning an :class:`InstructionKeyword` member.
+        """
+        ...
 
     def toString(self) -> str:
         """Return human-readable string representation."""
@@ -519,19 +736,24 @@ class Token:
 class Lexer:
     """IC10 lexical analyzer."""
 
-    def __init__(self, source: str, debug: bool = ...) -> None:
+    def __init__(self) -> None:
+        """Create a lexer without a source string."""
+        ...
+
+    def __init__(self, src: str, debug: bool = ...) -> None:
         """Create a lexer for the given source code.
 
-        @param source: IC10 source code string
+        @param src: IC10 source code string
         @param debug: If True, preserve comment tokens
         """
         ...
 
     @staticmethod
-    def tokenize(source: str) -> List[Token]:
+    def tokenize(src: str, debug: bool = ...) -> List[Token]:
         """Tokenize source code (static convenience method).
 
-        @param source: IC10 source code string
+        @param src: IC10 source code string
+        @param debug: If True, preserve comment tokens
         @return: List of tokens
         """
         ...
@@ -559,10 +781,20 @@ class Lexer:
 class Program:
     """IC10 abstract syntax tree root node."""
 
-    statements: List[Dict[str, Any]]
-    """List of statement nodes as dicts (parsed from JSON)."""
+    nodeName: str
+    """Static node name; always 'Program' (read-only, static)."""
 
     def __init__(self) -> None: ...
+
+    @property
+    def statements(self) -> List[Dict[str, Any]]:
+        """List of statement nodes as dicts (read-only, parsed from JSON)."""
+        ...
+
+    @property
+    def end(self) -> Pos:
+        """Get the program end position (read-only)."""
+        ...
 
     def toJSON(self) -> str:
         """Serialize program to JSON string."""
@@ -582,6 +814,10 @@ class Program:
 class Parser:
     """IC10 recursive descent parser."""
 
+    def __init__(self) -> None:
+        """Create a parser without tokens."""
+        ...
+
     def __init__(self, tokens: List[Token], debug: bool = ...) -> None:
         """Create a parser from a list of tokens.
 
@@ -591,10 +827,11 @@ class Parser:
         ...
 
     @staticmethod
-    def parsing(tokens: List[Token]) -> Program:
+    def parsing(tokens: List[Token], debug: bool = ...) -> Program:
         """Parse tokens into a Program (static convenience method).
 
         @param tokens: List of tokens
+        @param debug: Enable debug output
         @return: Program AST
         """
         ...
@@ -625,10 +862,11 @@ class SymbolTable:
     def __init__(self) -> None: ...
 
     def toJSON(self) -> str:
-        """Serialize symbol table to JSON string."""
-        ...
+        """Serialize symbol table to JSON string.
 
-    def __repr__(self) -> str: ...
+        @return: JSON of the SymbolTableJSON envelope
+        """
+        ...
 
 
 # ============================================================================
@@ -709,12 +947,17 @@ class Analyser:
 class UnitInfo:
     """Compilation unit information from Linker.
 
-    @ivar path: Source file path
-    @ivar diagnostics: List of diagnostics for this unit
+    @note Not constructible from Python (the binding registers no ``py::init``);
+          instances come from ``Linker.units``.
+
+    @ivar path: Source file path (read-only)
+    @ivar diagnostics: List of diagnostics for this unit (read-only)
     """
 
-    path: str
-    """Source file path."""
+    @property
+    def path(self) -> str:
+        """Source file path (read-only)."""
+        ...
 
     @property
     def diagnostics(self) -> List[Diagnostic]:
@@ -807,18 +1050,41 @@ class Linker:
         """
         ...
 
+    @property
+    def type_table(self) -> TypeTable:
+        """Get the global type table merged during linking."""
+        ...
+
 
 # ---------------------------------------------------------------------------
 #  增量编译相关
 # ---------------------------------------------------------------------------
 
 class IncLexerResult:
-    tokens: List[Token]
-    incremental: bool
-    relexedLines: int
-    changedStartLine: int
-    oldChangedEndLine: int
-    newChangedEndLine: int
+    """Result of an incremental lexing pass.
+
+    @note Every field is read-only in the binding; the count fields are C++
+          ``std::size_t``.
+    """
+
+    @property
+    def tokens(self) -> List[Token]: ...
+
+    @property
+    def incremental(self) -> bool: ...
+
+    @property
+    def relexedLines(self) -> int: ...
+
+    @property
+    def changedStartLine(self) -> int: ...
+
+    @property
+    def oldChangedEndLine(self) -> int: ...
+
+    @property
+    def newChangedEndLine(self) -> int: ...
+
     def __init__(self) -> None: ...
 
 class IncLexer:
@@ -829,10 +1095,24 @@ class IncLexer:
     def clear(self) -> None: ...
 
 class IncParserResult:
-    ast: Program
-    incremental: bool
-    reparsedStmts: int
-    affectedStmtStart: int
+    """Result of an incremental parsing pass.
+
+    @note Every field is read-only in the binding; the count fields are C++
+          ``std::size_t``.
+    """
+
+    @property
+    def ast(self) -> Program: ...
+
+    @property
+    def incremental(self) -> bool: ...
+
+    @property
+    def reparsedStmts(self) -> int: ...
+
+    @property
+    def affectedStmtStart(self) -> int: ...
+
     def __init__(self) -> None: ...
 
 class IncParser:
@@ -843,11 +1123,27 @@ class IncParser:
     def clear(self) -> None: ...
 
 class IncCompileResult:
-    tokens: List[Token]
-    ast: Program
-    incremental: bool
-    relexedLines: int
-    reparsedStmts: int
+    """Result of an incremental compilation pass.
+
+    @note Every field is read-only in the binding; the count fields are C++
+          ``std::size_t``.
+    """
+
+    @property
+    def tokens(self) -> List[Token]: ...
+
+    @property
+    def ast(self) -> Program: ...
+
+    @property
+    def incremental(self) -> bool: ...
+
+    @property
+    def relexedLines(self) -> int: ...
+
+    @property
+    def reparsedStmts(self) -> int: ...
+
     def __init__(self) -> None: ...
 
 class IncCompiler:

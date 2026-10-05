@@ -23,8 +23,9 @@ import java.util.List;
  * Root AST node ("Program") representing the entire IC10 program.
  * <p>
  * Note: The C++ {@code Program::toJSON()} serializes the {@code statements}
- * array as a <b>JSON string</b> (double-encoded). This class uses a custom
- * deserializer to handle this two-step deserialization:
+ * array through {@code JsonRaw}, i.e. as a <b>raw</b> JSON array. This class
+ * uses a custom deserializer that accepts both that form and a
+ * double-encoded JSON string, in two steps:
  * </p>
  * <ol>
  *   <li>Read the {@code "statements"} string value</li>
@@ -57,7 +58,7 @@ public class ProgramNode extends ASTNode {
     private List<ASTNode> statements;
 
     public ProgramNode() {
-        setType(NODE_NAME);
+        setNodeName(NODE_NAME);
     }
 
     /**
@@ -115,7 +116,7 @@ public class ProgramNode extends ASTNode {
             ProgramNode node = new ProgramNode();
 
             // Due to @JsonTypeInfo(include = As.EXISTING_PROPERTY) on ASTNode,
-            // Jackson may have already consumed START_OBJECT and the "type" field.
+            // Jackson may have already consumed START_OBJECT and the "nodeName" field.
             // The parser may be at START_OBJECT or already at a FIELD_NAME.
             JsonToken tok = p.currentToken();
 
@@ -134,12 +135,16 @@ public class ProgramNode extends ASTNode {
                 p.nextToken(); // move to value
 
                 switch (fieldName) {
-                    case "type":
-                        node.setType(p.getText());
+                    case "nodeName":
+                    case "type":  // legacy discriminator name, kept for tolerance
+                        node.setNodeName(p.getText());
                         break;
                     case "position":
                         Position pos = ctxt.readValue(p, Position.class);
                         node.setPosition(pos);
+                        break;
+                    case "end":
+                        node.setEnd(ctxt.readValue(p, Position.class));
                         break;
                     case "statements":
                         node.setStatements(deserializeStatements(p, ctxt));
