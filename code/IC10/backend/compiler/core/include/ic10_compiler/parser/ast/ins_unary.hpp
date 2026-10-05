@@ -43,7 +43,7 @@
 namespace stationeers::ic10 {
 
     /**
-     * @def DEFINE_UNARY_INSTRUCTION(upperCase, pascalCase, lowerCase, ...)
+     * @def DEFINE_UNARY_INSTRUCTION(upperCase, pascalCase, lowerCase, memberAccess, ...)
      * @if zh
      *
      * @brief 定义一元指令
@@ -51,6 +51,7 @@ namespace stationeers::ic10 {
      * @param upperCase 指令大写下划线名
      * @param pascalCase 指令PascalCase名
      * @param lowerCase 指令小写名
+     * @param memberAccess 该指令对逻辑属性的读写方向(@ref Access；不涉及逻辑属性时为 @ref Access::None)
      * @param ... 可变参数(操作数类型)
      *
      * @elseif en
@@ -61,34 +62,35 @@ namespace stationeers::ic10 {
      * @param upperCase Instruction uppercase underscore name
      * @param pascalCase Instruction PascalCase name
      * @param lowerCase Instruction lowercase name
+     * @param memberAccess Read/write direction needed for a logic property (@ref Access; @ref Access::None if none)
      * @param ... Variadic parameters (operand types)
      *
      * @endif
      */
-#define DEFINE_UNARY_INSTRUCTION(upperCase, pascalCase, lowerCase, ...)                            \
-    DEFINE_INSTRUCTION(upperCase, pascalCase, lowerCase, UnaryInstructionBase, __VA_ARGS__)
+#define DEFINE_UNARY_INSTRUCTION(upperCase, pascalCase, lowerCase, memberAccess, ...)       \
+    DEFINE_INSTRUCTION(upperCase, pascalCase, lowerCase, memberAccess, UnaryInstructionBase, __VA_ARGS__)
 
-    DEFINE_UNARY_INSTRUCTION(peek, Peek, PEEK, OperandType::REG_TARGET)
+    DEFINE_UNARY_INSTRUCTION(peek, Peek, PEEK, Access::None, OperandType::REG_TARGET)
 
 #ifndef STATIONEERS_SIMPLE_DEBUG_MODE
 
-    DEFINE_UNARY_INSTRUCTION(rand, Rand, RAND, OperandType::REG_TARGET)
+    DEFINE_UNARY_INSTRUCTION(rand, Rand, RAND, Access::None, OperandType::REG_TARGET)
 
-    DEFINE_UNARY_INSTRUCTION(pop, Pop, POP, OperandType::REG_TARGET)
+    DEFINE_UNARY_INSTRUCTION(pop, Pop, POP, Access::None, OperandType::REG_TARGET)
 
-    DEFINE_UNARY_INSTRUCTION(clr, Clr, CLR, OperandType::DEVICE_REF_STRICT)
+    DEFINE_UNARY_INSTRUCTION(clr, Clr, CLR, Access::None, OperandType::DEVICE_REF_STRICT)
 
-    DEFINE_UNARY_INSTRUCTION(sleep, Sleep, SLEEP, OperandType::NUM_VALUE)
+    DEFINE_UNARY_INSTRUCTION(sleep, Sleep, SLEEP, Access::None, OperandType::NUM_VALUE)
 
-    DEFINE_UNARY_INSTRUCTION(clrd, Clrd, CLRD, OperandType::HARDWARE_ID)
+    DEFINE_UNARY_INSTRUCTION(clrd, Clrd, CLRD, Access::None, OperandType::HARDWARE_ID)
 
-    DEFINE_UNARY_INSTRUCTION(push, Push, PUSH, OperandType::NUM_VALUE)
+    DEFINE_UNARY_INSTRUCTION(push, Push, PUSH, Access::None, OperandType::NUM_VALUE)
 
-    DEFINE_UNARY_INSTRUCTION(jal, Jal, JAL, OperandType::JUMP_LINE)
+    DEFINE_UNARY_INSTRUCTION(jal, Jal, JAL, Access::None, OperandType::JUMP_LINE)
 
-    DEFINE_UNARY_INSTRUCTION(jr, Jr, JR, OperandType::JUMP_LINE)
+    DEFINE_UNARY_INSTRUCTION(jr, Jr, JR, Access::None, OperandType::JUMP_LINE)
 
-    DEFINE_UNARY_INSTRUCTION(j, J, J, OperandType::JUMP_LINE)
+    DEFINE_UNARY_INSTRUCTION(j, J, J, Access::None, OperandType::JUMP_LINE)
 
 #endif
 

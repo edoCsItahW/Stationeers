@@ -39,6 +39,17 @@ namespace stationeers::ic10 {
     std::string TypeAnnotationLineBase<Name, Tag>::toString() const {
         auto result = std::format("@{} {} {}", std::string(Tag), name, value);
 
+        // 注解里的书写顺序：`@logic Setting 12 rw 1` / `@logic-slot Quantity 3 (0 1 2 3)`
+        if (access) result += " " + std::string(access_literal(*access));
+
+        if (slotIndices) {
+            std::string indices;
+
+            for (const auto index : *slotIndices) indices += std::format("{}{}", indices.empty() ? "" : " ", index);
+
+            result += std::format(" ({})", indices);
+        }
+
         if (defaultValue) result += " " + *defaultValue;
 
         if (desc)
@@ -49,8 +60,20 @@ namespace stationeers::ic10 {
 
     template<FString Name, FString Tag>
     std::string TypeAnnotationLineBase<Name, Tag>::toJSON() const {
-        return AST<TypeAnnotationLineBase>::template jsonBase<"name", "value", "defaultValue", "desc">(
-            name, value, defaultValue ? defaultValue : std::nullopt,
+        // 约定：包进 `std::optional` 的值由 toJson 决定导出形态——有值时原样输出（以 `{` / `[`
+        // 开头的 JSON 片段不加引号，普通字符串加引号），**空 optional 则整个键都不出现**
+        //（与 DeviceAnnotation::toJSON 传 desc 的写法一致）。因此本函数四个可选字段一律用 optional：
+        //  - access 未声明 = 该字段不出现（`access_literal` 的 `""` 只是"没有字面写法"，不是取值）
+        //  - slotIndices 未声明 = 该字段不出现；`()` = 空数组 `[]`（seqJSON 产出以 `[` 开头）
+        return AST<TypeAnnotationLineBase>::template jsonBase<
+            "name", "value", "access", "slotIndices", "defaultValue", "desc">(
+            name, value,
+            access ? std::optional(std::string(access_literal(*access))) : std::nullopt,
+            slotIndices ? std::optional(AST<TypeAnnotationLineBase>::template seqJSON<int>(
+                              *slotIndices, [](int index) { return std::to_string(index); }
+                          ))
+                        : std::nullopt,
+            defaultValue ? defaultValue : std::nullopt,
             desc ? std::optional(call(*desc, [](auto&& d) { return d.toJSON(); })) : std::nullopt
         );
     }

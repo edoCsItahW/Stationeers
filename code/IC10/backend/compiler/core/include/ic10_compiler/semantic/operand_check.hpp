@@ -72,8 +72,10 @@
  *                   编译失败」的 fail-fast 正好相反，是本项目里唯一需要靠人记住的对称性缺口。
  *          @warning `SLOT_IDX` 的负数检查用 `std::stoi(*symbol->value)`：值超出 `int` 范围时会抛
  *                   `std::out_of_range`，此处**未捕获**，属潜在崩溃点（未修，仅记录）。
- *          @todo `LOGIC_PROP` 里的**读写权限检查尚未实现**：源码中留有被注释的 `// TODO: 检查读写权限`
- *                分支，`DeviceAnnotationLogic` 的 `access` 字段目前未参与判定。
+ *          @note `LOGIC_PROP` 的**读写权限检查不在本文件**：带设备上下文时由
+ *                @ref Analyser::checkWithDeviceContext 完成（`IWA25_3`，见 `analyser.inl`），
+ *                本文件的设备分支只判属性名是否存在，故不再重复一次
+ *                `DeviceAnnotationLogic::access` 的判定。
  *          @note 本文件的特化分两处书写：声明在 `operand_check.hpp`，定义在 `operand_check.inl`，
  *                避免把 400 多行实现塞进头文件（项目对 `@c .inl` 的一贯做法）。
  *          @see parser/ast/semantic_operand.hpp 操作数的形状/候选集合（语法层）
@@ -151,9 +153,10 @@
  *          @warning `SLOT_IDX`'s negative check uses `std::stoi(*symbol->value)`: a value beyond `int`
  *                   range throws `std::out_of_range`, which is **not caught** here — a potential crash
  *                   site (not fixed, recorded only).
- *          @todo The **read/write permission check in `LOGIC_PROP` is not implemented**: the source
- *                still carries a commented-out `// TODO: 检查读写权限` branch, and
- *                `DeviceAnnotationLogic`'s `access` field takes no part in the decision yet.
+ *          @note The **read/write permission check for `LOGIC_PROP` does not live here**: with a
+ *                device context @ref Analyser::checkWithDeviceContext performs it (`IWA25_3`, see
+ *                `analyser.inl`); the device branch in this file only decides whether the property
+ *                name exists, so it does not repeat the `DeviceAnnotationLogic::access` test.
  *          @note Specializations are written in two places: declared in `operand_check.hpp`, defined in
  *                `operand_check.inl`, so that 400+ lines of implementation stay out of the header (the
  *                project's usual `@c .inl` practice).

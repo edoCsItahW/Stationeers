@@ -158,6 +158,10 @@ namespace stationeers::ic10 {
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA24, "已废弃的语法 - 语义分析。")
 
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA25_3, "'{}'的权限是'{}'，不满足指令需要的'{}' - 语义分析。")
+
+    IC10_COMPILER_LOCAL_MSG_ZH_HANS(IWA26_3, "'{}'不适用于设备'{}'的槽位'{}' - 语义分析。")
+
     // Error
 
     IC10_COMPILER_LOCAL_MSG_ZH_HANS(IEA1_2, "期望'{}'，结果找到'{}' - 语义分析。")

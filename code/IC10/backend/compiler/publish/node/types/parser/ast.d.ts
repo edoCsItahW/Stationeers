@@ -1084,6 +1084,19 @@ interface TypeAnnotationValueBase<N extends string, T extends string> extends AS
 }
 
 /**
+ * @summary 设备成员的读写权限
+ *
+ * @desc 对应 C++ `ic10::Access` 在注解与 JSON 里的**字面写法**：`"r"` 只读、`"w"` 只写、
+ *       `"rw"` 读写（注解里写成 `wr` 等价）。
+ *
+ * @remarks
+ * 注解行里**不写**权限时，导出里没有 `access` 字段；有该字段就一定是 `"r"` / `"w"` / `"rw"`
+ * 三者之一。指令侧只对**声明了**权限的成员做方向校验：例如只读成员被 `s` 这类写指令引用时
+ * 上报 `IWA25_3`，未声明权限则一律放行。
+ */
+export type Access = "r" | "w" | "rw";
+
+/**
  * @summary 带名字的注解行基类
  *
  * @desc 用于 `@logic` / `@logic-slot` / `@slot` 这类「名字 + 取值（+ 描述）」的标签行。
@@ -1101,6 +1114,23 @@ interface TypeAnnotationLineBase<N extends string, T extends string> extends AST
 
     /** 取值（如引脚或槽位序号） */
     readonly value: string;
+
+    /**
+     * 可选的读写权限（写在取值之后、默认值之前，如 `@logic Setting 12 rw`）
+     *
+     * @desc 只有 `@logic` 行接受它；不写时导出里**没有该字段**（不是空串，也不是"不可读写"）。
+     *       `@logic-slot` / `@slot` 行不接受权限，同样没有该字段。
+     */
+    readonly access: IC10Utils.Optional<Access>;
+
+    /**
+     * 可选的适用槽位序号（写在权限之后、默认值之前，如 `@logic-slot Quantity 3 (0 1 2 3)`）
+     *
+     * @desc 只有 `@logic-slot` 行接受它。**不写**时导出里没有该字段，与写 `()`（空数组，
+     *       表示哪个槽位都不适用）语义不同：前者不校验，后者对任何字面量槽位都上报 `IWA26_3`。
+     *       槽位序号来自寄存器等运行期形式时，语义阶段同样不做适用性校验。
+     */
+    readonly slotIndices: IC10Utils.Optional<number[]>;
 
     /**
      * 可选的默认值（追加在取值之后，如 `@logic Setting 12 1`）

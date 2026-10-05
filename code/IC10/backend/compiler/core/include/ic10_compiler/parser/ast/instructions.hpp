@@ -616,10 +616,30 @@ namespace stationeers::ic10 {
         [[nodiscard]] std::string jsonBase(Params&&... params) const;
     };
 
+    /**
+     * @if zh
+     * @brief 指令节点类型到「该指令对逻辑属性的读写方向」的映射（**主模板故意无定义**）
+     * @details 由 @ref DEFINE_INSTRUCTION 为每条指令自动特化，于是语义阶段可以直接从手里已有的
+     *          指令节点类型读出方向，不必再按关键字反查一次；缺少特化即编译失败，与 `operand_type`
+     *          同样是刻意的 fail-fast。
+     * @see InstructionMapper 同一份 access 也随关键字导出，供按关键字分派的地方使用
+     * @elseif en
+     * @brief Maps an instruction node type to "the read/write direction this instruction needs for a
+     *        logic property" (**primary template deliberately undefined**)
+     * @details @ref DEFINE_INSTRUCTION specializes it for every instruction, so the semantic stage can
+     *          read the direction straight from the node type it already holds instead of mapping back
+     *          through the keyword; a missing specialization fails to compile — the same deliberate
+     *          fail-fast as `operand_type`.
+     * @see InstructionMapper the same access is exported per keyword for keyword-driven lookups
+     * @endif
+     * */
+    template<typename>
+    struct instruction_access;
+
 #ifdef _MSC_VER
 
     /**
-     * @def DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, instructionBaseType, ...)
+     * @def DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, instructionBaseType, ...)
      * @if zh
      *
      * @brief 定义指令类型(MSVC版本)
@@ -627,6 +647,7 @@ namespace stationeers::ic10 {
      * @param lowerCase 指令小写名
      * @param pascalCase 指令PascalCase名
      * @param upperCase 指令大写下划线名
+     * @param memberAccess 该指令对逻辑属性的读写方向(@ref Access；不涉及逻辑属性时为 @ref Access::None)
      * @param instructionBaseType 指令基类模板
      * @param ... 可变参数(操作数类型)
      *
@@ -638,23 +659,29 @@ namespace stationeers::ic10 {
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name
+     * @param memberAccess Read/write direction needed for a logic property (@ref Access; @ref Access::None if none)
      * @param instructionBaseType Instruction base class template
      * @param ... Variadic parameters (operand types)
      *
      * @endif
      */
-    #define DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, instructionBaseType, ...)         \
+    #define DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, instructionBaseType, ...) \
         using pascalCase##Instruction = instructionBaseType<#lowerCase, ##__VA_ARGS__>;            \
         template<>                                                                                 \
         struct InstructionMapper<InstructionKeyword::upperCase> {                                  \
             using type = pascalCase##Instruction;                                                  \
+            static constexpr auto access = memberAccess;                                           \
+        };                                                                                         \
+        template<>                                                                                 \
+        struct instruction_access<pascalCase##Instruction> {                                       \
+            static constexpr auto value = memberAccess;                                            \
         };                                                                                         \
         extern template struct instructionBaseType<#lowerCase, ##__VA_ARGS__>;
 
 #else
 
     /**
-     * @def DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, instructionBaseType, ...)
+     * @def DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, instructionBaseType, ...)
      * @if zh
      *
      * @brief 定义指令类型
@@ -662,6 +689,7 @@ namespace stationeers::ic10 {
      * @param lowerCase 指令小写名
      * @param pascalCase 指令PascalCase名
      * @param upperCase 指令大写下划线名
+     * @param memberAccess 该指令对逻辑属性的读写方向(@ref Access；不涉及逻辑属性时为 @ref Access::None)
      * @param instructionBaseType 指令基类模板
      * @param ... 可变参数(操作数类型)
      *
@@ -672,17 +700,23 @@ namespace stationeers::ic10 {
      * @param lowerCase Instruction lowercase name
      * @param pascalCase Instruction PascalCase name
      * @param upperCase Instruction uppercase underscore name
+     * @param memberAccess Read/write direction needed for a logic property (@ref Access; @ref Access::None if none)
      * @param instructionBaseType Instruction base class template
      * @param ... Variadic parameters (operand types)
      *
      * @endif
      */
-    #define DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, instructionBaseType, ...)         \
+    #define DEFINE_INSTRUCTION(lowerCase, pascalCase, upperCase, memberAccess, instructionBaseType, ...) \
         using pascalCase##Instruction =                                                            \
             instructionBaseType<#lowerCase __VA_OPT__(, ) __VA_ARGS__>;                            \
         template<>                                                                                 \
         struct InstructionMapper<InstructionKeyword::upperCase> {                                   \
             using type = pascalCase##Instruction;                                                  \
+            static constexpr auto access = memberAccess;                                           \
+        };                                                                                         \
+        template<>                                                                                 \
+        struct instruction_access<pascalCase##Instruction> {                                       \
+            static constexpr auto value = memberAccess;                                            \
         };                                                                                         \
         extern template struct instructionBaseType<#lowerCase __VA_OPT__(, ) __VA_ARGS__>;
 

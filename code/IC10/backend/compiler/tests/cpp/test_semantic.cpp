@@ -16,6 +16,7 @@
  *          - LOGIC_TYPE / LOGIC_SLOT / REAGENT_MODE / BATCH_MODE 标识符检查
  *          - 设备上下文传递（alias 类型注解 + 后续逻辑名检查）
  *          - SLOT_IDX 设备槽索引检查
+ *          - 设备成员声明的权限与适用槽位校验（IWA25_3 / IWA26_3）
  *          - 标准库枚举缺失场景（IEA8_1）
  *          - 数字回退（LOGIC_TYPE 等接受数字字面量）
  *          测试通过在源码中内嵌 #> 文档注释来注册最小化的标准库枚举与设备类型。
@@ -26,6 +27,7 @@
  *          - LOGIC_TYPE / LOGIC_SLOT / REAGENT_MODE / BATCH_MODE identifier checks
  *          - Device context passing (alias type annotation + subsequent logic name check)
  *          - SLOT_IDX device slot index check
+ *          - Declared member access and applicable-slot checks (IWA25_3 / IWA26_3)
  *          - Missing standard library enum scenarios (IEA8_1)
  *          - Number fallback (LOGIC_TYPE etc. accept numeric literals)
  *          Tests register minimal standard library enums and device types by embedding
@@ -175,6 +177,23 @@ namespace {
             "#> @logic-slot Charge 10\n"
             "#> @slot Slot0 0\n"
             "#> @slot Slot1 1\n"
+            "#> @end-device\n";
+
+        /// @brief 测试设备：带成员权限与适用槽位声明
+        ///        Test device with declared member access and applicable slots
+        static constexpr std::string_view kAccessTestDevice =
+            "#> @device\n"
+            "#> @name AccessDevice\n"
+            "#> @logic Pressure 5 r\n"
+            "#> @logic Setting 12 w\n"
+            "#> @logic On 28 rw\n"
+            "#> @logic TotalMoles 66\n"
+            "#> @logic-slot Quantity 3 (0 1)\n"
+            "#> @logic-slot Charge 10 ()\n"
+            "#> @logic-slot Damage 4\n"
+            "#> @slot Slot0 0\n"
+            "#> @slot Slot1 1\n"
+            "#> @slot Slot2 2\n"
             "#> @end-device\n";
 
         /// @brief 拼接所有标准库定义 + 用户源码 / Concatenate all stdlib defs + user source
@@ -571,6 +590,99 @@ TEST_F(SemanticTestFixture, DeviceContextInvalidSlotIdxReportsIWA16_2) {
     assertNoLexerParserDiags(result);
     EXPECT_TRUE(hasDiagnostic(result.analyserDiags, "IWA16_2"))
         << "99 不在 TestDevice 的 slots 中，应上报 IWA16_2";
+}
+
+// ============================================================
+// 设备上下文：成员权限检查（IWA25_3）
+// Device context: member access check (IWA25_3)
+// ============================================================
+
+/// @brief 声明的权限满足指令方向时不应产生诊断
+///        A declared access that satisfies the instruction's direction produces no diagnostic
+TEST_F(SemanticTestFixture, DeviceContextAccessSatisfiedNoDiagnostic) {
+    // AccessDevice：Pressure 只读(r)、On 读写(rw)、TotalMoles 未声明权限。
+    // 方向按位判定：指令需要的方向被声明权限覆盖即通过；未声明权限则一律不检查。
+    auto source = withEnums(
+        {kLogicTypeEnum, kLogicSlotTypeEnum, kAccessTestDevice},
+        "alias dev d0 #: @type AccessDevice\n"
+        "l r0 dev Pressure\n"     // 读指令读只读属性
+        "l r0 dev On\n"           // 读指令读读写属性
+        "s dev On 1\n"            // 写指令写读写属性
+        "l r0 dev TotalMoles\n"   // 未声明权限：不检查
+        "s dev TotalMoles 1\n"    // 未声明权限：不检查
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IWA25_3"))
+        << "权限覆盖了指令方向（或成员未声明权限），不应上报 IWA25_3";
+}
+
+/// @brief 声明的权限不满足指令方向时应上报 IWA25_3
+///        A declared access that does not satisfy the instruction's direction reports IWA25_3
+TEST_F(SemanticTestFixture, DeviceContextAccessMismatchReportsIWA25_3) {
+    auto source = withEnums(
+        {kLogicTypeEnum, kLogicSlotTypeEnum, kAccessTestDevice},
+        "alias dev d0 #: @type AccessDevice\n"
+        "l r0 dev Setting\n"   // 读指令读只写属性
+        "s dev Pressure 1\n"   // 写指令写只读属性
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_EQ(countDiagnostic(result.analyserDiags, "IWA25_3"), 2u)
+        << "只写属性不可读、只读属性不可写，两条指令应各上报一次 IWA25_3";
+}
+
+// ============================================================
+// 设备上下文：适用槽位检查（IWA26_3）
+// Device context: applicable-slot check (IWA26_3)
+// ============================================================
+
+/// @brief 槽位适用、未声明适用槽位或序号非字面量时不应产生诊断
+///        An applicable slot, an undeclared applicability or a non-literal index produces no diagnostic
+TEST_F(SemanticTestFixture, DeviceContextSlotApplicableNoDiagnostic) {
+    // AccessDevice：Quantity 声明适用于槽位 0、1；Damage 未声明适用槽位。
+    auto source = withEnums(
+        {kLogicTypeEnum, kLogicSlotTypeEnum, kAccessTestDevice},
+        "alias dev d0 #: @type AccessDevice\n"
+        "ls r0 dev 0 Quantity\n"    // 下界 0 在 (0 1) 内
+        "ls r0 dev 1 Quantity\n"    // 上界 1 在 (0 1) 内
+        "ls r0 dev 0 Damage\n"      // 未声明适用槽位：不检查
+        "ls r0 dev r1 Quantity\n"   // 序号来自寄存器：编译期未知，跳过检查
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    EXPECT_FALSE(hasDiagnostic(result.analyserDiags, "IWA26_3"))
+        << "槽位适用、未声明适用槽位或序号非字面量时，不应上报 IWA26_3";
+}
+
+/// @brief 槽位不适用时应上报 IWA26_3
+///        A non-applicable slot reports IWA26_3
+TEST_F(SemanticTestFixture, DeviceContextSlotNotApplicableReportsIWA26_3) {
+    // `()` 是空集合，语义上与"不写"不同：哪个槽位都不适用。
+    auto source = withEnums(
+        {kLogicTypeEnum, kLogicSlotTypeEnum, kAccessTestDevice},
+        "alias dev d0 #: @type AccessDevice\n"
+        "ls r0 dev 0 Charge\n"     // 空集合：任何槽位都不适用
+        "ls r0 dev 2 Quantity\n"   // 2 越出 (0 1)
+        "ls r0 dev $2 Quantity\n"  // 十六进制序号同样参与判定（$2 即 2）
+        "hcf\n"
+    );
+    auto result = compile(source);
+
+    SCOPED_TRACE(formatDiags(result.analyserDiags));
+    assertNoLexerParserDiags(result);
+    // 注：槽位表用的是字面文本比较，`$2` 还会额外触发 IWA16_2，但本用例只关心 IWA26_3
+    EXPECT_EQ(countDiagnostic(result.analyserDiags, "IWA26_3"), 3u)
+        << "空集合、越界序号与十六进制序号都应各上报一次 IWA26_3";
 }
 
 // ============================================================
