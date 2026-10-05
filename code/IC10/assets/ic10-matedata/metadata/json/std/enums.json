@@ -827,6 +827,11 @@
                 "type": "Constant",
                 "value": 61
             },
+            "ContactSlotIndex": {
+                "desc": "./locals/enums.LogicType.enums.ContactSlotIndex.desc",
+                "type": "Constant",
+                "value": 282
+            },
             "ContactTypeId": {
                 "desc": "./locals/enums.LogicType.enums.ContactTypeId.desc",
                 "type": "Constant",
@@ -836,6 +841,11 @@
                 "desc": "./locals/enums.LogicType.enums.CurrentCode.desc",
                 "type": "Constant",
                 "value": 261
+            },
+            "CurrentNodeType": {
+                "desc": "./locals/enums.LogicType.enums.CurrentNodeType.desc",
+                "type": "Constant",
+                "value": 352
             },
             "CurrentResearchPodType": {
                 "desc": "./locals/enums.LogicType.enums.CurrentResearchPodType.desc",
@@ -861,6 +871,16 @@
                 "desc": "./locals/enums.LogicType.enums.Discover.desc",
                 "type": "Constant",
                 "value": 255
+            },
+            "Dispense": {
+                "desc": "./locals/enums.LogicType.enums.Dispense.desc",
+                "type": "Constant",
+                "value": 356
+            },
+            "DispenseSlot": {
+                "desc": "./locals/enums.LogicType.enums.DispenseSlot.desc",
+                "type": "Constant",
+                "value": 357
             },
             "DistanceAu": {
                 "desc": "./locals/enums.LogicType.enums.DistanceAu.desc",
@@ -897,6 +917,16 @@
                 "type": "Constant",
                 "value": 39
             },
+            "EnergyConvected": {
+                "desc": "./locals/enums.LogicType.enums.EnergyConvected.desc",
+                "type": "Constant",
+                "value": 354
+            },
+            "EnergyRadiated": {
+                "desc": "./locals/enums.LogicType.enums.EnergyRadiated.desc",
+                "type": "Constant",
+                "value": 355
+            },
             "EntityState": {
                 "desc": "./locals/enums.LogicType.enums.EntityState.desc",
                 "type": "Constant",
@@ -921,6 +951,21 @@
                 "desc": "./locals/enums.LogicType.enums.ExportCount.desc",
                 "type": "Constant",
                 "value": 63
+            },
+            "ExportQuantity": {
+                "desc": "./locals/enums.LogicType.enums.ExportQuantity.desc",
+                "type": "Constant",
+                "value": 31
+            },
+            "ExportSlotHash": {
+                "desc": "./locals/enums.LogicType.enums.ExportSlotHash.desc",
+                "type": "Constant",
+                "value": 42
+            },
+            "ExportSlotOccupant": {
+                "desc": "./locals/enums.LogicType.enums.ExportSlotOccupant.desc",
+                "type": "Constant",
+                "value": 32
             },
             "Extended": {
                 "desc": "./locals/enums.LogicType.enums.Extended.desc",
@@ -967,10 +1012,20 @@
                 "type": "Constant",
                 "value": 99
             },
+            "Gravity": {
+                "desc": "./locals/enums.LogicType.enums.Gravity.desc",
+                "type": "Constant",
+                "value": 358
+            },
             "Harvest": {
                 "desc": "./locals/enums.LogicType.enums.Harvest.desc",
                 "type": "Constant",
                 "value": 69
+            },
+            "HealthDamage": {
+                "desc": "./locals/enums.LogicType.enums.HealthDamage.desc",
+                "type": "Constant",
+                "value": 350
             },
             "Horizontal": {
                 "desc": "./locals/enums.LogicType.enums.Horizontal.desc",
@@ -991,6 +1046,21 @@
                 "desc": "./locals/enums.LogicType.enums.ImportCount.desc",
                 "type": "Constant",
                 "value": 64
+            },
+            "ImportQuantity": {
+                "desc": "./locals/enums.LogicType.enums.ImportQuantity.desc",
+                "type": "Constant",
+                "value": 29
+            },
+            "ImportSlotHash": {
+                "desc": "./locals/enums.LogicType.enums.ImportSlotHash.desc",
+                "type": "Constant",
+                "value": 43
+            },
+            "ImportSlotOccupant": {
+                "desc": "./locals/enums.LogicType.enums.ImportSlotOccupant.desc",
+                "type": "Constant",
+                "value": 30
             },
             "Inclination": {
                 "desc": "./locals/enums.LogicType.enums.Inclination.desc",
@@ -1092,8 +1162,8 @@
                 "type": "Constant",
                 "value": 281
             },
-            "true": {
-                "desc": "./locals/enums.LogicType.enums.True.desc",
+            "On": {
+                "desc": "./locals/enums.LogicType.enums.On.desc",
                 "type": "Constant",
                 "value": 28
             },
@@ -1267,88 +1337,308 @@
                 "type": "Constant",
                 "value": 139
             },
+            "RatioHelium": {
+                "desc": "./locals/enums.LogicType.enums.RatioHelium.desc",
+                "type": "Constant",
+                "value": 286
+            },
+            "RatioHeliumInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioHeliumInput.desc",
+                "type": "Constant",
+                "value": 318
+            },
+            "RatioHeliumInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioHeliumInput2.desc",
+                "type": "Constant",
+                "value": 319
+            },
+            "RatioHeliumOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioHeliumOutput.desc",
+                "type": "Constant",
+                "value": 320
+            },
+            "RatioHeliumOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioHeliumOutput2.desc",
+                "type": "Constant",
+                "value": 321
+            },
+            "RatioHydrazine": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrazine.desc",
+                "type": "Constant",
+                "value": 283
+            },
+            "RatioHydrazineInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrazineInput.desc",
+                "type": "Constant",
+                "value": 306
+            },
+            "RatioHydrazineInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrazineInput2.desc",
+                "type": "Constant",
+                "value": 307
+            },
+            "RatioHydrazineOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrazineOutput.desc",
+                "type": "Constant",
+                "value": 308
+            },
+            "RatioHydrazineOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrazineOutput2.desc",
+                "type": "Constant",
+                "value": 309
+            },
+            "RatioHydrochloricAcid": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcid.desc",
+                "type": "Constant",
+                "value": 290
+            },
+            "RatioHydrochloricAcidInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcidInput.desc",
+                "type": "Constant",
+                "value": 334
+            },
+            "RatioHydrochloricAcidInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcidInput2.desc",
+                "type": "Constant",
+                "value": 335
+            },
+            "RatioHydrochloricAcidOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcidOutput.desc",
+                "type": "Constant",
+                "value": 336
+            },
+            "RatioHydrochloricAcidOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcidOutput2.desc",
+                "type": "Constant",
+                "value": 337
+            },
             "RatioHydrogen": {
                 "desc": "./locals/enums.LogicType.enums.RatioHydrogen.desc",
                 "type": "Constant",
                 "value": 252
+            },
+            "RatioHydrogenInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrogenInput.desc",
+                "type": "Constant",
+                "value": 294
+            },
+            "RatioHydrogenInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrogenInput2.desc",
+                "type": "Constant",
+                "value": 295
+            },
+            "RatioHydrogenOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrogenOutput.desc",
+                "type": "Constant",
+                "value": 296
+            },
+            "RatioHydrogenOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioHydrogenOutput2.desc",
+                "type": "Constant",
+                "value": 297
+            },
+            "RatioLiquidAlcohol": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcohol.desc",
+                "type": "Constant",
+                "value": 285
+            },
+            "RatioLiquidAlcoholInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcoholInput.desc",
+                "type": "Constant",
+                "value": 314
+            },
+            "RatioLiquidAlcoholInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcoholInput2.desc",
+                "type": "Constant",
+                "value": 315
+            },
+            "RatioLiquidAlcoholOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcoholOutput.desc",
+                "type": "Constant",
+                "value": 316
+            },
+            "RatioLiquidAlcoholOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcoholOutput2.desc",
+                "type": "Constant",
+                "value": 317
             },
             "RatioLiquidCarbonDioxide": {
                 "desc": "./locals/enums.LogicType.enums.RatioLiquidCarbonDioxide.desc",
                 "type": "Constant",
                 "value": 199
             },
-            "RatioLquidCarbonDioxideInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLquidCarbonDioxideInput.desc",
+            "RatioLiquidCarbonDioxideInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput.desc",
                 "type": "Constant",
                 "value": 200
             },
-            "RatioLquidCarbonDioxideInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLquidCarbonDioxideInput2.desc",
+            "RatioLiquidCarbonDioxideInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput2.desc",
                 "type": "Constant",
                 "value": 201
             },
-            "RatioLquidCarbonDioxideOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLquidCarbonDioxideOutput.desc",
+            "RatioLiquidCarbonDioxideOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput.desc",
                 "type": "Constant",
                 "value": 202
             },
-            "RatioLquidCarbonDioxideOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLquidCarbonDioxideOutput2.desc",
+            "RatioLiquidCarbonDioxideOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput2.desc",
                 "type": "Constant",
                 "value": 203
             },
-            "RatioLquidNitrogen": {
-                "desc": "./locals/enums.LogicType.enums.RatioLquidNitrogen.desc",
+            "RatioLiquidHydrazine": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazine.desc",
+                "type": "Constant",
+                "value": 284
+            },
+            "RatioLiquidHydrazineInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazineInput.desc",
+                "type": "Constant",
+                "value": 310
+            },
+            "RatioLiquidHydrazineInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazineInput2.desc",
+                "type": "Constant",
+                "value": 311
+            },
+            "RatioLiquidHydrazineOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazineOutput.desc",
+                "type": "Constant",
+                "value": 312
+            },
+            "RatioLiquidHydrazineOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazineOutput2.desc",
+                "type": "Constant",
+                "value": 313
+            },
+            "RatioLiquidHydrochloricAcid": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcid.desc",
+                "type": "Constant",
+                "value": 291
+            },
+            "RatioLiquidHydrochloricAcidInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidInput.desc",
+                "type": "Constant",
+                "value": 338
+            },
+            "RatioLiquidHydrochloricAcidInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidInput2.desc",
+                "type": "Constant",
+                "value": 339
+            },
+            "RatioLiquidHydrochloricAcidOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidOutput.desc",
+                "type": "Constant",
+                "value": 340
+            },
+            "RatioLiquidHydrochloricAcidOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidOutput2.desc",
+                "type": "Constant",
+                "value": 341
+            },
+            "RatioLiquidHydrogen": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogen.desc",
                 "type": "Constant",
                 "value": 253
             },
-            "RatioLquidNitrogenInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLquidNitrogenInput.desc",
+            "RatioLiquidHydrogenInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogenInput.desc",
+                "type": "Constant",
+                "value": 298
+            },
+            "RatioLiquidHydrogenInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogenInput2.desc",
+                "type": "Constant",
+                "value": 299
+            },
+            "RatioLiquidHydrogenOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogenOutput.desc",
+                "type": "Constant",
+                "value": 300
+            },
+            "RatioLiquidHydrogenOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogenOutput2.desc",
+                "type": "Constant",
+                "value": 301
+            },
+            "RatioLiquidMethane": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethane.desc",
+                "type": "Constant",
+                "value": 188
+            },
+            "RatioLiquidMethaneInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethaneInput.desc",
+                "type": "Constant",
+                "value": 189
+            },
+            "RatioLiquidMethaneInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethaneInput2.desc",
+                "type": "Constant",
+                "value": 190
+            },
+            "RatioLiquidMethaneOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethaneOutput.desc",
+                "type": "Constant",
+                "value": 191
+            },
+            "RatioLiquidMethaneOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethaneOutput2.desc",
+                "type": "Constant",
+                "value": 192
+            },
+            "RatioLiquidNitrogen": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogen.desc",
+                "type": "Constant",
+                "value": 177
+            },
+            "RatioLiquidNitrogenInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogenInput.desc",
                 "type": "Constant",
                 "value": 178
             },
-            "RatioLquidNitrogenInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLquidNitrogenInput2.desc",
+            "RatioLiquidNitrogenInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogenInput2.desc",
                 "type": "Constant",
                 "value": 179
             },
-            "Ratiol.IquidNitrogenOutput": {
-                "desc": "./locals/enums.LogicType.enums.Ratiol.IquidNitrogenOutput.desc",
+            "RatioLiquidNitrogenOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput.desc",
                 "type": "Constant",
                 "value": 180
             },
-            "Ratiol.IquidNitrogenOutput2": {
-                "desc": "./locals/enums.LogicType.enums.Ratiol.IquidNitrogenOutput2.desc",
+            "RatioLiquidNitrogenOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput2.desc",
                 "type": "Constant",
                 "value": 181
             },
-            "Ratiol.IquidNitrousOxide": {
-                "desc": "./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxide.desc",
+            "RatioLiquidNitrousOxide": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxide.desc",
                 "type": "Constant",
                 "value": 209
             },
-            "Ratiol.IquidNitrousOxideInput": {
-                "desc": "./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideInput.desc",
+            "RatioLiquidNitrousOxideInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput.desc",
                 "type": "Constant",
                 "value": 210
             },
-            "Ratiol.IquidNitrousOxideInput2": {
-                "desc": "./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideInput2.desc",
+            "RatioLiquidNitrousOxideInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput2.desc",
                 "type": "Constant",
                 "value": 211
             },
-            "Ratiol.IquidNitrousOxideOutput": {
-                "desc": "./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideOutput.desc",
+            "RatioLiquidNitrousOxideOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput.desc",
                 "type": "Constant",
                 "value": 212
             },
-            "Ratiol.IquidNitrousOxideOutput2": {
-                "desc": "./locals/enums.LogicType.enums.Ratiol.IquidNitrousOxideOutput2.desc",
+            "RatioLiquidNitrousOxideOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput2.desc",
                 "type": "Constant",
                 "value": 213
             },
-            "Ratiol.IquidOxygen": {
-                "desc": "./locals/enums.LogicType.enums.Ratiol.IquidOxygen.desc",
+            "RatioLiquidOxygen": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidOxygen.desc",
                 "type": "Constant",
                 "value": 183
             },
@@ -1371,6 +1661,31 @@
                 "desc": "./locals/enums.LogicType.enums.RatioLiquidOxygenOutput2.desc",
                 "type": "Constant",
                 "value": 187
+            },
+            "RatioLiquidOzone": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzone.desc",
+                "type": "Constant",
+                "value": 293
+            },
+            "RatioLiquidOzoneInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzoneInput.desc",
+                "type": "Constant",
+                "value": 346
+            },
+            "RatioLiquidOzoneInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzoneInput2.desc",
+                "type": "Constant",
+                "value": 347
+            },
+            "RatioLiquidOzoneOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzoneOutput.desc",
+                "type": "Constant",
+                "value": 348
+            },
+            "RatioLiquidOzoneOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzoneOutput2.desc",
+                "type": "Constant",
+                "value": 349
             },
             "RatioLiquidPollutant": {
                 "desc": "./locals/enums.LogicType.enums.RatioLiquidPollutant.desc",
@@ -1397,30 +1712,80 @@
                 "type": "Constant",
                 "value": 208
             },
-            "RatioLiquidVolatiles": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidVolatiles.desc",
+            "RatioLiquidSilanol": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanol.desc",
                 "type": "Constant",
-                "value": 188
+                "value": 289
             },
-            "RatioLiquidVolatilesInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidVolatilesInput.desc",
+            "RatioLiquidSilanolInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanolInput.desc",
                 "type": "Constant",
-                "value": 189
+                "value": 330
             },
-            "RatioLiquidVolatilesInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidVolatilesInput2.desc",
+            "RatioLiquidSilanolInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanolInput2.desc",
                 "type": "Constant",
-                "value": 190
+                "value": 331
             },
-            "RatioLiquidVolatilesOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidVolatilesOutput.desc",
+            "RatioLiquidSilanolOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanolOutput.desc",
                 "type": "Constant",
-                "value": 191
+                "value": 332
             },
-            "RatioLiquidVolatilesOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidVolatilesOutput2.desc",
+            "RatioLiquidSilanolOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanolOutput2.desc",
                 "type": "Constant",
-                "value": 192
+                "value": 333
+            },
+            "RatioLiquidSodiumChloride": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChloride.desc",
+                "type": "Constant",
+                "value": 287
+            },
+            "RatioLiquidSodiumChlorideInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideInput.desc",
+                "type": "Constant",
+                "value": 322
+            },
+            "RatioLiquidSodiumChlorideInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideInput2.desc",
+                "type": "Constant",
+                "value": 323
+            },
+            "RatioLiquidSodiumChlorideOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideOutput.desc",
+                "type": "Constant",
+                "value": 324
+            },
+            "RatioLiquidSodiumChlorideOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideOutput2.desc",
+                "type": "Constant",
+                "value": 325
+            },
+            "RatioMethane": {
+                "desc": "./locals/enums.LogicType.enums.RatioMethane.desc",
+                "type": "Constant",
+                "value": 18
+            },
+            "RatioMethaneInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioMethaneInput.desc",
+                "type": "Constant",
+                "value": 112
+            },
+            "RatioMethaneInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioMethaneInput2.desc",
+                "type": "Constant",
+                "value": 122
+            },
+            "RatioMethaneOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioMethaneOutput.desc",
+                "type": "Constant",
+                "value": 132
+            },
+            "RatioMethaneOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioMethaneOutput2.desc",
+                "type": "Constant",
+                "value": 142
             },
             "RatioNitrogen": {
                 "desc": "./locals/enums.LogicType.enums.RatioNitrogen.desc",
@@ -1497,6 +1862,31 @@
                 "type": "Constant",
                 "value": 138
             },
+            "RatioOzone": {
+                "desc": "./locals/enums.LogicType.enums.RatioOzone.desc",
+                "type": "Constant",
+                "value": 292
+            },
+            "RatioOzoneInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioOzoneInput.desc",
+                "type": "Constant",
+                "value": 342
+            },
+            "RatioOzoneInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioOzoneInput2.desc",
+                "type": "Constant",
+                "value": 343
+            },
+            "RatioOzoneOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioOzoneOutput.desc",
+                "type": "Constant",
+                "value": 344
+            },
+            "RatioOzoneOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioOzoneOutput2.desc",
+                "type": "Constant",
+                "value": 345
+            },
             "RatioPollutant": {
                 "desc": "./locals/enums.LogicType.enums.RatioPollutant.desc",
                 "type": "Constant",
@@ -1527,6 +1917,51 @@
                 "type": "Constant",
                 "value": 254
             },
+            "RatioPollutedWaterInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioPollutedWaterInput.desc",
+                "type": "Constant",
+                "value": 302
+            },
+            "RatioPollutedWaterInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioPollutedWaterInput2.desc",
+                "type": "Constant",
+                "value": 303
+            },
+            "RatioPollutedWaterOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioPollutedWaterOutput.desc",
+                "type": "Constant",
+                "value": 304
+            },
+            "RatioPollutedWaterOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioPollutedWaterOutput2.desc",
+                "type": "Constant",
+                "value": 305
+            },
+            "RatioSilanol": {
+                "desc": "./locals/enums.LogicType.enums.RatioSilanol.desc",
+                "type": "Constant",
+                "value": 288
+            },
+            "RatioSilanolInput": {
+                "desc": "./locals/enums.LogicType.enums.RatioSilanolInput.desc",
+                "type": "Constant",
+                "value": 326
+            },
+            "RatioSilanolInput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioSilanolInput2.desc",
+                "type": "Constant",
+                "value": 327
+            },
+            "RatioSilanolOutput": {
+                "desc": "./locals/enums.LogicType.enums.RatioSilanolOutput.desc",
+                "type": "Constant",
+                "value": 328
+            },
+            "RatioSilanolOutput2": {
+                "desc": "./locals/enums.LogicType.enums.RatioSilanolOutput2.desc",
+                "type": "Constant",
+                "value": 329
+            },
             "RatioSteam": {
                 "desc": "./locals/enums.LogicType.enums.RatioSteam.desc",
                 "type": "Constant",
@@ -1551,31 +1986,6 @@
                 "desc": "./locals/enums.LogicType.enums.RatioSteamOutput2.desc",
                 "type": "Constant",
                 "value": 197
-            },
-            "RatioVolatiles": {
-                "desc": "./locals/enums.LogicType.enums.RatioVolatiles.desc",
-                "type": "Constant",
-                "value": 18
-            },
-            "RatioVolatilesInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioVolatilesInput.desc",
-                "type": "Constant",
-                "value": 112
-            },
-            "RatioVolatilesInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioVolatilesInput2.desc",
-                "type": "Constant",
-                "value": 122
-            },
-            "RatioVolatilesOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioVolatilesOutput.desc",
-                "type": "Constant",
-                "value": 132
-            },
-            "RatioVolatilesOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioVolatilesOutput2.desc",
-                "type": "Constant",
-                "value": 142
             },
             "RatioWater": {
                 "desc": "./locals/enums.LogicType.enums.RatioWater.desc",
@@ -1602,6 +2012,11 @@
                 "type": "Constant",
                 "value": 143
             },
+            "ReEntryAltitude": {
+                "desc": "./locals/enums.LogicType.enums.ReEntryAltitude.desc",
+                "type": "Constant",
+                "value": 237
+            },
             "Reagents": {
                 "desc": "./locals/enums.LogicType.enums.Reagents.desc",
                 "type": "Constant",
@@ -1611,11 +2026,6 @@
                 "desc": "./locals/enums.LogicType.enums.RecipeHash.desc",
                 "type": "Constant",
                 "value": 41
-            },
-            "ReEntryAltitude": {
-                "desc": "./locals/enums.LogicType.enums.ReEntryAltitude.desc",
-                "type": "Constant",
-                "value": 237
             },
             "ReferenceId": {
                 "desc": "./locals/enums.LogicType.enums.ReferenceId.desc",
@@ -1652,8 +2062,8 @@
                 "type": "Constant",
                 "value": 155
             },
-            "SemMajorAxis": {
-                "desc": "./locals/enums.LogicType.enums.SemMajorAxis.desc",
+            "SemiMajorAxis": {
+                "desc": "./locals/enums.LogicType.enums.SemiMajorAxis.desc",
                 "type": "Constant",
                 "value": 248
             },
@@ -1727,8 +2137,8 @@
                 "type": "Constant",
                 "value": 175
             },
-            "StackTrace": {
-                "desc": "./locals/enums.LogicType.enums.StackTrace.desc",
+            "StackSize": {
+                "desc": "./locals/enums.LogicType.enums.StackSize.desc",
                 "type": "Constant",
                 "value": 280
             },
@@ -1737,10 +2147,20 @@
                 "type": "Constant",
                 "value": 156
             },
+            "StunDamage": {
+                "desc": "./locals/enums.LogicType.enums.StunDamage.desc",
+                "type": "Constant",
+                "value": 351
+            },
             "Survey": {
                 "desc": "./locals/enums.LogicType.enums.Survey.desc",
                 "type": "Constant",
                 "value": 257
+            },
+            "TargetNodeType": {
+                "desc": "./locals/enums.LogicType.enums.TargetNodeType.desc",
+                "type": "Constant",
+                "value": 353
             },
             "TargetPadIndex": {
                 "desc": "./locals/enums.LogicType.enums.TargetPadIndex.desc",
@@ -1941,566 +2361,6 @@
                 "desc": "./locals/enums.LogicType.enums.WorkingGasEfficiency.desc",
                 "type": "Constant",
                 "value": 105
-            },
-            "ContactSlotIndex": {
-                "desc": "./locals/enums.LogicType.enums.ContactSlotIndex.desc",
-                "type": "Constant",
-                "value": 282
-            },
-            "CurrentNodeType": {
-                "desc": "./locals/enums.LogicType.enums.CurrentNodeType.desc",
-                "type": "Constant",
-                "value": 352
-            },
-            "Dispense": {
-                "desc": "./locals/enums.LogicType.enums.Dispense.desc",
-                "type": "Constant",
-                "value": 356
-            },
-            "DispenseSlot": {
-                "desc": "./locals/enums.LogicType.enums.DispenseSlot.desc",
-                "type": "Constant",
-                "value": 357
-            },
-            "EnergyConvected": {
-                "desc": "./locals/enums.LogicType.enums.EnergyConvected.desc",
-                "type": "Constant",
-                "value": 354
-            },
-            "EnergyRadiated": {
-                "desc": "./locals/enums.LogicType.enums.EnergyRadiated.desc",
-                "type": "Constant",
-                "value": 355
-            },
-            "ExportQuantity": {
-                "desc": "./locals/enums.LogicType.enums.ExportQuantity.desc",
-                "type": "Constant",
-                "value": 31
-            },
-            "ExportSlotHash": {
-                "desc": "./locals/enums.LogicType.enums.ExportSlotHash.desc",
-                "type": "Constant",
-                "value": 42
-            },
-            "ExportSlotOccupant": {
-                "desc": "./locals/enums.LogicType.enums.ExportSlotOccupant.desc",
-                "type": "Constant",
-                "value": 32
-            },
-            "Gravity": {
-                "desc": "./locals/enums.LogicType.enums.Gravity.desc",
-                "type": "Constant",
-                "value": 358
-            },
-            "HealthDamage": {
-                "desc": "./locals/enums.LogicType.enums.HealthDamage.desc",
-                "type": "Constant",
-                "value": 350
-            },
-            "ImportQuantity": {
-                "desc": "./locals/enums.LogicType.enums.ImportQuantity.desc",
-                "type": "Constant",
-                "value": 29
-            },
-            "ImportSlotHash": {
-                "desc": "./locals/enums.LogicType.enums.ImportSlotHash.desc",
-                "type": "Constant",
-                "value": 43
-            },
-            "ImportSlotOccupant": {
-                "desc": "./locals/enums.LogicType.enums.ImportSlotOccupant.desc",
-                "type": "Constant",
-                "value": 30
-            },
-            "On": {
-                "desc": "./locals/enums.LogicType.enums.On.desc",
-                "type": "Constant",
-                "value": 28
-            },
-            "SemiMajorAxis": {
-                "desc": "./locals/enums.LogicType.enums.SemiMajorAxis.desc",
-                "type": "Constant",
-                "value": 248
-            },
-            "StackSize": {
-                "desc": "./locals/enums.LogicType.enums.StackSize.desc",
-                "type": "Constant",
-                "value": 280
-            },
-            "StunDamage": {
-                "desc": "./locals/enums.LogicType.enums.StunDamage.desc",
-                "type": "Constant",
-                "value": 351
-            },
-            "TargetNodeType": {
-                "desc": "./locals/enums.LogicType.enums.TargetNodeType.desc",
-                "type": "Constant",
-                "value": 353
-            },
-            "RatioHelium": {
-                "desc": "./locals/enums.LogicType.enums.RatioHelium.desc",
-                "type": "Constant",
-                "value": 286
-            },
-            "RatioHeliumInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioHeliumInput.desc",
-                "type": "Constant",
-                "value": 318
-            },
-            "RatioHeliumInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioHeliumInput2.desc",
-                "type": "Constant",
-                "value": 319
-            },
-            "RatioHeliumOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioHeliumOutput.desc",
-                "type": "Constant",
-                "value": 320
-            },
-            "RatioHeliumOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioHeliumOutput2.desc",
-                "type": "Constant",
-                "value": 321
-            },
-            "RatioHydrazine": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrazine.desc",
-                "type": "Constant",
-                "value": 283
-            },
-            "RatioHydrazineInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrazineInput.desc",
-                "type": "Constant",
-                "value": 306
-            },
-            "RatioHydrazineInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrazineInput2.desc",
-                "type": "Constant",
-                "value": 307
-            },
-            "RatioHydrazineOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrazineOutput.desc",
-                "type": "Constant",
-                "value": 308
-            },
-            "RatioHydrazineOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrazineOutput2.desc",
-                "type": "Constant",
-                "value": 309
-            },
-            "RatioHydrochloricAcid": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcid.desc",
-                "type": "Constant",
-                "value": 290
-            },
-            "RatioHydrochloricAcidInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcidInput.desc",
-                "type": "Constant",
-                "value": 334
-            },
-            "RatioHydrochloricAcidInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcidInput2.desc",
-                "type": "Constant",
-                "value": 335
-            },
-            "RatioHydrochloricAcidOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcidOutput.desc",
-                "type": "Constant",
-                "value": 336
-            },
-            "RatioHydrochloricAcidOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrochloricAcidOutput2.desc",
-                "type": "Constant",
-                "value": 337
-            },
-            "RatioHydrogenInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrogenInput.desc",
-                "type": "Constant",
-                "value": 294
-            },
-            "RatioHydrogenInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrogenInput2.desc",
-                "type": "Constant",
-                "value": 295
-            },
-            "RatioHydrogenOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrogenOutput.desc",
-                "type": "Constant",
-                "value": 296
-            },
-            "RatioHydrogenOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioHydrogenOutput2.desc",
-                "type": "Constant",
-                "value": 297
-            },
-            "RatioLiquidAlcohol": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcohol.desc",
-                "type": "Constant",
-                "value": 285
-            },
-            "RatioLiquidAlcoholInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcoholInput.desc",
-                "type": "Constant",
-                "value": 314
-            },
-            "RatioLiquidAlcoholInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcoholInput2.desc",
-                "type": "Constant",
-                "value": 315
-            },
-            "RatioLiquidAlcoholOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcoholOutput.desc",
-                "type": "Constant",
-                "value": 316
-            },
-            "RatioLiquidAlcoholOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidAlcoholOutput2.desc",
-                "type": "Constant",
-                "value": 317
-            },
-            "RatioLiquidCarbonDioxideInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput.desc",
-                "type": "Constant",
-                "value": 200
-            },
-            "RatioLiquidCarbonDioxideInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideInput2.desc",
-                "type": "Constant",
-                "value": 201
-            },
-            "RatioLiquidCarbonDioxideOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput.desc",
-                "type": "Constant",
-                "value": 202
-            },
-            "RatioLiquidCarbonDioxideOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidCarbonDioxideOutput2.desc",
-                "type": "Constant",
-                "value": 203
-            },
-            "RatioLiquidHydrazine": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazine.desc",
-                "type": "Constant",
-                "value": 284
-            },
-            "RatioLiquidHydrazineInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazineInput.desc",
-                "type": "Constant",
-                "value": 310
-            },
-            "RatioLiquidHydrazineInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazineInput2.desc",
-                "type": "Constant",
-                "value": 311
-            },
-            "RatioLiquidHydrazineOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazineOutput.desc",
-                "type": "Constant",
-                "value": 312
-            },
-            "RatioLiquidHydrazineOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrazineOutput2.desc",
-                "type": "Constant",
-                "value": 313
-            },
-            "RatioLiquidHydrochloricAcid": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcid.desc",
-                "type": "Constant",
-                "value": 291
-            },
-            "RatioLiquidHydrochloricAcidInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidInput.desc",
-                "type": "Constant",
-                "value": 338
-            },
-            "RatioLiquidHydrochloricAcidInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidInput2.desc",
-                "type": "Constant",
-                "value": 339
-            },
-            "RatioLiquidHydrochloricAcidOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidOutput.desc",
-                "type": "Constant",
-                "value": 340
-            },
-            "RatioLiquidHydrochloricAcidOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrochloricAcidOutput2.desc",
-                "type": "Constant",
-                "value": 341
-            },
-            "RatioLiquidHydrogen": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogen.desc",
-                "type": "Constant",
-                "value": 253
-            },
-            "RatioLiquidHydrogenInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogenInput.desc",
-                "type": "Constant",
-                "value": 298
-            },
-            "RatioLiquidHydrogenInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogenInput2.desc",
-                "type": "Constant",
-                "value": 299
-            },
-            "RatioLiquidHydrogenOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogenOutput.desc",
-                "type": "Constant",
-                "value": 300
-            },
-            "RatioLiquidHydrogenOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidHydrogenOutput2.desc",
-                "type": "Constant",
-                "value": 301
-            },
-            "RatioLiquidMethane": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethane.desc",
-                "type": "Constant",
-                "value": 188
-            },
-            "RatioLiquidMethaneInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethaneInput.desc",
-                "type": "Constant",
-                "value": 189
-            },
-            "RatioLiquidMethaneInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethaneInput2.desc",
-                "type": "Constant",
-                "value": 190
-            },
-            "RatioLiquidMethaneOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethaneOutput.desc",
-                "type": "Constant",
-                "value": 191
-            },
-            "RatioLiquidMethaneOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidMethaneOutput2.desc",
-                "type": "Constant",
-                "value": 192
-            },
-            "RatioLiquidNitrogen": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogen.desc",
-                "type": "Constant",
-                "value": 177
-            },
-            "RatioLiquidNitrogenInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogenInput.desc",
-                "type": "Constant",
-                "value": 178
-            },
-            "RatioLiquidNitrogenInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogenInput2.desc",
-                "type": "Constant",
-                "value": 179
-            },
-            "RatioLiquidNitrogenOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput.desc",
-                "type": "Constant",
-                "value": 180
-            },
-            "RatioLiquidNitrogenOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrogenOutput2.desc",
-                "type": "Constant",
-                "value": 181
-            },
-            "RatioLiquidNitrousOxide": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxide.desc",
-                "type": "Constant",
-                "value": 209
-            },
-            "RatioLiquidNitrousOxideInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput.desc",
-                "type": "Constant",
-                "value": 210
-            },
-            "RatioLiquidNitrousOxideInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxideInput2.desc",
-                "type": "Constant",
-                "value": 211
-            },
-            "RatioLiquidNitrousOxideOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput.desc",
-                "type": "Constant",
-                "value": 212
-            },
-            "RatioLiquidNitrousOxideOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidNitrousOxideOutput2.desc",
-                "type": "Constant",
-                "value": 213
-            },
-            "RatioLiquidOxygen": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidOxygen.desc",
-                "type": "Constant",
-                "value": 183
-            },
-            "RatioLiquidOzone": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzone.desc",
-                "type": "Constant",
-                "value": 293
-            },
-            "RatioLiquidOzoneInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzoneInput.desc",
-                "type": "Constant",
-                "value": 346
-            },
-            "RatioLiquidOzoneInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzoneInput2.desc",
-                "type": "Constant",
-                "value": 347
-            },
-            "RatioLiquidOzoneOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzoneOutput.desc",
-                "type": "Constant",
-                "value": 348
-            },
-            "RatioLiquidOzoneOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidOzoneOutput2.desc",
-                "type": "Constant",
-                "value": 349
-            },
-            "RatioLiquidSilanol": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanol.desc",
-                "type": "Constant",
-                "value": 289
-            },
-            "RatioLiquidSilanolInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanolInput.desc",
-                "type": "Constant",
-                "value": 330
-            },
-            "RatioLiquidSilanolInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanolInput2.desc",
-                "type": "Constant",
-                "value": 331
-            },
-            "RatioLiquidSilanolOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanolOutput.desc",
-                "type": "Constant",
-                "value": 332
-            },
-            "RatioLiquidSilanolOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSilanolOutput2.desc",
-                "type": "Constant",
-                "value": 333
-            },
-            "RatioLiquidSodiumChloride": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChloride.desc",
-                "type": "Constant",
-                "value": 287
-            },
-            "RatioLiquidSodiumChlorideInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideInput.desc",
-                "type": "Constant",
-                "value": 322
-            },
-            "RatioLiquidSodiumChlorideInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideInput2.desc",
-                "type": "Constant",
-                "value": 323
-            },
-            "RatioLiquidSodiumChlorideOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideOutput.desc",
-                "type": "Constant",
-                "value": 324
-            },
-            "RatioLiquidSodiumChlorideOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioLiquidSodiumChlorideOutput2.desc",
-                "type": "Constant",
-                "value": 325
-            },
-            "RatioMethane": {
-                "desc": "./locals/enums.LogicType.enums.RatioMethane.desc",
-                "type": "Constant",
-                "value": 18
-            },
-            "RatioMethaneInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioMethaneInput.desc",
-                "type": "Constant",
-                "value": 112
-            },
-            "RatioMethaneInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioMethaneInput2.desc",
-                "type": "Constant",
-                "value": 122
-            },
-            "RatioMethaneOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioMethaneOutput.desc",
-                "type": "Constant",
-                "value": 132
-            },
-            "RatioMethaneOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioMethaneOutput2.desc",
-                "type": "Constant",
-                "value": 142
-            },
-            "RatioOzone": {
-                "desc": "./locals/enums.LogicType.enums.RatioOzone.desc",
-                "type": "Constant",
-                "value": 292
-            },
-            "RatioOzoneInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioOzoneInput.desc",
-                "type": "Constant",
-                "value": 342
-            },
-            "RatioOzoneInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioOzoneInput2.desc",
-                "type": "Constant",
-                "value": 343
-            },
-            "RatioOzoneOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioOzoneOutput.desc",
-                "type": "Constant",
-                "value": 344
-            },
-            "RatioOzoneOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioOzoneOutput2.desc",
-                "type": "Constant",
-                "value": 345
-            },
-            "RatioPollutedWaterInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioPollutedWaterInput.desc",
-                "type": "Constant",
-                "value": 302
-            },
-            "RatioPollutedWaterInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioPollutedWaterInput2.desc",
-                "type": "Constant",
-                "value": 303
-            },
-            "RatioPollutedWaterOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioPollutedWaterOutput.desc",
-                "type": "Constant",
-                "value": 304
-            },
-            "RatioPollutedWaterOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioPollutedWaterOutput2.desc",
-                "type": "Constant",
-                "value": 305
-            },
-            "RatioSilanol": {
-                "desc": "./locals/enums.LogicType.enums.RatioSilanol.desc",
-                "type": "Constant",
-                "value": 288
-            },
-            "RatioSilanolInput": {
-                "desc": "./locals/enums.LogicType.enums.RatioSilanolInput.desc",
-                "type": "Constant",
-                "value": 326
-            },
-            "RatioSilanolInput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioSilanolInput2.desc",
-                "type": "Constant",
-                "value": 327
-            },
-            "RatioSilanolOutput": {
-                "desc": "./locals/enums.LogicType.enums.RatioSilanolOutput.desc",
-                "type": "Constant",
-                "value": 328
-            },
-            "RatioSilanolOutput2": {
-                "desc": "./locals/enums.LogicType.enums.RatioSilanolOutput2.desc",
-                "type": "Constant",
-                "value": 329
             }
         }
     },

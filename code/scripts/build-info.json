@@ -31,6 +31,7 @@
         "Config": "Release",
         "ArtifactPath": "build/IC10/backend/compiler/exports/node/Release/ic10c-node.node",
         "PublishDir":  "IC10/backend/compiler/publish/node/src",
+        "StdLibPath":  "IC10/assets/ic/stdLib.ic",
         "TestDir": "IC10/backend/compiler"
     },
     "IC10_Compiler_Python": {

@@ -101,3 +101,38 @@ resolve_artifact_path() {
     echo "$artifact"
     return 1
 }
+
+# 读标准库的文件头日期标志（`# stdLib.ic YYYY-MM-DD`）。
+# 标准库以 assets/ic/stdLib.ic 为唯一来源（见 script/genStdLib.py 的文件头说明），
+# 发布副本是构建产物（见 publish/node/.gitignore），因此用这一行确认副本与源是同一份。
+stdlib_marker() {
+    local path="$1"
+    [[ -f "$path" ]] || return 1
+    head -n 1 "$path" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -n 1
+}
+
+# 把标准库从 assets 同步到发布目录，并比对日期标志——
+# 复制后再比对，既完成同步，也防止"复制没生效/副本是旧的"却照样发布。
+sync_stdlib() {
+    local src="$1" publish_dir="$2"
+
+    [[ -f "$src" ]] || { write_st_error "$(get_text "Build.StdLib.SourceNotFound" "$src")"; exit 1; }
+
+    local src_marker
+    src_marker=$(stdlib_marker "$src" || true)
+
+    [[ -n "$src_marker" ]] || { write_st_error "$(get_text "Build.StdLib.NoMarker" "$src")"; exit 1; }
+
+    copy_artifact "$src" "$publish_dir"
+
+    local copied="$publish_dir/$(basename "$src")"
+    local copied_marker
+    copied_marker=$(stdlib_marker "$copied" || true)
+
+    if [[ "$copied_marker" != "$src_marker" ]]; then
+        write_st_error "$(get_text "Build.StdLib.Stale" "$src_marker" "$copied_marker")"
+        exit 1
+    fi
+
+    write_st_info "$(get_text "Build.StdLib.Synced" "$src_marker" "$copied")"
+}
