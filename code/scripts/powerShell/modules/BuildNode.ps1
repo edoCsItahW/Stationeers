@@ -21,7 +21,13 @@ try {
 
     Write-ST-Phase (__ "Build.StdLib.Head")
 
-    Sync-StdLib -Source $Config.StdLibPath -PublishDir $Config.PublishDir
+    # 标准库只有声明了 StdLibDir 的目标才有（编译器 node 有、runtime node 没有）
+    if ([string]::IsNullOrEmpty($Config.StdLibDir)) {
+        Write-ST-Info (__ "Build.StdLib.Skipped" -Arguments $Config.Target)
+    }
+    else {
+        Sync-StdLib -Source $Config.StdLibPath -DestinationDir $Config.StdLibDir
+    }
 
     Write-ST-Phase (__ "Node.Test")
 

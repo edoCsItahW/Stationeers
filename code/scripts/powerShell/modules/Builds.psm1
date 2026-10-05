@@ -183,10 +183,11 @@ function Get-StdLibMarker {
 
 # 把标准库从 assets 同步到发布目录，并比对日期标志——
 # 复制后再比对，既完成同步，也防止"复制没生效/副本是旧的"却照样发布。
+# 目标是目录：node 放在包的 src/，java 放在 jar 的 resources 根（见 build-info.json 的 StdLibDir）。
 function Sync-StdLib {
     param(
         [string]$Source,
-        [string]$PublishDir
+        [string]$DestinationDir
     )
 
     if ([string]::IsNullOrEmpty($Source) -or -not (Test-Path $Source -PathType Leaf)) {
@@ -199,9 +200,9 @@ function Sync-StdLib {
         throw (__ "Build.StdLib.NoMarker" -Arguments $Source)
     }
 
-    Copy-Artifact -Source $Source -Destination $PublishDir -Force
+    Copy-Artifact -Source $Source -Destination $DestinationDir -Force
 
-    $copied = Join-Path $PublishDir (Split-Path $Source -Leaf)
+    $copied = Join-Path $DestinationDir (Split-Path $Source -Leaf)
     $copiedMarker = Get-StdLibMarker $copied
 
     if ($copiedMarker -ne $sourceMarker) {

@@ -12,6 +12,7 @@ build_node() {
     local artifact=$(jq -r '.ArtifactPath' <<<"$config_json")
     local publish_dir=$(jq -r '.PublishDir' <<<"$config_json")
     local stdlib=$(jq -r '.StdLibPath' <<<"$config_json")
+    local stdlib_dir=$(jq -r '.StdLibDir' <<<"$config_json")
     local test_dir=$(jq -r '.TestDir' <<<"$config_json")
 
     invoke_cmake_configure "$target" "$build_dir" "$source_dir" "${extra_args[@]}"
@@ -23,7 +24,14 @@ build_node() {
     copy_artifact "$resolved_artifact" "$publish_dir"
 
     write_st_phase "$(get_text "Build.StdLib.Head")"
-    sync_stdlib "$stdlib" "$publish_dir"
+
+    # 标准库只有声明了 StdLibDir 的目标才有（编译器 node 有、runtime node 没有）；
+    # jq 读不到键时会给出字面量 null，所以两种空值都要挡掉
+    if [[ -z "$stdlib_dir" || "$stdlib_dir" == "null" ]]; then
+        write_st_info "$(get_text "Build.StdLib.Skipped" "$target")"
+    else
+        sync_stdlib "$stdlib" "$stdlib_dir"
+    fi
 
     write_st_phase "$(get_text "Node.Test")"
     (cd "$test_dir" && pnpm install --ignore-scripts && pnpm run test) || {
