@@ -350,17 +350,21 @@ export class SemanticTokenHandler {
     }
 
     private visitLabelDef(labelDef: LabelDefNode, context: HandlerContext): SemanticToken[] {
-        const gap = this.getGap(context, labelDef.position);
+        if (AST.isIdentifier(labelDef.identifier)) {
+            const gap = this.getGap(context, labelDef.position);
 
-        return [
-            {
-                line: gap.line,
-                start: gap.column,
-                length: labelDef.identifier.value.length,
-                type: TokenLegend.Label,
-                modifier: 0
-            }
-        ];
+            return [
+                {
+                    line: gap.line,
+                    start: gap.column,
+                    length: labelDef.identifier.value.length,
+                    type: TokenLegend.Label,
+                    modifier: 0
+                }
+            ];
+        }
+
+        return [];
     }
 
     private visitAliasDirective(aliasDirective: AliasDirectiveNode, context: HandlerContext): SemanticToken[] {

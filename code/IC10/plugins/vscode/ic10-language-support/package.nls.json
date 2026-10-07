@@ -40,6 +40,7 @@
     "ic10.command.completionScope.identifier": "IC10: Completion Scope: Identifier",
     "ic10.command.completionScope.keyword": "IC10: Completion Scope: Keyword",
     "ic10.command.completionScope.all": "IC10: Completion Scope: All (Clear)",
+    "ic10.command.searchDeviceType": "IC10: Search Device Type",
     "ic10.debugger.launch.program.description": "Absolute path of the .ic file to debug",
     "ic10.debugger.launch.stopOnEntry.description": "Pause at the entry point right after launch",
     "ic10.debugger.launch.strictEvaluation.description": "Strict evaluation for this session, overriding the ic10.runtime.strictEvaluation setting",

@@ -18,3 +18,4 @@
 export * from "./constant";
 export * from "./utils";
 export * from "./event";
+export * from "./fuzzy";

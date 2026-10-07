@@ -277,8 +277,8 @@ function buildFormatUnits(
             continue;
         }
 
-        // LabelDef
-        if (AST.isLabelDef(primaryStmt)) {
+        // LabelDef（标签名解析失败时是 ErrorNode，没有名字可用于重排）
+        if (AST.isLabelDef(primaryStmt) && AST.isIdentifier(primaryStmt.identifier)) {
             const suffix = errorLexemes.length > 0 ? errorLexemes.join(" ") : undefined;
             units.push({ kind: "label", name: primaryStmt.identifier.value, suffix });
             continue;
