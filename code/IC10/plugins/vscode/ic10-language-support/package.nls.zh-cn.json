@@ -40,6 +40,7 @@
     "ic10.command.completionScope.identifier": "IC10: 补全候选范围：标识符与标签",
     "ic10.command.completionScope.keyword": "IC10: 补全候选范围：指令关键字",
     "ic10.command.completionScope.all": "IC10: 补全候选范围：全部（清除）",
+    "ic10.command.searchDeviceType": "IC10: 搜索设备类型",
     "ic10.debugger.launch.program.description": "要调试的 .ic 文件的绝对路径",
     "ic10.debugger.launch.stopOnEntry.description": "启动后自动暂停在入口",
     "ic10.debugger.launch.strictEvaluation.description": "本次会话是否严格求值，覆盖 ic10.runtime.strictEvaluation 设置",

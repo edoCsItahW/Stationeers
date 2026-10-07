@@ -18,7 +18,7 @@ import { Console, debug, lowerBound, type CompletionScope, type Optional } from 
 import { CompletionItem, CompletionItemKind, Connection } from "vscode-languageserver";
 
 import { CompletionProviderContext } from "./providers/types";
-import { provideKeyword, provideOperand } from "./providers";
+import { provideKeyword, provideHintType, provideHashName, provideOperand } from "./providers";
 import { combine, RelativeState, State } from "./state";
 import { DocumentCache } from "../../cache";
 import { locale, t } from "../../../locals";
@@ -153,6 +153,9 @@ export class CompletionHandler {
             if (hint) return hint;
         }
 
+        // `HASH("…")` 的字符串实参：补全设备型号名（与 `#: @type` 共用一套显示名）
+        if (this.insideHashName(tokens, column)) return provideHashName(ctx);
+
         // 多token操作数的子段（引脚 `d0:1`、枚举值 `Foo.Bar`）：与触发字符无关，Ctrl+Space同样生效
         if (location?.segment) return this.completeSegment(location, ctx);
 
@@ -223,6 +226,59 @@ export class CompletionHandler {
             case State.START_WORD_TRIGGER_INCOMPLETE:
                 return;
         }
+    }
+
+    /**
+     * @if zh
+     * @brief 光标是否落在 `HASH("…")` 的字符串实参里
+     *
+     * @details 只看**词法**：字符串 token（未写完的字符串会被词法分析标成 `UNKNOWN`，但词素同样以
+     *          引号开头）前面紧跟 `(` 与 `HASH` 即为命中；再看光标是否落在引号**之内**——刚打完
+     *          开引号算在内，落在闭引号右侧不算（那里插进去会跑到字符串外面）。`$HASH("…")` 的写法
+     *          也命中（`$` 只是更前面的一个 token）。
+     *
+     * @details 之所以不用 AST：正在输入时字符串还没闭合，语法分析只会给出 `Error` 节点，
+     *          而那一刻恰恰是最需要补全的时候。
+     *
+     * @param tokens 当前行的 token（调用方已滤掉空白与注释）
+     * @param column 光标列（1-based）
+     * @return 命中为 `true`
+     *
+     * @else
+     * @brief Whether the cursor sits inside the string argument of `HASH("…")`
+     *
+     * @details Purely **lexical**: the string token (an unterminated string is lexed as `UNKNOWN`, but its
+     *          lexeme still starts with the quote) must be preceded by `(` and `HASH`, and the cursor must
+     *          fall **inside the quotes** — right after the opening quote counts, past the closing quote
+     *          does not (inserting there would land outside the string). The `$HASH("…")` spelling hits as
+     *          well (`$` is just one more token in front).
+     *
+     * @details The AST is deliberately not used: an unterminated string only yields an `Error` node while
+     *          the user types, which is exactly when completion is wanted.
+     *
+     * @param tokens Tokens of the current line (whitespace and comments already filtered out)
+     * @param column Cursor column (1-based)
+     * @return `true` when it hits
+     *
+     * @endif
+     * */
+    private insideHashName(tokens: Token[], column: number): boolean {
+        const index = tokens.findIndex(
+            t => t.lexeme.startsWith('"') && t.pos.column <= column && column <= end(t).column
+        );
+
+        if (index < 2) return false;
+
+        if (tokens[index - 1].type !== TokenType.LPAREN || tokens[index - 2].type !== TokenType.KEYWORD_HASH)
+            return false;
+
+        const token = tokens[index];
+
+        // 闭引号本身不算"里面"：光标落在它右侧时插入会跑到字符串外面
+        const closed = token.lexeme.length > 1 && token.lexeme.endsWith('"');
+        const last = end(token).column - (closed ? 1 : 0);
+
+        return token.pos.column < column && column <= last;
     }
 
     @debug({
@@ -339,7 +395,10 @@ export class CompletionHandler {
         // `@default` 的参数：分组 → 字段 → 取值
         if (tag?.lexeme === "@default") return this.completeHintDefault(ctx, hint, before, prefix);
 
-        // 已知标签的取值还没填：`@type |` 处该填类型名、`@desc |` 处该填描述，不提示标签
+        // `@type` 的取值：把类型名连当前语言的显示名一起给出（中文名也能搜到），插入的仍是类型名
+        if (tag?.lexeme === "@type" && tagIdx + 1 === before.length) return provideHintType(ctx);
+
+        // 其余已知标签的取值还没填：`@desc |` 处该填描述，不提示标签
         if (tag && HINT_TAGS.includes(tag.lexeme) && tag.lexeme !== "@builtin" && tagIdx + 1 === before.length)
             return [];
 

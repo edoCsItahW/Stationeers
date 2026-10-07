@@ -32,11 +32,14 @@ import {
     ResponseEventData,
     RequestEventData,
     CompletionScope,
+    DeviceTypeInfo,
     COMM_EVENT_NAME,
     Optional,
-    Transfer
+    Transfer,
+    DEVICE_TYPE_EVENT_NAME
 } from "@ic10/common";
 
+import { registerDeviceTypeSearch } from "./deviceSearch";
 import { applyLanguage, t } from "./locals";
 
 
@@ -135,6 +138,24 @@ class Extension implements Transfer {
     setCompletionScope(uri: string, scope: CompletionScope, line: number) {
         this.client.sendNotification(COMPLETION_SCOPE_EVENT_NAME, { uri, scope, line });
     }
+
+    /**
+     * @summary 拉取设备类型索引（已按当前语言本地化）
+     *
+     * @summary Pull the device type index, localized for the current language
+     *
+     * @desc 走专用通道 `DEVICE_TYPE_EVENT_NAME`；索引整份返回，由调用方（"搜索设备类型"命令）
+     * 在本地做模糊过滤，因此每次按键都不必往返服务端。
+     *
+     * @desc Uses the dedicated `DEVICE_TYPE_EVENT_NAME` channel. The whole index comes back and the
+     * caller (the "search device type" command) filters it fuzzily on its own, so a keystroke costs no
+     * round trip.
+     *
+     * @returns 设备类型索引 / The device type index
+     * */
+    requestDeviceTypes(): Promise<DeviceTypeInfo[]> {
+        return this.client.sendRequest(DEVICE_TYPE_EVENT_NAME);
+    }
 }
 
 let extension: Extension;
@@ -169,6 +190,9 @@ export async function activate(context: ExtensionContext) {
     extension.run();
 
     registerCompletionScopes(context);
+
+    // 按本地化名称模糊搜索设备类型名（快速选择面板）
+    registerDeviceTypeSearch(context, () => extension.requestDeviceTypes());
 
     registerRuntimeConfiguration(context);
 

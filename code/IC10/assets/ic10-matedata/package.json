@@ -1,6 +1,6 @@
 {
     "name": "@ic10/metadata",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "IC10 language related metadata | IC10语言相关元数据",
     "type": "module",
     "files": [

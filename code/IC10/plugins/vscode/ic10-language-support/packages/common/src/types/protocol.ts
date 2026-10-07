@@ -65,6 +65,59 @@ export interface Transfer {
 export type CompletionScope = "register" | "device" | "identifier" | "number" | "enum" | "keyword" | "all";
 
 /**
+ * @if zh
+ * @summary 一条设备类型索引项
+ *
+ * @desc 由服务端从标准库（`stdLib.ic` 的 `#> @device` 块）取出类型名与型号哈希，再按设备型号名
+ * （型号名压成标识符后即类型名）配上 `@ic10/metadata` 的本地化文案，因此 `title` / `desc` 用的
+ * 是**当前语言**，缺失时为 `undefined`（该设备在元数据里没有本地化条目，或该语言没有译文）。
+ *
+ * @else
+ * @summary One device type index entry
+ *
+ * @desc Built by the server from the standard library (`#> @device` blocks in `stdLib.ic`) for the
+ * type name and model hash, joined with the localized text of `@ic10/metadata` by model name (a model
+ * name turns into the type name once collapsed into an identifier). `title` / `desc` are therefore in
+ * the **current language** and are `undefined` when the device has no localized entry, or that
+ * language has no translation.
+ *
+ * @endif
+ * */
+export interface DeviceTypeInfo {
+    /** @if zh @brief 类型名（写进 `#: @type` 的标识符） @else @brief Type name (the identifier written after `#: @type`) @endif */
+    typeName: string;
+
+    /** @if zh @brief 设备型号哈希（`#> @device-hash`） @else @brief Device model hash (`#> @device-hash`) @endif */
+    hash: Optional<number>;
+
+    /** @if zh @brief 当前语言下的显示名 @else @brief Display name in the current language @endif */
+    title: Optional<string>;
+
+    /**
+     * @if zh
+     * @brief 英文显示名（跨语言的稳定别名）
+     *
+     * @desc 非英语界面下与 {@link title} 一起展示（`本地化名 + 英文名`）：只记得英文设备名的用户
+     *       不必去猜本地化名对应哪个型号，将来增加语言也不会让候选越来越杂——第二显示名始终是英语。
+     *       当前语言就是英语时它与 `title` 相同，前端只展示一次。
+     *
+     * @else
+     * @brief English display name (the language-independent alias)
+     *
+     * @desc Shown next to {@link title} outside English locales (`localized name + English name`), so a
+     *       user who only remembers the English device name need not guess which model a localized name
+     *       maps to, and adding more languages later cannot make the list messier — the second name stays
+     *       English. It equals `title` under an English locale and is then shown only once.
+     *
+     * @endif
+     * */
+    englishTitle: Optional<string>;
+
+    /** @if zh @brief 当前语言下的描述 @else @brief Description in the current language @endif */
+    desc: Optional<string>;
+}
+
+/**
  * @summary 补全范围事件的数据
  *
  * @summary Payload of the completion scope event
