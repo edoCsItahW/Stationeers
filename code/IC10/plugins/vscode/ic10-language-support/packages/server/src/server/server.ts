@@ -37,6 +37,7 @@ import {
     DiagnosticHandler,
     SignatureHandler,
     FormattingHandler,
+    InlayHintHandler,
     HoverHandler
 } from "./handlers";
 
@@ -82,6 +83,7 @@ export class Server {
     private readonly compHandler: CompletionHandler;
     private readonly signatureHandler: SignatureHandler;
     private readonly fmtHandler: FormattingHandler;
+    private readonly inlayHintHandler: InlayHintHandler;
     private settingMgr: SettingsManager;
     private pipline: ParserPipline;
     /** 解析版本号，用于丢弃过期结果 */
@@ -132,6 +134,7 @@ export class Server {
         this.semanticHandler = new SemanticTokenHandler(this.docCache);
         this.compHandler = new CompletionHandler(this.docCache);
         this.signatureHandler = new SignatureHandler(this.docCache);
+        this.inlayHintHandler = new InlayHintHandler(this.docCache);
         this.fmtHandler = new FormattingHandler(this.docCache, {
             pluginConfigProvider: () => this.settingMgr.getFormatConfig(),
             projectRootDirProvider: () => this.settingMgr.getProjectRootDir(),
@@ -199,6 +202,10 @@ export class Server {
                 ({ uri, scope, line }: CompletionScopeEventData) => this.compHandler.setScope(uri, scope, line)
             );
             this.connection.onSignatureHelp(this.signatureHandler.handle.bind(this.signatureHandler));
+
+            // 指令行末尾的伪代码内联提示（开关见 ic10.inlayHints.pseudocode）
+            // Pseudocode inlay hints at the end of instruction lines (see ic10.inlayHints.pseudocode)
+            this.connection.languages.inlayHint.on(this.inlayHintHandler.handle.bind(this.inlayHintHandler));
             this.connection.onDocumentFormatting(this.fmtHandler.handle.bind(this.fmtHandler));
 
             // 文档监听
@@ -253,10 +260,15 @@ export class Server {
      *
      * @internal Delegates configuration change handling to SettingsManager
      */
-    private onDidChangeConfiguration(
+    private async onDidChangeConfiguration(
         ...args: Parameters<OnDidChangeConfigurationHandlerType>
-    ): ReturnType<OnDidChangeConfigurationHandlerType> {
-        return this.settingMgr.onDidChangeConfiguration(...args);
+    ): Promise<void> {
+        await this.settingMgr.onDidChangeConfiguration(...args);
+
+        // 内联提示是开关式的：设置一变就让客户端重新请求可视区间的提示，无需等用户滚动
+        // Inlay hints are switch-like: a settings change asks the client to re-request the visible range
+        // instead of waiting for the user to scroll
+        await this.connection.languages.inlayHint.refresh();
     }
 
     /**

@@ -1,0 +1,5 @@
+# 端到端测试：无诊断的干净文件（诊断的负例）
+# End-to-end clean fixture: no diagnostics at all (the negative case for diagnostics)
+alias a r1
+
+add a a 1

@@ -194,6 +194,41 @@ export function getDeviceTitles(
 
 /**
  * @if zh
+ * @brief 按**型号名**取一台设备的两个显示名
+ *
+ * @details `HASH("…")` 里写的是游戏原始型号名（可能带括号），与类型名只差一次压平，因此这里复用
+ *          {@link getDeviceTitles} 的同一张表。伪代码提示用它把 `HASH("StructureBatteryMedium")`
+ *          还原成设备名。
+ *
+ * @param modelName 原始型号名
+ * @param language 当前界面语言
+ * @return `title` 为当前语言的显示名、`englishTitle` 为英文显示名，均可能为 `undefined`
+ *
+ * @else
+ * @brief Get both display names of a device by its **model name**
+ *
+ * @details `HASH("…")` carries the game's raw model name (parentheses included), which differs from the type
+ *          name only by collapsing, so the same table as {@link getDeviceTitles} is reused. The pseudocode
+ *          hint uses it to turn `HASH("StructureBatteryMedium")` into the device name.
+ *
+ * @param modelName Raw model name
+ * @param language Current interface language
+ * @return `title` is the display name in that language and `englishTitle` the English one; either may be
+ *         `undefined`
+ *
+ * @endif
+ * */
+export function getDeviceTitlesByModel(
+    modelName: string,
+    language: string
+): { title: Optional<string>; englishTitle: Optional<string> } {
+    const title = localizedIndex().get(collapse(modelName))?.title;
+
+    return { title: title?.[language], englishTitle: title?.[ENGLISH_LANGUAGE] };
+}
+
+/**
+ * @if zh
  * @brief 建立设备类型索引（首次调用时链接标准库，之后复用）
  *
  * @details 类型名与型号哈希来自标准库：把 `stdLib.ic` 单独喂给链接器，取类型表里的

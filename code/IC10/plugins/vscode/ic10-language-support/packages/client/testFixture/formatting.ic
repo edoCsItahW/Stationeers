@@ -1,0 +1,7 @@
+# 端到端格式化测试夹具 / end-to-end formatting fixture
+# 与 formatting.expected.ic 的前两行必须逐字相同：注释会被原样保留
+# These two leading lines must match formatting.expected.ic verbatim: comments are kept as they are
+alias    a   r1
+loop:
+      add a a 1
+   j loop

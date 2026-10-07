@@ -19,3 +19,4 @@ export * from "./formatting";
 export * from "./diagnostic";
 export * from "./completion";
 export * from "./hover";
+export * from "./inlayHint";

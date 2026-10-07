@@ -114,9 +114,28 @@ class Extension implements Transfer {
         return this.client.stop();
     }
 
-    run() {
+    /**
+     * @if zh
+     * @brief 启动语言客户端
+     *
+     * @details 返回的 Promise 在语言服务端完成初始化之后才 resolve：`activate()` 会 await 它，
+     *          于是扩展的激活状态与服务端是否就绪保持一致——服务端起不来时激活直接失败并报错，
+     *          而不是静默地少掉全部语言功能（补全、诊断、悬停都来自它）。
+     *
+     * @else
+     * @brief Start the language client
+     *
+     * @details The returned promise resolves only after the language server finished initializing;
+     *          `activate()` awaits it, so activation reflects the server's readiness — a server that
+     *          fails to start then fails activation loudly instead of silently losing every language
+     *          feature (completion, diagnostics and hover all come from it).
+     *
+     * @endif
+     * */
+    async run(): Promise<void> {
         this.client.onRequest(COMM_EVENT_NAME, this.handle.bind(this));
-        this.client.start();
+
+        await this.client.start();
     }
 
     async handle(data: RequestEventData): Promise<ResponseEventData> {
@@ -187,7 +206,13 @@ export async function activate(context: ExtensionContext) {
     );
 
     extension = new Extension(path.join("packages", "server", "dist", "server.js"), context);
-    extension.run();
+
+    // 等语言客户端就绪再算激活完成：否则语言功能（补全/诊断/悬停）可能在"已激活"之后才注册，
+    // 抢先发出的请求会立刻拿到空结果，且服务端起不来时也只会静默失灵
+    // Await the language client: otherwise its features (completion, diagnostics, hover) may register
+    // after activation, so an early request gets an empty result, and a server that fails to start
+    // merely goes silent
+    await extension.run();
 
     registerCompletionScopes(context);
 
