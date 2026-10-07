@@ -79,11 +79,15 @@ const SETTING = "inlayHints.enabled";
  * */
 const EXPECTED = new Map<string, string>([
     ["add a a 1", "a = a + 1"],
-    ['lbn r0 HASH("StructureBatteryMedium") Setting Average', "r0 = sum Battery (Medium).Setting (Average)"],
+    ['lb r0 HASH("StructureBatteryMedium") Setting Average', "r0 = batch Battery (Medium).Setting (Average)"],
     ["s heater On r6", "heater.On = r6"],
     ["l r3 heater Setting", "r3 = heater.Setting"],
     ["ls r4 heater 1 Charge", "r4 = heater[1].Charge"],
+    ["ss heater 1 Charge r8", "heater[1].Charge = r8"],
+    ["sqrt r7 9", "r7 = sqrt(9)"],
+    ["snan r9 r8", "r9 = isNaN(r8)"],
     ["beq a 10 5", "if a == 10 goto 5"],
+    ["brlt a 10 3", "if a < 10 goto +3"],
     ["j 20", "goto 20"]
 ]);
 
@@ -106,8 +110,8 @@ const ALIGN_COLUMN = Math.max(...[...EXPECTED.keys()].map(line => line.length));
  *          用例把这个设置显式设为 `on` 以断言服务端产出，结束时恢复。
  *
  * @details 等价类与边界：有模板的指令（正例，逐字比对伪代码 + 行尾位置 + **左端对齐**）、
- *          `HASH("…")` 还原成设备名、分支的多行形态（tooltip）、没有模板的指令（负例，由逐字比对覆盖）、
- *          只请求可见区间（边界：区间外不返回）。
+ *          `HASH("…")` 还原成设备名、分支的多行形态（tooltip）、不出提示的三类负例（注释、`alias`/`define`
+ *          预处理指令、**没写完的指令**）、只请求可见区间（边界：区间外不返回）。
  *
  * @else
  * @summary End-to-end inlay hint tests
@@ -119,9 +123,9 @@ const ALIGN_COLUMN = Math.max(...[...EXPECTED.keys()].map(line => line.length));
  *
  * @details Equivalence classes and boundaries: templated instructions (positive, verbatim comparison of the
  *          pseudocode plus the end-of-line position and the **left alignment**), `HASH("…")` resolved to a
- *          device name, the multi-line form of a branch (tooltip), instructions without a template (negative,
- *          covered by the very same verbatim comparison) and a request for only part of the document (boundary:
- *          nothing outside the range comes back).
+ *          device name, the multi-line form of a branch (tooltip), the three negative classes that must stay
+ *          silent (comments, `alias`/`define` directives, and an **instruction that is not finished yet**) and
+ *          a request for only part of the document (boundary: nothing outside the range comes back).
  *
  * @endif
  * */
@@ -211,8 +215,8 @@ suite("内联提示 / inlay hints", () => {
 
         assert.deepStrictEqual(
             labels.sort(),
-            ["goto 20", "if a == 10 goto 5"],
-            `区间内应只有这两条提示 / only these two hints belong to the range: ${JSON.stringify(labels)}`
+            ["goto 20", "if a < 10 goto +3", "if a == 10 goto 5"].sort(),
+            `区间内应只有这三条提示 / only these three hints belong to the range: ${JSON.stringify(labels)}`
         );
     });
 });

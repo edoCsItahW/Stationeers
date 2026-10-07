@@ -8,7 +8,7 @@ alias heater d1
 
 add a a 1
 
-lbn r0 HASH("StructureBatteryMedium") Setting Average
+lb r0 HASH("StructureBatteryMedium") Setting Average
 
 s heater On r6
 
@@ -16,10 +16,20 @@ l r3 heater Setting
 
 ls r4 heater 1 Charge
 
+ss heater 1 Charge r8
+
+sqrt r7 9
+
+snan r9 r8
+
 beq a 10 5
+
+brlt a 10 3
 
 j 20
 
-# 下面这条没有模板：不该出现任何提示
-# No template below: it must not produce a hint
-clamp r5 1 2 3
+# 以下都不该出提示：注释、alias / define 预处理指令，以及没写完的指令（缺第三个操作数）
+# No hint below: comments, alias / define directives, and an incomplete instruction (its third operand missing)
+define limit 10
+
+add r5 r6
