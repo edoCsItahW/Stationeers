@@ -1,0 +1,71 @@
+name: VSCode Extension Component Workflow
+run-name: Build and test VSCode Extension | 构建并测试VS Code扩展
+
+on:
+    workflow_call:
+        inputs:
+            os:
+                description: "Operating System | 操作系统"
+                type: string
+                required: false
+                default: "windows-latest"
+
+            node-version:
+                description: "Node.js Version | Node.js版本"
+                type: string
+                required: false
+                default: "24"
+
+            pnpm-version:
+                description: "Pnpm Version | Pnpm版本"
+                type: string
+                required: false
+                default: "11"
+
+            extension-dir:
+                description: "Extension Directory | 扩展目录"
+                type: string
+                required: false
+                default: "code/IC10/plugins/vscode/ic10-language-support"
+
+
+jobs:
+    verify:
+        name: Compile, bundle and test | 编译、打包并测试
+        runs-on: ${{ inputs.os }}
+        steps:
+            -   name: "[Auto] Show arguments | 显示参数"
+                run: |
+                    echo "OS: ${{ inputs.os }}"
+                    echo "Node.js Version: ${{ inputs.node-version }}"
+                    echo "Pnpm Version: ${{ inputs.pnpm-version }}"
+                    echo "Extension Directory: ${{ inputs.extension-dir }}"
+
+            -   name: "[Auto] Checkout source code | 检出源码"
+                uses: actions/checkout@v7
+
+            -   name: "[Auto] Setup Node.js Environment | 设置Node.js环境"
+                uses: ./.github/actions/setup-node
+                with:
+                    node-version: ${{ inputs.node-version }}
+                    pnpm-version: ${{ inputs.pnpm-version }}
+
+            -   name: "[Auto] Install dependencies | 安装依赖"
+                working-directory: ${{ inputs.extension-dir }}
+                run: pnpm install --no-frozen-lockfile
+
+            -   name: "[Auto] Compile | 编译"
+                working-directory: ${{ inputs.extension-dir }}
+                run: pnpm run compile
+
+            -   name: "[Auto] Bundle | 打包"
+                working-directory: ${{ inputs.extension-dir }}
+                run: pnpm run bundle
+
+            # 端到端测试会真的拉起一个 VS Code 实例，而 @ic10/compiler 的原生附加件目前只提供 Windows
+            # 动态库，因此这个工作流只在 Windows 上跑
+            # The end-to-end tests start a real VS Code instance, and the native addon of @ic10/compiler is
+            # currently only shipped as a Windows dynamic library, so this workflow runs on Windows only
+            -   name: "[Auto] Run end-to-end tests | 运行端到端测试"
+                working-directory: ${{ inputs.extension-dir }}
+                run: pnpm test

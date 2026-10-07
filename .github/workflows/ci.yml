@@ -17,6 +17,7 @@ jobs:
             ic10-compiler-node: ${{ steps.path-filter.outputs.ic10-compiler-node }}
             ic10-compiler-python: ${{ steps.path-filter.outputs.ic10-compiler-python }}
             ic10-compiler-java: ${{ steps.path-filter.outputs.ic10-compiler-java }}
+            ic10-vscode-plugin: ${{ steps.path-filter.outputs.ic10-vscode-plugin }}
         steps:
             -   name: "[Auto] Checkout source code | 检出源码"
                 uses: actions/checkout@v7
@@ -105,6 +106,14 @@ jobs:
             script-dir: code/scripts/powerShell
             script-name: BuildIC10CompilerJava.ps1
 
+    ic10-vscode-plugin-windows:
+        name: "[Windows] IC10 VSCode Extension | IC10 VS Code 扩展"
+        needs: detect-changes
+        if: needs.detect-changes.outputs.ic10-vscode-plugin == 'true'
+        uses: ./.github/workflows/vscode-plugin-workflow.yml
+        with:
+            os: windows-latest
+
     ci-verification:
         name: "[Auto] CI Verification | CI验证"
         needs:
@@ -116,6 +125,7 @@ jobs:
             - ic10-compiler-python-windows
             - ic10-compiler-java-linux
             - ic10-compiler-java-windows
+            - ic10-vscode-plugin-windows
         if: always()
         runs-on: ubuntu-latest
         steps:

@@ -32,6 +32,10 @@ outputs:
         description: "IC10 compiler Java binding files changed mark || IC10编译器Java绑定文件变更标记"
         value: ${{ steps.filter.outputs.shared == 'true' || steps.filter.outputs.common-core == 'true' || steps.filter.outputs.common-java == 'true' || steps.filter.outputs.ic10-compiler-core == 'true' || steps.filter.outputs.ic10-compiler-java == 'true' }}
 
+    ic10-vscode-plugin:
+        description: "IC10 VSCode extension files changed mark || IC10 VS Code 扩展文件变更标记"
+        value: ${{ steps.filter.outputs.ic10-vscode-plugin == 'true' || steps.filter.outputs.workflow-vscode-plugin == 'true' }}
+
 runs:
     using: composite
     steps:
@@ -90,3 +94,8 @@ runs:
                         - code/IC10/backend/compiler/exports/java/**
                         - code/IC10/backend/compiler/tests/java/**
                         - code/IC10/backend/compiler/publish/java/**
+                    ic10-vscode-plugin:
+                        - code/IC10/plugins/vscode/**
+                    workflow-vscode-plugin:
+                        - .github/workflows/vscode-plugin-workflow.yml
+                        - .github/actions/detect-changes/action.yml
