@@ -1,0 +1,11 @@
+# 端到端补全测试夹具：每一行对应一个用例，改动会破坏测试
+# End-to-end completion fixture: one line per case, changing it breaks the tests
+# （用例见 packages/client/src/test/suite/completion.test.ts）
+
+alias hinted r1 #: @type 
+
+lbn r0 HASH("") Setting Average
+
+lbn r0 HASH("StructureLiquidVolumePump") Setting Average
+
+lbn r0 STR("") Setting Average
