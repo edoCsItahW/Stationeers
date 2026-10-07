@@ -313,6 +313,10 @@
             {
                 "command": "ic10.completionScope.all",
                 "title": "%ic10.command.completionScope.all%"
+            },
+            {
+                "command": "ic10.searchDeviceType",
+                "title": "%ic10.command.searchDeviceType%"
             }
         ],
         "keybindings": [
@@ -350,6 +354,11 @@
                 "command": "ic10.completionScope.all",
                 "key": "ctrl+alt+0",
                 "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.searchDeviceType",
+                "key": "ctrl+alt+shift+r",
+                "when": "editorLangId == ic10 && editorTextFocus"
             }
         ],
         "breakpoints": [
@@ -430,8 +439,8 @@
         "verdaccio": "^6.9.2"
     },
     "dependencies": {
-        "@ic10/compiler": "^3.2.0",
-        "@ic10/runtime": "^2.2.0",
-        "@ic10/metadata": "^1.0.0"
+        "@ic10/compiler": "^3.3.0",
+        "@ic10/runtime": "^2.3.0",
+        "@ic10/metadata": "^1.1.0"
     }
 }

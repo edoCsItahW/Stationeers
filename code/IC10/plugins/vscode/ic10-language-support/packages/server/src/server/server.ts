@@ -20,6 +20,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import type { Connection } from "vscode-languageserver/node";
 import {
     COMPLETION_SCOPE_EVENT_NAME,
+    DEVICE_TYPE_EVENT_NAME,
     CompletionScopeEventData,
     AstResponseEventData,
     AstRequestEventData,
@@ -27,7 +28,7 @@ import {
     Console
 } from "@ic10/common";
 
-import { ParserPipline, SettingsManager } from "./services";
+import { ParserPipline, SettingsManager, getDeviceTypes } from "./services";
 import { DocumentCache, GlobalCache } from "./cache";
 import { t } from "../locals";
 import {
@@ -219,6 +220,11 @@ export class Server {
                     };
                 }
             );
+
+            // 设备类型索引：客户端"搜索设备类型"时整份拉走，之后的模糊过滤在客户端做
+            // Device type index: pulled whole by the client's "search device type", then filtered client-side
+            // @ts-ignore
+            this.connection.onRequest(DEVICE_TYPE_EVENT_NAME, () => getDeviceTypes());
         } catch (error) {
             Console.error((error as Error).message, "Server");
         }

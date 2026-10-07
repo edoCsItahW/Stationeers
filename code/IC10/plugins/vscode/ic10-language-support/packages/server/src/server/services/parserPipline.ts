@@ -24,7 +24,19 @@ import { DocCacheValue } from "../cache";
 import { t } from "../../locals";
 
 
-const STAND_LIB = readFileSync(require.resolve("@ic10/compiler/src/stdLib.ic"), "utf-8");
+/**
+ * @summary 标准库源码
+ *
+ * @summary Standard library source
+ *
+ * @desc 服务端启动时读入的 `stdLib.ic`：每次解析都作为附加编译单元链接进去（设备/枚举类型都来自它），
+ * `deviceTypes.ts` 也用它单独链接出设备类型索引，因此这里导出共用。
+ *
+ * @desc The `stdLib.ic` read once at server startup: every parse links it as an extra compilation unit
+ * (device and enum types come from it), and `deviceTypes.ts` links it alone to build the device type
+ * index, hence the shared export.
+ * */
+export const STAND_LIB = readFileSync(require.resolve("@ic10/compiler/src/stdLib.ic"), "utf-8");
 
 /**
  * @summary 解析结果，继承缓存值并附加变更标记

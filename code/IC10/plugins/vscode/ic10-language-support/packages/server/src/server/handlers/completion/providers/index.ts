@@ -21,10 +21,11 @@ import { EnumKeyMap, GenericOperandType, SemanticMap } from "../../../../utils";
 import type { CompletionProviderContext, OperandProvider } from "./types";
 import { NUMBER_CATEGORY_SET, provideIdentifier } from "./identifier";
 import { provideSemanticEnum, provideGrammaticalEnum } from "./enum";
+import { provideHintType } from "./typeHint";
 import { provideRegister } from "./register";
 import { provideKeyword } from "./keyword";
 import { provideDevice } from "./device";
-import { provideNumber } from "./number";
+import { provideNumber, provideHashName } from "./number";
 
 
 const COMPLETE_PROVIDERS: Record<GenericOperandType, OperandProvider> = {
@@ -96,4 +97,12 @@ export function provideOperand(
     return result;
 }
 
-export { provideRegister, provideKeyword, provideDevice, provideNumber, provideSemanticEnum };
+export {
+    provideRegister,
+    provideKeyword,
+    provideDevice,
+    provideNumber,
+    provideSemanticEnum,
+    provideHintType,
+    provideHashName
+};

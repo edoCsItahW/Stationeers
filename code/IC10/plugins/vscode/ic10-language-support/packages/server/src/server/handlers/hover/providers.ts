@@ -366,6 +366,9 @@ export class LabelDefHoverProvider extends HoverProvider {
 
     provideHover(node: Statement, ctx: HoverContext): Nullable<Hover> {
         const stmt = node as LabelDefNode;
+
+        // 标签名解析失败时是 ErrorNode，没有名字可展示（与补全侧的 isIdentifier 守卫一致）
+        if (!AST.isIdentifier(stmt.identifier)) return null;
         if (!isInsideNode(stmt.position.column, stmt.identifier.value.length + 1, ctx.character)) return null;
 
         // 行 2 冒号后：标签的值是行号，符号表里记的类型名（通常是 integer）
