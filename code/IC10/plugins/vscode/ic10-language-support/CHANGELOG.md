@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-07
+
+### Added
+- Search device types by name: the `IC10: Search Device Type` command (`ic10.searchDeviceType`, `Ctrl+Alt+Shift+R`) opens a quick pick that fuzzy-matches the localized Chinese or English name and inserts the device type name
+- Completion for the value of `#: @type`: device type names (enumeration types are deliberately not offered), listed by their localized name with the English name beside it, and always inserting the type name
+- Completion inside `HASH("…")`: the model names the game expects (raw model names, parentheses included), and typing the quote itself now opens the list
+- Pseudocode inlay hints: a readable rendering at the end of every instruction line (`add a a 1` → `a = a + 1`, `beq a 10 5` → `if a == 10 goto 5`), left-aligned against the longest instruction line of the file, with a branch's multi-line form in the hint's tooltip. The templates cover all 147 instructions of the standard library, an unfinished instruction shows nothing, and the hints are hidden until `Ctrl+Alt` (`Ctrl+Option` on macOS) is held; IC10's hint label length limit is also lifted so the aligned labels are not truncated
+
+### Changed
+- Device and model names are shown as "localized name + English name". The second name stays English, so the lists cannot become cluttered as more languages are added (with an English UI the two coincide and only one is shown)
+- The language client is awaited during activation, so the language features are registered before activation completes and a language server that fails to start fails loudly instead of going silent
+- `@ic10/metadata` 1.1.0: localized device titles and descriptions, used by the new name search and completion
+
+### Fixed
+- Hover, completion, formatting and semantic highlighting: a label whose identifier failed to parse no longer breaks the feature (the AST types now say that the identifier can be an error node)
+- Completion details for device members were always empty: the code read a `tag` field that annotation lines never carry
+
 ## [2.1.0] - 2026-10-03
 
 ### Added

@@ -11,7 +11,7 @@
  * @file pseudocode.ts
  * @author edocsitahw
  * @version 1.1
- * @date 2026/10/06 16:10
+ * @date 2026/10/07 17:20
  * @desc
  * @copyright CC BY-NC-SA 2026. All rights reserved.
  * */
@@ -27,14 +27,14 @@ import { getOperandType, operandToString } from "../../../utils";
  * @summary 一条指令的伪代码
  *
  * @details `text` 是**单行**文本（内联提示是行内渲染的，`\n` 会被折叠），`tooltip` 给需要在提示上
- *          悬停才能看到的多行形态（例如分支的比较与跳转分两行）。
+ *          悬停才能看到的多行形态：条件分支自动拆成"条件一行、跳转一行"。
  *
  * @else
  * @summary The pseudocode of one instruction
  *
  * @details `text` is **single-line** (inlay hints render inline and a `\n` gets folded) while `tooltip`
- *          carries the multi-line form shown when hovering the hint (e.g. a branch's comparison and its jump
- *          on separate lines).
+ *          carries the multi-line form shown when hovering the hint: a conditional branch is split into one
+ *          line for the condition and one for the jump.
  *
  * @endif
  * */
@@ -47,58 +47,204 @@ export interface Pseudocode {
  * @if zh
  * @summary 指令 → 伪代码模板
  *
- * @details 占位符 `{0}` 是 `operand1`、`{1}` 是 `operand2`，依次类推。模板以**可读的写法**为准：
- *          赋值用 `=`、跳转用 `goto`、条件分支用 `if … goto …`，只有设备名等操作数需要本地化，
- *          因此模板本身与语言无关，不必为中英各写一份。
+ * @details 占位符 `{0}` 是 `operand1`、`{1}` 是 `operand2`，依次类推；模板只引用自己用得上的槽位
+ *          （`bapz` 这类中间槽位不参与语义的指令会跳过它）。
  *
- * @details 第一批只覆盖常用指令，**没有模板的指令不出提示**（宁缺毋滥，也便于后续逐条补）。
+ * @details 覆盖标准库里**全部 147 条指令**（`alias`、`define`、`#` 是预处理指令，在语法树里不是指令语句，
+ *          不会出提示）。写法以可读为准：赋值用 `=`、跳转用 `goto`（`+n` 表示相对当前行的偏移）、
+ *          条件用 `if …`、调用用 `call`、批量读写用 `batch`，无法用符号表意的用函数名
+ *          （`valid`、`isNaN`、`approx`、`stack` 等）。只有设备名等操作数需要本地化，因此模板本身
+ *          与语言无关，不必为中英各写一份。
  *
  * @else
  * @summary Instruction → pseudocode template
  *
- * @details The placeholder `{0}` is `operand1`, `{1}` is `operand2` and so on. Templates favour a
- *          **readable** spelling: `=` for assignment, `goto` for jumps and `if … goto …` for conditional
- *          branches. Only operands such as device names need localization, so the templates themselves stay
- *          language independent and need no Chinese/English duplicates.
+ * @details The placeholder `{0}` is `operand1`, `{1}` is `operand2` and so on; a template only references the
+ *          slots it needs (an instruction such as `bapz`, whose middle slot carries no meaning, skips it).
  *
- * @details This first batch covers common instructions only; **instructions without a template produce no
- *          hint** (better none than a wrong one, and it leaves room to fill them in one by one).
+ * @details Covers **all 147 instructions** in the standard library (`alias`, `define` and `#` are directives
+ *          rather than instruction statements in the syntax tree, so they produce no hint). The spelling
+ *          favours readability: `=` for assignment, `goto` for jumps (`+n` marks an offset from the current
+ *          line), `if …` for conditions, `call` for a jump that stores `ra`, `batch` for network-wide reads
+ *          and writes, and a function name wherever a symbol would be vague (`valid`, `isNaN`, `approx`,
+ *          `stack`, …). Only operands such as device names need localization, so the templates themselves stay
+ *          language independent and need no Chinese/English duplicates.
  *
  * @endif
  * */
-const TEMPLATES: Record<string, Pseudocode> = {
-    // 传送与算术 / moves and arithmetic
-    move: { text: "{0} = {1}" },
-    add: { text: "{0} = {1} + {2}" },
-    sub: { text: "{0} = {1} - {2}" },
-    mul: { text: "{0} = {1} * {2}" },
-    div: { text: "{0} = {1} / {2}" },
-    mod: { text: "{0} = {1} % {2}" },
+const TEMPLATES: Record<string, string> = {
+    // ── 传送与算术 / moves and arithmetic
+    move: "{0} = {1}",
+    add: "{0} = {1} + {2}",
+    sub: "{0} = {1} - {2}",
+    mul: "{0} = {1} * {2}",
+    div: "{0} = {1} / {2}",
+    mod: "{0} = {1} % {2}",
+    pow: "{0} = {1} ** {2}",
+    max: "{0} = max({1}, {2})",
+    min: "{0} = min({1}, {2})",
+    clamp: "{0} = clamp({1}, {2}, {3})",
+    lerp: "{0} = lerp({1}, {2}, {3})",
+    select: "{0} = {1} ? {2} : {3}",
+    sgn: "{0} = sign({1})",
+    abs: "{0} = |{1}|",
+    ceil: "{0} = ceil({1})",
+    floor: "{0} = floor({1})",
+    round: "{0} = round({1})",
+    trunc: "{0} = trunc({1})",
 
-    // 位运算 / bitwise
-    and: { text: "{0} = {1} & {2}" },
-    or: { text: "{0} = {1} | {2}" },
-    xor: { text: "{0} = {1} ^ {2}" },
-    not: { text: "{0} = ~{1}" },
-    abs: { text: "{0} = |{1}|" },
+    // ── 指数、对数、三角 / exponential, logarithmic, trigonometric
+    exp: "{0} = exp({1})",
+    log: "{0} = log({1})",
+    sqrt: "{0} = sqrt({1})",
+    sin: "{0} = sin({1})",
+    cos: "{0} = cos({1})",
+    tan: "{0} = tan({1})",
+    asin: "{0} = asin({1})",
+    acos: "{0} = acos({1})",
+    atan: "{0} = atan({1})",
+    atan2: "{0} = atan2({1}, {2})",
 
-    // 设备读写 / device access
-    s: { text: "{0}.{1} = {2}" },
-    l: { text: "{0} = {1}.{2}" },
-    ls: { text: "{0} = {1}[{2}].{3}" },
-    lbn: { text: "{0} = sum {1}.{2} ({3})" },
-    sb: { text: "{0}.{1} = {2}" },
+    // ── 位运算与移位 / bitwise and shifts
+    and: "{0} = {1} & {2}",
+    or: "{0} = {1} | {2}",
+    xor: "{0} = {1} ^ {2}",
+    not: "{0} = ~{1}",
+    nor: "{0} = ~({1} | {2})",
+    sll: "{0} = shl({1}, {2})",
+    srl: "{0} = shr({1}, {2})",
+    sla: "{0} = sal({1}, {2})",
+    sra: "{0} = sar({1}, {2})",
+    rol: "{0} = rotl({1}, {2})",
+    ror: "{0} = rotr({1}, {2})",
+    ext: "{0} = bits({1}, {2}, {3})",
+    ins: "{0} = insert({1}, {2}, {3})",
+    rand: "{0} = rand()",
 
-    // 分支与跳转 / branches and jumps（多行形态放在 tooltip 里）
-    beq: { text: "if {0} == {1} goto {2}", tooltip: "if {0} == {1}\n    goto {2}" },
-    bne: { text: "if {0} != {1} goto {2}", tooltip: "if {0} != {1}\n    goto {2}" },
-    blt: { text: "if {0} < {1} goto {2}", tooltip: "if {0} < {1}\n    goto {2}" },
-    bgt: { text: "if {0} > {1} goto {2}", tooltip: "if {0} > {1}\n    goto {2}" },
-    ble: { text: "if {0} <= {1} goto {2}", tooltip: "if {0} <= {1}\n    goto {2}" },
-    bge: { text: "if {0} >= {1} goto {2}", tooltip: "if {0} >= {1}\n    goto {2}" },
-    j: { text: "goto {0}" },
-    jal: { text: "call {0}" },
-    jr: { text: "goto {0}" }
+    // ── 比较与近似比较（结果 1/0）/ comparisons and approximate comparisons (1/0)
+    seq: "{0} = ({1} == {2})",
+    sne: "{0} = ({1} != {2})",
+    slt: "{0} = ({1} < {2})",
+    sle: "{0} = ({1} <= {2})",
+    sgt: "{0} = ({1} > {2})",
+    sge: "{0} = ({1} >= {2})",
+    seqz: "{0} = ({1} == 0)",
+    snez: "{0} = ({1} != 0)",
+    sltz: "{0} = ({1} < 0)",
+    slez: "{0} = ({1} <= 0)",
+    sgtz: "{0} = ({1} > 0)",
+    sgez: "{0} = ({1} >= 0)",
+    sap: "{0} = approx({1}, {2}, {3})",
+    sna: "{0} = notApprox({1}, {2}, {3})",
+    sapz: "{0} = approx0({1})",
+    snaz: "{0} = notApprox0({1})",
+    snan: "{0} = isNaN({1})",
+    snanz: "{0} = !isNaN({1})",
+
+    // ── 设备读写 / device access
+    s: "{0}.{1} = {2}",
+    l: "{0} = {1}.{2}",
+    ss: "{0}[{1}].{2} = {3}",
+    ls: "{0} = {1}[{2}].{3}",
+    lr: "{0} = reagent({1}, {2}, {3})",
+    rmap: "{0} = recipe({1}, {2})",
+    sdns: "{0} = !valid({1})",
+    sdse: "{0} = valid({1})",
+
+    // ── 网络内同型号设备的批量读写 / batch access across matching devices in the network
+    lb: "{0} = batch {1}.{2} ({3})",
+    lbn: "{0} = batch {1}/{2}.{3} ({4})",
+    lbs: "{0} = batch {1}[{2}].{3} ({4})",
+    lbns: "{0} = batch {1}/{2}[{3}].{4} ({5})",
+    sb: "batch {0}.{1} = {2}",
+    sbn: "batch {0}/{1}.{2} = {3}",
+    sbs: "batch {0}[{1}].{2} = {3}",
+
+    // ── 栈与设备内存 / stack and device memory
+    push: "push({0})",
+    pop: "{0} = pop()",
+    peek: "{0} = peek()",
+    poke: "stack[{0}] = {1}",
+    get: "{0} = stack({1})[{2}]",
+    put: "stack({0})[{1}] = {2}",
+    clr: "{0}.ClearStack()",
+    clrd: "ClearStack({0})",
+
+    // ── 跳转与停机 / jumps and halting
+    j: "goto {0}",
+    jr: "goto +{0}",
+    jal: "call {0}",
+    sleep: "sleep({0})",
+    yield: "yield",
+    hcf: "halt",
+
+    // ── 条件分支（绝对行号）/ conditional branches (absolute line)
+    beq: "if {0} == {1} goto {2}",
+    bne: "if {0} != {1} goto {2}",
+    blt: "if {0} < {1} goto {2}",
+    bgt: "if {0} > {1} goto {2}",
+    ble: "if {0} <= {1} goto {2}",
+    bge: "if {0} >= {1} goto {2}",
+    beqz: "if {0} == 0 goto {1}",
+    bnez: "if {0} != 0 goto {1}",
+    bltz: "if {0} < 0 goto {1}",
+    bgtz: "if {0} > 0 goto {1}",
+    blez: "if {0} <= 0 goto {1}",
+    bgez: "if {0} >= 0 goto {1}",
+
+    // ── 条件分支并存 ra（`*al`）/ conditional branches that also store ra (`*al`)
+    beqal: "if {0} == {1} call {2}",
+    bneal: "if {0} != {1} call {2}",
+    bltal: "if {0} < {1} call {2}",
+    bgtal: "if {0} > {1} call {2}",
+    bleal: "if {0} <= {1} call {2}",
+    bgeal: "if {0} >= {1} call {2}",
+    beqzal: "if {0} == 0 call {1}",
+    bnezal: "if {0} != 0 call {1}",
+    bltzal: "if {0} < 0 call {1}",
+    bgtzal: "if {0} > 0 call {1}",
+    blezal: "if {0} <= 0 call {1}",
+    bgezal: "if {0} >= 0 call {1}",
+
+    // ── 近似比较与 NaN 分支 / approximate comparison and NaN branches
+    bap: "if {0} ≈ {1} ({2}) goto {3}",
+    bapal: "if {0} ≈ {1} ({2}) call {3}",
+    bapz: "if {0} ≈ 0 goto {2}",
+    bapzal: "if {0} ≈ 0 call {2}",
+    bna: "if {0} !≈ {1} ({2}) goto {3}",
+    bnaal: "if {0} !≈ {1} ({2}) call {3}",
+    bnaz: "if {0} !≈ 0 goto {2}",
+    bnazal: "if {0} !≈ 0 call {2}",
+    bnan: "if {0} is NaN goto {1}",
+
+    // ── 设备有效性分支 / device validity branches
+    bdns: "if !valid({0}) goto {1}",
+    bdse: "if valid({0}) goto {1}",
+    bdnsal: "if !valid({0}) call {1}",
+    bdseal: "if valid({0}) call {1}",
+    bdnvl: "if !validRead({0}.{1}) goto {2}",
+    bdnvs: "if !validWrite({0}.{1}) goto {2}",
+
+    // ── 相对分支（当前行 + 偏移）/ relative branches (current line + offset)
+    breq: "if {0} == {1} goto +{2}",
+    brne: "if {0} != {1} goto +{2}",
+    brlt: "if {0} < {1} goto +{2}",
+    brgt: "if {0} > {1} goto +{2}",
+    brle: "if {0} <= {1} goto +{2}",
+    brge: "if {0} >= {1} goto +{2}",
+    breqz: "if {0} == 0 goto +{1}",
+    brnez: "if {0} != 0 goto +{1}",
+    brltz: "if {0} < 0 goto +{1}",
+    brgtz: "if {0} > 0 goto +{1}",
+    brlez: "if {0} <= 0 goto +{1}",
+    brgez: "if {0} >= 0 goto +{1}",
+    brna: "if {0} !≈ {1} ({2}) goto +{3}",
+    brap: "if {0} ≈ {1} ({2}) goto +{3}",
+    brapz: "if {0} ≈ 0 goto +{2}",
+    brnaz: "if {0} !≈ 0 goto +{2}",
+    brnan: "if {0} is NaN goto +{1}",
+    brdns: "if !valid({0}) goto +{1}",
+    brdse: "if valid({0}) goto +{1}"
 };
 
 /**
@@ -144,20 +290,21 @@ export function pseudocode(node: PureExeInstructionNode, language: string): Opti
         const operand = (node as unknown as Record<string, Optional<Operand>>)[`operand${slot}`];
         const type = getOperandType(node, slot);
 
-        if (!operand || type === undefined) break;
+        // 还没写完的操作数在语法树里是 `Error` 节点（取它的文本会落到行尾的换行符上），一律当作缺失，
+        // 于是模板引用到它就整条不出提示——宁可没有，也不要给出半截伪代码
+        // An operand that is not written yet shows up as an `Error` node (its text falls back to the line
+        // ending); it counts as missing, so a template referencing it produces no hint at all — better none
+        // than half a pseudocode line
+        if (!operand || operand.nodeName === "Error" || type === undefined) break;
 
         operands.push(renderOperand(operand, type, language));
     }
 
-    const inline = render(template.text, operands);
+    const text = render(template, operands);
 
-    if (!inline) return undefined;
+    if (!text) return undefined;
 
-    const tooltip = template.tooltip ? render(template.tooltip, operands) : undefined;
-
-    // 多行形态放进围栏代码块：Markdown 里只有代码块会保留换行与缩进
-    // The multi-line form goes into a fenced code block: only a code block keeps the line break in Markdown
-    return { text: inline, tooltip: tooltip ? `\`\`\`\n${tooltip}\n\`\`\`` : undefined };
+    return { text, tooltip: branchTooltip(text) };
 }
 
 /**
@@ -179,6 +326,35 @@ function render(template: string, operands: string[]): Optional<string> {
     if (referenced.some(index => operands[index] === undefined)) return undefined;
 
     return template.replace(/\{(\d+)\}/g, (_match, index: string) => operands[Number(index)]);
+}
+
+/**
+ * @if zh
+ * @brief 条件分支的多行形态：条件一行、跳转一行
+ *
+ * @details 内联提示只能单行渲染，所以两行形态放进 tooltip。只对 `if … goto/call …` 形式的模板生效，
+ *          因此不必逐条维护。
+ *
+ * @param text 单行伪代码
+ * @return 围栏代码块包裹的两行文本；不是条件分支时为 `undefined`
+ *
+ * @else
+ * @brief The multi-line form of a conditional branch: one line for the condition, one for the jump
+ *
+ * @details An inlay hint renders inline on a single line, so the two-line form goes into the tooltip. It
+ *          applies to `if … goto/call …` templates only, which is why there is nothing to maintain per entry.
+ *
+ * @param text The single-line pseudocode
+ * @return The two lines wrapped in a fenced code block, or `undefined` when this is not a branch
+ *
+ * @endif
+ * */
+function branchTooltip(text: string): Optional<string> {
+    const match = /^if (.+?) (goto|call) (.+)$/.exec(text);
+
+    if (!match) return undefined;
+
+    return `\`\`\`\nif ${match[1]}\n    ${match[2]} ${match[3]}\n\`\`\``;
 }
 
 /**
