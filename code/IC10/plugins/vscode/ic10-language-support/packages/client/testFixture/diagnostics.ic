@@ -1,0 +1,12 @@
+# 端到端诊断测试夹具：两类语义错误各一条
+# End-to-end diagnostics fixture: one diagnostic per violated semantic rule
+# 1) 读取只写属性 → IWA25（访问权限不符）
+# 2) 在不含该属性的槽位上取值 → IWA26（槽位不适用）
+# 注意：注释里**不写**出问题标识符的字面量，否则测试定位标识符时会先命中注释
+# Note: the offending identifiers are deliberately not spelled out in comments, otherwise locating them
+# in the document would hit the comment first
+alias robot d0 #: @type Robot
+
+l r0 robot TargetX
+
+ls r0 robot 1 Charge

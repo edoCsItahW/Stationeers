@@ -1,0 +1,25 @@
+# 端到端内联提示测试夹具：每一行对应一条伪代码，改动会破坏测试
+# End-to-end inlay hint fixture: one line per pseudocode case; changing it breaks the tests
+# （用例见 packages/client/src/test/suite/inlayHint.test.ts）
+
+alias a r1
+
+alias heater d1
+
+add a a 1
+
+lbn r0 HASH("StructureBatteryMedium") Setting Average
+
+s heater On r6
+
+l r3 heater Setting
+
+ls r4 heater 1 Charge
+
+beq a 10 5
+
+j 20
+
+# 下面这条没有模板：不该出现任何提示
+# No template below: it must not produce a hint
+clamp r5 1 2 3

@@ -271,7 +271,7 @@ export class SettingsManager {
                         "e", "f", "g", "h", "i",
                         "j", "l", "m", "n", "o",
                         "p", "r", "s", "t", "x",
-                        "y", ":", "."
+                        "y", ":", ".", "\""
                     ]
                 },
 
@@ -282,7 +282,11 @@ export class SettingsManager {
                 },
 
                 // 代码格式化
-                documentFormattingProvider: true
+                documentFormattingProvider: true,
+
+                // 伪代码内联提示（默认由 ic10.inlayHints.pseudocode 关闭）
+                // Pseudocode inlay hints (off by default through ic10.inlayHints.pseudocode)
+                inlayHintProvider: true
             }
         };
 
