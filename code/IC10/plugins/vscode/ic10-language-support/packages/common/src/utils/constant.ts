@@ -52,3 +52,19 @@ export const COMM_EVENT_NAME = "ic10/event" as const;
  * request, so ordinary completion stays unaffected.
  * */
 export const COMPLETION_SCOPE_EVENT_NAME = "ic10/completionScope" as const;
+
+/**
+ * @summary 设备类型索引请求通道名称
+ *
+ * @summary Device type index request channel name
+ *
+ * @desc 客户端在用户唤出"搜索设备类型"时通过该通道向服务端拉取**整个**设备类型索引
+ * （类型名 + 当前语言下的显示名与描述，见 `DeviceTypeInfo`）。索引一次拉取后由客户端缓存，
+ * 之后的模糊过滤与排序都在客户端做，不必每次按键都往返一次。
+ *
+ * @desc The client pulls the **whole** device type index (type name plus the display name and
+ * description in the current language, see `DeviceTypeInfo`) through this channel when the user
+ * invokes "search device type". The index is fetched once and cached by the client; fuzzy filtering
+ * and ranking then happen client-side, so no round trip is needed per keystroke.
+ * */
+export const DEVICE_TYPE_EVENT_NAME = "ic10/deviceTypes" as const;

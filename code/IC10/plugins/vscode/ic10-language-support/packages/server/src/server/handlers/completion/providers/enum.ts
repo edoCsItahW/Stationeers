@@ -131,6 +131,19 @@ export function enumItem(
     item: EnumAnnotationValue | DeviceAnnotationLogic | DeviceAnnotationSlot | DeviceAnnotationLogicSlot,
     opType?: OperandType | string
 ): CompletionItem {
+    // 注解行的判别符是 nodeName：`@logic` / `@logic-slot` / `@slot` 三种行共用一套字段，
+    // 没有 `tag`（`tag` 只出现在 `@value` 行上），所以这里按 nodeName 还原类别。
+    // The discriminator of an annotation line is its nodeName: the `@logic` / `@logic-slot` / `@slot` lines
+    // share one field set and carry no `tag` (only `@value` lines do), so the kind comes from nodeName.
+    const tag =
+        item.nodeName === "DeviceAnnotationLogic"
+            ? "logic"
+            : item.nodeName === "DeviceAnnotationLogicSlot"
+              ? "logic-slot"
+              : item.nodeName === "DeviceAnnotationSlot"
+                ? "slot"
+                : "value";
+
     let key =
         typeof opType === "string"
             ? opType
@@ -140,7 +153,7 @@ export function enumItem(
                       logic: OperandType.LOGIC_PROP,
                       "logic-slot": OperandType.LOGIC_SLOT_PROP,
                       slot: OperandType.SLOT_IDX
-                  }[item.tag]
+                  }[tag]
               ];
 
     const detail = Object.values(EnumKeyMap).find(k => k === key)

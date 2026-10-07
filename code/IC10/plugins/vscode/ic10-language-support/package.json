@@ -147,7 +147,9 @@
         },
         "configurationDefaults": {
             "[ic10]": {
-                "editor.semanticHighlighting.enabled": true
+                "editor.semanticHighlighting.enabled": true,
+                "editor.inlayHints.enabled": "offUnlessPressed",
+                "editor.inlayHints.maximumLength": 0
             },
             "editor.semanticTokenColorCustomizations": {
                 "rules": {
@@ -313,6 +315,10 @@
             {
                 "command": "ic10.completionScope.all",
                 "title": "%ic10.command.completionScope.all%"
+            },
+            {
+                "command": "ic10.searchDeviceType",
+                "title": "%ic10.command.searchDeviceType%"
             }
         ],
         "keybindings": [
@@ -350,6 +356,11 @@
                 "command": "ic10.completionScope.all",
                 "key": "ctrl+alt+0",
                 "when": "editorLangId == ic10 && (editorTextFocus || suggestWidgetVisible)"
+            },
+            {
+                "command": "ic10.searchDeviceType",
+                "key": "ctrl+alt+shift+r",
+                "when": "editorLangId == ic10 && editorTextFocus"
             }
         ],
         "breakpoints": [
@@ -420,18 +431,21 @@
         "bundle": "node scripts/bundle.mjs",
         "watch": "node scripts/watch.mjs",
         "lint": "eslint",
-        "test": "sh ./scripts/e2e.sh"
+        "test": "node ./scripts/e2e.mjs"
     },
     "devDependencies": {
+        "@types/mocha": "^10.0.10",
         "@types/node": "^26.0.1",
+        "@vscode/test-electron": "^3.1.0",
         "esbuild": "^0.28.2",
+        "mocha": "^12.0.3",
         "prettier": "^3.9.6",
         "typescript": "^6.0.3",
         "verdaccio": "^6.9.2"
     },
     "dependencies": {
-        "@ic10/compiler": "^3.2.0",
-        "@ic10/runtime": "^2.2.0",
-        "@ic10/metadata": "^1.0.0"
+        "@ic10/compiler": "^3.3.0",
+        "@ic10/metadata": "^1.1.0",
+        "@ic10/runtime": "^2.3.0"
     }
 }

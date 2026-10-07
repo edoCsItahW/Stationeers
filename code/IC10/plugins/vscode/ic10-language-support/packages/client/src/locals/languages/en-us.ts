@@ -26,5 +26,15 @@ export default {
             keyword: "Keyword",
             all: "All"
         }
+    },
+    deviceSearch: {
+        /** Quick pick title */
+        title: "Search device type",
+        /** Quick pick placeholder */
+        placeholder: "Type a device name (English or Chinese) to find its type name",
+        /** Quick pick placeholder when the query matches nothing */
+        empty: "No device type matches the query",
+        /** Status bar message after inserting; {name} is the type name */
+        inserted: "Inserted device type: {name}"
     }
 };

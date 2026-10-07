@@ -2,3 +2,7 @@ packages:
   - "packages/*"
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - '@ic10/compiler@3.3.0'
+  - '@ic10/metadata@1.1.0'
+  - '@ic10/runtime@2.3.0'
