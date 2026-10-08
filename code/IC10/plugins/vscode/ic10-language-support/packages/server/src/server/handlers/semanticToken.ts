@@ -26,6 +26,7 @@ import {
     EnumAnnotation,
     IdentifierNode,
     HashMacroNode,
+    TokenCategory,
     TypeCategory,
     LabelDefNode,
     TypeHintNode,
@@ -294,6 +295,11 @@ export class SemanticTokenHandler {
                 tokens: cache.tokens ?? []
             };
 
+            // 注意：范围请求不补注释 token。注释可能落在请求区间之外，要正确裁剪得再加一层边界判断，
+            // 而两个真实客户端（VS Code 与 IntelliJ）都用全文档请求，这里不值得为它增加复杂度。
+            // Note: range requests do not add comment tokens. A comment may sit outside the requested range,
+            // and clipping it correctly needs another boundary check — while both real clients (VS Code and
+            // IntelliJ) ask for the full document, so the complexity is not worth it here.
             return {
                 data: rangs.flatMap(n => {
                     const tks = this.visitStatement(n, context);
@@ -307,11 +313,90 @@ export class SemanticTokenHandler {
     }
 
     private visitProgram(program: Program, context: HandlerContext): number[] {
-        return program.statements.flatMap(n => {
-            const tks = this.visitStatement(n, context);
+        const data: number[] = [];
+        const comments = this.plainComments(context);
+        let next = 0;
 
-            return tks.flatMap(t => [t.line, t.start, t.length, t.type, t.modifier]);
-        });
+        for (const statement of program.statements) {
+            next = this.appendCommentsBefore(data, comments, next, context, statement.position);
+
+            for (const token of this.visitStatement(statement, context))
+                data.push(token.line, token.start, token.length, token.type, token.modifier);
+        }
+
+        // 文件末尾（最后一条语句之后）的注释
+        // Comments after the last statement
+        this.appendCommentsBefore(data, comments, next, context, { line: Number.MAX_SAFE_INTEGER, column: Number.MAX_SAFE_INTEGER });
+
+        return data;
+    }
+
+    /**
+     * @if zh
+     * @summary 取出纯注释 token
+     *
+     * @details 只保留 `TokenCategory.COMMENT`（`# …` 与 `// …`）：类型提示与注解块的前缀（`#:`、`#>`）
+     *          是独立的 token 类型、类别为注解，且已由各自的访问器逐段着色，整段再涂一遍会与之重叠。
+     *
+     * @else
+     * @summary Picks out the plain comment tokens
+     *
+     * @details Only `TokenCategory.COMMENT` is kept (`# …` and `// …`): the type-hint and annotation-block
+     *          prefixes (`#:`, `#>`) are token types of their own with the annotation category, and their
+     *          visitors already colour them segment by segment — painting the whole range again would
+     *          overlap those.
+     *
+     * @endif
+     * */
+    private plainComments(context: HandlerContext): Token[] {
+        return context.tokens.filter(token => token.category === TokenCategory.COMMENT);
+    }
+
+    /**
+     * @if zh
+     * @summary 把位于 `position` 之前的注释按文档顺序写入
+     *
+     * @details 语义 token 是**增量编码**（见 {@link getGap}），所以注释必须与语句在同一次遍历中按文档顺序
+     *          交织，不能先遍历完语句再追加——否则增量全是负数，客户端会解出错误的列。
+     *
+     * @else
+     * @summary Writes the comments that precede `position`, in document order
+     *
+     * @details Semantic tokens are **delta-encoded** (see {@link getGap}), so comments have to be interleaved
+     *          with the statements in one document-order traversal rather than appended afterwards; otherwise
+     *          the deltas go negative and the client resolves the wrong columns.
+     *
+     * @endif
+     *
+     * @param data - 编码目标 / the encoded output being built
+     * @param comments - 待写注释（文档顺序）/ the comments, in document order
+     * @param from - 从该下标开始 / index to start at
+     * @param context - 处理器上下文 / the handler context
+     * @param position - 写到哪里为止 / the position to stop before
+     * @returns 下一次应使用的下标 / the index to use next time
+     * */
+    private appendCommentsBefore(
+        data: number[],
+        comments: Token[],
+        from: number,
+        context: HandlerContext,
+        position: Position
+    ): number {
+        let next = from;
+
+        while (next < comments.length && this.isBefore(comments[next].pos, position)) {
+            const token = comments[next++];
+            const gap = this.getGap(context, token.pos);
+
+            data.push(gap.line, gap.column, token.lexeme.length, TokenLegend.Comment, 0);
+        }
+
+        return next;
+    }
+
+    /** @if zh 1 基位置的先后比较 / @else Document-order comparison of 1-based positions / @endif */
+    private isBefore(a: Position, b: Position): boolean {
+        return a.line < b.line || (a.line === b.line && a.column < b.column);
     }
 
     private visitStatement(statement: Statement, context: HandlerContext): SemanticToken[] {

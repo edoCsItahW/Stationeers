@@ -121,7 +121,7 @@ abstract class HoverProvider implements IHoverProvider {
     /** @summary 按设置渲染卡片 / @summary Render the card according to the setting */
     protected render(card: HoverCard): string {
         return this.settingMgr.hoverRenderer === "markdown"
-            ? renderMarkdownCard(card)
+            ? renderMarkdownCard(card, { hardBreak: this.settingMgr.hoverBreaks })
             : renderSvgCard(card, { maxWidth: this.settingMgr.hoverMaxWidth });
     }
 

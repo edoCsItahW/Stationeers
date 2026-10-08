@@ -28,7 +28,7 @@ import {
     Console
 } from "@ic10/common";
 
-import { ParserPipline, SettingsManager, getDeviceTypes } from "./services";
+import { ParserPipline, SettingsManager, getDeviceTypes, parseCliOptions } from "./services";
 import { DocumentCache, GlobalCache } from "./cache";
 import { t } from "../locals";
 import {
@@ -125,8 +125,12 @@ export class Server {
         this.docCache = new DocumentCache();
 
         this.globalCache = new GlobalCache();
-        this.settingMgr = new SettingsManager(connection, this.docCache, this.globalCache, () =>
-            this.handleLocaleChanged()
+        this.settingMgr = new SettingsManager(
+            connection,
+            this.docCache,
+            this.globalCache,
+            () => this.handleLocaleChanged(),
+            parseCliOptions()
         );
 
         this.hoverHandler = new HoverHandler(this.docCache, this.settingMgr);
