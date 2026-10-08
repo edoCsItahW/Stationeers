@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: IC10 Language Support on Marketplace
-    url: https://marketplace.visualstudio.com/items?itemName=edocsitahw.ic10
-    about: View the extension listing on VS Code Marketplace.
+    -   name: 扩展市场页 | IC10 Language Support on Marketplace
+        url: https://marketplace.visualstudio.com/items?itemName=edocsitahw.ic10
+        about: "查看扩展介绍、截图与版本历史。 / View the extension listing, screenshots and version history."
+    -   name: 使用指南与已知问题 | Usage Guide and Known Issues
+        url: https://github.com/edoCsItahW/Stationeers/blob/main/code/IC10/plugins/vscode/ic10-language-support/README.md
+        about: "提交前先看这里：内嵌提示怎么显示、类型注解与调试器的用法、已知问题清单。 / Read this first: how to show inlay hints, type annotations and the debugger, plus the known-issues list."
