@@ -16,3 +16,4 @@
 export * from "./settingsManager";
 export * from "./parserPipline";
 export * from "./deviceTypes";
+export * from "./cliOptions";

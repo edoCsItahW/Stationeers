@@ -5,8 +5,12 @@
     <vendor url="https://github.com/edocsitahw/stationeers">Stationeers</vendor>
 
     <description><![CDATA[
-        Language support for IC10 (Stationeers in-game scripting language).<br>
-        <em>Provides hover tooltips for .ic10 files.</em>
+        Language support for IC10, the Stationeers in-game scripting language.<br>
+        Hover, completion, diagnostics and pseudocode inlay hints for <code>.ic</code> files, served by the
+        IC10 language server.<br>
+        The server is a standalone executable of about 116 MB and ships inside this plugin (it arrives
+        compressed to roughly 40 MB, and a standalone server has to embed a JavaScript runtime).
+        <em>Settings | Tools | IC10</em> can point at a different executable if you have your own build.
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -15,6 +19,10 @@
         <fileType name="IC10 File" implementationClass="io.github.stationeers.jetbrains.ic10.IC10FileType" fieldName="INSTANCE" language="IC10" extensions="ic"/>
 
         <platform.lsp.integrationProvider implementation="io.github.stationeers.jetbrains.ic10.IC10LspIntegrationProvider"/>
+
+        <notificationGroup id="IC10 Language Server" displayType="BALLOON"/>
+
+        <applicationConfigurable parentId="tools" id="io.github.stationeers.jetbrains.ic10.settings" bundle="messages.MyMessageBundle" key="settings.displayName" instance="io.github.stationeers.jetbrains.ic10.IC10LspSettingsConfigurable"/>
 
     </extensions>
 

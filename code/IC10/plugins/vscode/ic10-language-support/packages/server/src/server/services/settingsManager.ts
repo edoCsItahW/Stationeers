@@ -21,8 +21,9 @@ import { CONFIGURATION_SECTION_NAME, Optional } from "@ic10/common";
 import { IC10CompilerLocal } from "@ic10/compiler";
 
 import { TOKEN_TYPES, TOKEN_MODIFIERS } from "../handlers";
+import { uriToPath, MarkdownHardBreak } from "../../utils";
 import { DocumentCache, GlobalCache } from "../cache";
-import { uriToPath } from "../../utils";
+import { CliOptions } from "./cliOptions";
 import { locale } from "../../locals";
 
 
@@ -133,6 +134,14 @@ export class SettingsManager {
     private settings: Settings = { ...DEFAULT_SETTINGS };
 
     /**
+     * 命令行声明的 Markdown 硬换行形式；未声明时用行尾双空格，即 VS Code 一直以来的行为
+     *
+     * The Markdown hard-break form declared on the command line; when absent, the two-trailing-space form,
+     * which is what VS Code has always had.
+     * */
+    private cliHoverBreaks: MarkdownHardBreak = "spaces";
+
+    /**
      * @constructor SettingsManager
      *
      * @summary 创建设置管理器实例
@@ -152,8 +161,32 @@ export class SettingsManager {
         private connection: Connection,
         private docCache: DocumentCache,
         private globalCache: GlobalCache,
-        private onLocaleChanged?: () => void
-    ) {}
+        private onLocaleChanged?: () => void,
+        private readonly cliOptions: CliOptions = {}
+    ) {
+        this.applyCliOverrides();
+    }
+
+    /**
+     * @summary 把命令行声明重新盖到设置上
+     *
+     * @summary Re-applies the command-line declaration on top of the settings
+     *
+     * @desc 每次合并客户端设置后都要调用：命令行是**启动方**对"本客户端能渲染什么"的声明，不该被一次
+     * 配置推送覆盖掉（JetBrains 侧根本没有配置通道，但 VS Code 侧的合并路径也走这里）。
+     *
+     * @desc Called after every settings merge: the command line is the **starter's** declaration of what
+     * this client can render, and must not be overwritten by a configuration push.
+     * */
+    private applyCliOverrides() {
+        if (this.cliOptions.hoverRenderer) this.settings.hoverRenderer = this.cliOptions.hoverRenderer;
+        if (this.cliOptions.hoverBreaks) this.cliHoverBreaks = this.cliOptions.hoverBreaks;
+    }
+
+    /** @summary Markdown 硬换行形式（仅 Markdown 渲染器使用）/ @summary Hard-break form for the Markdown renderer */
+    get hoverBreaks(): MarkdownHardBreak {
+        return this.cliHoverBreaks;
+    }
 
     get hoverRenderer() {
         return this.settings.hoverRenderer;
@@ -293,6 +326,11 @@ export class SettingsManager {
         if (this.globalCache.flag.workspaceCfg)
             result.capabilities.workspace = { workspaceFolders: { supported: true } };
 
+        // 启动方声明不要内联提示时不声明该能力：JetBrains 的 LSP 客户端无法用出行尾等宽对齐（见 cliOptions.ts）。
+        // The capability is dropped when the starter declares no inlay hints: the JetBrains LSP client cannot
+        // use the monospace alignment at the line end (see cliOptions.ts).
+        if (this.cliOptions.inlayHints === false) delete result.capabilities.inlayHintProvider;
+
         this.settingGlobalLocale(this.settings.language);
 
         return result;
@@ -325,6 +363,7 @@ export class SettingsManager {
         if (this.globalCache.flag.workspaceCfg)
             this.connection.workspace.getConfiguration(CONFIGURATION_SECTION_NAME).then(cfg => {
                 this.settings = { ...this.settings, ...cfg };
+                this.applyCliOverrides();
 
                 this.settingGlobalLocale(this.settings.language);
 
@@ -365,6 +404,7 @@ export class SettingsManager {
 
         if (change) {
             this.settings = { ...this.settings, ...(change instanceof Promise ? await change : change) };
+            this.applyCliOverrides();
 
             this.settingGlobalLocale(this.settings.language);
 

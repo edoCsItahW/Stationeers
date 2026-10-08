@@ -139,6 +139,23 @@ export interface HoverCard {
 }
 
 /**
+ * @summary Markdown 硬换行的书写形式
+ *
+ * @summary How a hard line break is written in Markdown
+ *
+ * @desc 两个客户端渲染 Markdown 的管线并不一致，没有一种写法两边都有效：
+ *       IntelliJ 的 quick doc 会**逐行 `trimEnd`**，行尾双空格这种 CommonMark 硬换行到不了解析器
+ *       （两行会并成一段），但它放行行内 `<br />`；VS Code 的 markdown-it 则关了行内 HTML（`<br />`
+ *       不产生换行）而认行尾双空格。所以由**启动方**声明，见 `cliOptions.ts`。
+ *
+ * @desc The two clients do not share one working form: IntelliJ's quick doc **trims trailing whitespace from
+ *       every line**, so the CommonMark two-space hard break never reaches the parser (the lines merge), while
+ *       it does pass inline `<br />` through; VS Code's markdown-it disables inline HTML (so `<br />` produces
+ *       no break) and honours the two spaces. The **starter** therefore declares it — see `cliOptions.ts`.
+ * */
+export type MarkdownHardBreak = "spaces" | "html";
+
+/**
  * @summary 卡片渲染选项
  *
  * @summary Card rendering options
@@ -154,6 +171,17 @@ export interface HoverCardOptions {
      * @desc A line wider than this wraps at a break opportunity, and the card never grows past it.
      * */
     maxWidth?: number;
+
+    /**
+     * @summary 硬换行形式（仅 Markdown 渲染器使用）
+     *
+     * @summary Hard-break form (used by the Markdown renderer only)
+     *
+     * @desc 省略时用行尾双空格，即 VS Code 一直以来的行为。
+     *
+     * @desc Omitted means the two-trailing-space form, which is what VS Code has always had.
+     * */
+    hardBreak?: MarkdownHardBreak;
 
     /** @summary 字号（px）/ @summary Font size in pixels */
     fontSize?: number;
@@ -700,9 +728,10 @@ function truncateLeft(text: string, cells: number): string {
  *       line 2, the rule, the field lines and the footnote. Markdown cannot align columns (which is
  *       exactly why the SVG mode exists), so fields are written as `**field**: content`.
  *
- * @desc Lines 1 and 2 are separated by a **two-trailing-space hard break**: in Markdown a single
- *       newline is a soft break, so both lines would render as one paragraph on one line. The rule
- *       forms its own block with a blank line on either side.
+ * @desc Lines 1 and 2 are separated by a hard break whose form the caller picks (see
+ *       {@link MarkdownHardBreak}): a single newline is only a soft break, and no single form works in both
+ *       clients. The rule forms its own block with a blank line on either side; the field lines are separated
+ *       the same way.
  *
  * @param card 卡片内容
  * @param card The card content
@@ -710,10 +739,15 @@ function truncateLeft(text: string, cells: number): string {
  * @returns Markdown 文本；卡片为空时返回空字符串
  * @returns Markdown text, or an empty string for an empty card
  * */
-export function renderMarkdownCard(card: HoverCard): string {
+export function renderMarkdownCard(card: HoverCard, options: HoverCardOptions = {}): string {
     const blocks: string[] = [];
     const fields = card.fields ?? [];
     const header: string[] = [];
+
+    // 换行写法按客户端声明（见 MarkdownHardBreak）：默认行尾双空格，jetbrains 传 html 得到 `<br />`
+    // The break form is declared by the client (see MarkdownHardBreak): two trailing spaces by default,
+    // `<br />` when the starter asks for "html".
+    const breakText = options.hardBreak === "html" ? "<br />" : "  \n";
 
     if (card.badge || headRuns(card).length) {
         const parts = [
@@ -729,8 +763,7 @@ export function renderMarkdownCard(card: HoverCard): string {
 
     if (expression.length) header.push(`\`${runsText(expression)}\``);
 
-    // 行 1 与行 2 之间是硬换行（行尾两个空格）
-    if (header.length) blocks.push(header.join("  \n"));
+    if (header.length) blocks.push(header.join(breakText));
 
     if (fields.length) {
         blocks.push("---");
@@ -742,7 +775,10 @@ export function renderMarkdownCard(card: HoverCard): string {
 
                     return `**${field.label}**: ${field.code ? `\`${value}\`` : value}`;
                 })
-                .join("\n")
+                // 字段之间同样是硬换行：单个换行是软换行，字段会挤成一行
+                // Fields are separated by a hard break too: a single newline is a soft break and they would
+                // run together.
+                .join(breakText)
         );
     }
 

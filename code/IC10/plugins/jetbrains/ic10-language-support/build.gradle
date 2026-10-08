@@ -47,3 +47,48 @@ intellijPlatform {
 tasks.withType(org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask).configureEach {
     systemProperty("idea.ultimate.enabled", "true")
 }
+
+// buildSearchableOptions 会启动一次真实 IDE 来枚举 UI（供 IDE 设置搜索用），而它只在 IDE 处于**默认界面
+// 语言**时才肯干活：中文 Windows 上 IDE 会启用中文语言包，该任务以 "Locale must be default" 失败，并连带
+// buildPlugin 失败（给 JVM 强制 user.language=en 无效，因为界面语言来自语言包而非 JVM 属性）。
+// 因此这里允许它失败：英文环境下索引照常生成并打进包，中文环境下跳过，代价只是「设置页不出现在 IDE 的
+// 设置搜索里」——设置页本身仍在 Settings | Tools | IC10。
+// The searchable-options builder launches a real IDE to enumerate the UI (for the IDE's settings search) and
+// only works while the IDE runs in its default UI language: on a Chinese Windows the IDE enables the Chinese
+// language pack and the task fails with "Locale must be default", taking buildPlugin down with it (forcing the
+// JVM's user.language does not help — the UI language comes from the language pack, not a JVM property).
+// So its failure is tolerated: on an English machine the index is still built and shipped, and elsewhere it is
+// skipped, costing only that this plugin's settings are not indexed by the IDE's settings search — the page
+// itself is still under Settings | Tools | IC10.
+tasks.named("buildSearchableOptions") {
+    ignoreExitValue = true
+}
+
+// 语言服务器本体（SEA 产物，约 116 MB）不入库：GitHub 单文件上限 100 MB，仓库也不该背它。它由 vscode 插件
+// 那边的 `pnpm run sea:build` 产出，构建时复制进本插件的分发包——prepareSandbox 的落点相对 <沙箱>/plugins，
+// 而插件目录以 rootProject.name 命名；buildPlugin 打包的正是那个沙箱目录，所以不要再往 buildPlugin 挂一次
+// （同一路径进两次会以 "duplicate entry" 失败）。
+// The server binary (a ~116 MB SEA artifact) is deliberately not committed: GitHub rejects files above
+// 100 MB and the repository should not carry it. `pnpm run sea:build` in the vscode plugin produces it and
+// this build copies it into the distribution — prepareSandbox's destination is relative to
+// <sandbox>/plugins and the plugin directory is named after rootProject.name; buildPlugin packages that very
+// sandbox directory, so do not add it to buildPlugin as well (the same path twice fails the build).
+def lspExecutable = file(providers.gradleProperty("ic10.lspExecutable").getOrElse(
+        "../../vscode/ic10-language-support/packages/server/ic10-lsp.exe"))
+
+tasks.named("prepareSandbox") {
+    doFirst {
+        if (!lspExecutable.isFile()) {
+            throw new GradleException(
+                    "找不到 ic10-lsp.exe / ic10-lsp.exe not found: ${lspExecutable}\n" +
+                            "先在 code/IC10/plugins/vscode/ic10-language-support 执行 `pnpm run sea:build`，" +
+                            "或用 -Pic10.lspExecutable=<路径> 指定 / run `pnpm run sea:build` there first, " +
+                            "or point -Pic10.lspExecutable=<path> at an existing executable")
+        }
+    }
+
+    from(lspExecutable) {
+        into("${rootProject.name}/bin")
+        rename { "ic10-lsp.exe" }
+    }
+}

@@ -1,142 +1,124 @@
-# Ic10-language-support
+# IC10
 
-[![Twitter Follow](https://img.shields.io/badge/follow-%40JBPlatform-1DA1F2?logo=twitter)](https://twitter.com/JBPlatform)
-[![Developers Forum](https://img.shields.io/badge/JetBrains%20Platform-Join-blue)][jb:forum]
+[Stationeers](https://store.steampowered.com/app/544550/Stationeers/) 游戏内脚本语言 IC10 的语言支持。
 
-## 概述
+<details>
+<summary>中文</summary>
 
-此仓库实现了一个 IntelliJ 平台插件。
+## 功能
 
-## 演示功能
+- **悬停**：指令、寄存器、设备、别名、常量、类型与字段的说明；
+- **补全**：指令关键字、设备名称与型号名、标签名，以及 `@type` 类型注解的取值；
+- **诊断**：越权访问、槽位不适用等编译期问题；
+- **语义着色**：与 VS Code 扩展同一套配色，寄存器、设备、标签、类型各有颜色。
 
-示例插件添加了一个“我的工具窗口”工具窗口，具有简单的随机数打乱功能。
+> 伪代码内嵌提示暂未在本插件启用。它依赖行尾的等宽对齐，而 IntelliJ 的行内提示渲染不保证这一点
+> ——与其显示一堆对不齐的提示，不如先不显示。VS Code 扩展仍然可以用。
 
-## 插件结构
+## 安装
 
-生成的项目包含以下内容结构：
+在 IDE 中打开 **Settings | Plugins | Marketplace**，搜索 **IC10** 安装并重启，然后打开 `.ic` 文件即可。
 
+语言服务器随插件一起分发（可执行文件约 116 MB，下载压缩后约 40 MB），**不需要**另外安装 Node、
+Python 或任何运行时，也**不需要**联网下载任何东西。
+
+## 设置
+
+**Settings | Tools | IC10** 只有一项：语言服务器可执行文件路径。
+
+留空即使用插件自带的那一个，绝大多数情况下都不需要填。只有你自己构建了服务器、或想指定别处的版本时，
+才需要指向那个文件。
+
+## 已知限制
+
+- 语言服务器目前**只有 Windows 版**：它依赖的编译器原生模块只提供 Windows 动态库。其他平台上会给出
+  提示，可用上面的设置项指向你自己构建的可执行文件；
+- 目前只识别 `.ic` 扩展名。
+
+## 反馈
+
+问题与建议请使用仓库的 Issue 模板：<https://github.com/edoCsItahW/Stationeers/issues>
+
+</details>
+
+# IC10
+
+Language support for IC10, the in-game scripting language of
+[Stationeers](https://store.steampowered.com/app/544550/Stationeers/).
+
+## Features
+
+- **Hover**: instructions, registers, devices, aliases, constants, types and fields;
+- **Completion**: instruction keywords, device names and model names, labels, and the values of a `@type`
+  hint;
+- **Diagnostics**: compile-time problems such as accesses the device does not allow or slots that do not
+  apply;
+- **Semantic highlighting**: the same palette as the VS Code extension, so registers, devices, labels and
+  types each get their own colour.
+
+> The pseudocode inlay hints are not enabled in this plugin yet. They rely on monospace alignment at the end
+> of the line, which IntelliJ's inline hint rendering does not guarantee — a screenful of hints that do not
+> line up is worse than none. The VS Code extension still offers them.
+
+## Installation
+
+Open **Settings | Plugins | Marketplace**, search for **IC10**, install, and restart. Then open a `.ic` file.
+
+The language server ships with the plugin (a ~116 MB executable that arrives compressed to roughly 40 MB).
+Nothing else is required — no Node, no Python, and no download at runtime.
+
+## Settings
+
+**Settings | Tools | IC10** has a single field: the path to the language server executable.
+
+Leave it empty to use the one bundled with the plugin, which is what almost everyone wants. Fill it in only
+if you built the server yourself or want to point the plugin at a different build.
+
+## Known limitations
+
+- The language server is currently **Windows only**, because the compiler native modules it depends on are
+  built for Windows. Other platforms get a notification, and the setting above can point at an executable you
+  built yourself;
+- only the `.ic` extension is recognised today.
+
+## Feedback
+
+Please use the repository's issue templates: <https://github.com/edoCsItahW/Stationeers/issues>
+
+---
+
+<details>
+<summary>维护者 / Maintainers</summary>
+
+构建配置：Java 25 工具链、IntelliJ Platform 2026.2.0.1、`sinceBuild 253.0`；源码在 `src/main/java`，
+插件描述与扩展点注册在 `src/main/resources/META-INF/plugin.xml`。
+
+**语言服务器可执行文件不入库**（GitHub 单文件上限 100 MB），由 vscode 插件那边的 SEA 构建产出，本工程
+构建时复制进分发包的 `bin/`：
+
+```bash
+# 1. 产出 exe（在 code/IC10/plugins/vscode/ic10-language-support，需 Node ≥ 26.9）
+pnpm run sea:bundle && pnpm run sea:build
+
+# 2. 开发：沙箱里会自动带上 exe（prepareSandbox → plugins/ic10/bin/）
+./gradlew runIde
+
+# 3. 打包 / 发布（产物约 43 MB，内含 exe）
+./gradlew buildPlugin publishPlugin
 ```
-.
-├── .run/                   预定义的运行/调试配置
-├── gradle
-│   ├── wrapper/            Gradle Wrapper
-│   ├── libs.versions.toml  版本目录
-├── src                     插件源码
-│   └── main
-│       ├── kotlin/         Kotlin 生产源码
-│       └── resources/      插件资源
-│           ├── META-INF/   插件配置文件和标志图
-│           └── messages/   消息资源束
-├── .gitignore              Git 忽略规则
-├── build.gradle.kts        Gradle 构建配置
-├── gradle.properties       Gradle 配置属性
-├── gradlew                 *nix Gradle Wrapper 脚本
-├── gradlew.bat             Windows Gradle Wrapper 脚本
-├── README.md               本文件
-└── settings.gradle.kts     Gradle 项目设置
-```
 
-除了配置文件外，最关键的部分是 `src` 目录，其中包含我们的实现以及插件的清单文件 – [plugin.xml][file:plugin.xml]。
+用 `-Pic10.lspExecutable=<路径>` 可指定别处的 exe。exe 缺失时构建会**明确失败**并提示先跑哪条命令。
 
-> [!NOTE]
-> 如需在插件中使用 Java，请创建 `/src/main/java` 目录。
+两处容易踩的坑：
 
-插件标志图放在 `src/main/resources/META-INF/pluginIcon.svg`。有关更多信息和标志图要求，请参阅[插件标志图][docs:logo]。
+- **服务器源码改了必须重建 exe**（见 `packages/server/README.md` §6.1）。本插件按 IntelliJ 的渲染能力
+  给服务器传 `--hover-renderer=markdown --hover-breaks=html --inlay-hints=off`，而**旧 exe 会静默忽略未知
+  开关**，表现就是"新功能没生效"；
+- `buildSearchableOptions` 只在 IDE 处于默认界面语言时才能成功，中文环境下会以
+  `Locale must be default` 失败；`build.gradle` 里用 `ignoreExitValue = true` 容忍它，代价是本插件的
+  设置页不出现在 IDE 的设置搜索结果里（设置页本身仍在 **Settings | Tools | IC10**）。
 
-## 构建脚本
+本插件没有自动化测试：端到端测试在 VS Code 侧（`pnpm test`），IntelliJ 侧靠 `./gradlew runIde` 手工验证
+（打开 `.ic` 文件，确认悬停、补全、诊断与语义着色）。`./gradlew verifyPlugin` 需要联网访问 Marketplace。
 
-[build.gradle.kts][file:build.gradle.kts] 是项目定义的核心。它应用了三个 Gradle 插件：
-
-| 插件                               | 描述                                                                               |
-|-----------------------------------|------------------------------------------------------------------------------------|
-| `org.jetbrains.kotlin.jvm`        | 添加 Kotlin 支持                                                                  |
-| `org.jetbrains.changelog`         | 简化对 [CHANGELOG.md][file:CHANGELOG.md] 文件的修补                               |
-| `org.jetbrains.intellij.platform` | [IntelliJ 平台 Gradle 插件][docs:intellij-platform-gradle-plugin-docs]            |
-
-`intellijPlatform` 依赖块选择要针对其编译的 IDE：
-
-```kotlin
-intellijIdea("2025.3.5")
-```
-
-有关更多信息，请参阅[目标版本][docs:target-version]。
-
-`intellijPlatform` 依赖块还包含对平台测试框架的依赖：
-
-```kotlin
-testFramework(TestFrameworkType.Platform)
-```
-
-有关更多信息，请参阅[测试][docs:testing]。
-
-## 插件配置文件
-
-插件配置文件是位于 `src/main/resources/META-INF` 目录中的 [plugin.xml][file:plugin.xml] 文件。它提供有关插件的常规信息、依赖项、扩展点和监听器。
-
-您可以在我们的文档中的[插件配置文件][docs:plugin.xml]一节中阅读更多关于此文件的内容。
-
-### 插件 ID 和名称
-
-生成的插件 ID 和名称可能需要调整。
-
-这些值是基于 IDE 插件向导中提供的“组 ID”和“工件 ID”生成的。建议检查 plugin.xml 文件中的 `<id>` 和 `<name>` 元素，并在需要时进行调整。
-
-请注意，Gradle 属性 `rootProject.name` 和 `project.group` 不需要与 `<id>` 和 `<name>` 元素匹配。由于它们服务于不同的功能，因此没有与 IntelliJ 平台相关的理由要求它们匹配。
-
-## 预定义的运行/调试配置
-
-在默认项目结构中，提供了 `.run` 目录，其中包含预定义的*运行/调试配置*，这些配置对应公开的 Gradle 任务：
-
-| 配置名称          | 描述                                                                                                                                                    |
-|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Run IDE with Plugin | 运行 [`:runIde`][docs:intellij-platform-gradle-plugin-runIde] IntelliJ 平台 Gradle 插件任务。使用*调试*图标进行插件调试。                               |
-| Run Tests         | 运行 [`:check`][gradle:lifecycle-tasks] Gradle 任务。                                                                                                  |
-| Run Verifications | 运行 [`:verifyPlugin`][docs:intellij-platform-gradle-plugin-verifyPlugin] IntelliJ 平台 Gradle 插件任务，以检查插件与指定 IntelliJ IDE 的兼容性。      |
-
-> [!NOTE]
-> 您可以在 `idea.log` 选项卡中找到正在运行的任务的日志。
-
-## 发布插件
-
-> [!TIP]
-> 请确保遵循[发布插件][docs:publishing]中列出的所有推荐和必需步骤。
-
-将插件发布到 [JetBrains Marketplace](https://plugins.jetbrains.com) 是一项直接的操作，它使用由 [intellij-platform-gradle-plugin][docs:intellij-platform-gradle-plugin-docs] 提供的 `publishPlugin` Gradle 任务。
-
-您也可以手动通过 UI 将插件上传到 [JetBrains 插件仓库](https://plugins.jetbrains.com/plugin/upload)。
-
-## 有用链接
-
-- [IntelliJ 平台 SDK 插件开发文档][docs]
-- [IntelliJ 平台 Gradle 插件文档][docs:intellij-platform-gradle-plugin-docs]
-- [IntelliJ 平台探索器][jb:ipe]
-- [JetBrains Marketplace 质量指南][jb:quality-guidelines]
-- [IntelliJ 平台 UI 指南][jb:ui-guidelines]
-- [JetBrains Marketplace 付费插件][jb:paid-plugins]
-- [IntelliJ SDK 代码示例][gh:code-samples]
-
-[docs]: https://plugins.jetbrains.com/docs/intellij
-[docs:plugin.xml]: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html?from=IJPluginReadmeFile
-[docs:publishing]: https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginReadmeFile
-[docs:intellij-platform-gradle-plugin-docs]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html?from=IJPluginReadmeFile
-[docs:intellij-platform-gradle-plugin-runIde]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-tasks.html?from=IJPluginReadmeFile#runIde
-[docs:intellij-platform-gradle-plugin-verifyPlugin]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-tasks.html?from=IJPluginReadmeFile#verifyPlugin
-[docs:logo]: https://plugins.jetbrains.com/docs/intellij/plugin-icon-file.html?from=IJPluginReadmeFile
-[docs:target-version]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html?from=IJPluginReadmeFile#target-versions
-[docs:testing]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html?from=IJPluginReadmeFile#testing
-
-[file:build.gradle.kts]: ./build.gradle.kts
-[file:CHANGELOG.md]: ./CHANGELOG.md
-[file:gradle.properties]: ./gradle.properties
-[file:plugin.xml]: ./src/main/resources/META-INF/plugin.xml
-
-[gh:code-samples]: https://github.com/JetBrains/intellij-sdk-code-samples
-
-[gradle:lifecycle-tasks]: https://docs.gradle.org/current/userguide/java_plugin.html#lifecycle_tasks
-
-[jb:github]: https://github.com/JetBrains/.github/blob/main/profile/README.md
-[jb:forum]: https://platform.jetbrains.com/
-[jb:quality-guidelines]: https://plugins.jetbrains.com/docs/marketplace/quality-guidelines.html
-[jb:paid-plugins]: https://plugins.jetbrains.com/docs/marketplace/paid-plugins-marketplace.html
-[jb:ipe]: https://jb.gg/ipe
-[jb:ui-guidelines]: https://jetbrains.github.io/ui
+</details>
