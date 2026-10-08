@@ -1,244 +1,65 @@
-name: Bug Report
-description: Report a bug in the IC10 compiler
+name: 编译器缺陷 | Compiler Bug
+description: 报告 IC10 编译器核心、语言绑定或 CLI 的问题。Report a bug in the IC10 compiler core, its language bindings or the CLI.
+title: "[Compiler Bug] "
 labels: ["bug"]
 assignees: []
 body:
-  - type: dropdown
-    id: module
-    attributes:
-      label: Module
-      description: Which module is affected by this bug?
-      options:
-        - Lexer (tokenization, token types, number parsing)
-        - Parser (syntax parsing, AST construction)
-        - Semantic (type checking, symbol resolution)
-        - Linker (multi-unit symbol merging)
-        - Incremental (inclexer, incparser, incremental compilation)
-        - Node.js Bindings (ic10c-node)
-        - Python Bindings (ic10c-python)
-        - CLI (ic10c command line tool)
-        - CI/CD (build workflows, GitHub Actions)
-        - Documentation
-        - Other
-    validations:
-      required: true
+    -   type: markdown
+        attributes:
+            value: |
+                **中文**：下面只有 4 项，但请尽量填全——**版本 + 环境 + 最小复现**比一大段描述有效得多；日志、`.ic` 片段直接贴在最后一栏即可。
+                **English**: There are only four items below, but please fill them in — a **version, an environment and the smallest reproduction** are worth far more than a long description; paste logs and `.ic` snippets straight into the last box.
 
-  - type: input
-    id: version
-    attributes:
-      label: Version
-      description: Which version of the compiler are you using? (e.g., v2.0.0, commit hash)
-      placeholder: v2.0.0
-    validations:
-      required: true
+    -   type: dropdown
+        id: module
+        attributes:
+            label: 模块 | Module
+            description: 问题出在哪个模块？ / Which module is affected?
+            options:
+                - Lexer 词法分析
+                - Parser 语法与 AST
+                - Semantic 语义分析
+                - Linker 链接
+                - Incremental 增量编译
+                - Bindings 语言绑定（Node.js / Python / Java）
+                - CLI 命令行
+                - CI/CD 构建工作流
+                - Docs 文档
+                - Other 其他
+        validations:
+            required: true
 
-  - type: input
-    id: platform
-    attributes:
-      label: Platform
-      description: Operating system and compiler environment (e.g., Windows 10, Linux Ubuntu 22.04, Node.js 26)
-      placeholder: Windows 10 / MSVC 2022 / Node.js 26
-    validations:
-      required: true
+    -   type: input
+        id: version
+        attributes:
+            label: 版本 | Version
+            description: 编译器或绑定包的版本 / Compiler or binding package version
+            placeholder: v3.0.0 或 commit 短哈希
+        validations:
+            required: true
 
-  - type: textarea
-    id: description
-    attributes:
-      label: Bug Description
-      description: A clear and concise description of the bug.
-    validations:
-      required: true
+    -   type: input
+        id: environment
+        attributes:
+            label: 环境 | Environment
+            description: 操作系统与运行时 / Operating system and runtime
+            placeholder: Windows 11 · Node.js 26.7.0 ／ Ubuntu 24.04 · Python 3.12
+        validations:
+            required: true
 
-  - type: textarea
-    id: steps
-    attributes:
-      label: Steps to Reproduce
-      description: Steps to reproduce the behavior.
-      placeholder: |
-        1. Create a file with the following IC10 code:
-           ```ic10
-           alias counter r0
-           start:
-               move r0 10
-               hcf
-           ```
-        2. Run: ic10c --emit-tokens input.ic
-        3. See error...
-    validations:
-      required: true
+    -   type: textarea
+        id: details
+        attributes:
+            label: 问题与复现 | Problem and reproduction
+            description: 最小复现、期望结果、实际结果写在一起；日志或 `.ic` 片段也贴在这一栏。 / The minimal reproduction, the expected result and the actual result in one place; logs and `.ic` snippets go in the same box.
+            value: |
+                ### 复现步骤 / Steps
+                1.
 
-  - type: textarea
-    id: expected
-    attributes:
-      label: Expected Behavior
-      description: What you expected to happen.
-    validations:
-      required: true
+                ### 期望 / Expected
 
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual Behavior
-      description: What actually happened. Include error messages, stack traces, or screenshots.
-    validations:
-      required: true
+                ### 实际 / Actual
 
-  - type: textarea
-    id: lexer-details
-    attributes:
-      label: Lexer-Specific Details
-      description: Required if reporting a Lexer bug. Include token stream, input source, and any unexpected tokenization.
-      placeholder: |
-        Input source:
-        ```ic10
-        $FF 0x10 %1010
-        ```
-        
-        Expected tokens: HEX_NUMBER, DECIMAL_NUMBER, BINARY_NUMBER
-        Actual tokens: ...
-    validations:
-      required: false
-
-  - type: textarea
-    id: parser-details
-    attributes:
-      label: Parser-Specific Details
-      description: Required if reporting a Parser bug. Include AST output, parsing errors, or syntax-related issues.
-      placeholder: |
-        Input source causing parsing error:
-        ```ic10
-        sub r0 r1 r2  ; ternary instruction
-        ```
-        
-        Parsing error message: ...
-    validations:
-      required: false
-
-  - type: textarea
-    id: semantic-details
-    attributes:
-      label: Semantic-Specific Details
-      description: Required if reporting a Semantic bug. Include symbol table output, type inference issues, or scope errors.
-      placeholder: |
-        Symbol table output:
-        ```json
-        {...}
-        ```
-        
-        Type mismatch error: ...
-    validations:
-      required: false
-
-  - type: textarea
-    id: linker-details
-    attributes:
-      label: Linker-Specific Details
-      description: Required if reporting a Linker bug. Include multi-unit code, cross-reference issues, or visibility errors.
-      placeholder: |
-        File a.ic:
-        ```ic10
-        alias public shared r0
-        ```
-        
-        File b.ic:
-        ```ic10
-        move r1 shared
-        ```
-        
-        Linker error: ...
-    validations:
-      required: false
-
-  - type: textarea
-    id: incremental-details
-    attributes:
-      label: Incremental-Specific Details
-      description: Required if reporting an Incremental bug. Include before/after source, expected caching behavior, and actual results.
-      placeholder: |
-        Original source:
-        ```ic10
-        move r0 10
-        ```
-        
-        Modified source:
-        ```ic10
-        move r0 20
-        ```
-        
-        Expected: Only line 1 should be re-lexed/re-parsed
-        Actual: ...
-    validations:
-      required: false
-
-  - type: textarea
-    id: node-details
-    attributes:
-      label: Node.js Binding Details
-      description: Required if reporting a Node.js binding bug. Include JavaScript/TypeScript code and error logs.
-      placeholder: |
-        Node.js code:
-        ```typescript
-        import { Lexer } from 'ic10c_node';
-        const tokens = Lexer.tokenize(source);
-        ```
-        
-        Error: ...
-    validations:
-      required: false
-
-  - type: textarea
-    id: python-details
-    attributes:
-      label: Python Binding Details
-      description: Required if reporting a Python binding bug. Include Python code and error tracebacks.
-      placeholder: |
-        Python code:
-        ```python
-        import ic10_python as ic10
-        tokens = ic10.Lexer.tokenize(source)
-        ```
-        
-        Traceback:
-        ```
-        ...
-        ```
-    validations:
-      required: false
-
-  - type: textarea
-    id: cli-details
-    attributes:
-      label: CLI Details
-      description: Required if reporting a CLI bug. Include command used and output.
-      placeholder: |
-        Command:
-        ```bash
-        ic10c --link a.ic b.ic --locale zh-hans
-        ```
-        
-        Output:
-        ```
-        ...
-        ```
-    validations:
-      required: false
-
-  - type: textarea
-    id: ci-details
-    attributes:
-      label: CI/CD Details
-      description: Required if reporting a CI/CD bug. Include workflow name, run URL, and error messages.
-      placeholder: |
-        Workflow: ic10-node.yml
-        Run URL: https://github.com/.../actions/runs/...
-        Error: ...
-    validations:
-      required: false
-
-  - type: textarea
-    id: additional
-    attributes:
-      label: Additional Information
-      description: Any other context about the bug.
-    validations:
-      required: false
+                ### 日志或代码 / Logs or code
+        validations:
+            required: true

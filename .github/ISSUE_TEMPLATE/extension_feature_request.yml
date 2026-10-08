@@ -1,154 +1,52 @@
-name: Extension Feature Request
-description: Suggest a new feature or enhancement for the IC10 VS Code extension
+name: 扩展功能建议 | Extension Feature Request
+description: 为 IC10 VS Code 扩展提一个新功能或改进建议。Suggest a new feature or enhancement for the IC10 VS Code extension.
+title: "[Extension Feature] "
 labels: ["enhancement", "extension"]
 assignees: []
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for suggesting a feature for the IC10 VS Code extension!
-        Please fill out the form below. Fields marked with * are required.
+    -   type: markdown
+        attributes:
+            value: |
+                **中文**：说清"**想解决什么问题**"比"想加什么按钮"更重要；第三项可以不填。完整的现有功能清单见 [README](https://github.com/edoCsItahW/Stationeers/blob/main/code/IC10/plugins/vscode/ic10-language-support/README.md)。
+                **English**: Explaining **which problem you want solved** matters more than the button you have in mind; the third item is optional. The full feature list is in the [README](https://github.com/edoCsItahW/Stationeers/blob/main/code/IC10/plugins/vscode/ic10-language-support/README.md).
 
-  - type: dropdown
-    id: feature
-    attributes:
-      label: Feature Area
-      description: Which extension feature area would this enhancement belong to?
-      options:
-        - Syntax Highlighting (TextMate grammar)
-        - Semantic Highlighting (symbol-table-driven coloring)
-        - Diagnostics (error reporting, quick fixes)
-        - Hover Tooltips
-        - Intelligent Completion (keywords, operands, device-context filtering)
-        - Signature Help (parameter highlighting)
-        - Code Formatting (alignment, indentation, comment alignment)
-        - Incremental Compilation (caching, performance)
-        - Type Annotations (#: type hints, #> doc comments)
-        - Go to Definition / Find References
-        - Rename Symbol
-        - Code Actions (quick fixes, refactorings)
-        - Snippets
-        - Settings / Configuration
-        - Other
-    validations:
-      required: true
+    -   type: dropdown
+        id: feature
+        attributes:
+            label: 功能领域 | Feature area
+            description: 这个建议属于哪个功能？ / Which feature area would this belong to?
+            options:
+                - Syntax Highlighting 语法高亮
+                - Semantic Highlighting 语义高亮
+                - Diagnostics 实时诊断
+                - Hover Tooltips 悬停提示
+                - Completion 智能补全（含设备名称补全）
+                - Device Name Search 按名称搜索设备类型
+                - Signature Help 签名帮助
+                - Code Formatting 代码格式化
+                - Pseudocode Inlay Hints 伪代码内嵌提示
+                - Debugger 调试器
+                - "Type Annotations 类型注解（#: / #>）"
+                - Editor Integration 编辑器集成（命令、快捷键、设置项）
+                - Go to Definition / Find References / Rename 跳转与重命名
+                - Documentation 文档
+                - Other 其他
+        validations:
+            required: true
 
-  - type: dropdown
-    id: feature-type
-    attributes:
-      label: Feature Type
-      description: What type of feature is this?
-      options:
-        - New functionality
-        - Enhancement to existing feature
-        - Performance improvement
-        - Developer experience (DX)
-        - Documentation improvement
-    validations:
-      required: true
+    -   type: textarea
+        id: problem
+        attributes:
+            label: 问题或动机 | Problem or motivation
+            description: 现在哪里别扭？想完成什么、卡在哪一步？ / What is awkward today, and what are you trying to get done?
+            placeholder: 例如：写批量读写时总记不住 batchMode 有哪些取值，希望补全能直接提示……
+        validations:
+            required: true
 
-  - type: textarea
-    id: problem
-    attributes:
-      label: Problem or Motivation
-      description: What problem does this feature solve? Or what use case does it address?
-      placeholder: |
-        When editing a large IC10 file, I'm unable to quickly navigate to
-        a label definition. I currently have to search manually...
-    validations:
-      required: true
-
-  - type: textarea
-    id: solution
-    attributes:
-      label: Proposed Solution
-      description: Describe the solution you'd like. Be as specific as possible.
-      placeholder: |
-        Add "Go to Definition" support: Ctrl+Click on a label reference
-        (e.g. `j start`) to jump to `start:` definition. F12 should also
-        work via VS Code's built-in command.
-    validations:
-      required: true
-
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Alternatives Considered
-      description: Have you considered any alternative solutions or workarounds?
-    validations:
-      required: false
-
-  - type: textarea
-    id: completion-details
-    attributes:
-      label: Completion-Specific Details
-      description: Required if requesting a completion feature. Include trigger characters, filter logic, or item types.
-      placeholder: |
-        Proposed: Add completion for `#>` doc comment tags after typing `#> @`.
-
-        Trigger: typing `@` after `#> `
-        Items: @device, @enum, @name, @desc, @value, @slot, @logic, @mode, @logicSlot, @connect
-    validations:
-      required: false
-
-  - type: textarea
-    id: format-details
-    attributes:
-      label: Formatting-Specific Details
-      description: Required if requesting a formatting feature. Include formatting rules, alignment behavior, or config options.
-      placeholder: |
-        Proposed: Add `ic10.format.sortAliases` option to sort consecutive
-        `alias` directives alphabetically.
-
-        Config:
-        ```yaml
-        sortAliases: true
-        sortAliasesBy: "name"  # or "device"
-        ```
-    validations:
-      required: false
-
-  - type: textarea
-    id: diagnostic-details
-    attributes:
-      label: Diagnostics-Specific Details
-      description: Required if requesting a diagnostics feature. Include error codes, quick fixes, or validation rules.
-      placeholder: |
-        Proposed: Add a quick fix for undefined labels — suggest creating
-        a label definition at the cursor position.
-
-        Error: Undefined label 'loop'
-        Quick fix: Create label 'loop:' at current line
-    validations:
-      required: false
-
-  - type: textarea
-    id: settings-details
-    attributes:
-      label: Settings-Specific Details
-      description: Required if requesting a settings or configuration feature. Include setting names, types, defaults.
-      placeholder: |
-        Proposed setting:
-        ```json
-        {
-          "ic10.completion.triggerCharacters": [" ", ","]
-        }
-        ```
-    validations:
-      required: false
-
-  - type: textarea
-    id: breaking
-    attributes:
-      label: Breaking Changes
-      description: Does this feature introduce breaking changes to existing extension behavior? If yes, describe the migration path.
-    validations:
-      required: false
-
-  - type: textarea
-    id: additional
-    attributes:
-      label: Additional Information
-      description: Any other context — screenshots, mockups, references to similar features in other extensions, etc.
-    validations:
-      required: false
+    -   type: textarea
+        id: solution
+        attributes:
+            label: 设想的方案（可选） | Proposed solution (optional)
+            description: 你希望它长什么样？有替代方案也一并说明。 / What would you like it to look like? Mention alternatives too.
+        validations:
+            required: false
