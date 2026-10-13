@@ -1,1 +1,5 @@
 !/pnpm-workspace.yaml
+
+# 打 SEA 可执行文件的中间产物与产物 / Intermediate and final artifacts of the SEA build
+packages/server/bundle.js
+packages/server/ic10-lsp.exe
