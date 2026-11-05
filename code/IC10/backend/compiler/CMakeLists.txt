@@ -99,3 +99,8 @@ endif ()
 if (ANY_TESTS)
     add_subdirectory(tests)
 endif ()
+
+
+if (ANY_BENCHMARKS)
+    add_subdirectory(benchmarks)
+endif ()
